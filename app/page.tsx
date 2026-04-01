@@ -1,101 +1,327 @@
-import Image from "next/image";
+import Link from 'next/link'
 
-export default function Home() {
+const tiers = [
+  {
+    name: 'Quick Fix',
+    price: '$297',
+    description: 'Perfect for sites that just need a tune-up',
+    features: [
+      'Fix broken links & errors',
+      'Update text & images',
+      'Improve loading speed',
+      'Mobile responsiveness check',
+      'Basic SEO fixes',
+      '48-hour delivery',
+    ],
+    cta: 'Get Quick Fix',
+    highlight: false,
+  },
+  {
+    name: 'Full Refresh',
+    price: '$597',
+    description: 'A complete visual and content overhaul',
+    features: [
+      'Everything in Quick Fix',
+      'New modern design',
+      'Updated content & copy',
+      'Full SEO optimisation',
+      'Mobile-first redesign',
+      'Google Analytics setup',
+      '48-hour delivery',
+    ],
+    cta: 'Get Full Refresh',
+    highlight: true,
+  },
+  {
+    name: 'Complete Rebuild',
+    price: '$997',
+    description: 'Brand new site, same great content',
+    features: [
+      'Everything in Full Refresh',
+      'Complete rebuild from scratch',
+      'Modern tech stack (Next.js)',
+      'Advanced SEO setup',
+      'Performance optimised',
+      'Hosting setup included',
+      'Priority 24-hour delivery',
+    ],
+    cta: 'Get Rebuilt',
+    highlight: false,
+  },
+]
+
+const faqs = [
+  {
+    q: 'How does it actually work?',
+    a: 'You submit your website URL, tell us what you want updated, and pay. Our AI-powered team gets to work immediately — analysing your existing site, rebuilding it with modern standards, and delivering the result within 48 hours.',
+  },
+  {
+    q: 'What do I get at the end?',
+    a: 'Depending on your tier, you\'ll receive the updated website files, or we can deploy directly to your hosting. We\'ll send everything to your email once complete.',
+  },
+  {
+    q: 'Do I need to provide anything?',
+    a: 'Just your website URL and a description of what you\'d like updated. We do the rest. If we need anything specific, we\'ll reach out within 2 hours of your order.',
+  },
+  {
+    q: 'What if I\'m not happy with the result?',
+    a: 'We offer one round of revisions included with every order. If you\'re still not satisfied, we\'ll work with you to make it right.',
+  },
+  {
+    q: 'Is this really AI-powered?',
+    a: 'Yes! We use a combination of AI tools and human oversight to analyse, rebuild, and optimise your website. This is how we keep costs low without sacrificing quality.',
+  },
+]
+
+export default function HomePage() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="bg-white">
+      {/* Hero */}
+      <section className="bg-gradient-to-br from-blue-50 via-white to-orange-50 py-20 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-sm font-medium mb-6">
+            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+            48-hour delivery · Australian owned
+          </div>
+          <h1 className="text-5xl sm:text-6xl font-extrabold text-[#1A1A2E] mb-6 leading-tight">
+            Your Website.{' '}
+            <span className="text-[#2563EB]">Refreshed.</span>{' '}
+            <br className="hidden sm:block" />
+            From{' '}
+            <span className="text-[#F97316]">$297.</span>
+          </h1>
+          <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+            Submit your URL today — we&apos;ll modernise your site, fix broken links, update content and improve your SEO.{' '}
+            <strong>Delivered in 48 hours.</strong>
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/submit"
+              className="bg-[#2563EB] text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200"
+            >
+              Refresh My Website →
+            </Link>
+            <Link
+              href="#examples"
+              className="border-2 border-[#1A1A2E] text-[#1A1A2E] px-8 py-4 rounded-xl text-lg font-semibold hover:bg-gray-50 transition-colors"
+            >
+              See Examples
+            </Link>
+          </div>
+          <p className="mt-6 text-sm text-gray-500">No lock-in contracts. Pay once, get results.</p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </section>
+
+      {/* How It Works */}
+      <section id="how-it-works" className="py-20 px-4 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#1A1A2E] mb-4">How It Works</h2>
+            <p className="text-gray-600 text-lg">Simple. Fast. No technical knowledge needed.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                step: '01',
+                title: 'Submit Your URL',
+                desc: 'Tell us your website URL and what you want updated. Takes less than 5 minutes.',
+                icon: '🔗',
+              },
+              {
+                step: '02',
+                title: 'We Get to Work',
+                desc: 'Our AI team analyses and rebuilds your site within 48 hours. No back and forth needed.',
+                icon: '⚡',
+              },
+              {
+                step: '03',
+                title: 'You Get Your New Site',
+                desc: 'We send you the files or deploy directly to your hosting. Done!',
+                icon: '🚀',
+              },
+            ].map((item) => (
+              <div key={item.step} className="relative bg-gray-50 rounded-2xl p-8 text-center hover:shadow-md transition-shadow">
+                <div className="text-4xl mb-4">{item.icon}</div>
+                <div className="absolute top-4 right-4 text-5xl font-extrabold text-gray-100 select-none">
+                  {item.step}
+                </div>
+                <h3 className="text-xl font-bold text-[#1A1A2E] mb-3">{item.title}</h3>
+                <p className="text-gray-600 leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-10">
+            <Link href="/how-it-works" className="text-[#2563EB] font-semibold hover:underline">
+              Learn more about the process →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section id="pricing" className="py-20 px-4 bg-gray-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#1A1A2E] mb-4">Simple, Transparent Pricing</h2>
+            <p className="text-gray-600 text-lg">No hidden fees. No surprise invoices. Pay once, get results.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {tiers.map((tier) => (
+              <div
+                key={tier.name}
+                className={`rounded-2xl p-8 flex flex-col ${
+                  tier.highlight
+                    ? 'bg-[#2563EB] text-white shadow-xl shadow-blue-200 scale-105'
+                    : 'bg-white border border-gray-200'
+                }`}
+              >
+                {tier.highlight && (
+                  <div className="bg-[#F97316] text-white text-xs font-bold px-3 py-1 rounded-full mb-4 self-start">
+                    MOST POPULAR
+                  </div>
+                )}
+                <h3 className={`text-2xl font-bold mb-1 ${tier.highlight ? 'text-white' : 'text-[#1A1A2E]'}`}>
+                  {tier.name}
+                </h3>
+                <div className={`text-4xl font-extrabold mb-2 ${tier.highlight ? 'text-white' : 'text-[#2563EB]'}`}>
+                  {tier.price}
+                  <span className={`text-base font-normal ml-1 ${tier.highlight ? 'text-blue-200' : 'text-gray-500'}`}>AUD</span>
+                </div>
+                <p className={`text-sm mb-6 ${tier.highlight ? 'text-blue-100' : 'text-gray-500'}`}>{tier.description}</p>
+                <ul className="space-y-3 flex-1 mb-8">
+                  {tier.features.map((f) => (
+                    <li key={f} className={`flex items-start gap-2 text-sm ${tier.highlight ? 'text-blue-50' : 'text-gray-600'}`}>
+                      <svg className={`w-4 h-4 mt-0.5 flex-shrink-0 ${tier.highlight ? 'text-white' : 'text-green-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                      </svg>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href={`/submit?tier=${tier.name.toLowerCase().replace(' ', '-')}`}
+                  className={`w-full text-center py-3 rounded-xl font-semibold transition-colors ${
+                    tier.highlight
+                      ? 'bg-white text-[#2563EB] hover:bg-blue-50'
+                      : 'bg-[#2563EB] text-white hover:bg-blue-700'
+                  }`}
+                >
+                  {tier.cta}
+                </Link>
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-8">
+            <Link href="/pricing" className="text-[#2563EB] font-semibold hover:underline">
+              See full feature comparison →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Examples */}
+      <section id="examples" className="py-20 px-4 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#1A1A2E] mb-4">Before & After</h2>
+            <p className="text-gray-600 text-lg">Real results for real Australian businesses.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {[
+              { business: 'Local Plumber', before: 'Old, broken mobile layout from 2015', after: 'Modern, fast, mobile-first site with booking form', tier: 'Full Refresh', saved: '$3,400 vs agency' },
+              { business: 'Café & Restaurant', before: 'Slow loading, no online menu, outdated photos', after: 'New design, digital menu, fast load, SEO optimised', tier: 'Full Refresh', saved: '$2,800 vs agency' },
+              { business: 'Accountant', before: 'No SSL, broken links, dated look', after: 'Professional, trustworthy, fully mobile responsive', tier: 'Quick Fix', saved: '$1,200 vs agency' },
+              { business: 'Real Estate Agent', before: 'Clunky navigation, no property search, slow', after: 'Clean modern design, easy nav, lightning fast', tier: 'Complete Rebuild', saved: '$6,500 vs agency' },
+            ].map((ex) => (
+              <div key={ex.business} className="border border-gray-200 rounded-2xl overflow-hidden hover:shadow-md transition-shadow">
+                <div className="grid grid-cols-2">
+                  <div className="bg-red-50 p-4 border-r border-gray-200">
+                    <div className="text-xs font-bold text-red-500 uppercase tracking-wide mb-2">Before</div>
+                    <p className="text-sm text-gray-600">{ex.before}</p>
+                  </div>
+                  <div className="bg-green-50 p-4">
+                    <div className="text-xs font-bold text-green-600 uppercase tracking-wide mb-2">After</div>
+                    <p className="text-sm text-gray-600">{ex.after}</p>
+                  </div>
+                </div>
+                <div className="p-4 bg-gray-50 flex items-center justify-between">
+                  <div>
+                    <span className="font-semibold text-[#1A1A2E]">{ex.business}</span>
+                    <span className="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">{ex.tier}</span>
+                  </div>
+                  <span className="text-sm text-green-600 font-semibold">Saved {ex.saved}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why Us */}
+      <section className="py-20 px-4 bg-gradient-to-br from-blue-50 to-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#1A1A2E] mb-4">Why Choose CheapWebsite?</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { icon: '⚡', title: 'Fast', desc: '48-hour turnaround. Most agencies take weeks.' },
+              { icon: '💰', title: 'Affordable', desc: 'Starting from $297. Agencies charge $3,000+.' },
+              { icon: '🤖', title: 'AI-Powered', desc: 'Modern AI tools mean better results, faster.' },
+              { icon: '🇦🇺', title: 'Australian', desc: 'Proudly Australian owned and operated.' },
+            ].map((item) => (
+              <div key={item.title} className="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div className="text-4xl mb-3">{item.icon}</div>
+                <h3 className="text-lg font-bold text-[#1A1A2E] mb-2">{item.title}</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="py-20 px-4 bg-white">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#1A1A2E] mb-4">Frequently Asked Questions</h2>
+          </div>
+          <div className="space-y-4">
+            {faqs.map((faq, i) => (
+              <details key={i} className="group border border-gray-200 rounded-xl overflow-hidden">
+                <summary className="flex items-center justify-between p-6 cursor-pointer font-semibold text-[#1A1A2E] hover:bg-gray-50 transition-colors list-none">
+                  {faq.q}
+                  <svg className="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </summary>
+                <div className="px-6 pb-6 text-gray-600 leading-relaxed border-t border-gray-100 pt-4">
+                  {faq.a}
+                </div>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Banner */}
+      <section className="py-20 px-4 bg-[#1A1A2E]">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            Ready to get started?
+          </h2>
+          <p className="text-gray-300 text-lg mb-8">
+            Join hundreds of Australian businesses who&apos;ve refreshed their website without the agency price tag.
+          </p>
+          <Link
+            href="/submit"
+            className="inline-block bg-[#F97316] text-white px-10 py-4 rounded-xl text-lg font-semibold hover:bg-orange-500 transition-colors shadow-lg"
+          >
+            Refresh My Website — From $297 →
+          </Link>
+          <p className="mt-4 text-gray-500 text-sm">48-hour delivery · No lock-in contracts · Pay once</p>
+        </div>
+      </section>
     </div>
-  );
+  )
 }
