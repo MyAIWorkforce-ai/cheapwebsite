@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
-
 const tierPriceMap: Record<string, number> = {
   'Quick Fix': 29700,
   'Full Refresh': 59700,
@@ -10,6 +8,7 @@ const tierPriceMap: Record<string, number> = {
 }
 
 export async function POST(req: NextRequest) {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
   try {
     const body = await req.json()
     const {
