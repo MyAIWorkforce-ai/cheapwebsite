@@ -25,6 +25,7 @@ const tiers = [
       'Advanced SEO optimisation': false,
       'Mobile-first redesign from scratch': false,
       'Complete rebuild (new tech stack)': false,
+      'Hosting included — we handle everything': true,
       'Hosting setup & deployment': false,
       'Priority 24-hour delivery': false,
     },
@@ -48,6 +49,7 @@ const tiers = [
       'Advanced SEO optimisation': true,
       'Mobile-first redesign from scratch': true,
       'Complete rebuild (new tech stack)': false,
+      'Hosting included — we handle everything': true,
       'Hosting setup & deployment': false,
       'Priority 24-hour delivery': false,
     },
@@ -71,6 +73,7 @@ const tiers = [
       'Advanced SEO optimisation': true,
       'Mobile-first redesign from scratch': true,
       'Complete rebuild (new tech stack)': true,
+      'Hosting included — we handle everything': true,
       'Hosting setup & deployment': true,
       'Priority 24-hour delivery': true,
     },
@@ -79,6 +82,7 @@ const tiers = [
 ]
 
 const allFeatures = [
+  'Hosting included — we handle everything',
   'Broken link fixing',
   'Text & content updates',
   'Image updates',
@@ -107,6 +111,10 @@ export default function PricingPage() {
           <p className="text-xl text-gray-600">
             No hidden fees. No surprise invoices. Pay once, get results.
           </p>
+          <div className="mt-6 inline-flex items-center gap-3 bg-green-50 border border-green-200 text-green-800 px-6 py-3 rounded-2xl text-base font-semibold">
+            <span className="text-2xl">🏠</span>
+            <span>Fast, reliable hosting included on all packages — we handle everything</span>
+          </div>
         </div>
       </section>
 

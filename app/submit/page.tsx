@@ -33,6 +33,8 @@ const tiers = [
   },
 ]
 
+const domainRegistrars = ['GoDaddy', 'Dreamscape', 'Namecheap', 'Crazy Domains', 'Other']
+
 function SubmitForm() {
   const searchParams = useSearchParams()
   const defaultTier = searchParams.get('tier') || 'refresh-existing-website'
@@ -40,11 +42,17 @@ function SubmitForm() {
   const [selectedTier, setSelectedTier] = useState(defaultTier)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  // Domain state
+  const [domainSituation, setDomainSituation] = useState<'new' | 'existing' | 'unsure'>('new')
+  const [newDomainName, setNewDomainName] = useState('')
+  const [existingDomain, setExistingDomain] = useState('')
+  const [existingRegistrar, setExistingRegistrar] = useState('')
+
   const [form, setForm] = useState({
     websiteUrl: '',
     businessName: '',
     businessDescription: '',
-    preferredDomain: '',
     whatToUpdate: '',
     specificRequirements: '',
     name: '',
@@ -88,13 +96,28 @@ function SubmitForm() {
 
     try {
       const tier = tiers.find(t => t.id === selectedTier) || tiers[1]
+
+      // Build domain metadata
+      const domainMeta: Record<string, string> = {
+        domain_situation: domainSituation,
+      }
+      if (domainSituation === 'new' && newDomainName) {
+        domainMeta.preferred_domain = newDomainName
+      }
+      if (domainSituation === 'existing') {
+        if (existingDomain) domainMeta.existing_domain = existingDomain
+        if (existingRegistrar) domainMeta.domain_registrar = existingRegistrar
+      }
+
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tier: tier.name,
           price: tier.price,
+          hosting: 'included',
           ...form,
+          ...domainMeta,
         }),
       })
 
@@ -130,6 +153,7 @@ function SubmitForm() {
       <section className="py-10 px-4">
         <div className="max-w-3xl mx-auto">
           <form onSubmit={handleSubmit} className="space-y-8">
+
             {/* Tier Selection */}
             <div className="bg-white border border-gray-200 rounded-2xl p-6">
               <h2 className="text-xl font-bold text-[#1A1A2E] mb-4">1. Select Your Package</h2>
@@ -172,13 +196,111 @@ function SubmitForm() {
                   </label>
                 ))}
               </div>
+
+              {/* Hosting included banner */}
+              <div className="mt-5 flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+                <span className="text-green-600 text-xl">🏠</span>
+                <div>
+                  <span className="font-semibold text-green-800">Hosting included — always.</span>
+                  <span className="text-green-700 text-sm ml-1">Fast, reliable hosting on our infrastructure. We handle everything.</span>
+                </div>
+              </div>
             </div>
 
-            {/* Website Details */}
+            {/* Domain Section */}
             <div className="bg-white border border-gray-200 rounded-2xl p-6">
-              <h2 className="text-xl font-bold text-[#1A1A2E] mb-4">2. Your Details</h2>
+              <h2 className="text-xl font-bold text-[#1A1A2E] mb-1">2. Your Domain</h2>
+              <p className="text-sm text-gray-500 mb-5">Tell us about your domain so we can get everything connected.</p>
+
+              <div className="space-y-3">
+                {/* Option A: New domain */}
+                <label className={`flex items-start gap-3 cursor-pointer rounded-xl border-2 p-4 transition-all ${domainSituation === 'new' ? 'border-[#2563EB] bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                  <input
+                    type="radio"
+                    name="domainSituation"
+                    value="new"
+                    checked={domainSituation === 'new'}
+                    onChange={() => setDomainSituation('new')}
+                    className="mt-0.5 accent-blue-600"
+                  />
+                  <div className="flex-1">
+                    <span className="font-semibold text-gray-800">🆕 Register a new domain for me</span>
+                    {domainSituation === 'new' && (
+                      <div className="mt-3 space-y-2">
+                        <input
+                          type="text"
+                          value={newDomainName}
+                          onChange={(e) => setNewDomainName(e.target.value)}
+                          placeholder="Preferred domain name (e.g. mybusiness.com.au)"
+                          className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100"
+                        />
+                        <p className="text-xs text-blue-600">✓ We&apos;ll check availability and register it as part of your order</p>
+                      </div>
+                    )}
+                  </div>
+                </label>
+
+                {/* Option B: Existing domain */}
+                <label className={`flex items-start gap-3 cursor-pointer rounded-xl border-2 p-4 transition-all ${domainSituation === 'existing' ? 'border-[#2563EB] bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                  <input
+                    type="radio"
+                    name="domainSituation"
+                    value="existing"
+                    checked={domainSituation === 'existing'}
+                    onChange={() => setDomainSituation('existing')}
+                    className="mt-0.5 accent-blue-600"
+                  />
+                  <div className="flex-1">
+                    <span className="font-semibold text-gray-800">🌐 I already have a domain</span>
+                    {domainSituation === 'existing' && (
+                      <div className="mt-3 space-y-3">
+                        <input
+                          type="text"
+                          value={existingDomain}
+                          onChange={(e) => setExistingDomain(e.target.value)}
+                          placeholder="Your domain (e.g. mybusiness.com.au)"
+                          className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100"
+                        />
+                        <select
+                          value={existingRegistrar}
+                          onChange={(e) => setExistingRegistrar(e.target.value)}
+                          className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100 bg-white"
+                        >
+                          <option value="">Where is it registered?</option>
+                          {domainRegistrars.map(r => (
+                            <option key={r} value={r}>{r}</option>
+                          ))}
+                        </select>
+                        <p className="text-xs text-blue-600">✓ We&apos;ll send you 2 simple DNS records to update — takes 5 minutes</p>
+                      </div>
+                    )}
+                  </div>
+                </label>
+
+                {/* Option C: Not sure */}
+                <label className={`flex items-start gap-3 cursor-pointer rounded-xl border-2 p-4 transition-all ${domainSituation === 'unsure' ? 'border-[#2563EB] bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                  <input
+                    type="radio"
+                    name="domainSituation"
+                    value="unsure"
+                    checked={domainSituation === 'unsure'}
+                    onChange={() => setDomainSituation('unsure')}
+                    className="mt-0.5 accent-blue-600"
+                  />
+                  <div className="flex-1">
+                    <span className="font-semibold text-gray-800">❓ Not sure yet</span>
+                    {domainSituation === 'unsure' && (
+                      <p className="mt-2 text-xs text-gray-500">No problem — we&apos;ll sort it out after your order</p>
+                    )}
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            {/* Business / Website Details */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-6">
+              <h2 className="text-xl font-bold text-[#1A1A2E] mb-4">3. Your Details</h2>
               <div className="space-y-4">
-                {/* Refresh: show current URL */}
                 {isRefresh && (
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1.5">
@@ -196,7 +318,6 @@ function SubmitForm() {
                   </div>
                 )}
 
-                {/* New / Full Package: show business fields */}
                 {isNewOrFull && (
                   <>
                     <div>
@@ -208,7 +329,7 @@ function SubmitForm() {
                         name="businessName"
                         value={form.businessName}
                         onChange={handleChange}
-                        placeholder="e.g. Smith's Plumbing"
+                        placeholder="e.g. Smith&apos;s Plumbing"
                         className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100"
                         required
                       />
@@ -221,23 +342,10 @@ function SubmitForm() {
                         name="businessDescription"
                         value={form.businessDescription}
                         onChange={handleChange}
-                        placeholder="e.g. We're a local plumbing company servicing Sydney's northern suburbs. We do emergency repairs, hot water systems and renovations."
+                        placeholder="e.g. We&apos;re a local plumbing company servicing Sydney&apos;s northern suburbs. We do emergency repairs, hot water systems and renovations."
                         rows={3}
                         className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100 resize-none"
                         required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                        Preferred domain name (we&apos;ll check availability) <span className="text-gray-400">(optional)</span>
-                      </label>
-                      <input
-                        type="text"
-                        name="preferredDomain"
-                        value={form.preferredDomain}
-                        onChange={handleChange}
-                        placeholder="e.g. smithsplumbing.com.au"
-                        className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100"
                       />
                     </div>
                   </>
@@ -251,7 +359,7 @@ function SubmitForm() {
                     name="specificRequirements"
                     value={form.specificRequirements}
                     onChange={handleChange}
-                    placeholder="e.g. Keep our existing blue colour scheme, use our new logo (we'll email it), add a booking form..."
+                    placeholder="e.g. Keep our existing blue colour scheme, use our new logo (we&apos;ll email it), add a booking form..."
                     rows={3}
                     className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100 resize-none"
                   />
@@ -261,7 +369,7 @@ function SubmitForm() {
 
             {/* Contact Details */}
             <div className="bg-white border border-gray-200 rounded-2xl p-6">
-              <h2 className="text-xl font-bold text-[#1A1A2E] mb-4">3. Your Contact Details</h2>
+              <h2 className="text-xl font-bold text-[#1A1A2E] mb-4">4. Your Contact Details</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
                   <label className="block text-sm font-semibold text-gray-700 mb-1.5">
@@ -329,6 +437,12 @@ function SubmitForm() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                   </svg>
                   48-hour delivery
+                </li>
+                <li className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Fast, reliable hosting included
                 </li>
                 <li className="flex items-center gap-2">
                   <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

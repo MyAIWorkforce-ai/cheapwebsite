@@ -11,7 +11,7 @@ const tiers = [
       '5 pages included',
       'Mobile-friendly & SEO-ready',
       'Contact form included',
-      'Hosting setup',
+      '🏠 Hosting included — fast, reliable, we handle everything',
       'Delivered in 48 hours',
     ],
     cta: 'Get a Brand New Website',
@@ -29,6 +29,7 @@ const tiers = [
       'Better design, updated content',
       'Fixed links & improved SEO',
       'Faster loading',
+      '🏠 Hosting included — fast, reliable, we handle everything',
       'Submit your URL — we handle the rest',
       'Delivered in 24 hours',
     ],
@@ -46,6 +47,7 @@ const tiers = [
     features: [
       'Everything in Brand New Website',
       'Domain name registration (we handle it)',
+      '🏠 Hosting included — fast, reliable, we handle everything',
       '12 months hosting included',
       'Professional email setup (you@yourbusiness.com)',
       'Google Business Profile setup',
@@ -173,6 +175,10 @@ export default function HomePage() {
           <div className="text-center mb-14">
             <h2 className="text-3xl sm:text-4xl font-bold text-[#1A1A2E] mb-4">Simple, Transparent Pricing</h2>
             <p className="text-gray-600 text-lg">No hidden fees. No surprise invoices. Pay once, get results.</p>
+          <div className="mt-6 inline-flex items-center gap-2 bg-green-100 text-green-800 px-5 py-2.5 rounded-full text-sm font-semibold">
+            <span>🏠</span>
+            <span>Fast, reliable hosting included on all packages — we handle everything</span>
+          </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {tiers.map((tier) => (
