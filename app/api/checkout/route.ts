@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
 const tierPriceMap: Record<string, number> = {
-  'Brand New Website': 59700,
-  'Refresh My Existing Website': 29700,
+  'Brand New Website': 79700,
+  'Refresh My Existing Website': 39700,
   'Full Package (Domain + Hosting + Website)': 99700,
   // Legacy
   'Quick Fix': 29700,

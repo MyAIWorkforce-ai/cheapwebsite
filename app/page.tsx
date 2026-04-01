@@ -4,7 +4,7 @@ const tiers = [
   {
     name: 'Brand New Website',
     icon: '🆕',
-    price: '$597',
+    price: '$797',
     description: 'We build you a brand new website from scratch',
     features: [
       'Tell us your business — we handle design, copy, images and launch',
@@ -23,7 +23,7 @@ const tiers = [
   {
     name: 'Refresh Existing Website',
     icon: '🔄',
-    price: '$297',
+    price: '$397',
     description: 'We modernise your existing website',
     features: [
       'Better design, updated content',
@@ -329,7 +329,7 @@ export default function HomePage() {
             href="/submit"
             className="inline-block bg-[#F97316] text-white px-10 py-4 rounded-xl text-lg font-semibold hover:bg-orange-500 transition-colors shadow-lg"
           >
-            Get Started — From $297 →
+            Get Started — From $397 →
           </Link>
           <p className="mt-4 text-gray-500 text-sm">48-hour delivery · No lock-in contracts · Pay once</p>
         </div>
