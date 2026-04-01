@@ -2,51 +2,60 @@ import Link from 'next/link'
 
 const tiers = [
   {
-    name: 'Quick Fix',
-    price: '$297',
-    description: 'Perfect for sites that just need a tune-up',
-    features: [
-      'Fix broken links & errors',
-      'Update text & images',
-      'Improve loading speed',
-      'Mobile responsiveness check',
-      'Basic SEO fixes',
-      '48-hour delivery',
-    ],
-    cta: 'Get Quick Fix',
-    highlight: false,
-  },
-  {
-    name: 'Full Refresh',
+    name: 'Brand New Website',
+    icon: '🆕',
     price: '$597',
-    description: 'A complete visual and content overhaul',
+    description: 'We build you a brand new website from scratch',
     features: [
-      'Everything in Quick Fix',
-      'New modern design',
-      'Updated content & copy',
-      'Full SEO optimisation',
-      'Mobile-first redesign',
-      'Google Analytics setup',
-      '48-hour delivery',
+      'Tell us your business — we handle design, copy, images and launch',
+      '5 pages included',
+      'Mobile-friendly & SEO-ready',
+      'Contact form included',
+      'Hosting setup',
+      'Delivered in 48 hours',
     ],
-    cta: 'Get Full Refresh',
-    highlight: true,
+    cta: 'Get a Brand New Website',
+    highlight: false,
+    badge: null,
+    badgeColor: null,
+    id: 'brand-new-website',
   },
   {
-    name: 'Complete Rebuild',
-    price: '$997',
-    description: 'Brand new site, same great content',
+    name: 'Refresh Existing Website',
+    icon: '🔄',
+    price: '$297',
+    description: 'We modernise your existing website',
     features: [
-      'Everything in Full Refresh',
-      'Complete rebuild from scratch',
-      'Modern tech stack (Next.js)',
-      'Advanced SEO setup',
-      'Performance optimised',
-      'Hosting setup included',
-      'Priority 24-hour delivery',
+      'Better design, updated content',
+      'Fixed links & improved SEO',
+      'Faster loading',
+      'Submit your URL — we handle the rest',
+      'Delivered in 24 hours',
     ],
-    cta: 'Get Rebuilt',
+    cta: 'Refresh My Website',
+    highlight: true,
+    badge: 'MOST POPULAR',
+    badgeColor: null,
+    id: 'refresh-existing-website',
+  },
+  {
+    name: 'Full Package',
+    icon: '📦',
+    price: '$997',
+    description: 'Everything you need to go online — done for you',
+    features: [
+      'Everything in Brand New Website',
+      'Domain name registration (we handle it)',
+      '12 months hosting included',
+      'Professional email setup (you@yourbusiness.com)',
+      'Google Business Profile setup',
+      'Launch-ready in 48 hours',
+    ],
+    cta: 'Get the Full Package',
     highlight: false,
+    badge: 'BEST VALUE',
+    badgeColor: 'orange',
+    id: 'full-package',
   },
 ]
 
@@ -84,22 +93,22 @@ export default function HomePage() {
             48-hour delivery · Australian owned
           </div>
           <h1 className="text-5xl sm:text-6xl font-extrabold text-[#1A1A2E] mb-6 leading-tight">
-            Your Website.{' '}
-            <span className="text-[#2563EB]">Refreshed.</span>{' '}
+            Your Business Online.{' '}
+            <span className="text-[#2563EB]">Simple,</span>{' '}
             <br className="hidden sm:block" />
-            From{' '}
-            <span className="text-[#F97316]">$297.</span>
+            Fast,{' '}
+            <span className="text-[#F97316]">Affordable.</span>
           </h1>
           <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Submit your URL today — we&apos;ll modernise your site, fix broken links, update content and improve your SEO.{' '}
-            <strong>Delivered in 48 hours.</strong>
+            New website, refresh, or the complete package — we handle everything.{' '}
+            <strong>AI-powered, delivered in 48 hours.</strong>
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/submit"
               className="bg-[#2563EB] text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200"
             >
-              Refresh My Website →
+              Get Started →
             </Link>
             <Link
               href="#examples"
@@ -169,17 +178,20 @@ export default function HomePage() {
             {tiers.map((tier) => (
               <div
                 key={tier.name}
-                className={`rounded-2xl p-8 flex flex-col ${
+                className={`rounded-2xl p-8 flex flex-col relative ${
                   tier.highlight
                     ? 'bg-[#2563EB] text-white shadow-xl shadow-blue-200 scale-105'
                     : 'bg-white border border-gray-200'
                 }`}
               >
-                {tier.highlight && (
-                  <div className="bg-[#F97316] text-white text-xs font-bold px-3 py-1 rounded-full mb-4 self-start">
-                    MOST POPULAR
+                {tier.badge && (
+                  <div className={`text-white text-xs font-bold px-3 py-1 rounded-full mb-4 self-start ${
+                    tier.badgeColor === 'orange' ? 'bg-[#F97316]' : 'bg-[#F97316]'
+                  }`}>
+                    {tier.badge}
                   </div>
                 )}
+                <div className="text-3xl mb-2">{tier.icon}</div>
                 <h3 className={`text-2xl font-bold mb-1 ${tier.highlight ? 'text-white' : 'text-[#1A1A2E]'}`}>
                   {tier.name}
                 </h3>
@@ -199,7 +211,7 @@ export default function HomePage() {
                   ))}
                 </ul>
                 <Link
-                  href={`/submit?tier=${tier.name.toLowerCase().replace(' ', '-')}`}
+                  href={`/submit?tier=${tier.id}`}
                   className={`w-full text-center py-3 rounded-xl font-semibold transition-colors ${
                     tier.highlight
                       ? 'bg-white text-[#2563EB] hover:bg-blue-50'
@@ -317,7 +329,7 @@ export default function HomePage() {
             href="/submit"
             className="inline-block bg-[#F97316] text-white px-10 py-4 rounded-xl text-lg font-semibold hover:bg-orange-500 transition-colors shadow-lg"
           >
-            Refresh My Website — From $297 →
+            Get Started — From $297 →
           </Link>
           <p className="mt-4 text-gray-500 text-sm">48-hour delivery · No lock-in contracts · Pay once</p>
         </div>

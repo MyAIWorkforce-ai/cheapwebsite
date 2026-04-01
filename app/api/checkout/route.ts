@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
 const tierPriceMap: Record<string, number> = {
+  'Brand New Website': 59700,
+  'Refresh My Existing Website': 29700,
+  'Full Package (Domain + Hosting + Website)': 99700,
+  // Legacy
   'Quick Fix': 29700,
   'Full Refresh': 59700,
   'Complete Rebuild': 99700,
@@ -16,6 +20,8 @@ export async function POST(req: NextRequest) {
       price,
       websiteUrl,
       businessName,
+      businessDescription,
+      preferredDomain,
       whatToUpdate,
       specificRequirements,
       name,
@@ -47,6 +53,8 @@ export async function POST(req: NextRequest) {
         tier,
         websiteUrl: websiteUrl || '',
         businessName: businessName || '',
+        businessDescription: (businessDescription || '').substring(0, 500),
+        preferredDomain: preferredDomain || '',
         whatToUpdate: (whatToUpdate || '').substring(0, 500),
         specificRequirements: (specificRequirements || '').substring(0, 500),
         customerName: name || '',

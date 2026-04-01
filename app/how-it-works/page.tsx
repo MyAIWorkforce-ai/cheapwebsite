@@ -32,8 +32,8 @@ export default function HowItWorksPage() {
                 title: 'Submit Your URL & Tell Us What You Want',
                 time: '5 minutes',
                 desc: [
-                  'Head to our Submit page and fill in your details. We need your website URL, your business name, and a description of what you\'d like updated.',
-                  'Choose your service tier — Quick Fix, Full Refresh, or Complete Rebuild — based on how much work your site needs.',
+                  'Head to our Submit page and fill in your details. Whether you need a new site, a refresh, or the full package — it takes less than 5 minutes.',
+                  'Choose your option — Brand New Website, Refresh Existing Website, or Full Package (domain, hosting, email and all) — based on what your business needs.',
                   'Pay securely via Stripe. Your payment is processed instantly and you\'ll receive an email confirmation.',
                 ],
                 tip: 'The more detail you give us about what you want, the better the result. Be specific!',
@@ -56,9 +56,9 @@ export default function HowItWorksPage() {
                 title: 'We Rebuild & Refresh Your Site',
                 time: '24–48 hours',
                 desc: [
-                  'Our AI team rebuilds your site based on your chosen tier. For Quick Fix, we patch and improve. For Full Refresh, we redesign. For Complete Rebuild, we build from scratch.',
+                  'Our AI team rebuilds your site based on your chosen option. For a Refresh, we modernise and improve. For a Brand New Website or Full Package, we build from scratch with modern design, copy, and images.',
                   'We use modern web standards — fast-loading, mobile-first, SEO-optimised code. Your new site will perform significantly better than the old one.',
-                  'For Complete Rebuild, we use Next.js (the same framework powering sites like Vercel, TikTok, and thousands of top Australian businesses).',
+                  'For the Full Package, we also register your domain, set up 12 months of hosting, create your professional email address, and get your Google Business Profile live.',
                 ],
                 tip: 'We\'ll keep you posted via email on progress.',
               },
@@ -69,10 +69,10 @@ export default function HowItWorksPage() {
                 time: 'Within 48 hours',
                 desc: [
                   'Once complete, we\'ll send you the finished website files via email. You can hand these to your developer to upload, or we can handle deployment for you (included in Complete Rebuild).',
-                  'Quick Fix and Full Refresh include the ready-to-upload files, plus a report on everything we changed.',
+                  'Refresh orders include the ready-to-upload files, plus a report on everything we changed. Full Package includes full deployment — you\'re launch-ready from day one.',
                   'Not happy? We include one round of revisions with every order. Just reply to the delivery email with your feedback.',
                 ],
-                tip: 'Most clients receive their refreshed site well within 48 hours. Priority delivery (24 hours) is included in Complete Rebuild.',
+                tip: 'Most clients receive their finished site well within 48 hours. Refresh orders are typically done in 24 hours.',
               },
             ].map((step) => (
               <div key={step.step} className="flex gap-6">
@@ -156,7 +156,7 @@ export default function HowItWorksPage() {
             href="/submit"
             className="inline-block bg-[#F97316] text-white px-10 py-4 rounded-xl text-lg font-semibold hover:bg-orange-500 transition-colors shadow-lg"
           >
-            Refresh My Website →
+            Get Started →
           </Link>
         </div>
       </section>

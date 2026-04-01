@@ -5,32 +5,37 @@ import { useSearchParams } from 'next/navigation'
 
 const tiers = [
   {
-    id: 'quick-fix',
-    name: 'Quick Fix',
-    price: 297,
-    priceId: 'quick_fix_297',
-    description: 'Fix broken links, update text, add images, improve loading speed',
-  },
-  {
-    id: 'full-refresh',
-    name: 'Full Refresh',
+    id: 'brand-new-website',
+    name: 'Brand New Website',
+    icon: '🆕',
     price: 597,
-    priceId: 'full_refresh_597',
-    description: 'New design, updated content, SEO optimisation, mobile-friendly',
-    popular: true,
+    description: 'We build you a brand new website from scratch — design, copy, images and launch all handled for you.',
+    popular: false,
+    badge: null,
   },
   {
-    id: 'complete-rebuild',
-    name: 'Complete Rebuild',
+    id: 'refresh-existing-website',
+    name: 'Refresh My Existing Website',
+    icon: '🔄',
+    price: 297,
+    description: 'We modernise your existing website — better design, updated content, fixed links, improved SEO, faster loading.',
+    popular: true,
+    badge: 'MOST POPULAR',
+  },
+  {
+    id: 'full-package',
+    name: 'Full Package (Domain + Hosting + Website)',
+    icon: '📦',
     price: 997,
-    priceId: 'complete_rebuild_997',
-    description: 'Brand new website, same content, modern stack, SEO ready',
+    description: 'Everything in Brand New Website PLUS domain registration, 12 months hosting, professional email, and Google Business Profile setup.',
+    popular: false,
+    badge: 'BEST VALUE',
   },
 ]
 
 function SubmitForm() {
   const searchParams = useSearchParams()
-  const defaultTier = searchParams.get('tier') || 'full-refresh'
+  const defaultTier = searchParams.get('tier') || 'refresh-existing-website'
 
   const [selectedTier, setSelectedTier] = useState(defaultTier)
   const [loading, setLoading] = useState(false)
@@ -38,6 +43,8 @@ function SubmitForm() {
   const [form, setForm] = useState({
     websiteUrl: '',
     businessName: '',
+    businessDescription: '',
+    preferredDomain: '',
     whatToUpdate: '',
     specificRequirements: '',
     name: '',
@@ -47,7 +54,7 @@ function SubmitForm() {
 
   useEffect(() => {
     if (searchParams.get('tier')) {
-      setSelectedTier(searchParams.get('tier') || 'full-refresh')
+      setSelectedTier(searchParams.get('tier') || 'refresh-existing-website')
     }
   }, [searchParams])
 
@@ -55,12 +62,25 @@ function SubmitForm() {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
+  const isRefresh = selectedTier === 'refresh-existing-website'
+  const isNewOrFull = selectedTier === 'brand-new-website' || selectedTier === 'full-package'
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
 
-    if (!form.websiteUrl || !form.businessName || !form.name || !form.email || !form.whatToUpdate) {
+    if (!form.name || !form.email) {
+      setError('Please fill in all required fields.')
+      setLoading(false)
+      return
+    }
+    if (isRefresh && !form.websiteUrl) {
+      setError('Please provide your current website URL.')
+      setLoading(false)
+      return
+    }
+    if (isNewOrFull && (!form.businessName || !form.businessDescription)) {
       setError('Please fill in all required fields.')
       setLoading(false)
       return
@@ -99,7 +119,7 @@ function SubmitForm() {
       <section className="bg-gradient-to-br from-blue-50 to-white py-12 px-4">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-4xl font-extrabold text-[#1A1A2E] mb-3">
-            Refresh Your Website
+            Get Your Website Sorted
           </h1>
           <p className="text-gray-600 text-lg">
             Fill in your details below. We&apos;ll be in touch within 2 hours of your payment.
@@ -113,7 +133,7 @@ function SubmitForm() {
             {/* Tier Selection */}
             <div className="bg-white border border-gray-200 rounded-2xl p-6">
               <h2 className="text-xl font-bold text-[#1A1A2E] mb-4">1. Select Your Package</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 {tiers.map((tier) => (
                   <label
                     key={tier.id}
@@ -131,19 +151,24 @@ function SubmitForm() {
                       onChange={() => setSelectedTier(tier.id)}
                       className="sr-only"
                     />
-                    {tier.popular && (
-                      <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
-                        <span className="bg-[#F97316] text-white text-xs font-bold px-2.5 py-0.5 rounded-full whitespace-nowrap">
-                          POPULAR
-                        </span>
+                    <div className="flex items-start gap-3">
+                      <span className="text-2xl">{tier.icon}</span>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-bold text-[#1A1A2E]">{tier.name}</span>
+                          {tier.badge && (
+                            <span className="bg-[#F97316] text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                              {tier.badge}
+                            </span>
+                          )}
+                        </div>
+                        <div className={`text-2xl font-extrabold mb-1 ${selectedTier === tier.id ? 'text-[#2563EB]' : 'text-gray-700'}`}>
+                          ${tier.price}
+                          <span className="text-xs font-normal text-gray-500 ml-1">AUD</span>
+                        </div>
+                        <p className="text-xs text-gray-500 leading-relaxed">{tier.description}</p>
                       </div>
-                    )}
-                    <div className="font-bold text-[#1A1A2E] mb-1">{tier.name}</div>
-                    <div className={`text-2xl font-extrabold mb-2 ${selectedTier === tier.id ? 'text-[#2563EB]' : 'text-gray-700'}`}>
-                      ${tier.price}
-                      <span className="text-xs font-normal text-gray-500 ml-1">AUD</span>
                     </div>
-                    <p className="text-xs text-gray-500 leading-relaxed">{tier.description}</p>
                   </label>
                 ))}
               </div>
@@ -151,50 +176,73 @@ function SubmitForm() {
 
             {/* Website Details */}
             <div className="bg-white border border-gray-200 rounded-2xl p-6">
-              <h2 className="text-xl font-bold text-[#1A1A2E] mb-4">2. Your Website Details</h2>
+              <h2 className="text-xl font-bold text-[#1A1A2E] mb-4">2. Your Details</h2>
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                    Website URL <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="url"
-                    name="websiteUrl"
-                    value={form.websiteUrl}
-                    onChange={handleChange}
-                    placeholder="https://yourwebsite.com.au"
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                    Business Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="businessName"
-                    value={form.businessName}
-                    onChange={handleChange}
-                    placeholder="e.g. Smith's Plumbing"
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                    What would you like updated? <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    name="whatToUpdate"
-                    value={form.whatToUpdate}
-                    onChange={handleChange}
-                    placeholder="e.g. Update our contact page, fix the broken links on the services page, modernise the overall look, improve loading speed..."
-                    rows={4}
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100 resize-none"
-                    required
-                  />
-                </div>
+                {/* Refresh: show current URL */}
+                {isRefresh && (
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                      Your current website URL <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="url"
+                      name="websiteUrl"
+                      value={form.websiteUrl}
+                      onChange={handleChange}
+                      placeholder="https://yourwebsite.com.au"
+                      className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100"
+                      required
+                    />
+                  </div>
+                )}
+
+                {/* New / Full Package: show business fields */}
+                {isNewOrFull && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                        Business name <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="businessName"
+                        value={form.businessName}
+                        onChange={handleChange}
+                        placeholder="e.g. Smith's Plumbing"
+                        className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                        What does your business do? <span className="text-red-500">*</span>
+                      </label>
+                      <textarea
+                        name="businessDescription"
+                        value={form.businessDescription}
+                        onChange={handleChange}
+                        placeholder="e.g. We're a local plumbing company servicing Sydney's northern suburbs. We do emergency repairs, hot water systems and renovations."
+                        rows={3}
+                        className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100 resize-none"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                        Preferred domain name (we&apos;ll check availability) <span className="text-gray-400">(optional)</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="preferredDomain"
+                        value={form.preferredDomain}
+                        onChange={handleChange}
+                        placeholder="e.g. smithsplumbing.com.au"
+                        className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100"
+                      />
+                    </div>
+                  </>
+                )}
+
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1.5">
                     Any specific requirements? <span className="text-gray-400">(optional)</span>
