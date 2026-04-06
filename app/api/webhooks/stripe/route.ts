@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
     try {
       await resend.emails.send({
         from: 'onboarding@resend.dev',
-        to: 'toby@myaiworkforce.ai',
+        to: 'hi@myaiworkforce.ai',
         subject: `New website order! ${meta.tier} - ${meta.businessName} - ${meta.websiteUrl}`,
         html: `
           <h2>New Website Order! 🎉</h2>
