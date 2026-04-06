@@ -36,6 +36,7 @@ export async function POST(req: NextRequest) {
       mode: 'payment',
       currency: 'aud',
       customer_email: email,
+      statement_descriptor: 'CHEAPWEBSITE.COM.AU',
       line_items: [
         {
           price_data: {
