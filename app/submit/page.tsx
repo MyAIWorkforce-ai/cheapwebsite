@@ -33,11 +33,7 @@ const tiers = [
   },
 ]
 
-function getDefaultDomainPref(tierId: string): string {
-  if (tierId === 'full-package') return 'new'
-  if (tierId === 'refresh-existing-website') return 'existing'
-  return 'new'
-}
+const domainRegistrars = ['GoDaddy', 'Dreamscape', 'Namecheap', 'Crazy Domains', 'Other']
 
 function SubmitForm() {
   const searchParams = useSearchParams()
@@ -47,22 +43,16 @@ function SubmitForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // Domain & Hosting state
-  const [domainPref, setDomainPref] = useState(() => getDefaultDomainPref(defaultTier))
-  const [hostingPref, setHostingPref] = useState('included')
-  const [domainForm, setDomainForm] = useState({
-    preferredDomain: '',
-    existingDomain: '',
-    domainRegistrar: '',
-    hostingProvider: '',
-    hostingAdminUrl: '',
-  })
+  // Domain state
+  const [domainSituation, setDomainSituation] = useState<'new' | 'existing' | 'unsure'>('new')
+  const [newDomainName, setNewDomainName] = useState('')
+  const [existingDomain, setExistingDomain] = useState('')
+  const [existingRegistrar, setExistingRegistrar] = useState('')
 
   const [form, setForm] = useState({
     websiteUrl: '',
     businessName: '',
     businessDescription: '',
-    preferredDomain: '',
     whatToUpdate: '',
     specificRequirements: '',
     name: '',
@@ -72,29 +62,16 @@ function SubmitForm() {
 
   useEffect(() => {
     if (searchParams.get('tier')) {
-      const tier = searchParams.get('tier') || 'refresh-existing-website'
-      setSelectedTier(tier)
-      setDomainPref(getDefaultDomainPref(tier))
+      setSelectedTier(searchParams.get('tier') || 'refresh-existing-website')
     }
   }, [searchParams])
-
-  // When tier changes, update domain default
-  const handleTierChange = (tierId: string) => {
-    setSelectedTier(tierId)
-    setDomainPref(getDefaultDomainPref(tierId))
-  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
-  const handleDomainFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setDomainForm({ ...domainForm, [e.target.name]: e.target.value })
-  }
-
   const isRefresh = selectedTier === 'refresh-existing-website'
   const isNewOrFull = selectedTier === 'brand-new-website' || selectedTier === 'full-package'
-  const isFullPackage = selectedTier === 'full-package'
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -120,21 +97,16 @@ function SubmitForm() {
     try {
       const tier = tiers.find(t => t.id === selectedTier) || tiers[1]
 
-      // Build domain/hosting metadata
+      // Build domain metadata
       const domainMeta: Record<string, string> = {
-        domain_preference: domainPref,
-        hosting_preference: hostingPref,
+        domain_situation: domainSituation,
       }
-      if (domainPref === 'new' && domainForm.preferredDomain) {
-        domainMeta.preferred_domain = domainForm.preferredDomain
+      if (domainSituation === 'new' && newDomainName) {
+        domainMeta.preferred_domain = newDomainName
       }
-      if (domainPref === 'existing') {
-        if (domainForm.existingDomain) domainMeta.existing_domain = domainForm.existingDomain
-        if (domainForm.domainRegistrar) domainMeta.domain_registrar = domainForm.domainRegistrar
-      }
-      if (hostingPref === 'existing') {
-        if (domainForm.hostingProvider) domainMeta.existing_hosting = domainForm.hostingProvider
-        if (domainForm.hostingAdminUrl) domainMeta.hosting_admin_url = domainForm.hostingAdminUrl
+      if (domainSituation === 'existing') {
+        if (existingDomain) domainMeta.existing_domain = existingDomain
+        if (existingRegistrar) domainMeta.domain_registrar = existingRegistrar
       }
 
       const res = await fetch('/api/checkout', {
@@ -143,6 +115,7 @@ function SubmitForm() {
         body: JSON.stringify({
           tier: tier.name,
           price: tier.price,
+          hosting: 'included',
           ...form,
           ...domainMeta,
         }),
@@ -180,6 +153,7 @@ function SubmitForm() {
       <section className="py-10 px-4">
         <div className="max-w-3xl mx-auto">
           <form onSubmit={handleSubmit} className="space-y-8">
+
             {/* Tier Selection */}
             <div className="bg-white border border-gray-200 rounded-2xl p-6">
               <h2 className="text-xl font-bold text-[#1A1A2E] mb-4">1. Select Your Package</h2>
@@ -198,7 +172,7 @@ function SubmitForm() {
                       name="tier"
                       value={tier.id}
                       checked={selectedTier === tier.id}
-                      onChange={() => handleTierChange(tier.id)}
+                      onChange={() => setSelectedTier(tier.id)}
                       className="sr-only"
                     />
                     <div className="flex items-start gap-3">
@@ -222,193 +196,111 @@ function SubmitForm() {
                   </label>
                 ))}
               </div>
+
+              {/* Hosting included banner */}
+              <div className="mt-5 flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+                <span className="text-green-600 text-xl">🏠</span>
+                <div>
+                  <span className="font-semibold text-green-800">Hosting included — always.</span>
+                  <span className="text-green-700 text-sm ml-1">Fast, reliable hosting on our infrastructure. We handle everything.</span>
+                </div>
+              </div>
             </div>
 
-            {/* Domain & Hosting Section */}
+            {/* Domain Section */}
             <div className="bg-white border border-gray-200 rounded-2xl p-6">
-              <h2 className="text-xl font-bold text-[#1A1A2E] mb-1">2. Domain &amp; Hosting</h2>
-              <p className="text-sm text-gray-500 mb-6">Tell us about your domain and hosting so we can get everything set up smoothly.</p>
+              <h2 className="text-xl font-bold text-[#1A1A2E] mb-1">2. Your Domain</h2>
+              <p className="text-sm text-gray-500 mb-5">Tell us about your domain so we can get everything connected.</p>
 
-              {/* Domain subsection */}
-              <div className="mb-6">
-                <h3 className="text-base font-semibold text-gray-800 mb-3">What&apos;s your domain situation?</h3>
-                <div className="space-y-3">
-                  {/* Option: New domain — only hidden for Refresh tier */}
-                  {!isRefresh && (
-                    <label className={`flex items-start gap-3 cursor-pointer rounded-xl border-2 p-4 transition-all ${domainPref === 'new' ? 'border-[#2563EB] bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}>
-                      <input
-                        type="radio"
-                        name="domainPref"
-                        value="new"
-                        checked={domainPref === 'new'}
-                        onChange={() => setDomainPref('new')}
-                        className="mt-0.5 accent-blue-600"
-                      />
-                      <div className="flex-1">
-                        <span className="font-semibold text-gray-800">🆕 I need a new domain — register one for me</span>
-                        {domainPref === 'new' && (
-                          <div className="mt-3 space-y-2">
-                            <input
-                              type="text"
-                              name="preferredDomain"
-                              value={domainForm.preferredDomain}
-                              onChange={handleDomainFormChange}
-                              placeholder="e.g. mybusiness.com.au"
-                              className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100"
-                            />
-                            <p className="text-xs text-blue-600">✓ We&apos;ll check availability and register it</p>
-                            {isFullPackage && (
-                              <p className="text-xs text-green-600 font-medium">✓ Domain registration is included in your Full Package</p>
-                            )}
-                          </div>
-                        )}
+              <div className="space-y-3">
+                {/* Option A: New domain */}
+                <label className={`flex items-start gap-3 cursor-pointer rounded-xl border-2 p-4 transition-all ${domainSituation === 'new' ? 'border-[#2563EB] bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                  <input
+                    type="radio"
+                    name="domainSituation"
+                    value="new"
+                    checked={domainSituation === 'new'}
+                    onChange={() => setDomainSituation('new')}
+                    className="mt-0.5 accent-blue-600"
+                  />
+                  <div className="flex-1">
+                    <span className="font-semibold text-gray-800">🆕 Register a new domain for me</span>
+                    {domainSituation === 'new' && (
+                      <div className="mt-3 space-y-2">
+                        <input
+                          type="text"
+                          value={newDomainName}
+                          onChange={(e) => setNewDomainName(e.target.value)}
+                          placeholder="Preferred domain name (e.g. mybusiness.com.au)"
+                          className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100"
+                        />
+                        <p className="text-xs text-blue-600">✓ We&apos;ll check availability and register it as part of your order</p>
                       </div>
-                    </label>
-                  )}
+                    )}
+                  </div>
+                </label>
 
-                  {/* Option: Existing domain */}
-                  <label className={`flex items-start gap-3 cursor-pointer rounded-xl border-2 p-4 transition-all ${domainPref === 'existing' ? 'border-[#2563EB] bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}>
-                    <input
-                      type="radio"
-                      name="domainPref"
-                      value="existing"
-                      checked={domainPref === 'existing'}
-                      onChange={() => setDomainPref('existing')}
-                      className="mt-0.5 accent-blue-600"
-                    />
-                    <div className="flex-1">
-                      <span className="font-semibold text-gray-800">🌐 I already have a domain</span>
-                      {domainPref === 'existing' && (
-                        <div className="mt-3 space-y-3">
-                          <input
-                            type="text"
-                            name="existingDomain"
-                            value={domainForm.existingDomain}
-                            onChange={handleDomainFormChange}
-                            placeholder="e.g. mybusiness.com.au"
-                            className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100"
-                          />
-                          <select
-                            name="domainRegistrar"
-                            value={domainForm.domainRegistrar}
-                            onChange={handleDomainFormChange}
-                            className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100 bg-white"
-                          >
-                            <option value="">Where is it registered? (optional)</option>
-                            {domainRegistrars.map(r => (
-                              <option key={r} value={r}>{r}</option>
-                            ))}
-                          </select>
-                          <p className="text-xs text-blue-600">✓ We&apos;ll send you simple instructions to point it to your new site</p>
-                        </div>
-                      )}
-                    </div>
-                  </label>
+                {/* Option B: Existing domain */}
+                <label className={`flex items-start gap-3 cursor-pointer rounded-xl border-2 p-4 transition-all ${domainSituation === 'existing' ? 'border-[#2563EB] bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                  <input
+                    type="radio"
+                    name="domainSituation"
+                    value="existing"
+                    checked={domainSituation === 'existing'}
+                    onChange={() => setDomainSituation('existing')}
+                    className="mt-0.5 accent-blue-600"
+                  />
+                  <div className="flex-1">
+                    <span className="font-semibold text-gray-800">🌐 I already have a domain</span>
+                    {domainSituation === 'existing' && (
+                      <div className="mt-3 space-y-3">
+                        <input
+                          type="text"
+                          value={existingDomain}
+                          onChange={(e) => setExistingDomain(e.target.value)}
+                          placeholder="Your domain (e.g. mybusiness.com.au)"
+                          className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100"
+                        />
+                        <select
+                          value={existingRegistrar}
+                          onChange={(e) => setExistingRegistrar(e.target.value)}
+                          className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100 bg-white"
+                        >
+                          <option value="">Where is it registered?</option>
+                          {domainRegistrars.map(r => (
+                            <option key={r} value={r}>{r}</option>
+                          ))}
+                        </select>
+                        <p className="text-xs text-blue-600">✓ We&apos;ll send you 2 simple DNS records to update — takes 5 minutes</p>
+                      </div>
+                    )}
+                  </div>
+                </label>
 
-                  {/* Option: Not sure */}
-                  <label className={`flex items-start gap-3 cursor-pointer rounded-xl border-2 p-4 transition-all ${domainPref === 'unsure' ? 'border-[#2563EB] bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}>
-                    <input
-                      type="radio"
-                      name="domainPref"
-                      value="unsure"
-                      checked={domainPref === 'unsure'}
-                      onChange={() => setDomainPref('unsure')}
-                      className="mt-0.5 accent-blue-600"
-                    />
-                    <div className="flex-1">
-                      <span className="font-semibold text-gray-800">❓ Not sure yet — sort it after</span>
-                      {domainPref === 'unsure' && (
-                        <p className="mt-2 text-xs text-gray-500">No problem, we&apos;ll discuss after payment</p>
-                      )}
-                    </div>
-                  </label>
-                </div>
-              </div>
-
-              {/* Hosting subsection */}
-              <div>
-                <h3 className="text-base font-semibold text-gray-800 mb-3">What about hosting?</h3>
-                <div className="space-y-3">
-                  {/* Include hosting */}
-                  <label className={`flex items-start gap-3 cursor-pointer rounded-xl border-2 p-4 transition-all ${hostingPref === 'included' ? 'border-[#2563EB] bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}>
-                    <input
-                      type="radio"
-                      name="hostingPref"
-                      value="included"
-                      checked={hostingPref === 'included'}
-                      onChange={() => setHostingPref('included')}
-                      className="mt-0.5 accent-blue-600"
-                    />
-                    <div className="flex-1">
-                      <span className="font-semibold text-gray-800">✅ Include hosting <span className="text-gray-400 font-normal text-sm">(recommended)</span></span>
-                      {hostingPref === 'included' && (
-                        <p className="mt-2 text-xs text-blue-600">✓ We&apos;ll set up fast, reliable hosting included in your package</p>
-                      )}
-                    </div>
-                  </label>
-
-                  {/* Existing hosting */}
-                  <label className={`flex items-start gap-3 cursor-pointer rounded-xl border-2 p-4 transition-all ${hostingPref === 'existing' ? 'border-[#2563EB] bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}>
-                    <input
-                      type="radio"
-                      name="hostingPref"
-                      value="existing"
-                      checked={hostingPref === 'existing'}
-                      onChange={() => setHostingPref('existing')}
-                      className="mt-0.5 accent-blue-600"
-                    />
-                    <div className="flex-1">
-                      <span className="font-semibold text-gray-800">🖥️ I have existing hosting</span>
-                      {hostingPref === 'existing' && (
-                        <div className="mt-3 space-y-3">
-                          <input
-                            type="text"
-                            name="hostingProvider"
-                            value={domainForm.hostingProvider}
-                            onChange={handleDomainFormChange}
-                            placeholder="Hosting provider (e.g. SiteGround, VentraIP)"
-                            className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100"
-                          />
-                          <input
-                            type="text"
-                            name="hostingAdminUrl"
-                            value={domainForm.hostingAdminUrl}
-                            onChange={handleDomainFormChange}
-                            placeholder="cPanel/admin URL (e.g. https://cpanel.yourhost.com)"
-                            className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100"
-                          />
-                          <p className="text-xs text-blue-600">✓ We&apos;ll deploy directly to your existing hosting</p>
-                        </div>
-                      )}
-                    </div>
-                  </label>
-
-                  {/* Not sure */}
-                  <label className={`flex items-start gap-3 cursor-pointer rounded-xl border-2 p-4 transition-all ${hostingPref === 'unsure' ? 'border-[#2563EB] bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}>
-                    <input
-                      type="radio"
-                      name="hostingPref"
-                      value="unsure"
-                      checked={hostingPref === 'unsure'}
-                      onChange={() => setHostingPref('unsure')}
-                      className="mt-0.5 accent-blue-600"
-                    />
-                    <div className="flex-1">
-                      <span className="font-semibold text-gray-800">❓ Not sure</span>
-                      {hostingPref === 'unsure' && (
-                        <p className="mt-2 text-xs text-gray-500">We&apos;ll recommend the best option for you</p>
-                      )}
-                    </div>
-                  </label>
-                </div>
+                {/* Option C: Not sure */}
+                <label className={`flex items-start gap-3 cursor-pointer rounded-xl border-2 p-4 transition-all ${domainSituation === 'unsure' ? 'border-[#2563EB] bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                  <input
+                    type="radio"
+                    name="domainSituation"
+                    value="unsure"
+                    checked={domainSituation === 'unsure'}
+                    onChange={() => setDomainSituation('unsure')}
+                    className="mt-0.5 accent-blue-600"
+                  />
+                  <div className="flex-1">
+                    <span className="font-semibold text-gray-800">❓ Not sure yet</span>
+                    {domainSituation === 'unsure' && (
+                      <p className="mt-2 text-xs text-gray-500">No problem — we&apos;ll sort it out after your order</p>
+                    )}
+                  </div>
+                </label>
               </div>
             </div>
 
-            {/* Website Details */}
+            {/* Business / Website Details */}
             <div className="bg-white border border-gray-200 rounded-2xl p-6">
               <h2 className="text-xl font-bold text-[#1A1A2E] mb-4">3. Your Details</h2>
               <div className="space-y-4">
-                {/* Refresh: show current URL */}
                 {isRefresh && (
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1.5">
@@ -426,7 +318,6 @@ function SubmitForm() {
                   </div>
                 )}
 
-                {/* New / Full Package: show business fields */}
                 {isNewOrFull && (
                   <>
                     <div>
@@ -438,7 +329,7 @@ function SubmitForm() {
                         name="businessName"
                         value={form.businessName}
                         onChange={handleChange}
-                        placeholder="e.g. Smith's Plumbing"
+                        placeholder="e.g. Smith&apos;s Plumbing"
                         className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100"
                         required
                       />
@@ -451,7 +342,7 @@ function SubmitForm() {
                         name="businessDescription"
                         value={form.businessDescription}
                         onChange={handleChange}
-                        placeholder="e.g. We're a local plumbing company servicing Sydney's northern suburbs. We do emergency repairs, hot water systems and renovations."
+                        placeholder="e.g. We&apos;re a local plumbing company servicing Sydney&apos;s northern suburbs. We do emergency repairs, hot water systems and renovations."
                         rows={3}
                         className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100 resize-none"
                         required
@@ -468,7 +359,7 @@ function SubmitForm() {
                     name="specificRequirements"
                     value={form.specificRequirements}
                     onChange={handleChange}
-                    placeholder="e.g. Keep our existing blue colour scheme, use our new logo (we'll email it), add a booking form..."
+                    placeholder="e.g. Keep our existing blue colour scheme, use our new logo (we&apos;ll email it), add a booking form..."
                     rows={3}
                     className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100 resize-none"
                   />
@@ -546,6 +437,12 @@ function SubmitForm() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                   </svg>
                   48-hour delivery
+                </li>
+                <li className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Fast, reliable hosting included
                 </li>
                 <li className="flex items-center gap-2">
                   <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
