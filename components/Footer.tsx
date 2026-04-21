@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Logo from './Logo'
 
 export default function Footer() {
   return (
@@ -7,13 +8,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">CW</span>
-              </div>
-              <span className="font-bold text-lg text-white">
-                CheapWebsite<span className="text-[#F97316]">.com.au</span>
-              </span>
+            <div className="mb-3">
+              <Logo variant="dark" />
             </div>
             <p className="text-sm text-gray-400 leading-relaxed">
               Professional website refreshes for Australian small businesses. No agency markup. Just results.
