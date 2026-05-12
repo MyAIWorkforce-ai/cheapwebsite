@@ -2,25 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Navy + gold variant.
+ * Body canvas = navy. Default body text = warm cream. Cards still cream.
+ */
 :root {
-  --cream: #E8ECF0;
-  --cream-card: #F2F4F8;
-  --ink: #0F1729;
-  --muted: #5F6B7E;
-  --navy: #0F1729;
-  --gold: #C19E50;
-  --hairline: #CCD2DD;
+  --navy: #0B1B2E;       /* canvas */
+  --navy-deep: #060F1B;  /* dark hero / footer */
+  --cream: #FFFFFF;      /* default body text + white cards */
+  --cream-card: #FFFFFF; /* card panels (white) */
+  --ink: #0B1B2E;        /* text on cream cards */
+  --muted: #93A4BD;      /* muted body text on the navy canvas */
+  --gold: #D9B062;
+  --hairline: #21344C;   /* hairlines on the navy canvas */
 }
 
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
-  background-color: var(--cream);
+  background-color: var(--navy);
 }
 
 body {
-  background-color: var(--cream);
-  color: var(--ink);
+  background-color: var(--navy);
+  color: var(--cream);
   font-size: 17px;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
@@ -29,8 +34,8 @@ body {
 }
 
 ::selection {
-  background: #C19E50;
-  color: #0F1729;
+  background: var(--gold);
+  color: var(--navy);
 }
 
 .font-display {
@@ -51,10 +56,44 @@ body {
 }
 
 .paper {
-  background-color: var(--cream);
+  background-color: var(--navy);
   background-image:
-    radial-gradient(rgba(15, 23, 41, 0.022) 1px, transparent 1px),
-    radial-gradient(rgba(15, 23, 41, 0.018) 1px, transparent 1px);
+    radial-gradient(rgba(217, 176, 98, 0.07) 1px, transparent 1px),
+    radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
   background-size: 22px 22px, 14px 14px;
   background-position: 0 0, 7px 7px;
 }
+
+/* -----------------------------------------------------------------
+ * Navy variant: components use text-brand-ink (= dark navy) all over
+ * the codebase, both on the page canvas (now navy) and inside white
+ * cards. Default the colour to cream so canvas text reads, then
+ * override back to dark ink whenever it's inside a light surface.
+ * Same logic for the matching border + muted text classes.
+ * ----------------------------------------------------------------- */
+.text-brand-ink { color: var(--cream); }
+.border-brand-ink { border-color: var(--cream); }
+.divide-brand-ink > * + * { border-color: var(--cream); }
+
+.bg-brand-cream .text-brand-ink,
+.bg-brand-cream-card .text-brand-ink,
+.bg-brand-cream-deep .text-brand-ink,
+.bg-brand-gold .text-brand-ink,
+.bg-brand-gold-soft .text-brand-ink,
+.bg-white .text-brand-ink { color: var(--ink); }
+
+.bg-brand-cream .border-brand-ink,
+.bg-brand-cream-card .border-brand-ink,
+.bg-brand-cream-deep .border-brand-ink,
+.bg-brand-gold .border-brand-ink,
+.bg-brand-gold-soft .border-brand-ink,
+.bg-white .border-brand-ink { border-color: var(--ink); }
+
+/* Muted text on the navy canvas needs a lighter gray than the
+ * default 5F6B7E (which disappears on dark). Inside cards, keep
+ * the original. */
+.text-brand-muted { color: #93A4BD; }
+.bg-brand-cream .text-brand-muted,
+.bg-brand-cream-card .text-brand-muted,
+.bg-brand-cream-deep .text-brand-muted,
+.bg-white .text-brand-muted { color: #5F6B7E; }
