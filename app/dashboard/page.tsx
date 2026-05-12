@@ -269,13 +269,21 @@ function SellingView({
           >
             Your listings
           </h2>
-          <Link
-            href="/sell/new"
-            className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-6 py-3 text-sm hover:bg-brand-gold-dark transition-colors"
-          >
-            Publish a new listing
-            <span aria-hidden>→</span>
-          </Link>
+          <div className="flex items-center gap-5 flex-wrap">
+            <Link
+              href="/dashboard/payouts"
+              className="text-sm border-b border-brand-ink pb-0.5 hover:text-brand-gold hover:border-brand-gold transition-colors"
+            >
+              Payouts →
+            </Link>
+            <Link
+              href="/sell/new"
+              className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-6 py-3 text-sm hover:bg-brand-gold-dark transition-colors"
+            >
+              Publish a new listing
+              <span aria-hidden>→</span>
+            </Link>
+          </div>
         </div>
 
         {listings.length === 0 ? (
@@ -338,12 +346,12 @@ function SellingView({
                     </div>
                     <div className="col-span-12 sm:col-span-3 sm:text-right">
                       <div className="flex sm:justify-end gap-3 flex-wrap">
-                        <a
-                          href="#"
+                        <Link
+                          href={`/dashboard/listings/${p.id}/edit`}
                           className="font-mono text-[11px] uppercase tracking-[0.18em] border-b border-brand-ink pb-0.5 hover:text-brand-gold hover:border-brand-gold transition-colors"
                         >
                           Edit
-                        </a>
+                        </Link>
                         <Link
                           href={`/marketplace/${p.id}`}
                           className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted hover:text-brand-ink transition-colors"

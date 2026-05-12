@@ -1,17 +1,25 @@
 'use client'
 
+import Link from 'next/link'
 import { useFormState, useFormStatus } from 'react-dom'
-import { signInWithEmail, signInWithGitHub, signInWithGoogle, type SignInState } from './actions'
+import { useState } from 'react'
+import {
+  signInWithEmail,
+  signInWithPassword,
+  signInWithGitHub,
+  signInWithGoogle,
+  type SignInState,
+} from './actions'
 
-function SubmitButton({ children }: { children: React.ReactNode }) {
+function Submit({ label }: { label: string }) {
   const { pending } = useFormStatus()
   return (
     <button
       type="submit"
       disabled={pending}
-      className="mt-3 bg-brand-gold text-brand-ink font-semibold px-6 py-3.5 text-[15px] hover:bg-brand-gold-dark transition-colors disabled:opacity-60"
+      className="mt-2 bg-brand-gold text-brand-ink font-semibold px-6 py-3.5 text-[15px] hover:bg-brand-gold-dark transition-colors disabled:opacity-60"
     >
-      {pending ? 'Sending…' : (children as string)}
+      {pending ? 'Working…' : label}
     </button>
   )
 }
@@ -38,7 +46,10 @@ function ProviderButton({
 const initial: SignInState = {}
 
 export default function SignInForm({ demoMode }: { demoMode: boolean }) {
-  const [state, formAction] = useFormState(signInWithEmail, initial)
+  const [mode, setMode] = useState<'link' | 'password'>('link')
+  const [linkState, linkAction] = useFormState(signInWithEmail, initial)
+  const [pwState, pwAction] = useFormState(signInWithPassword, initial)
+  const state = mode === 'link' ? linkState : pwState
 
   return (
     <>
@@ -73,31 +84,100 @@ export default function SignInForm({ demoMode }: { demoMode: boolean }) {
         <span className="flex-1 h-px bg-brand-hairline" />
       </div>
 
-      <form action={formAction} className="flex flex-col gap-5">
-        <label className="block">
-          <span className="label-cap text-brand-muted">Email</span>
-          <input
-            type="email"
-            name="email"
-            required
-            autoComplete="email"
-            placeholder="you@example.com"
-            className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 placeholder:text-brand-muted/60"
-          />
-        </label>
-        <p className="text-xs text-brand-muted -mt-2">
-          We email a one-time link. No password.
-        </p>
+      <div className="flex items-center gap-5 mb-6 border-b border-brand-hairline">
+        <button
+          type="button"
+          onClick={() => setMode('link')}
+          className={
+            'pb-2 -mb-px text-sm border-b transition-colors ' +
+            (mode === 'link'
+              ? 'border-brand-gold text-brand-gold font-semibold'
+              : 'border-transparent text-brand-muted hover:text-brand-ink')
+          }
+        >
+          Email link
+        </button>
+        <button
+          type="button"
+          onClick={() => setMode('password')}
+          className={
+            'pb-2 -mb-px text-sm border-b transition-colors ' +
+            (mode === 'password'
+              ? 'border-brand-gold text-brand-gold font-semibold'
+              : 'border-transparent text-brand-muted hover:text-brand-ink')
+          }
+        >
+          Password
+        </button>
+      </div>
 
-        {state.error && (
-          <p className="text-sm text-red-700">{state.error}</p>
-        )}
-        {state.info && (
-          <p className="text-sm text-brand-gold-dark">{state.info}</p>
-        )}
+      {mode === 'link' ? (
+        <form action={linkAction} className="flex flex-col gap-5">
+          <label className="block">
+            <span className="label-cap text-brand-muted">Email</span>
+            <input
+              type="email"
+              name="email"
+              required
+              autoComplete="email"
+              placeholder="you@example.com"
+              className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 placeholder:text-brand-muted/60"
+            />
+          </label>
+          <p className="text-xs text-brand-muted -mt-2">
+            We email a one-time link. No password.
+          </p>
+          {state.error && <p className="text-sm text-red-700">{state.error}</p>}
+          {state.info && <p className="text-sm text-brand-gold-dark">{state.info}</p>}
+          <Submit label="Send sign-in link" />
+        </form>
+      ) : (
+        <form action={pwAction} className="flex flex-col gap-5">
+          <label className="block">
+            <span className="label-cap text-brand-muted">Email</span>
+            <input
+              type="email"
+              name="email"
+              required
+              autoComplete="email"
+              placeholder="you@example.com"
+              className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 placeholder:text-brand-muted/60"
+            />
+          </label>
+          <label className="block">
+            <span className="label-cap text-brand-muted">Password</span>
+            <input
+              type="password"
+              name="password"
+              required
+              autoComplete="current-password"
+              placeholder="••••••••"
+              className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 placeholder:text-brand-muted/60"
+            />
+          </label>
+          <div className="flex justify-end -mt-3">
+            <Link
+              href="/auth/reset"
+              className="text-xs text-brand-muted hover:text-brand-gold transition-colors"
+            >
+              Forgot password?
+            </Link>
+          </div>
+          {state.error && <p className="text-sm text-red-700">{state.error}</p>}
+          {state.info && <p className="text-sm text-brand-gold-dark">{state.info}</p>}
+          <Submit label="Sign in" />
+        </form>
+      )}
 
-        <SubmitButton>Send sign-in link</SubmitButton>
-      </form>
+      <p className="mt-8 text-sm text-brand-muted">
+        New here?{' '}
+        <Link
+          href="/signup"
+          className="text-brand-ink border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
+        >
+          Create an account
+        </Link>
+      </p>
     </>
   )
 }
