@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
 import { getUser } from '@/lib/auth'
 import { createClient } from '@/lib/supabase/server'
 import { hasSupabase, hasStripe } from '@/lib/env'
@@ -36,13 +35,7 @@ export default async function PayoutsPage({
 }) {
   const user = await getUser()
 
-  // In demo mode we still render the page so the design can be reviewed.
   const profile = user ? await getPayoutProfile(user.id) : null
-
-  // Real auth path: send guests to sign in.
-  if (hasSupabase && !user) {
-    redirect('/signin?next=/dashboard/payouts')
-  }
 
   const connected = Boolean(profile?.stripe_account_id)
   const payoutsEnabled = Boolean(profile?.stripe_payouts_enabled)

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import { getUser } from '@/lib/auth'
 import { createClient } from '@/lib/supabase/server'
 import { hasSupabase } from '@/lib/env'
@@ -10,9 +10,12 @@ export const metadata = {
   title: 'Edit listing — Skillzy',
 }
 
-async function loadDefaults(id: string, userId: string): Promise<EditDefaults | null> {
-  if (!hasSupabase) {
-    // Demo fallback: read from the static seed catalogue.
+async function loadDefaults(
+  id: string,
+  userId: string | null,
+): Promise<EditDefaults | null> {
+  // No user signed in (preview / demo) -> read from the static seed catalogue.
+  if (!hasSupabase || !userId) {
     const p = getProduct(id)
     if (!p) return null
     return {
@@ -56,12 +59,7 @@ export default async function EditListingPage({
   params: { id: string }
 }) {
   const user = await getUser()
-
-  if (hasSupabase && !user) {
-    redirect(`/signin?next=/dashboard/listings/${params.id}/edit`)
-  }
-
-  const defaults = await loadDefaults(params.id, user?.id ?? 'demo')
+  const defaults = await loadDefaults(params.id, user?.id ?? null)
   if (!defaults) notFound()
 
   return (
