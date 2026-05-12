@@ -9,12 +9,15 @@ export default function SignInPage() {
   return (
     <div className="paper px-6 lg:px-10 py-20 sm:py-28">
       <div className="max-w-md mx-auto">
-        <span className="label-cap text-brand-emerald">Welcome back</span>
+        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+          Welcome back
+        </span>
         <h1
           className="font-display mt-4 text-5xl tracking-tight"
-          style={{ letterSpacing: '-0.025em' }}
+          style={{ letterSpacing: '-0.03em' }}
         >
-          Sign in.
+          Sign{' '}
+          <em className="italic text-brand-emerald font-medium">in.</em>
         </h1>
         <p className="mt-4 text-brand-muted">
           Buy once, re-download any time. Sell on your own schedule.

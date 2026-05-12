@@ -51,16 +51,19 @@ export default function MarketplacePage({
     <div className="paper">
       <section className="px-6 lg:px-10 pt-14 pb-10 sm:pt-20 sm:pb-14 border-b border-brand-hairline">
         <div className="max-w-page mx-auto">
-          <span className="label-cap text-brand-emerald">The Catalogue</span>
+          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+            The goods
+          </span>
           <h1
             className="font-display mt-5 text-5xl sm:text-7xl tracking-tight"
-            style={{ letterSpacing: '-0.025em' }}
+            style={{ letterSpacing: '-0.03em' }}
           >
-            Everything, in one place.
+            Plug in.{' '}
+            <em className="italic text-brand-emerald font-medium">Pick up speed.</em>
           </h1>
           <p className="mt-5 text-brand-muted max-w-prose">
-            Skills, guides, and ready-to-go agent setups. Filter by type, search
-            by name. Every listing is human-reviewed.
+            Skills, guides, full agent setups. Every listing reviewed by a human.
+            No mystery meat.
           </p>
         </div>
       </section>
@@ -100,7 +103,7 @@ export default function MarketplacePage({
 
         {products.length === 0 ? (
           <div className="py-24 text-center">
-            <p className="font-display text-3xl">Nothing matched.</p>
+            <p className="font-display text-3xl">Nothing matched. Try less.</p>
             <Link
               href="/marketplace"
               className="mt-4 inline-block text-sm border-b border-brand-ink hover:text-brand-emerald hover:border-brand-emerald pb-0.5"

@@ -7,12 +7,15 @@ export default function ContactPage() {
   return (
     <article className="paper px-6 lg:px-10 py-16 sm:py-24">
       <div className="max-w-3xl mx-auto">
-        <span className="label-cap text-brand-emerald">Contact</span>
+        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+          Contact
+        </span>
         <h1
           className="font-display mt-5 text-5xl sm:text-7xl tracking-tight"
-          style={{ letterSpacing: '-0.025em' }}
+          style={{ letterSpacing: '-0.03em' }}
         >
-          Say hello.
+          Say{' '}
+          <em className="italic text-brand-emerald font-medium">hello.</em>
         </h1>
 
         <dl className="mt-14 grid grid-cols-1 sm:grid-cols-2 gap-px bg-brand-hairline border border-brand-hairline">

@@ -8,12 +8,15 @@ export default function AboutPage() {
   return (
     <article className="paper px-6 lg:px-10 py-16 sm:py-24">
       <div className="max-w-3xl mx-auto">
-        <span className="label-cap text-brand-emerald">About</span>
+        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+          About
+        </span>
         <h1
           className="font-display mt-5 text-5xl sm:text-7xl tracking-tight leading-[1]"
-          style={{ letterSpacing: '-0.025em' }}
+          style={{ letterSpacing: '-0.03em' }}
         >
-          A catalogue, not a registry.
+          We sell the{' '}
+          <em className="italic text-brand-emerald font-medium">good stuff.</em>
         </h1>
 
         <div className="mt-12 max-w-prose space-y-6 text-lg leading-relaxed">
