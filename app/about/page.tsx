@@ -1,36 +1,49 @@
 export const metadata = {
   title: 'About — Skillzy',
   description:
-    'Skillzy is a marketplace where creators sell skills, guides, and ready-to-go agent setups for AI agents.',
+    'Skillzy is a marketplace for skills, guides, and ready-to-go agent setups.',
 }
 
 export default function AboutPage() {
   return (
-    <article className="px-5 sm:px-6 lg:px-8 py-14 sm:py-20">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-brand-ink">
-          About Skillzy
+    <article className="paper px-6 lg:px-10 py-16 sm:py-24">
+      <div className="max-w-3xl mx-auto">
+        <span className="label-cap text-brand-emerald">About</span>
+        <h1
+          className="font-display mt-5 text-5xl sm:text-7xl tracking-tight leading-[1]"
+          style={{ letterSpacing: '-0.025em' }}
+        >
+          A catalogue, not a registry.
         </h1>
 
-        <div className="mt-8 space-y-5 text-lg text-brand-ink">
+        <div className="mt-12 max-w-prose space-y-6 text-lg leading-relaxed">
           <p>
-            Skillzy is a marketplace where creators sell skills, guides, and full plug-and-play agent setups built for AI agents — Claude, OpenClaw, n8n, and other platforms.
+            Skillzy is a marketplace where creators sell <strong>skills</strong>,{' '}
+            <strong>guides</strong>, and full plug-and-play <strong>agent setups</strong>{' '}
+            built for AI agents — Claude, OpenClaw, n8n, and the rest.
           </p>
           <p>
-            Buyers browse, purchase, and drop them straight into their own agent. Done.
+            Buyers browse, purchase, and drop them into their own agent. No
+            assembly, no five-tab tutorial. Done.
           </p>
           <p>
-            Three product types: <strong>Skills</strong> (one capability at a time), <strong>Guides</strong> (human-readable how-to docs), and <strong>Agent Setups</strong> (full niche-specific agent packages — real estate, builders, accountants, anything).
+            Three product types. <strong>Skills</strong> do one thing well.{' '}
+            <strong>Guides</strong> teach the parts the docs skip. <strong>Agent Setups</strong>{' '}
+            are the headliner: a complete agent for a single line of work,
+            bundled into one purchase.
           </p>
           <p>
-            Creators keep <strong>80% of every sale</strong>. Payouts happen automatically through Stripe — no platform-held funds, no manual transfers.
+            Creators keep <strong>80% of every sale.</strong> Stripe handles
+            payouts. The platform never holds your money.
           </p>
           <p className="text-brand-muted">
-            Got a question or a partnership idea? Email{' '}
-            <a href="mailto:hello@skillzy.com" className="text-brand-purple font-semibold hover:underline">
+            Get in touch:{' '}
+            <a
+              href="mailto:hello@skillzy.com"
+              className="text-brand-ink border-b border-brand-ink hover:text-brand-emerald hover:border-brand-emerald pb-0.5"
+            >
               hello@skillzy.com
             </a>
-            .
           </p>
         </div>
       </div>

@@ -1,122 +1,98 @@
 'use client'
 
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import Logo from './Logo'
 
 export default function Navbar() {
-  const [mobileOpen, setMobileOpen] = useState(false)
-  const [query, setQuery] = useState('')
+  const pathname = usePathname()
+  const [open, setOpen] = useState(false)
+  const [q, setQ] = useState('')
   const router = useRouter()
 
-  function handleSearch(e: FormEvent) {
+  // The homepage doesn't need a nav. Identity sits inside the page itself.
+  if (pathname === '/') return null
+
+  function onSearch(e: FormEvent) {
     e.preventDefault()
-    const q = query.trim()
-    router.push(q ? `/marketplace?q=${encodeURIComponent(q)}` : '/marketplace')
-    setMobileOpen(false)
+    const value = q.trim()
+    router.push(value ? `/marketplace?q=${encodeURIComponent(value)}` : '/marketplace')
+    setOpen(false)
   }
 
   return (
-    <nav className="bg-white border-b border-brand-line sticky top-0 z-50">
-      <div className="max-w-page mx-auto px-5 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-6 h-16">
-          <Logo />
+    <nav className="border-b border-brand-hairline bg-brand-cream/85 backdrop-blur supports-[backdrop-filter]:bg-brand-cream/70 sticky top-0 z-40">
+      <div className="max-w-page mx-auto px-6 lg:px-10 h-16 flex items-center gap-8">
+        <Logo size="md" />
 
-          {/* Search — middle, desktop */}
-          <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xl mx-auto">
-            <div className="relative w-full">
-              <svg
-                aria-hidden
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z"
-                />
-              </svg>
-              <input
-                type="search"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search skills, guides, agent setups…"
-                aria-label="Search the marketplace"
-                className="w-full pl-10 pr-4 py-2.5 rounded-full border border-brand-line bg-white text-sm text-brand-ink placeholder:text-brand-muted focus:outline-none focus:border-brand-purple focus:ring-2 focus:ring-brand-purple/20"
-              />
-            </div>
-          </form>
-
-          {/* Right actions — desktop */}
-          <div className="hidden md:flex items-center gap-3">
-            <Link
-              href="/signin"
-              className="text-sm font-semibold text-brand-ink hover:text-brand-purple transition-colors px-3 py-2"
-            >
-              Sign In
-            </Link>
-            <Link
-              href="/sell"
-              className="bg-brand-yellow text-brand-ink text-sm font-bold px-5 py-2.5 rounded-full hover:bg-brand-yellow-dark transition-colors"
-            >
-              Sell Your Skills
-            </Link>
+        <form onSubmit={onSearch} className="hidden md:flex flex-1 max-w-md mx-auto">
+          <div className="relative w-full">
+            <input
+              type="search"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search the catalogue"
+              aria-label="Search"
+              className="w-full bg-transparent border-b border-brand-hairline focus:border-brand-emerald outline-none text-sm py-2 placeholder:text-brand-muted text-brand-ink transition-colors"
+            />
           </div>
+        </form>
 
-          {/* Mobile toggle */}
-          <button
-            type="button"
-            aria-label="Toggle menu"
-            aria-expanded={mobileOpen}
-            className="md:hidden ml-auto p-2 rounded-lg text-brand-ink hover:bg-slate-100"
-            onClick={() => setMobileOpen((v) => !v)}
+        <div className="hidden md:flex items-center gap-6">
+          <Link
+            href="/marketplace"
+            className="text-sm text-brand-ink hover:text-brand-emerald transition-colors"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {mobileOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
+            Marketplace
+          </Link>
+          <Link
+            href="/sell"
+            className="text-sm text-brand-ink hover:text-brand-emerald transition-colors"
+          >
+            Sell
+          </Link>
+          <Link
+            href="/signin"
+            className="text-sm text-brand-ink hover:text-brand-emerald transition-colors"
+          >
+            Sign in
+          </Link>
         </div>
 
-        {/* Mobile panel */}
-        {mobileOpen && (
-          <div className="md:hidden pb-5 pt-2 border-t border-brand-line">
-            <form onSubmit={handleSearch} className="mb-4">
+        <button
+          type="button"
+          aria-label="Menu"
+          aria-expanded={open}
+          className="ml-auto md:hidden p-2 -mr-2 text-brand-ink"
+          onClick={() => setOpen((v) => !v)}
+        >
+          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+            {open ? <path d="M6 18L18 6M6 6l12 12" /> : <path d="M3 7h18M3 17h18" />}
+          </svg>
+        </button>
+      </div>
+
+      {open && (
+        <div className="md:hidden border-t border-brand-hairline bg-brand-cream">
+          <div className="max-w-page mx-auto px-6 py-5 flex flex-col gap-4">
+            <form onSubmit={onSearch}>
               <input
                 type="search"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search skills, guides, agent setups…"
-                aria-label="Search the marketplace"
-                className="w-full px-4 py-2.5 rounded-full border border-brand-line text-base text-brand-ink placeholder:text-brand-muted focus:outline-none focus:border-brand-purple focus:ring-2 focus:ring-brand-purple/20"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search the catalogue"
+                aria-label="Search"
+                className="w-full bg-transparent border-b border-brand-hairline focus:border-brand-emerald outline-none text-base py-2 placeholder:text-brand-muted"
               />
             </form>
-            <div className="flex flex-col gap-2">
-              <Link
-                href="/signin"
-                className="text-base font-semibold text-brand-ink py-2"
-                onClick={() => setMobileOpen(false)}
-              >
-                Sign In
-              </Link>
-              <Link
-                href="/sell"
-                className="bg-brand-yellow text-brand-ink text-base font-bold px-5 py-3 rounded-full text-center"
-                onClick={() => setMobileOpen(false)}
-              >
-                Sell Your Skills
-              </Link>
-            </div>
+            <Link href="/marketplace" onClick={() => setOpen(false)} className="py-2">Marketplace</Link>
+            <Link href="/sell" onClick={() => setOpen(false)} className="py-2">Sell</Link>
+            <Link href="/signin" onClick={() => setOpen(false)} className="py-2">Sign in</Link>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </nav>
   )
 }

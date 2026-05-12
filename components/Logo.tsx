@@ -1,39 +1,39 @@
 import Link from 'next/link'
 
 type LogoProps = {
-  variant?: 'light' | 'dark'
   href?: string | null
   className?: string
-  size?: 'sm' | 'md' | 'lg'
+  tone?: 'emerald' | 'cream' | 'ink'
+  size?: 'sm' | 'md' | 'lg' | 'xl'
+}
+
+const toneClass = {
+  emerald: 'text-brand-emerald',
+  cream: 'text-brand-cream',
+  ink: 'text-brand-ink',
+}
+
+const sizeClass = {
+  sm: 'text-xl',
+  md: 'text-2xl',
+  lg: 'text-4xl',
+  xl: 'text-6xl sm:text-7xl',
 }
 
 export default function Logo({
-  variant = 'light',
   href = '/',
   className = '',
+  tone = 'emerald',
   size = 'md',
 }: LogoProps) {
-  const wordmarkColor = variant === 'dark' ? 'text-white' : 'text-brand-ink'
-  const mark = size === 'lg' ? 'w-12 h-12' : size === 'sm' ? 'w-7 h-7' : 'w-9 h-9'
-  const text =
-    size === 'lg'
-      ? 'text-3xl'
-      : size === 'sm'
-        ? 'text-base'
-        : 'text-xl'
-  const glyph =
-    size === 'lg' ? 'text-2xl' : size === 'sm' ? 'text-sm' : 'text-lg'
-
   const content = (
-    <span className={`flex items-center gap-2.5 ${className}`}>
-      <span
-        aria-hidden
-        className={`${mark} rounded-xl bg-brand-purple flex items-center justify-center text-white font-black ${glyph}`}
-      >
-        S
-      </span>
-      <span className={`font-extrabold tracking-tight ${text} ${wordmarkColor}`}>
-        Skillzy
+    <span
+      className={`font-display ${sizeClass[size]} ${toneClass[tone]} font-medium leading-none ${className}`}
+      style={{ letterSpacing: '-0.02em' }}
+    >
+      Skillzy
+      <span aria-hidden className="align-top text-[0.45em] ml-0.5">
+        .
       </span>
     </span>
   )
@@ -41,7 +41,7 @@ export default function Logo({
   if (!href) return content
 
   return (
-    <Link href={href} aria-label="Skillzy — home" className="inline-flex items-center">
+    <Link href={href} aria-label="Skillzy — home" className="inline-flex items-baseline">
       {content}
     </Link>
   )

@@ -10,17 +10,30 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          purple: '#7C3AED',
-          'purple-dark': '#6D28D9',
-          yellow: '#FACC15',
-          'yellow-dark': '#EAB308',
-          ink: '#0F172A',
-          muted: '#64748B',
-          line: '#E2E8F0',
+          emerald: '#0F5132',
+          'emerald-deep': '#0A3D26',
+          'emerald-soft': '#2F7A56',
+          cream: '#F6EFE0',
+          'cream-card': '#FBF6EA',
+          'cream-deep': '#EDE3CC',
+          ink: '#161512',
+          muted: '#6E6557',
+          hairline: '#D9CDB4',
+          mustard: '#C8932B',
+          'mustard-soft': '#E0B65E',
         },
       },
+      fontFamily: {
+        display: ['var(--font-display)', 'ui-serif', 'Georgia', 'serif'],
+        sans: ['var(--font-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+      },
       maxWidth: {
-        page: '1200px',
+        page: '1240px',
+        prose: '68ch',
+      },
+      letterSpacing: {
+        widest: '0.18em',
       },
     },
   },

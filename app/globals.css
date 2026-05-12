@@ -3,29 +3,58 @@
 @tailwind utilities;
 
 :root {
-  --bg: #FFFFFF;
-  --ink: #0F172A;
-  --muted: #64748B;
-  --line: #E2E8F0;
-  --purple: #7C3AED;
-  --yellow: #FACC15;
+  --cream: #F6EFE0;
+  --cream-card: #FBF6EA;
+  --ink: #161512;
+  --muted: #6E6557;
+  --emerald: #0F5132;
+  --hairline: #D9CDB4;
 }
 
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
+  background-color: var(--cream);
 }
 
 body {
-  background-color: var(--bg);
+  background-color: var(--cream);
   color: var(--ink);
   font-size: 17px;
-  line-height: 1.6;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'ss01', 'cv11';
 }
 
 ::selection {
-  background: #FACC15;
-  color: #0F172A;
+  background: #0F5132;
+  color: #F6EFE0;
+}
+
+.font-display {
+  font-feature-settings: 'ss01';
+  letter-spacing: -0.018em;
+}
+
+.label-cap {
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.hairline {
+  border-color: var(--hairline);
+}
+
+/* A whisper of paper texture. No images. */
+.paper {
+  background-color: var(--cream);
+  background-image:
+    radial-gradient(rgba(15, 81, 50, 0.022) 1px, transparent 1px),
+    radial-gradient(rgba(15, 81, 50, 0.018) 1px, transparent 1px);
+  background-size: 22px 22px, 14px 14px;
+  background-position: 0 0, 7px 7px;
 }
