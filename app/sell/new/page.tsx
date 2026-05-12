@@ -147,22 +147,13 @@ export default function NewListingPage() {
       </Step>
 
       {/* STEP 3 — AI-assisted description (the differentiator) */}
-      <section className="relative px-6 lg:px-10 py-16 sm:py-24 border-t border-brand-hairline bg-brand-emerald-deep text-brand-cream overflow-hidden">
-        <div
-          aria-hidden
-          className="absolute top-8 right-8 sm:top-14 sm:right-16 hidden sm:block"
-        >
-          <Sticker tone="mustard" rotate="6deg">
-            The differentiator
-          </Sticker>
-        </div>
-
+      <section className="px-6 lg:px-10 py-14 sm:py-20 border-t border-brand-hairline bg-brand-emerald-deep text-brand-cream">
         <div className="max-w-page mx-auto">
           <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-cream/70">
             №03 · The good part
           </span>
           <h2
-            className="font-display mt-5 text-4xl sm:text-6xl lg:text-7xl tracking-tight leading-[0.95]"
+            className="font-display mt-5 text-4xl sm:text-6xl tracking-tight leading-[0.95] max-w-3xl"
             style={{ letterSpacing: '-0.03em' }}
           >
             Let the AI{' '}
@@ -170,103 +161,79 @@ export default function NewListingPage() {
               write it.
             </em>
           </h2>
-          <p className="mt-5 text-brand-cream/85 max-w-2xl text-lg">
-            Talk into the mic, drop a doc, paste your notes. We’ll draft the
-            whole listing — title, tagline, description, what’s-inside, setup
-            steps, use cases. Refine by voice until it sounds like you.
+          <p className="mt-4 text-brand-cream/85 max-w-2xl">
+            Talk, drop a doc, or paste your notes. Skillzy drafts the whole
+            listing. Refine by voice until it sounds like you.
           </p>
 
-          <div className="mt-12 grid grid-cols-1 lg:grid-cols-12 gap-px bg-brand-cream/10 border border-brand-cream/15">
+          <div className="mt-10 grid grid-cols-1 lg:grid-cols-12 gap-px bg-brand-cream/10 border border-brand-cream/15">
             {/* INPUT */}
-            <div className="lg:col-span-5 bg-brand-emerald-deep p-6 sm:p-8">
+            <div className="lg:col-span-5 bg-brand-emerald-deep p-6">
               <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-cream/70">
                 Tell it what you built
               </span>
 
               <div className="mt-4 flex gap-2">
-                <button
-                  type="button"
-                  className="flex-1 inline-flex items-center justify-center gap-2 bg-brand-cream text-brand-ink font-medium px-4 py-3 text-sm hover:bg-white transition-colors"
-                >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} aria-hidden>
-                    <rect x="9" y="3" width="6" height="12" rx="3" />
-                    <path d="M5 11a7 7 0 0 0 14 0M12 18v3" strokeLinecap="round" />
-                  </svg>
-                  Talk
-                </button>
-                <button
-                  type="button"
-                  className="flex-1 inline-flex items-center justify-center gap-2 border border-brand-cream/30 text-brand-cream font-medium px-4 py-3 text-sm hover:bg-brand-cream/10 transition-colors"
-                >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} aria-hidden>
-                    <path d="M14 3v4a2 2 0 0 0 2 2h4M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9L14 3Z" />
-                  </svg>
-                  Upload
-                </button>
-                <button
-                  type="button"
-                  className="flex-1 inline-flex items-center justify-center gap-2 border border-brand-cream/30 text-brand-cream font-medium px-4 py-3 text-sm hover:bg-brand-cream/10 transition-colors"
-                >
-                  Type
-                </button>
+                {['Talk', 'Upload', 'Type'].map((label, i) => (
+                  <button
+                    key={label}
+                    type="button"
+                    className={
+                      'flex-1 inline-flex items-center justify-center px-3 py-2.5 text-sm transition-colors ' +
+                      (i === 0
+                        ? 'bg-brand-cream text-brand-ink hover:bg-white'
+                        : 'border border-brand-cream/30 text-brand-cream hover:bg-brand-cream/10')
+                    }
+                  >
+                    {label}
+                  </button>
+                ))}
               </div>
 
               <textarea
-                rows={9}
-                defaultValue="Real estate skill bundle — captures leads, drafts listings, follows up. Built it for my old agency, used it on 240+ properties."
-                className="mt-4 w-full bg-brand-emerald-deep border border-brand-cream/15 focus:border-brand-cream/40 outline-none p-3 text-sm text-brand-cream placeholder:text-brand-cream/40 font-mono"
+                rows={6}
+                defaultValue="Real estate skill bundle — captures leads, drafts listings, follows up. Used it on 240+ properties at my old agency."
+                className="mt-4 w-full bg-transparent border border-brand-cream/15 focus:border-brand-cream/40 outline-none p-3 text-sm text-brand-cream placeholder:text-brand-cream/40 font-mono"
                 aria-label="Describe what you built"
               />
 
-              <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.18em] text-brand-cream/60">
-                Or refine by voice
-              </p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {['Make it shorter', 'More casual', 'Emphasise time saved', 'Speak to solo agents'].map((s) => (
+              <div className="mt-4 flex flex-wrap gap-1.5">
+                {['Make it shorter', 'More casual', 'Speak to solo agents'].map((s) => (
                   <button
                     key={s}
                     type="button"
-                    className="text-xs px-3 py-1.5 border border-brand-cream/30 text-brand-cream hover:bg-brand-cream/10 transition-colors"
+                    className="text-xs px-2.5 py-1 border border-brand-cream/25 text-brand-cream/90 hover:bg-brand-cream/10 transition-colors"
                   >
-                    {s}
+                    + {s}
                   </button>
                 ))}
               </div>
             </div>
 
             {/* PREVIEW */}
-            <div className="lg:col-span-7 bg-brand-cream-card text-brand-ink p-6 sm:p-8 overflow-hidden">
-              <div className="flex items-center justify-between">
-                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
-                  Live draft · sign off when ready
-                </span>
-                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
-                  Drafting…
-                </span>
-              </div>
+            <div className="lg:col-span-7 bg-brand-cream-card text-brand-ink p-6 sm:p-8">
+              <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+                Live draft · sign off when ready
+              </span>
 
               <h3
-                className="font-display text-3xl sm:text-4xl mt-5 tracking-tight"
+                className="font-display text-2xl sm:text-3xl mt-4 tracking-tight"
                 style={{ letterSpacing: '-0.02em' }}
               >
                 Real Estate, end to end.
               </h3>
-              <p className="mt-3 text-brand-muted">
+              <p className="mt-2 text-brand-muted text-sm">
                 Lead capture, listings, follow-ups, market reports. Plug it in,
                 get an agent that runs the desk.
               </p>
 
-              <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald mt-6">
-                What’s inside
-              </p>
-              <ul className="mt-2 text-sm space-y-1.5 list-disc pl-5 text-brand-ink">
+              <ul className="mt-5 text-sm space-y-1.5 list-disc pl-5 text-brand-ink">
                 <li>12 SKILL.md files covering leads, listings, follow-ups</li>
-                <li>System prompts for buyer + seller + rental scenarios</li>
-                <li>CRM connectors: HubSpot, Pipedrive, Follow Up Boss</li>
-                <li>14-page setup guide with screenshots</li>
+                <li>System prompts for buyer + seller + rental</li>
+                <li>HubSpot / Pipedrive / FUB connectors</li>
               </ul>
 
-              <div className="mt-7 flex gap-3 flex-wrap">
+              <div className="mt-6 flex gap-3 flex-wrap">
                 <button
                   type="button"
                   className="bg-brand-emerald text-brand-cream font-medium px-5 py-2.5 text-sm hover:bg-brand-emerald-deep transition-colors"
@@ -275,7 +242,7 @@ export default function NewListingPage() {
                 </button>
                 <button
                   type="button"
-                  className="border border-brand-ink text-brand-ink font-medium px-5 py-2.5 text-sm hover:bg-brand-ink hover:text-brand-cream transition-colors"
+                  className="text-sm border-b border-brand-ink pb-0.5 hover:text-brand-emerald hover:border-brand-emerald transition-colors"
                 >
                   Edit manually
                 </button>

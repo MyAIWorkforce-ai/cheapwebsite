@@ -133,19 +133,19 @@ export default function MarketplacePage({
           })}
         </div>
 
-        {/* niche + platform pills */}
-        <div className="mb-10 space-y-4">
-          <div className="flex items-center flex-wrap gap-x-3 gap-y-2">
-            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted mr-1">
+        {/* niche + platform — quiet inline rows */}
+        <div className="mb-10 space-y-3">
+          <div className="flex items-baseline flex-wrap gap-x-1 gap-y-1.5 text-sm">
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted mr-2">
               Niche
             </span>
             <Link
               href={`/marketplace${activeKey !== 'all' ? `?type=${activeKey}` : ''}`}
               className={
-                'text-xs px-3 py-1 border transition-colors ' +
+                'px-1.5 transition-colors ' +
                 (!niche
-                  ? 'border-brand-ink bg-brand-ink text-brand-cream'
-                  : 'border-brand-hairline text-brand-ink hover:border-brand-ink')
+                  ? 'text-brand-emerald font-semibold'
+                  : 'text-brand-muted hover:text-brand-ink')
               }
             >
               Any
@@ -157,33 +157,37 @@ export default function MarketplacePage({
               if (activeKey !== 'all') params.set('type', activeKey)
               params.set('niche', slug)
               return (
-                <Link
-                  key={n}
-                  href={`/marketplace?${params.toString()}`}
-                  className={
-                    'text-xs px-3 py-1 border transition-colors ' +
-                    (active
-                      ? 'border-brand-ink bg-brand-ink text-brand-cream'
-                      : 'border-brand-hairline text-brand-ink hover:border-brand-ink')
-                  }
-                >
-                  {n}
-                </Link>
+                <span key={n} className="inline-flex items-baseline">
+                  <span className="text-brand-hairline px-0.5" aria-hidden>
+                    ·
+                  </span>
+                  <Link
+                    href={`/marketplace?${params.toString()}`}
+                    className={
+                      'px-1.5 transition-colors ' +
+                      (active
+                        ? 'text-brand-emerald font-semibold'
+                        : 'text-brand-muted hover:text-brand-ink')
+                    }
+                  >
+                    {n}
+                  </Link>
+                </span>
               )
             })}
           </div>
 
-          <div className="flex items-center flex-wrap gap-x-3 gap-y-2">
-            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted mr-1">
+          <div className="flex items-baseline flex-wrap gap-x-1 gap-y-1.5 text-sm">
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted mr-2">
               Platform
             </span>
             <Link
               href={`/marketplace${activeKey !== 'all' ? `?type=${activeKey}` : ''}${niche ? `${activeKey !== 'all' ? '&' : '?'}niche=${niche}` : ''}`}
               className={
-                'text-xs px-3 py-1 border transition-colors ' +
+                'px-1.5 transition-colors ' +
                 (!platform
-                  ? 'border-brand-ink bg-brand-ink text-brand-cream'
-                  : 'border-brand-hairline text-brand-ink hover:border-brand-ink')
+                  ? 'text-brand-emerald font-semibold'
+                  : 'text-brand-muted hover:text-brand-ink')
               }
             >
               Any
@@ -196,18 +200,22 @@ export default function MarketplacePage({
               if (niche) params.set('niche', niche)
               params.set('platform', slug)
               return (
-                <Link
-                  key={pl}
-                  href={`/marketplace?${params.toString()}`}
-                  className={
-                    'text-xs px-3 py-1 border transition-colors ' +
-                    (active
-                      ? 'border-brand-ink bg-brand-ink text-brand-cream'
-                      : 'border-brand-hairline text-brand-ink hover:border-brand-ink')
-                  }
-                >
-                  {pl}
-                </Link>
+                <span key={pl} className="inline-flex items-baseline">
+                  <span className="text-brand-hairline px-0.5" aria-hidden>
+                    ·
+                  </span>
+                  <Link
+                    href={`/marketplace?${params.toString()}`}
+                    className={
+                      'px-1.5 transition-colors ' +
+                      (active
+                        ? 'text-brand-emerald font-semibold'
+                        : 'text-brand-muted hover:text-brand-ink')
+                    }
+                  >
+                    {pl}
+                  </Link>
+                </span>
               )
             })}
           </div>

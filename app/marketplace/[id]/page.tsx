@@ -42,23 +42,6 @@ function Stars({ rating, className = '' }: { rating: number; className?: string 
   )
 }
 
-function Sticker({
-  children,
-  rotate = '-3deg',
-}: {
-  children: React.ReactNode
-  rotate?: string
-}) {
-  return (
-    <span
-      className="inline-block font-mono text-[11px] uppercase tracking-[0.18em] px-3 py-1.5 bg-brand-mustard text-brand-ink"
-      style={{ transform: `rotate(${rotate})` }}
-    >
-      {children}
-    </span>
-  )
-}
-
 export default function ProductDetailPage({
   params,
 }: {
@@ -465,55 +448,22 @@ export default function ProductDetailPage({
         </div>
       </section>
 
-      {/* BUY AGAIN + REPORT */}
-      <section className="relative px-6 lg:px-10 py-20 sm:py-28 bg-brand-emerald text-brand-cream overflow-hidden">
-        <div
-          aria-hidden
-          className="absolute top-8 right-8 sm:top-14 sm:right-16 hidden sm:block"
-        >
-          <Sticker rotate="5deg">30-day refund</Sticker>
-        </div>
-
-        <div className="max-w-page mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 items-end">
-          <div className="lg:col-span-8">
-            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-cream/70">
-              Ready when you are
-            </span>
-            <h2
-              className="font-display mt-5 text-5xl sm:text-7xl leading-[0.95] tracking-tight"
-              style={{ letterSpacing: '-0.03em' }}
-            >
-              Plug it in.{' '}
-              <em className="italic text-brand-mustard-soft font-medium">
-                Done.
-              </em>
-            </h2>
-            <p className="mt-5 text-brand-cream/85 max-w-xl">
-              Files emailed instantly. Re-downloadable forever. Stripe-secured
-              checkout. 30-day refund.
-            </p>
-          </div>
-          <div className="lg:col-span-4 lg:flex lg:justify-end">
-            <Link
-              href={`/checkout/${p.id}`}
-              className="inline-flex items-center gap-2 bg-brand-cream text-brand-ink font-medium px-8 py-4 text-[15px] hover:bg-white transition-colors"
-            >
-              {headlineCta} — {p.price}
-              <span aria-hidden>→</span>
-            </Link>
-          </div>
-        </div>
-
-        <div className="max-w-page mx-auto mt-12 pt-6 border-t border-brand-cream/15 flex items-center justify-between flex-wrap gap-4">
-          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-cream/60">
-            Listing №{p.id}
-          </span>
+      {/* SLIM CTA + REPORT */}
+      <section className="px-6 lg:px-10 py-10 sm:py-14 border-t border-brand-hairline">
+        <div className="max-w-page mx-auto flex items-center justify-between flex-wrap gap-6">
           <a
             href={`mailto:safety@skillzy.com?subject=Report%20listing%20${encodeURIComponent(p.id)}`}
-            className="text-xs text-brand-cream/70 border-b border-brand-cream/40 hover:text-brand-cream hover:border-brand-cream pb-0.5"
+            className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted hover:text-brand-ink transition-colors"
           >
             Report this listing
           </a>
+          <Link
+            href={`/checkout/${p.id}`}
+            className="inline-flex items-center gap-2 bg-brand-emerald text-brand-cream font-medium px-7 py-3.5 text-[15px] hover:bg-brand-emerald-deep transition-colors"
+          >
+            {headlineCta} — {p.price}
+            <span aria-hidden>→</span>
+          </Link>
         </div>
       </section>
 

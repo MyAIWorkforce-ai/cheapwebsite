@@ -191,8 +191,34 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* CREATOR HOOK — quiet strip between hero and products */}
+      <section className="border-y border-brand-hairline">
+        <div className="max-w-page mx-auto px-6 lg:px-10 py-6 sm:py-7 flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-baseline gap-x-3 gap-y-1 flex-wrap">
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+              For creators
+            </span>
+            <span className="text-brand-ink">
+              Built something good?{' '}
+              <span className="font-display text-lg italic text-brand-emerald">
+                Sell it.
+              </span>{' '}
+              <span className="text-brand-muted">
+                · Most ship in under 10 minutes · Keep 80% of every sale
+              </span>
+            </span>
+          </div>
+          <Link
+            href="/sell"
+            className="font-mono text-[11px] uppercase tracking-[0.18em] border-b border-brand-ink pb-0.5 hover:text-brand-emerald hover:border-brand-emerald transition-colors whitespace-nowrap"
+          >
+            Start selling →
+          </Link>
+        </div>
+      </section>
+
       {/* SETUPS */}
-      <section className="px-6 lg:px-10 py-20 sm:py-28 border-t border-brand-hairline">
+      <section className="px-6 lg:px-10 py-20 sm:py-28">
         <div className="max-w-page mx-auto">
           <div className="flex items-end justify-between gap-6 mb-12 sm:mb-14 flex-wrap">
             <div>

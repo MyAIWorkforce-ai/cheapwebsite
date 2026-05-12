@@ -89,8 +89,8 @@ export default function SellPage() {
         <div className="max-w-page mx-auto grid grid-cols-1 md:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">
           {[
             { n: '80%', label: 'You keep', desc: 'On every sale. Always.' },
-            { n: '$0', label: 'To list', desc: 'No fees. No subscriptions.' },
-            { n: '1', label: 'Click to Stripe', desc: 'Only when you publish.' },
+            { n: '10 min', label: 'To publish', desc: 'Average time from sign-up to live.' },
+            { n: 'Stripe', label: 'Pays you direct', desc: 'Never held by us. Ever.' },
           ].map((s) => (
             <div key={s.label} className="bg-brand-cream-card p-8 sm:p-10">
               <p
