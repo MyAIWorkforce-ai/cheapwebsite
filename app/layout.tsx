@@ -4,19 +4,27 @@ import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ['latin'], display: 'swap' })
 
 export const metadata: Metadata = {
-  title: 'CheapWebsite.com.au — Professional Website Refresh. Without the Agency Price Tag.',
-  description: 'Submit your URL today — we\'ll modernise your site, fix broken links, update content and improve your SEO. Delivered in 48 hours. From $297.',
-  keywords: 'website refresh, cheap website, website redesign, Australia, affordable web design',
+  title: 'Skillzy — Give your agent skills',
+  description:
+    'Browse thousands of skills, guides, and ready-to-go agent setups for Claude, OpenClaw, n8n and more. Drop them in. Done.',
+  keywords:
+    'AI agent skills, Claude skills, OpenClaw, n8n, agent setups, SKILL.md, AI marketplace',
   openGraph: {
-    title: 'CheapWebsite.com.au — Professional Website Refresh',
-    description: 'Modernise your website from $297. 48-hour delivery. No agency markup.',
-    url: 'https://cheapwebsite.com.au',
-    siteName: 'CheapWebsite.com.au',
-    locale: 'en_AU',
+    title: 'Skillzy — Give your agent skills',
+    description:
+      'Browse thousands of skills, guides, and ready-to-go agent setups. Drop them in. Done.',
+    url: 'https://skillzy.com',
+    siteName: 'Skillzy',
     type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Skillzy — Give your agent skills',
+    description:
+      'Browse thousands of skills, guides, and ready-to-go agent setups. Drop them in. Done.',
   },
 }
 
@@ -26,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en-AU">
+    <html lang="en">
       <body className={inter.className}>
         <Navbar />
         <main>{children}</main>
