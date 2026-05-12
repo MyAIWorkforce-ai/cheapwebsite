@@ -54,6 +54,12 @@ export default function Navbar() {
             Sell
           </Link>
           <Link
+            href="/dashboard"
+            className="text-sm text-brand-ink hover:text-brand-emerald transition-colors"
+          >
+            Dashboard
+          </Link>
+          <Link
             href="/signin"
             className="text-sm text-brand-ink hover:text-brand-emerald transition-colors"
           >
@@ -89,6 +95,7 @@ export default function Navbar() {
             </form>
             <Link href="/marketplace" onClick={() => setOpen(false)} className="py-2">Marketplace</Link>
             <Link href="/sell" onClick={() => setOpen(false)} className="py-2">Sell</Link>
+            <Link href="/dashboard" onClick={() => setOpen(false)} className="py-2">Dashboard</Link>
             <Link href="/signin" onClick={() => setOpen(false)} className="py-2">Sign in</Link>
           </div>
         </div>

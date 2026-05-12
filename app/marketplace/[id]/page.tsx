@@ -132,7 +132,12 @@ export default function ProductDetailPage({
             <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
               <span>
                 by{' '}
-                <span className="font-semibold text-brand-ink">{p.creator.name}</span>{' '}
+                <Link
+                  href={`/creator/${p.creator.handle.replace(/^@/, '')}`}
+                  className="font-semibold text-brand-ink border-b border-brand-ink hover:text-brand-emerald hover:border-brand-emerald pb-0.5"
+                >
+                  {p.creator.name}
+                </Link>{' '}
                 <span className="text-brand-muted">{p.creator.handle}</span>
               </span>
               <Stars rating={p.rating} className="text-brand-ink" />
@@ -171,13 +176,13 @@ export default function ProductDetailPage({
                 One-time. {isSetup ? 'Re-installable forever.' : 'Re-download forever.'}
               </p>
 
-              <button
-                type="button"
+              <Link
+                href={`/checkout/${p.id}`}
                 className="mt-7 w-full inline-flex items-center justify-center gap-2 bg-brand-emerald text-brand-cream font-medium px-7 py-4 text-[15px] hover:bg-brand-emerald-deep transition-colors"
               >
                 {headlineCta}
                 <span aria-hidden>→</span>
-              </button>
+              </Link>
 
               <ul className="mt-6 space-y-2.5 text-sm text-brand-ink">
                 <li className="flex items-start gap-2">
@@ -353,9 +358,13 @@ export default function ProductDetailPage({
           <div className="lg:col-span-8">
             <div className="bg-brand-cream-card border border-brand-hairline p-7 sm:p-9">
               <div className="flex items-baseline justify-between gap-4 flex-wrap">
-                <p className="font-display text-3xl tracking-tight">
+                <Link
+                  href={`/creator/${p.creator.handle.replace(/^@/, '')}`}
+                  className="font-display text-3xl tracking-tight hover:text-brand-emerald transition-colors"
+                  style={{ letterSpacing: '-0.02em' }}
+                >
                   {p.creator.name}
-                </p>
+                </Link>
                 <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
                   {p.creator.handle}
                 </span>
@@ -485,13 +494,13 @@ export default function ProductDetailPage({
             </p>
           </div>
           <div className="lg:col-span-4 lg:flex lg:justify-end">
-            <button
-              type="button"
+            <Link
+              href={`/checkout/${p.id}`}
               className="inline-flex items-center gap-2 bg-brand-cream text-brand-ink font-medium px-8 py-4 text-[15px] hover:bg-white transition-colors"
             >
               {headlineCta} — {p.price}
               <span aria-hidden>→</span>
-            </button>
+            </Link>
           </div>
         </div>
 

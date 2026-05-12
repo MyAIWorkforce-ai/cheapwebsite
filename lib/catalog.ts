@@ -929,6 +929,26 @@ export function getRelated(p: Product): Product[] {
     .filter((q): q is Product => Boolean(q))
 }
 
+function normalizeHandle(raw: string): string {
+  return raw.replace(/^@/, '').toLowerCase()
+}
+
+export function getProductsByCreatorHandle(handle: string): Product[] {
+  const h = normalizeHandle(handle)
+  return products.filter((p) => normalizeHandle(p.creator.handle) === h)
+}
+
+export function getCreatorByHandle(handle: string): Creator | undefined {
+  const found = getProductsByCreatorHandle(handle)[0]
+  return found?.creator
+}
+
+export function allCreatorHandles(): string[] {
+  const set = new Set<string>()
+  for (const p of products) set.add(normalizeHandle(p.creator.handle))
+  return Array.from(set)
+}
+
 export type CardProduct = {
   id: string
   type: ProductType
