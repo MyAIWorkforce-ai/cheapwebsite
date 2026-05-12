@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getProduct, products } from '@/lib/catalog'
+import { getUser } from '@/lib/auth'
+import CheckoutForm from './CheckoutForm'
 
 export function generateStaticParams() {
   return products.map((p) => ({ id: p.id }))
@@ -12,9 +14,10 @@ export function generateMetadata({ params }: { params: { id: string } }) {
   return { title: `Checkout · ${p.title} — Skillzy` }
 }
 
-export default function CheckoutPage({ params }: { params: { id: string } }) {
+export default async function CheckoutPage({ params }: { params: { id: string } }) {
   const p = getProduct(params.id)
   if (!p) notFound()
+  const user = await getUser()
 
   const priceNumber = Number(p.price.replace(/[^0-9.]/g, ''))
   const creatorCut = (priceNumber * 0.8).toFixed(2)
@@ -52,120 +55,11 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
           </p>
 
           <div className="mt-12 grid grid-cols-1 lg:grid-cols-12 gap-10">
-            {/* PAYMENT */}
-            <form
-              action="/order/success"
-              method="GET"
-              className="lg:col-span-7"
-            >
-              <input type="hidden" name="id" value={p.id} />
-
-              <fieldset className="space-y-7">
-                <legend className="font-display text-2xl tracking-tight mb-5">
-                  Where do we send the files?
-                </legend>
-
-                <label className="block">
-                  <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
-                    Email
-                  </span>
-                  <input
-                    type="email"
-                    name="email"
-                    required
-                    placeholder="you@example.com"
-                    className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg placeholder:text-brand-muted/60"
-                  />
-                </label>
-
-                <label className="block">
-                  <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
-                    Country
-                  </span>
-                  <select
-                    name="country"
-                    defaultValue="AU"
-                    className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg"
-                  >
-                    <option value="AU">Australia</option>
-                    <option value="NZ">New Zealand</option>
-                    <option value="US">United States</option>
-                    <option value="GB">United Kingdom</option>
-                    <option value="CA">Canada</option>
-                    <option value="DE">Germany</option>
-                    <option value="other">Somewhere else</option>
-                  </select>
-                </label>
-              </fieldset>
-
-              <fieldset className="mt-12 pt-10 border-t border-brand-hairline space-y-7">
-                <legend className="font-display text-2xl tracking-tight mb-5 flex items-center justify-between">
-                  <span>Card details</span>
-                  <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted normal-case">
-                    Secured by Stripe
-                  </span>
-                </legend>
-
-                <label className="block">
-                  <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
-                    Card number
-                  </span>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    placeholder="4242 4242 4242 4242"
-                    className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg placeholder:text-brand-muted/60 font-mono"
-                  />
-                </label>
-
-                <div className="grid grid-cols-2 gap-6">
-                  <label className="block">
-                    <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
-                      Expiry
-                    </span>
-                    <input
-                      type="text"
-                      placeholder="MM / YY"
-                      className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg placeholder:text-brand-muted/60 font-mono"
-                    />
-                  </label>
-                  <label className="block">
-                    <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
-                      CVC
-                    </span>
-                    <input
-                      type="text"
-                      placeholder="123"
-                      className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg placeholder:text-brand-muted/60 font-mono"
-                    />
-                  </label>
-                </div>
-
-                <label className="block">
-                  <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
-                    Name on card
-                  </span>
-                  <input
-                    type="text"
-                    placeholder="As it appears"
-                    className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg placeholder:text-brand-muted/60"
-                  />
-                </label>
-              </fieldset>
-
-              <button
-                type="submit"
-                className="mt-12 inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-8 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
-              >
-                Pay {p.price} — plug it in
-                <span aria-hidden>→</span>
-              </button>
-
-              <p className="mt-4 text-xs text-brand-muted max-w-md">
-                Mock checkout for the prototype. Real Stripe Connect comes next.
-                No real card details will be charged.
-              </p>
-            </form>
+            <CheckoutForm
+              listingId={p.id}
+              price={p.price}
+              defaultEmail={user?.email}
+            />
 
             {/* SUMMARY */}
             <aside className="lg:col-span-5">
