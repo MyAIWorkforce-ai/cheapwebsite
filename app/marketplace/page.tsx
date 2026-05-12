@@ -1,26 +1,12 @@
 import Link from 'next/link'
-import ProductCard, { type Product, type ProductType } from '@/components/ProductCard'
+import ProductCard from '@/components/ProductCard'
+import { products, toCardProduct, type ProductType } from '@/lib/catalog'
 
 export const metadata = {
   title: 'The catalogue — Skillzy',
   description:
-    'Browse skills, guides, and ready-to-go agent setups for Claude, OpenClaw, n8n and more.',
+    'Browse skills, guides, and ready-to-go agent setups for Claude, OpenClaw, Hermes, n8n and more.',
 }
-
-const catalog: Product[] = [
-  { id: 'real-estate-agent-setup', type: 'Agent Setup', title: 'Real Estate, end to end.', creator: 'Harlow Realty Tools', platform: 'Claude · n8n', rating: 4.9, ratingCount: 218, price: '$249' },
-  { id: 'bookkeeper-agent-setup', type: 'Agent Setup', title: 'Bookkeeper & BAS.', creator: 'Ledgerlab', platform: 'Claude', rating: 4.8, ratingCount: 142, price: '$199' },
-  { id: 'tradie-agent-setup', type: 'Agent Setup', title: 'On-site Tradie Ops.', creator: 'Sitebench', platform: 'Claude · Make', rating: 4.9, ratingCount: 96, price: '$179' },
-  { id: 'ecom-support-agent-setup', type: 'Agent Setup', title: 'E-commerce Support.', creator: 'Storefront Labs', platform: 'Claude · Zapier', rating: 4.7, ratingCount: 311, price: '$299' },
-  { id: 'coach-agent-setup', type: 'Agent Setup', title: 'Coach & Client Notes.', creator: 'practice.os', platform: 'Claude', rating: 4.8, ratingCount: 74, price: '$149' },
-  { id: 'restaurant-agent-setup', type: 'Agent Setup', title: 'Front of House Ops.', creator: 'Front of House', platform: 'Claude', rating: 4.6, ratingCount: 51, price: '$129' },
-  { id: 'daily-summary-email', type: 'Skill', title: 'Daily Summary Email', creator: 'Jonas Krüger', platform: 'Claude', rating: 4.8, ratingCount: 412, price: '$12' },
-  { id: 'website-scraper', type: 'Skill', title: 'Website Scraper', creator: 'datajedi', platform: 'OpenClaw', rating: 4.6, ratingCount: 188, price: '$19' },
-  { id: 'invoice-generator', type: 'Skill', title: 'Invoice Generator', creator: 'paperless.io', platform: 'Claude · n8n', rating: 4.9, ratingCount: 524, price: '$15' },
-  { id: 'review-responder', type: 'Skill', title: 'Review Responder', creator: 'Kai Mendoza', platform: 'Claude', rating: 4.7, ratingCount: 233, price: '$9' },
-  { id: 'wire-claude-and-n8n', type: 'Guide', title: 'Wire Claude into n8n in a weekend.', creator: 'Mira Sato', platform: 'Claude · n8n', rating: 4.9, ratingCount: 178, price: '$14' },
-  { id: 'first-skill-md', type: 'Guide', title: 'Your first SKILL.md, the right way.', creator: 'agentschool', platform: 'All platforms', rating: 4.8, ratingCount: 402, price: '$9' },
-]
 
 const filters: { label: string; type?: ProductType; key: string }[] = [
   { label: 'All', key: 'all' },
@@ -32,20 +18,32 @@ const filters: { label: string; type?: ProductType; key: string }[] = [
 export default function MarketplacePage({
   searchParams,
 }: {
-  searchParams: { type?: string; q?: string; niche?: string }
+  searchParams: { type?: string; q?: string; niche?: string; platform?: string }
 }) {
   const activeKey = searchParams.type ?? 'all'
   const query = searchParams.q?.toLowerCase().trim()
+  const niche = searchParams.niche?.toLowerCase().trim()
+  const platform = searchParams.platform?.toLowerCase().trim()
 
-  const products = catalog.filter((p) => {
-    const filter = filters.find((f) => f.key === activeKey)
-    if (filter?.type && p.type !== filter.type) return false
+  const filtered = products.filter((p) => {
+    const f = filters.find((x) => x.key === activeKey)
+    if (f?.type && p.type !== f.type) return false
     if (query) {
-      const hay = `${p.title} ${p.creator} ${p.type}`.toLowerCase()
+      const hay = `${p.title} ${p.tagline} ${p.creator.name} ${p.type} ${p.niche ?? ''}`.toLowerCase()
       if (!hay.includes(query)) return false
+    }
+    if (niche) {
+      const slug = (p.niche ?? '').toLowerCase().replace(/\s+/g, '-')
+      if (!slug.includes(niche) && (p.niche ?? '').toLowerCase() !== niche) return false
+    }
+    if (platform) {
+      if (!p.platformList.some((pl) => pl.toLowerCase().includes(platform))) return false
     }
     return true
   })
+
+  const platforms = Array.from(new Set(products.flatMap((p) => p.platformList))).sort()
+  const niches = Array.from(new Set(products.map((p) => p.niche).filter(Boolean))) as string[]
 
   return (
     <div className="paper">
@@ -65,13 +63,56 @@ export default function MarketplacePage({
             Skills, guides, full agent setups. Every listing reviewed by a human.
             No mystery meat.
           </p>
+
+          {/* search */}
+          <form
+            action="/marketplace"
+            method="GET"
+            className="mt-10 max-w-2xl"
+          >
+            <div className="flex items-baseline gap-3 border-b border-brand-ink pb-2">
+              <svg
+                aria-hidden
+                className="w-4 h-4 text-brand-ink shrink-0"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.75}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z"
+                />
+              </svg>
+              <input
+                type="search"
+                name="q"
+                defaultValue={searchParams.q ?? ''}
+                placeholder="invoices, real estate, daily summary…"
+                className="flex-1 bg-transparent outline-none font-display text-xl text-brand-ink placeholder:text-brand-muted/70 placeholder:italic"
+                autoComplete="off"
+              />
+              <button
+                type="submit"
+                className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-ink hover:text-brand-emerald transition-colors"
+              >
+                Search →
+              </button>
+            </div>
+          </form>
         </div>
       </section>
 
       <div className="max-w-page mx-auto px-6 lg:px-10 py-10 sm:py-14">
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mb-10 border-b border-brand-hairline pb-5">
+        {/* type tabs */}
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mb-8 border-b border-brand-hairline pb-5">
           {filters.map((f) => {
             const active = f.key === activeKey
+            const count =
+              f.key === 'all'
+                ? products.length
+                : products.filter((p) => p.type === f.type).length
             return (
               <Link
                 key={f.key}
@@ -84,14 +125,92 @@ export default function MarketplacePage({
                 }
               >
                 {f.label}
-                <span className="ml-2 label-cap">
-                  {f.key === 'all'
-                    ? catalog.length
-                    : catalog.filter((p) => p.type === f.type).length}
+                <span className="ml-2 font-mono text-[11px] uppercase tracking-[0.18em]">
+                  {count}
                 </span>
               </Link>
             )
           })}
+        </div>
+
+        {/* niche + platform pills */}
+        <div className="mb-10 space-y-4">
+          <div className="flex items-center flex-wrap gap-x-3 gap-y-2">
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted mr-1">
+              Niche
+            </span>
+            <Link
+              href={`/marketplace${activeKey !== 'all' ? `?type=${activeKey}` : ''}`}
+              className={
+                'text-xs px-3 py-1 border transition-colors ' +
+                (!niche
+                  ? 'border-brand-ink bg-brand-ink text-brand-cream'
+                  : 'border-brand-hairline text-brand-ink hover:border-brand-ink')
+              }
+            >
+              Any
+            </Link>
+            {niches.map((n) => {
+              const slug = n.toLowerCase().replace(/\s+/g, '-')
+              const active = niche === slug || niche === n.toLowerCase()
+              const params = new URLSearchParams()
+              if (activeKey !== 'all') params.set('type', activeKey)
+              params.set('niche', slug)
+              return (
+                <Link
+                  key={n}
+                  href={`/marketplace?${params.toString()}`}
+                  className={
+                    'text-xs px-3 py-1 border transition-colors ' +
+                    (active
+                      ? 'border-brand-ink bg-brand-ink text-brand-cream'
+                      : 'border-brand-hairline text-brand-ink hover:border-brand-ink')
+                  }
+                >
+                  {n}
+                </Link>
+              )
+            })}
+          </div>
+
+          <div className="flex items-center flex-wrap gap-x-3 gap-y-2">
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted mr-1">
+              Platform
+            </span>
+            <Link
+              href={`/marketplace${activeKey !== 'all' ? `?type=${activeKey}` : ''}${niche ? `${activeKey !== 'all' ? '&' : '?'}niche=${niche}` : ''}`}
+              className={
+                'text-xs px-3 py-1 border transition-colors ' +
+                (!platform
+                  ? 'border-brand-ink bg-brand-ink text-brand-cream'
+                  : 'border-brand-hairline text-brand-ink hover:border-brand-ink')
+              }
+            >
+              Any
+            </Link>
+            {platforms.map((pl) => {
+              const slug = pl.toLowerCase()
+              const active = platform === slug
+              const params = new URLSearchParams()
+              if (activeKey !== 'all') params.set('type', activeKey)
+              if (niche) params.set('niche', niche)
+              params.set('platform', slug)
+              return (
+                <Link
+                  key={pl}
+                  href={`/marketplace?${params.toString()}`}
+                  className={
+                    'text-xs px-3 py-1 border transition-colors ' +
+                    (active
+                      ? 'border-brand-ink bg-brand-ink text-brand-cream'
+                      : 'border-brand-hairline text-brand-ink hover:border-brand-ink')
+                  }
+                >
+                  {pl}
+                </Link>
+              )
+            })}
+          </div>
         </div>
 
         {query && (
@@ -101,7 +220,7 @@ export default function MarketplacePage({
           </p>
         )}
 
-        {products.length === 0 ? (
+        {filtered.length === 0 ? (
           <div className="py-24 text-center">
             <p className="font-display text-3xl">Nothing matched. Try less.</p>
             <Link
@@ -113,10 +232,10 @@ export default function MarketplacePage({
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">
-            {products.map((p, i) => (
+            {filtered.map((p, i) => (
               <ProductCard
                 key={p.id}
-                product={p}
+                product={toCardProduct(p)}
                 variant={i % 5 === 2 ? 'emerald' : 'cream'}
               />
             ))}

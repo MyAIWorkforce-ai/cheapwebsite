@@ -32,10 +32,12 @@ function Sticker({
 }
 
 const steps = [
-  { n: '01', title: 'List it', desc: 'Skill, guide, or full agent setup. Drop in your files.' },
-  { n: '02', title: 'Let it describe itself', desc: 'Talk, type, or paste your notes. The listing writes itself. You sign off.' },
-  { n: '03', title: 'Connect Stripe', desc: 'One click. Only when you publish. Payouts go to your account.' },
-  { n: '04', title: 'Get paid', desc: 'Keep 80%. Stripe splits the cash. We never hold it.' },
+  { n: '01', title: 'Sign up', desc: 'Email or one-click GitHub login. No profile to fill in.' },
+  { n: '02', title: 'List it', desc: 'Skill, guide, or full agent setup. Drop in your files.' },
+  { n: '03', title: 'Let it describe itself', desc: 'Upload notes, talk, or type. Our AI drafts the full listing — title, blurb, features, setup. Refine by voice until it sounds like you.' },
+  { n: '04', title: 'Submit for review', desc: 'Auto-scan plus a human review on your first listing. Usually under 24 hours.' },
+  { n: '05', title: 'Connect Stripe', desc: 'One click at publish. Payouts go straight to your account. Skillzy never touches the money.' },
+  { n: '06', title: 'Get paid', desc: 'Keep 80%. Stripe splits the cash. You re-list, raise prices, or pull anytime.' },
 ]
 
 export default function SellPage() {

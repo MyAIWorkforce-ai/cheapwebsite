@@ -1,52 +1,22 @@
 import Link from 'next/link'
 import Logo from '@/components/Logo'
-import ProductCard, { type Product } from '@/components/ProductCard'
+import ProductCard from '@/components/ProductCard'
+import { products, toCardProduct } from '@/lib/catalog'
 
-const agentSetups: Product[] = [
-  {
-    id: 'real-estate-agent-setup',
-    type: 'Agent Setup',
-    title: 'Real Estate, end to end.',
-    creator: 'Harlow Realty Tools',
-    platform: 'Claude · n8n',
-    rating: 4.9,
-    ratingCount: 218,
-    price: '$249',
-  },
-  {
-    id: 'bookkeeper-agent-setup',
-    type: 'Agent Setup',
-    title: 'Bookkeeper & BAS.',
-    creator: 'Ledgerlab',
-    platform: 'Claude',
-    rating: 4.8,
-    ratingCount: 142,
-    price: '$199',
-  },
-  {
-    id: 'tradie-agent-setup',
-    type: 'Agent Setup',
-    title: 'On-site Tradie Ops.',
-    creator: 'Sitebench',
-    platform: 'Claude · Make',
-    rating: 4.9,
-    ratingCount: 96,
-    price: '$179',
-  },
-]
+const agentSetups = products
+  .filter((p) => p.type === 'Agent Setup')
+  .slice(0, 3)
+  .map(toCardProduct)
 
-const skills: Product[] = [
-  { id: 'daily-summary-email', type: 'Skill', title: 'Daily Summary Email', creator: 'Jonas Krüger', platform: 'Claude', rating: 4.8, ratingCount: 412, price: '$12' },
-  { id: 'invoice-generator', type: 'Skill', title: 'Invoice Generator', creator: 'paperless.io', platform: 'Claude · n8n', rating: 4.9, ratingCount: 524, price: '$15' },
-  { id: 'website-scraper', type: 'Skill', title: 'Website Scraper', creator: 'datajedi', platform: 'OpenClaw', rating: 4.6, ratingCount: 188, price: '$19' },
-  { id: 'review-responder', type: 'Skill', title: 'Review Responder', creator: 'Kai Mendoza', platform: 'Claude', rating: 4.7, ratingCount: 233, price: '$9' },
-]
+const skills = products
+  .filter((p) => p.type === 'Skill')
+  .slice(0, 4)
+  .map(toCardProduct)
 
-const guides: Product[] = [
-  { id: 'wire-claude-and-n8n', type: 'Guide', title: 'Wire Claude into n8n in a weekend.', creator: 'Mira Sato', platform: 'Claude · n8n', rating: 4.9, ratingCount: 178, price: '$14' },
-  { id: 'first-skill-md', type: 'Guide', title: 'Your first SKILL.md, the right way.', creator: 'agentschool', platform: 'All platforms', rating: 4.8, ratingCount: 402, price: '$9' },
-  { id: 'agent-prompt-patterns', type: 'Guide', title: 'Patterns for prompts that hold up.', creator: 'promptforge', platform: 'All platforms', rating: 4.9, ratingCount: 612, price: '$24' },
-]
+const guides = products
+  .filter((p) => p.type === 'Guide')
+  .slice(0, 3)
+  .map(toCardProduct)
 
 const niches = [
   'Real Estate',
