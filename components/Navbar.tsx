@@ -35,7 +35,7 @@ export default function Navbar() {
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search the catalogue"
               aria-label="Search"
-              className="w-full bg-transparent border-b border-brand-hairline focus:border-brand-emerald outline-none text-sm py-2 placeholder:text-brand-muted text-brand-ink transition-colors"
+              className="w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none text-sm py-2 placeholder:text-brand-muted text-brand-ink transition-colors"
             />
           </div>
         </form>
@@ -43,25 +43,25 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-6">
           <Link
             href="/marketplace"
-            className="text-sm text-brand-ink hover:text-brand-emerald transition-colors"
+            className="text-sm text-brand-ink hover:text-brand-gold transition-colors"
           >
             Marketplace
           </Link>
           <Link
             href="/sell"
-            className="text-sm text-brand-ink hover:text-brand-emerald transition-colors"
+            className="text-sm text-brand-ink hover:text-brand-gold transition-colors"
           >
             Sell
           </Link>
           <Link
             href="/dashboard"
-            className="text-sm text-brand-ink hover:text-brand-emerald transition-colors"
+            className="text-sm text-brand-ink hover:text-brand-gold transition-colors"
           >
             Dashboard
           </Link>
           <Link
             href="/signin"
-            className="text-sm text-brand-ink hover:text-brand-emerald transition-colors"
+            className="text-sm text-brand-ink hover:text-brand-gold transition-colors"
           >
             Sign in
           </Link>
@@ -90,7 +90,7 @@ export default function Navbar() {
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="Search the catalogue"
                 aria-label="Search"
-                className="w-full bg-transparent border-b border-brand-hairline focus:border-brand-emerald outline-none text-base py-2 placeholder:text-brand-muted"
+                className="w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none text-base py-2 placeholder:text-brand-muted"
               />
             </form>
             <Link href="/marketplace" onClick={() => setOpen(false)} className="py-2">Marketplace</Link>

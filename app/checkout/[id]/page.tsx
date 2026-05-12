@@ -28,7 +28,7 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
           aria-label="Breadcrumb"
           className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted"
         >
-          <Link href={`/marketplace/${p.id}`} className="hover:text-brand-emerald transition-colors">
+          <Link href={`/marketplace/${p.id}`} className="hover:text-brand-gold transition-colors">
             ← Back to listing
           </Link>
         </nav>
@@ -36,7 +36,7 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
 
       <section className="px-6 lg:px-10 pt-10 sm:pt-14 pb-20 sm:pb-28">
         <div className="max-w-page mx-auto">
-          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
             Checkout
           </span>
           <h1
@@ -44,7 +44,7 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
             style={{ letterSpacing: '-0.03em' }}
           >
             One{' '}
-            <em className="italic text-brand-emerald font-medium">step.</em>
+            <em className="italic text-brand-gold font-medium">step.</em>
           </h1>
           <p className="mt-4 text-brand-muted max-w-prose">
             Pay, plug in, plug along. Stripe handles the money. Files in your
@@ -74,7 +74,7 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
                     name="email"
                     required
                     placeholder="you@example.com"
-                    className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-emerald outline-none py-2 text-lg placeholder:text-brand-muted/60"
+                    className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg placeholder:text-brand-muted/60"
                   />
                 </label>
 
@@ -85,7 +85,7 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
                   <select
                     name="country"
                     defaultValue="AU"
-                    className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-emerald outline-none py-2 text-lg"
+                    className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg"
                   >
                     <option value="AU">Australia</option>
                     <option value="NZ">New Zealand</option>
@@ -114,7 +114,7 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
                     type="text"
                     inputMode="numeric"
                     placeholder="4242 4242 4242 4242"
-                    className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-emerald outline-none py-2 text-lg placeholder:text-brand-muted/60 font-mono"
+                    className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg placeholder:text-brand-muted/60 font-mono"
                   />
                 </label>
 
@@ -126,7 +126,7 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
                     <input
                       type="text"
                       placeholder="MM / YY"
-                      className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-emerald outline-none py-2 text-lg placeholder:text-brand-muted/60 font-mono"
+                      className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg placeholder:text-brand-muted/60 font-mono"
                     />
                   </label>
                   <label className="block">
@@ -136,7 +136,7 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
                     <input
                       type="text"
                       placeholder="123"
-                      className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-emerald outline-none py-2 text-lg placeholder:text-brand-muted/60 font-mono"
+                      className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg placeholder:text-brand-muted/60 font-mono"
                     />
                   </label>
                 </div>
@@ -148,14 +148,14 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
                   <input
                     type="text"
                     placeholder="As it appears"
-                    className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-emerald outline-none py-2 text-lg placeholder:text-brand-muted/60"
+                    className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg placeholder:text-brand-muted/60"
                   />
                 </label>
               </fieldset>
 
               <button
                 type="submit"
-                className="mt-12 inline-flex items-center gap-2 bg-brand-emerald text-brand-cream font-medium px-8 py-4 text-[15px] hover:bg-brand-emerald-deep transition-colors"
+                className="mt-12 inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-8 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
               >
                 Pay {p.price} — plug it in
                 <span aria-hidden>→</span>
@@ -170,7 +170,7 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
             {/* SUMMARY */}
             <aside className="lg:col-span-5">
               <div className="bg-brand-cream-card border border-brand-ink p-7 sm:p-8">
-                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
                   Order summary
                 </span>
 
@@ -200,7 +200,7 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
                 <div className="mt-5 pt-5 border-t border-brand-hairline flex items-baseline justify-between">
                   <span className="font-display text-2xl tracking-tight">Total</span>
                   <span
-                    className="font-display text-4xl text-brand-emerald"
+                    className="font-display text-4xl text-brand-gold"
                     style={{ letterSpacing: '-0.03em' }}
                   >
                     {p.price}
@@ -214,19 +214,19 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
 
                 <ul className="mt-6 space-y-2 text-sm text-brand-ink">
                   <li className="flex items-start gap-2">
-                    <span aria-hidden className="text-brand-emerald">✓</span>
+                    <span aria-hidden className="text-brand-gold">✓</span>
                     Files emailed instantly
                   </li>
                   <li className="flex items-start gap-2">
-                    <span aria-hidden className="text-brand-emerald">✓</span>
+                    <span aria-hidden className="text-brand-gold">✓</span>
                     Re-download from your dashboard forever
                   </li>
                   <li className="flex items-start gap-2">
-                    <span aria-hidden className="text-brand-emerald">✓</span>
+                    <span aria-hidden className="text-brand-gold">✓</span>
                     Scanned and human-reviewed
                   </li>
                   <li className="flex items-start gap-2">
-                    <span aria-hidden className="text-brand-emerald">✓</span>
+                    <span aria-hidden className="text-brand-gold">✓</span>
                     30-day refund if it doesn’t work
                   </li>
                 </ul>

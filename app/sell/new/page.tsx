@@ -16,8 +16,8 @@ function Sticker({
 }) {
   const toneClass =
     tone === 'mustard'
-      ? 'bg-brand-mustard text-brand-ink'
-      : 'bg-brand-emerald text-brand-cream'
+      ? 'bg-brand-gold text-brand-ink'
+      : 'bg-brand-navy text-brand-cream'
   return (
     <span
       className={`inline-block font-mono text-[11px] uppercase tracking-[0.18em] px-3 py-1.5 ${toneClass}`}
@@ -59,7 +59,7 @@ export default function NewListingPage() {
           aria-label="Breadcrumb"
           className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted"
         >
-          <Link href="/sell" className="hover:text-brand-emerald transition-colors">
+          <Link href="/sell" className="hover:text-brand-gold transition-colors">
             Sell
           </Link>
           <span className="mx-2">/</span>
@@ -76,7 +76,7 @@ export default function NewListingPage() {
             style={{ letterSpacing: '-0.03em' }}
           >
             Ship a thing.{' '}
-            <em className="italic text-brand-emerald font-medium">
+            <em className="italic text-brand-gold font-medium">
               Get paid.
             </em>
           </h1>
@@ -96,7 +96,7 @@ export default function NewListingPage() {
               className="relative bg-brand-cream-card p-6 sm:p-7 cursor-pointer hover:bg-white transition-colors"
             >
               {t.recommended && (
-                <span className="absolute top-3 right-3 font-mono text-[10px] uppercase tracking-[0.18em] bg-brand-emerald text-brand-cream px-2 py-0.5">
+                <span className="absolute top-3 right-3 font-mono text-[10px] uppercase tracking-[0.18em] bg-brand-navy text-brand-cream px-2 py-0.5">
                   Best margins
                 </span>
               )}
@@ -111,7 +111,7 @@ export default function NewListingPage() {
                 {t.price}
               </span>
               <h3
-                className="font-display text-2xl sm:text-3xl mt-3 tracking-tight peer-checked:text-brand-emerald"
+                className="font-display text-2xl sm:text-3xl mt-3 tracking-tight peer-checked:text-brand-gold"
                 style={{ letterSpacing: '-0.02em' }}
               >
                 {t.title}
@@ -126,7 +126,7 @@ export default function NewListingPage() {
       <Step number="02" title="Drop in your files">
         <div className="bg-brand-cream-card border border-brand-hairline p-7 sm:p-10">
           <div className="border-2 border-dashed border-brand-hairline p-10 sm:p-14 text-center">
-            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
               Drag & drop
             </span>
             <p
@@ -147,7 +147,7 @@ export default function NewListingPage() {
       </Step>
 
       {/* STEP 3 — AI-assisted description (the differentiator) */}
-      <section className="px-6 lg:px-10 py-14 sm:py-20 border-t border-brand-hairline bg-brand-emerald-deep text-brand-cream">
+      <section className="px-6 lg:px-10 py-14 sm:py-20 border-t border-brand-hairline bg-brand-navy-deep text-brand-cream">
         <div className="max-w-page mx-auto">
           <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-cream/70">
             №03 · The good part
@@ -157,7 +157,7 @@ export default function NewListingPage() {
             style={{ letterSpacing: '-0.03em' }}
           >
             Let the AI{' '}
-            <em className="italic text-brand-mustard-soft font-medium">
+            <em className="italic text-brand-gold-soft font-medium">
               write it.
             </em>
           </h2>
@@ -168,7 +168,7 @@ export default function NewListingPage() {
 
           <div className="mt-10 grid grid-cols-1 lg:grid-cols-12 gap-px bg-brand-cream/10 border border-brand-cream/15">
             {/* INPUT */}
-            <div className="lg:col-span-5 bg-brand-emerald-deep p-6">
+            <div className="lg:col-span-5 bg-brand-navy-deep p-6">
               <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-cream/70">
                 Tell it what you built
               </span>
@@ -212,7 +212,7 @@ export default function NewListingPage() {
 
             {/* PREVIEW */}
             <div className="lg:col-span-7 bg-brand-cream-card text-brand-ink p-6 sm:p-8">
-              <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+              <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
                 Live draft · sign off when ready
               </span>
 
@@ -236,13 +236,13 @@ export default function NewListingPage() {
               <div className="mt-6 flex gap-3 flex-wrap">
                 <button
                   type="button"
-                  className="bg-brand-emerald text-brand-cream font-medium px-5 py-2.5 text-sm hover:bg-brand-emerald-deep transition-colors"
+                  className="bg-brand-gold text-brand-ink font-semibold px-5 py-2.5 text-sm hover:bg-brand-gold-dark transition-colors"
                 >
                   Sign off →
                 </button>
                 <button
                   type="button"
-                  className="text-sm border-b border-brand-ink pb-0.5 hover:text-brand-emerald hover:border-brand-emerald transition-colors"
+                  className="text-sm border-b border-brand-ink pb-0.5 hover:text-brand-gold hover:border-brand-gold transition-colors"
                 >
                   Edit manually
                 </button>
@@ -256,7 +256,7 @@ export default function NewListingPage() {
       <Step number="04" title="Set your price">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           <div className="lg:col-span-7 bg-brand-cream-card border border-brand-hairline p-7 sm:p-10">
-            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
               You set the price
             </span>
             <div className="mt-4 flex items-baseline gap-2">
@@ -267,7 +267,7 @@ export default function NewListingPage() {
                 type="text"
                 inputMode="numeric"
                 defaultValue="249"
-                className="font-display text-6xl bg-transparent border-b border-brand-ink focus:border-brand-emerald outline-none w-40 py-1"
+                className="font-display text-6xl bg-transparent border-b border-brand-ink focus:border-brand-gold outline-none w-40 py-1"
                 style={{ letterSpacing: '-0.03em' }}
               />
               <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted ml-3">
@@ -280,7 +280,7 @@ export default function NewListingPage() {
                   You keep
                 </span>
                 <p
-                  className="font-display text-3xl mt-2 text-brand-emerald"
+                  className="font-display text-3xl mt-2 text-brand-gold"
                   style={{ letterSpacing: '-0.03em' }}
                 >
                   $199.20
@@ -364,7 +364,7 @@ export default function NewListingPage() {
           <div className="lg:col-span-5">
             <Link
               href="/dashboard?view=selling"
-              className="inline-flex items-center gap-2 bg-brand-emerald text-brand-cream font-medium px-7 py-4 text-[15px] hover:bg-brand-emerald-deep transition-colors"
+              className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
             >
               Submit for review
               <span aria-hidden>→</span>
@@ -393,7 +393,7 @@ function Step({
     <section className="px-6 lg:px-10 py-14 sm:py-20 border-t border-brand-hairline">
       <div className="max-w-page mx-auto">
         <div className="flex items-baseline gap-6 mb-8 sm:mb-10">
-          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
             №{number}
           </span>
           <h2

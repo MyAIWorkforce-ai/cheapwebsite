@@ -10,7 +10,7 @@ export default function NotFound() {
       <section className="px-6 lg:px-10 pt-20 sm:pt-32 pb-24 sm:pb-32">
         <div className="max-w-page mx-auto">
           <span
-            className="inline-block font-mono text-[11px] uppercase tracking-[0.18em] px-3 py-1.5 bg-brand-mustard text-brand-ink"
+            className="inline-block font-mono text-[11px] uppercase tracking-[0.18em] px-3 py-1.5 bg-brand-gold text-brand-ink"
             style={{ transform: 'rotate(-3deg)' }}
           >
             404 · Unplugged
@@ -22,7 +22,7 @@ export default function NotFound() {
           >
             <span className="block">Nothing</span>
             <span className="block">
-              <em className="italic text-brand-emerald font-medium">to plug in.</em>
+              <em className="italic text-brand-gold font-medium">to plug in.</em>
             </span>
           </h1>
 
@@ -34,14 +34,14 @@ export default function NotFound() {
           <div className="mt-10 flex flex-wrap items-center gap-4 sm:gap-6">
             <Link
               href="/marketplace"
-              className="inline-flex items-center gap-2 bg-brand-emerald text-brand-cream font-medium px-7 py-4 text-[15px] hover:bg-brand-emerald-deep transition-colors"
+              className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
             >
               Back to the marketplace
               <span aria-hidden>→</span>
             </Link>
             <Link
               href="/"
-              className="text-sm text-brand-ink hover:text-brand-emerald transition-colors border-b border-brand-ink hover:border-brand-emerald pb-0.5"
+              className="text-sm text-brand-ink hover:text-brand-gold transition-colors border-b border-brand-ink hover:border-brand-gold pb-0.5"
             >
               Or back to the start
             </Link>

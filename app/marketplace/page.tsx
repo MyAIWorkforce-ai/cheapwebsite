@@ -49,7 +49,7 @@ export default function MarketplacePage({
     <div className="paper">
       <section className="px-6 lg:px-10 pt-14 pb-10 sm:pt-20 sm:pb-14 border-b border-brand-hairline">
         <div className="max-w-page mx-auto">
-          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
             The goods
           </span>
           <h1
@@ -57,7 +57,7 @@ export default function MarketplacePage({
             style={{ letterSpacing: '-0.03em' }}
           >
             Plug in.{' '}
-            <em className="italic text-brand-emerald font-medium">Pick up speed.</em>
+            <em className="italic text-brand-gold font-medium">Pick up speed.</em>
           </h1>
           <p className="mt-5 text-brand-muted max-w-prose">
             Skills, guides, full agent setups. Every listing reviewed by a human.
@@ -95,7 +95,7 @@ export default function MarketplacePage({
               />
               <button
                 type="submit"
-                className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-ink hover:text-brand-emerald transition-colors"
+                className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-ink hover:text-brand-gold transition-colors"
               >
                 Search →
               </button>
@@ -120,7 +120,7 @@ export default function MarketplacePage({
                 className={
                   'text-sm pb-1.5 border-b -mb-[21px] transition-colors ' +
                   (active
-                    ? 'border-brand-emerald text-brand-emerald font-semibold'
+                    ? 'border-brand-gold text-brand-gold font-semibold'
                     : 'border-transparent text-brand-muted hover:text-brand-ink')
                 }
               >
@@ -144,7 +144,7 @@ export default function MarketplacePage({
               className={
                 'px-1.5 transition-colors ' +
                 (!niche
-                  ? 'text-brand-emerald font-semibold'
+                  ? 'text-brand-gold font-semibold'
                   : 'text-brand-muted hover:text-brand-ink')
               }
             >
@@ -166,7 +166,7 @@ export default function MarketplacePage({
                     className={
                       'px-1.5 transition-colors ' +
                       (active
-                        ? 'text-brand-emerald font-semibold'
+                        ? 'text-brand-gold font-semibold'
                         : 'text-brand-muted hover:text-brand-ink')
                     }
                   >
@@ -186,7 +186,7 @@ export default function MarketplacePage({
               className={
                 'px-1.5 transition-colors ' +
                 (!platform
-                  ? 'text-brand-emerald font-semibold'
+                  ? 'text-brand-gold font-semibold'
                   : 'text-brand-muted hover:text-brand-ink')
               }
             >
@@ -209,7 +209,7 @@ export default function MarketplacePage({
                     className={
                       'px-1.5 transition-colors ' +
                       (active
-                        ? 'text-brand-emerald font-semibold'
+                        ? 'text-brand-gold font-semibold'
                         : 'text-brand-muted hover:text-brand-ink')
                     }
                   >
@@ -233,7 +233,7 @@ export default function MarketplacePage({
             <p className="font-display text-3xl">Nothing matched. Try less.</p>
             <Link
               href="/marketplace"
-              className="mt-4 inline-block text-sm border-b border-brand-ink hover:text-brand-emerald hover:border-brand-emerald pb-0.5"
+              className="mt-4 inline-block text-sm border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
             >
               Clear filters →
             </Link>

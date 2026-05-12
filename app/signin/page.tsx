@@ -9,7 +9,7 @@ export default function SignInPage() {
   return (
     <div className="paper px-6 lg:px-10 py-20 sm:py-28">
       <div className="max-w-md mx-auto">
-        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
           Welcome back
         </span>
         <h1
@@ -17,7 +17,7 @@ export default function SignInPage() {
           style={{ letterSpacing: '-0.03em' }}
         >
           Sign{' '}
-          <em className="italic text-brand-emerald font-medium">in.</em>
+          <em className="italic text-brand-gold font-medium">in.</em>
         </h1>
         <p className="mt-4 text-brand-muted">
           Buy once, re-download any time. Sell on your own schedule.
@@ -57,7 +57,7 @@ export default function SignInPage() {
               type="email"
               autoComplete="email"
               placeholder="you@example.com"
-              className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-emerald outline-none py-2 placeholder:text-brand-muted/60"
+              className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 placeholder:text-brand-muted/60"
             />
           </label>
           <label className="block">
@@ -66,12 +66,12 @@ export default function SignInPage() {
               type="password"
               autoComplete="current-password"
               placeholder="••••••••"
-              className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-emerald outline-none py-2 placeholder:text-brand-muted/60"
+              className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 placeholder:text-brand-muted/60"
             />
           </label>
           <button
             type="submit"
-            className="mt-3 bg-brand-emerald text-brand-cream font-medium px-6 py-3.5 text-[15px] hover:bg-brand-emerald-deep transition-colors"
+            className="mt-3 bg-brand-gold text-brand-ink font-semibold px-6 py-3.5 text-[15px] hover:bg-brand-gold-dark transition-colors"
           >
             Sign in
           </button>
@@ -79,7 +79,7 @@ export default function SignInPage() {
 
         <p className="mt-8 text-sm text-brand-muted">
           New here?{' '}
-          <Link href="/signin?mode=signup" className="text-brand-ink border-b border-brand-ink hover:text-brand-emerald hover:border-brand-emerald pb-0.5">
+          <Link href="/signin?mode=signup" className="text-brand-ink border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5">
             Create an account
           </Link>
         </p>

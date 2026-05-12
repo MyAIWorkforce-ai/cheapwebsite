@@ -14,7 +14,7 @@ function Sticker({
 }) {
   return (
     <span
-      className="inline-block font-mono text-[11px] uppercase tracking-[0.18em] px-3 py-1.5 bg-brand-mustard text-brand-ink"
+      className="inline-block font-mono text-[11px] uppercase tracking-[0.18em] px-3 py-1.5 bg-brand-gold text-brand-ink"
       style={{ transform: `rotate(${rotate})` }}
     >
       {children}
@@ -42,7 +42,7 @@ export default function OrderSuccessPage({
             style={{ letterSpacing: '-0.035em' }}
           >
             That was{' '}
-            <em className="italic text-brand-emerald font-medium">easy.</em>
+            <em className="italic text-brand-gold font-medium">easy.</em>
           </h1>
 
           <p className="mt-8 text-xl text-brand-ink max-w-2xl">
@@ -55,7 +55,7 @@ export default function OrderSuccessPage({
             <div className="mt-12 bg-brand-cream-card border border-brand-ink p-7 sm:p-9 max-w-3xl">
               <div className="flex items-start justify-between gap-6 flex-wrap">
                 <div>
-                  <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+                  <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
                     {p.type} · {p.platformList.join(' · ')}
                   </p>
                   <p
@@ -69,7 +69,7 @@ export default function OrderSuccessPage({
                   </p>
                 </div>
                 <span
-                  className="font-display text-3xl text-brand-emerald"
+                  className="font-display text-3xl text-brand-gold"
                   style={{ letterSpacing: '-0.025em' }}
                 >
                   {p.price}
@@ -87,7 +87,7 @@ export default function OrderSuccessPage({
                     </span>
                     <a
                       href="#"
-                      className="font-mono text-[11px] uppercase tracking-[0.18em] border-b border-brand-ink hover:text-brand-emerald hover:border-brand-emerald pb-0.5"
+                      className="font-mono text-[11px] uppercase tracking-[0.18em] border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
                     >
                       ↓ Download
                     </a>
@@ -96,7 +96,7 @@ export default function OrderSuccessPage({
                     <span className="font-mono text-sm">setup-guide.pdf</span>
                     <a
                       href="#"
-                      className="font-mono text-[11px] uppercase tracking-[0.18em] border-b border-brand-ink hover:text-brand-emerald hover:border-brand-emerald pb-0.5"
+                      className="font-mono text-[11px] uppercase tracking-[0.18em] border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
                     >
                       ↓ Download
                     </a>
@@ -105,7 +105,7 @@ export default function OrderSuccessPage({
                     <span className="font-mono text-sm">receipt.pdf</span>
                     <a
                       href="#"
-                      className="font-mono text-[11px] uppercase tracking-[0.18em] border-b border-brand-ink hover:text-brand-emerald hover:border-brand-emerald pb-0.5"
+                      className="font-mono text-[11px] uppercase tracking-[0.18em] border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
                     >
                       ↓ Download
                     </a>
@@ -117,7 +117,7 @@ export default function OrderSuccessPage({
 
           <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline max-w-3xl">
             <div className="bg-brand-cream-card p-6">
-              <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+              <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
                 Order
               </span>
               <p
@@ -128,7 +128,7 @@ export default function OrderSuccessPage({
               </p>
             </div>
             <div className="bg-brand-cream-card p-6">
-              <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+              <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
                 Sent to
               </span>
               <p
@@ -139,7 +139,7 @@ export default function OrderSuccessPage({
               </p>
             </div>
             <div className="bg-brand-cream-card p-6">
-              <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+              <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
                 Refund window
               </span>
               <p
@@ -154,14 +154,14 @@ export default function OrderSuccessPage({
           <div className="mt-12 flex flex-wrap gap-3 sm:gap-4 items-center">
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-2 bg-brand-emerald text-brand-cream font-medium px-7 py-4 text-[15px] hover:bg-brand-emerald-deep transition-colors"
+              className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
             >
               Go to my dashboard
               <span aria-hidden>→</span>
             </Link>
             <Link
               href="/marketplace"
-              className="text-sm border-b border-brand-ink pb-0.5 hover:text-brand-emerald hover:border-brand-emerald transition-colors"
+              className="text-sm border-b border-brand-ink pb-0.5 hover:text-brand-gold hover:border-brand-gold transition-colors"
             >
               Browse more
             </Link>

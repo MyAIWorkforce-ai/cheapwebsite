@@ -66,9 +66,9 @@ function Sticker({
 }) {
   const toneClass =
     tone === 'mustard'
-      ? 'bg-brand-mustard text-brand-ink'
+      ? 'bg-brand-gold text-brand-ink'
       : tone === 'emerald'
-        ? 'bg-brand-emerald text-brand-cream'
+        ? 'bg-brand-navy text-brand-cream'
         : 'bg-brand-cream text-brand-ink border border-brand-ink'
   return (
     <span
@@ -105,8 +105,8 @@ export default function HomePage() {
             <span className="block">Plug it in.</span>
             <span className="block pl-[0.06em]">Press go.</span>
             <span className="relative inline-block">
-              <em className="italic font-medium text-brand-emerald">Done.</em>
-              <Squiggle className="absolute -bottom-3 sm:-bottom-5 left-0 w-full h-3 sm:h-5 text-brand-emerald" />
+              <em className="italic font-medium text-brand-gold">Done.</em>
+              <Squiggle className="absolute -bottom-3 sm:-bottom-5 left-0 w-full h-3 sm:h-5 text-brand-gold" />
             </span>
           </h1>
 
@@ -118,14 +118,14 @@ export default function HomePage() {
             <div className="lg:col-span-5 flex items-center gap-6 lg:justify-end">
               <Link
                 href="/marketplace"
-                className="inline-flex items-center gap-2 bg-brand-emerald text-brand-cream font-medium px-7 py-4 text-[15px] hover:bg-brand-emerald-deep transition-colors"
+                className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
               >
                 Browse the goods
                 <span aria-hidden>→</span>
               </Link>
               <Link
                 href="/sell"
-                className="text-sm text-brand-ink hover:text-brand-emerald transition-colors border-b border-brand-ink hover:border-brand-emerald pb-0.5"
+                className="text-sm text-brand-ink hover:text-brand-gold transition-colors border-b border-brand-ink hover:border-brand-gold pb-0.5"
               >
                 Or sell yours
               </Link>
@@ -140,7 +140,7 @@ export default function HomePage() {
           >
             <label
               htmlFor="hero-search"
-              className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald block mb-4"
+              className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold block mb-4"
             >
               Or look something up
             </label>
@@ -170,7 +170,7 @@ export default function HomePage() {
               />
               <button
                 type="submit"
-                className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-ink hover:text-brand-emerald transition-colors"
+                className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-ink hover:text-brand-gold transition-colors"
               >
                 Search →
               </button>
@@ -183,7 +183,7 @@ export default function HomePage() {
               Works with
             </p>
             <p className="font-display text-lg sm:text-xl leading-relaxed text-brand-ink">
-              Claude · OpenClaw · <em className="italic text-brand-emerald">Hermes</em> ·
+              Claude · OpenClaw · <em className="italic text-brand-gold">Hermes</em> ·
               ChatGPT · Gemini · Grok · Ollama · Mistral · DeepSeek · n8n ·
               Make · Zapier
             </p>
@@ -195,12 +195,12 @@ export default function HomePage() {
       <section className="border-y border-brand-hairline">
         <div className="max-w-page mx-auto px-6 lg:px-10 py-6 sm:py-7 flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-baseline gap-x-3 gap-y-1 flex-wrap">
-            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
               For creators
             </span>
             <span className="text-brand-ink">
               Built something good?{' '}
-              <span className="font-display text-lg italic text-brand-emerald">
+              <span className="font-display text-lg italic text-brand-gold">
                 Sell it.
               </span>{' '}
               <span className="text-brand-muted">
@@ -210,7 +210,7 @@ export default function HomePage() {
           </div>
           <Link
             href="/sell"
-            className="font-mono text-[11px] uppercase tracking-[0.18em] border-b border-brand-ink pb-0.5 hover:text-brand-emerald hover:border-brand-emerald transition-colors whitespace-nowrap"
+            className="font-mono text-[11px] uppercase tracking-[0.18em] border-b border-brand-ink pb-0.5 hover:text-brand-gold hover:border-brand-gold transition-colors whitespace-nowrap"
           >
             Start selling →
           </Link>
@@ -234,7 +234,7 @@ export default function HomePage() {
             </div>
             <Link
               href="/marketplace?type=agent-setup"
-              className="text-sm border-b border-brand-ink pb-0.5 hover:text-brand-emerald hover:border-brand-emerald transition-colors"
+              className="text-sm border-b border-brand-ink pb-0.5 hover:text-brand-gold hover:border-brand-gold transition-colors"
             >
               See all setups →
             </Link>
@@ -265,7 +265,7 @@ export default function HomePage() {
             </div>
             <Link
               href="/marketplace?type=skill"
-              className="text-sm border-b border-brand-ink pb-0.5 hover:text-brand-emerald hover:border-brand-emerald transition-colors"
+              className="text-sm border-b border-brand-ink pb-0.5 hover:text-brand-gold hover:border-brand-gold transition-colors"
             >
               See all skills →
             </Link>
@@ -282,7 +282,7 @@ export default function HomePage() {
                     {String(i + 1).padStart(2, '0')}
                   </span>
                   <h3
-                    className="font-display col-span-12 sm:col-span-6 text-2xl sm:text-3xl tracking-tight group-hover:text-brand-emerald transition-colors"
+                    className="font-display col-span-12 sm:col-span-6 text-2xl sm:text-3xl tracking-tight group-hover:text-brand-gold transition-colors"
                     style={{ letterSpacing: '-0.02em' }}
                   >
                     {s.title}
@@ -320,7 +320,7 @@ export default function HomePage() {
             </div>
             <Link
               href="/marketplace?type=guide"
-              className="text-sm border-b border-brand-ink pb-0.5 hover:text-brand-emerald hover:border-brand-emerald transition-colors"
+              className="text-sm border-b border-brand-ink pb-0.5 hover:text-brand-gold hover:border-brand-gold transition-colors"
             >
               See all guides →
             </Link>
@@ -360,7 +360,7 @@ export default function HomePage() {
                   key={n}
                   href={`/marketplace?niche=${encodeURIComponent(n.toLowerCase().replace(/\s+/g, '-'))}`}
                   style={{ transform: `rotate(${rot})` }}
-                  className="inline-flex items-center bg-brand-cream-card border border-brand-ink px-5 py-2.5 text-base hover:bg-brand-emerald hover:text-brand-cream hover:border-brand-emerald transition-colors"
+                  className="inline-flex items-center bg-brand-cream-card border border-brand-ink px-5 py-2.5 text-base hover:bg-brand-navy hover:text-brand-cream hover:border-brand-navy transition-colors"
                 >
                   {n}
                 </Link>
@@ -371,7 +371,7 @@ export default function HomePage() {
       </section>
 
       {/* SELL — emerald, sticker, creator pitch */}
-      <section className="relative px-6 lg:px-10 py-24 sm:py-36 bg-brand-emerald text-brand-cream overflow-hidden">
+      <section className="relative px-6 lg:px-10 py-24 sm:py-36 bg-brand-navy text-brand-cream overflow-hidden">
         <div
           aria-hidden
           className="absolute top-10 right-10 sm:top-16 sm:right-20 hidden sm:block"
@@ -391,7 +391,7 @@ export default function HomePage() {
             style={{ letterSpacing: '-0.03em' }}
           >
             Built it?{' '}
-            <em className="italic text-brand-mustard-soft font-medium">Sell it.</em>
+            <em className="italic text-brand-gold-soft font-medium">Sell it.</em>
           </h2>
 
           <div className="mt-10 sm:mt-14 grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
@@ -402,7 +402,7 @@ export default function HomePage() {
             <div className="lg:col-span-5 lg:flex lg:justify-end">
               <Link
                 href="/sell"
-                className="inline-flex items-center gap-2 bg-brand-cream text-brand-ink font-medium px-7 py-4 text-[15px] hover:bg-white transition-colors"
+                className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
               >
                 Start selling
                 <span aria-hidden>→</span>

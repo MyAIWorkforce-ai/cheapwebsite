@@ -34,7 +34,7 @@ export default function ProductCard({
       className={
         'group block h-full ' +
         (emerald
-          ? 'bg-brand-emerald text-brand-cream border border-brand-emerald'
+          ? 'bg-brand-navy text-brand-cream border border-brand-gold'
           : 'bg-brand-cream-card text-brand-ink border border-brand-hairline')
       }
     >
@@ -43,7 +43,7 @@ export default function ProductCard({
           <span
             className={
               'label-cap ' +
-              (emerald ? 'text-brand-cream/70' : 'text-brand-emerald')
+              (emerald ? 'text-brand-cream/70' : 'text-brand-gold')
             }
           >
             {typeAbbrev[product.type]}
@@ -94,7 +94,7 @@ export default function ProductCard({
               aria-hidden
               className={
                 'w-3.5 h-3.5 ' +
-                (emerald ? 'text-brand-mustard-soft' : 'text-brand-mustard')
+                (emerald ? 'text-brand-gold-soft' : 'text-brand-gold')
               }
               viewBox="0 0 20 20"
               fill="currentColor"

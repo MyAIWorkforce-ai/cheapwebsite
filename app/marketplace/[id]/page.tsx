@@ -27,7 +27,7 @@ function Stars({ rating, className = '' }: { rating: number; className?: string 
               key={i}
               className={
                 'w-3.5 h-3.5 ' +
-                (filled ? 'text-brand-mustard' : 'text-brand-hairline')
+                (filled ? 'text-brand-gold' : 'text-brand-hairline')
               }
               viewBox="0 0 20 20"
               fill="currentColor"
@@ -69,13 +69,13 @@ export default function ProductDetailPage({
       {/* breadcrumb */}
       <div className="max-w-page mx-auto px-6 lg:px-10 pt-8 sm:pt-10">
         <nav aria-label="Breadcrumb" className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
-          <Link href="/marketplace" className="hover:text-brand-emerald transition-colors">
+          <Link href="/marketplace" className="hover:text-brand-gold transition-colors">
             Marketplace
           </Link>
           <span className="mx-2">/</span>
           <Link
             href={`/marketplace?type=${filterTypeKey}`}
-            className="hover:text-brand-emerald transition-colors"
+            className="hover:text-brand-gold transition-colors"
           >
             {filterLabel}
           </Link>
@@ -89,7 +89,7 @@ export default function ProductDetailPage({
         <div className="max-w-page mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12">
           <div className="lg:col-span-8">
             <div className="flex flex-wrap items-center gap-3">
-              <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+              <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
                 {p.type}
               </span>
               {p.niche && (
@@ -117,7 +117,7 @@ export default function ProductDetailPage({
                 by{' '}
                 <Link
                   href={`/creator/${p.creator.handle.replace(/^@/, '')}`}
-                  className="font-semibold text-brand-ink border-b border-brand-ink hover:text-brand-emerald hover:border-brand-emerald pb-0.5"
+                  className="font-semibold text-brand-ink border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
                 >
                   {p.creator.name}
                 </Link>{' '}
@@ -146,7 +146,7 @@ export default function ProductDetailPage({
           {/* BUY CARD */}
           <aside className="lg:col-span-4">
             <div className="bg-brand-cream-card border border-brand-ink p-7 sm:p-8">
-              <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+              <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
                 Buy once. Yours forever.
               </p>
               <p
@@ -161,7 +161,7 @@ export default function ProductDetailPage({
 
               <Link
                 href={`/checkout/${p.id}`}
-                className="mt-7 w-full inline-flex items-center justify-center gap-2 bg-brand-emerald text-brand-cream font-medium px-7 py-4 text-[15px] hover:bg-brand-emerald-deep transition-colors"
+                className="mt-7 w-full inline-flex items-center justify-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
               >
                 {headlineCta}
                 <span aria-hidden>→</span>
@@ -169,19 +169,19 @@ export default function ProductDetailPage({
 
               <ul className="mt-6 space-y-2.5 text-sm text-brand-ink">
                 <li className="flex items-start gap-2">
-                  <span aria-hidden className="text-brand-emerald">✓</span>
+                  <span aria-hidden className="text-brand-gold">✓</span>
                   Files emailed instantly
                 </li>
                 <li className="flex items-start gap-2">
-                  <span aria-hidden className="text-brand-emerald">✓</span>
+                  <span aria-hidden className="text-brand-gold">✓</span>
                   Re-download from your dashboard
                 </li>
                 <li className="flex items-start gap-2">
-                  <span aria-hidden className="text-brand-emerald">✓</span>
+                  <span aria-hidden className="text-brand-gold">✓</span>
                   Scanned + reviewed by Skillzy
                 </li>
                 <li className="flex items-start gap-2">
-                  <span aria-hidden className="text-brand-emerald">✓</span>
+                  <span aria-hidden className="text-brand-gold">✓</span>
                   30-day refund if it doesn’t work
                 </li>
               </ul>
@@ -203,7 +203,7 @@ export default function ProductDetailPage({
               style={{ letterSpacing: '-0.03em' }}
             >
               What it{' '}
-              <em className="italic text-brand-emerald font-medium">does.</em>
+              <em className="italic text-brand-gold font-medium">does.</em>
             </h2>
           </div>
           <div className="lg:col-span-8 space-y-5 text-lg leading-relaxed">
@@ -223,7 +223,7 @@ export default function ProductDetailPage({
               style={{ letterSpacing: '-0.03em' }}
             >
               What’s{' '}
-              <em className="italic text-brand-emerald font-medium">inside.</em>
+              <em className="italic text-brand-gold font-medium">inside.</em>
             </h2>
             <p className="mt-3 text-brand-muted">
               Everything you need in the bundle. No tutorials. No assembly.
@@ -253,13 +253,13 @@ export default function ProductDetailPage({
             style={{ letterSpacing: '-0.03em' }}
           >
             Plug it in.{' '}
-            <em className="italic text-brand-emerald font-medium">Press go.</em>
+            <em className="italic text-brand-gold font-medium">Press go.</em>
           </h2>
 
           <ol className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-brand-hairline border border-brand-hairline">
             {p.howItWorks.map((step) => (
               <li key={step.n} className="bg-brand-cream-card p-7 sm:p-8">
-                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
                   №{step.n}
                 </span>
                 <h3
@@ -279,7 +279,7 @@ export default function ProductDetailPage({
 
       {/* SKILL.MD PREVIEW */}
       {p.skillMdPreview && (
-        <section className="px-6 lg:px-10 py-16 sm:py-24 border-t border-brand-hairline bg-brand-emerald-deep text-brand-cream">
+        <section className="px-6 lg:px-10 py-16 sm:py-24 border-t border-brand-hairline bg-brand-navy-deep text-brand-cream">
           <div className="max-w-page mx-auto">
             <div className="flex items-end justify-between gap-6 flex-wrap mb-8 sm:mb-10">
               <h2
@@ -287,13 +287,13 @@ export default function ProductDetailPage({
                 style={{ letterSpacing: '-0.03em' }}
               >
                 How it{' '}
-                <em className="italic text-brand-mustard-soft font-medium">thinks.</em>
+                <em className="italic text-brand-gold-soft font-medium">thinks.</em>
               </h2>
               <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-cream/70">
                 Excerpt · {p.type === 'Guide' ? 'guide.md' : 'SKILL.md'}
               </span>
             </div>
-            <pre className="font-mono text-[13px] sm:text-sm leading-relaxed bg-brand-emerald-deep border border-brand-cream/15 p-5 sm:p-8 overflow-x-auto whitespace-pre">
+            <pre className="font-mono text-[13px] sm:text-sm leading-relaxed bg-brand-navy-deep border border-brand-cream/15 p-5 sm:p-8 overflow-x-auto whitespace-pre">
               <code>{p.skillMdPreview}</code>
             </pre>
           </div>
@@ -309,13 +309,13 @@ export default function ProductDetailPage({
               style={{ letterSpacing: '-0.03em' }}
             >
               Who plugs{' '}
-              <em className="italic text-brand-emerald font-medium">this in.</em>
+              <em className="italic text-brand-gold font-medium">this in.</em>
             </h2>
 
             <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">
               {p.useCases.map((u, i) => (
                 <div key={i} className="bg-brand-cream-card p-7 sm:p-8">
-                  <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+                  <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
                     {u.who}
                   </span>
                   <p className="mt-4 text-lg leading-relaxed">{u.what}</p>
@@ -335,7 +335,7 @@ export default function ProductDetailPage({
               style={{ letterSpacing: '-0.03em' }}
             >
               About the{' '}
-              <em className="italic text-brand-emerald font-medium">creator.</em>
+              <em className="italic text-brand-gold font-medium">creator.</em>
             </h2>
           </div>
           <div className="lg:col-span-8">
@@ -343,7 +343,7 @@ export default function ProductDetailPage({
               <div className="flex items-baseline justify-between gap-4 flex-wrap">
                 <Link
                   href={`/creator/${p.creator.handle.replace(/^@/, '')}`}
-                  className="font-display text-3xl tracking-tight hover:text-brand-emerald transition-colors"
+                  className="font-display text-3xl tracking-tight hover:text-brand-gold transition-colors"
                   style={{ letterSpacing: '-0.02em' }}
                 >
                   {p.creator.name}
@@ -393,7 +393,7 @@ export default function ProductDetailPage({
                 style={{ letterSpacing: '-0.03em' }}
               >
                 What buyers{' '}
-                <em className="italic text-brand-emerald font-medium">say.</em>
+                <em className="italic text-brand-gold font-medium">say.</em>
               </h2>
               <div className="mt-4 flex items-center gap-3">
                 <Stars rating={p.rating} />
@@ -430,7 +430,7 @@ export default function ProductDetailPage({
               style={{ letterSpacing: '-0.03em' }}
             >
               Things people{' '}
-              <em className="italic text-brand-emerald font-medium">ask.</em>
+              <em className="italic text-brand-gold font-medium">ask.</em>
             </h2>
           </div>
           <dl className="lg:col-span-8 divide-y divide-brand-hairline border-y border-brand-hairline">
@@ -459,7 +459,7 @@ export default function ProductDetailPage({
           </a>
           <Link
             href={`/checkout/${p.id}`}
-            className="inline-flex items-center gap-2 bg-brand-emerald text-brand-cream font-medium px-7 py-3.5 text-[15px] hover:bg-brand-emerald-deep transition-colors"
+            className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-3.5 text-[15px] hover:bg-brand-gold-dark transition-colors"
           >
             {headlineCta} — {p.price}
             <span aria-hidden>→</span>
@@ -476,7 +476,7 @@ export default function ProductDetailPage({
               style={{ letterSpacing: '-0.03em' }}
             >
               You might also{' '}
-              <em className="italic text-brand-emerald font-medium">plug in.</em>
+              <em className="italic text-brand-gold font-medium">plug in.</em>
             </h2>
 
             <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">

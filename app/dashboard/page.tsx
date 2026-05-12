@@ -59,7 +59,7 @@ export default function DashboardPage({
       {/* hero */}
       <section className="px-6 lg:px-10 pt-14 sm:pt-20 pb-10 sm:pb-14 border-b border-brand-hairline">
         <div className="max-w-page mx-auto">
-          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
             Hello {me.name.toLowerCase()},
           </span>
           <h1
@@ -67,7 +67,7 @@ export default function DashboardPage({
             style={{ letterSpacing: '-0.03em' }}
           >
             Your{' '}
-            <em className="italic text-brand-emerald font-medium">stuff.</em>
+            <em className="italic text-brand-gold font-medium">stuff.</em>
           </h1>
           <p className="mt-5 text-brand-muted max-w-prose">
             Everything you’ve bought lives here. Everything you’ve sold too.
@@ -83,7 +83,7 @@ export default function DashboardPage({
             className={
               'text-sm pb-3 border-b -mb-[1px] transition-colors ' +
               (view === 'buying'
-                ? 'border-brand-emerald text-brand-emerald font-semibold'
+                ? 'border-brand-gold text-brand-gold font-semibold'
                 : 'border-transparent text-brand-muted hover:text-brand-ink')
             }
           >
@@ -97,7 +97,7 @@ export default function DashboardPage({
             className={
               'text-sm pb-3 border-b -mb-[1px] transition-colors ' +
               (view === 'selling'
-                ? 'border-brand-emerald text-brand-emerald font-semibold'
+                ? 'border-brand-gold text-brand-gold font-semibold'
                 : 'border-transparent text-brand-muted hover:text-brand-ink')
             }
           >
@@ -136,7 +136,7 @@ function BuyingView({ purchases }: { purchases: Purchase[] }) {
           </h2>
           <Link
             href="/marketplace"
-            className="text-sm border-b border-brand-ink pb-0.5 hover:text-brand-emerald hover:border-brand-emerald transition-colors"
+            className="text-sm border-b border-brand-ink pb-0.5 hover:text-brand-gold hover:border-brand-gold transition-colors"
           >
             Find your next plug-in →
           </Link>
@@ -147,7 +147,7 @@ function BuyingView({ purchases }: { purchases: Purchase[] }) {
             <li key={purchase.orderId} className="py-6 sm:py-7">
               <div className="grid grid-cols-12 gap-4 items-baseline">
                 <div className="col-span-12 sm:col-span-6">
-                  <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+                  <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
                     {purchase.product.type}
                   </span>
                   <h3
@@ -156,7 +156,7 @@ function BuyingView({ purchases }: { purchases: Purchase[] }) {
                   >
                     <Link
                       href={`/marketplace/${purchase.product.id}`}
-                      className="hover:text-brand-emerald transition-colors"
+                      className="hover:text-brand-gold transition-colors"
                     >
                       {purchase.product.title}
                     </Link>
@@ -175,7 +175,7 @@ function BuyingView({ purchases }: { purchases: Purchase[] }) {
                   <div className="flex sm:justify-end gap-3 flex-wrap">
                     <a
                       href="#"
-                      className="font-mono text-[11px] uppercase tracking-[0.18em] border-b border-brand-ink pb-0.5 hover:text-brand-emerald hover:border-brand-emerald transition-colors"
+                      className="font-mono text-[11px] uppercase tracking-[0.18em] border-b border-brand-ink pb-0.5 hover:text-brand-gold hover:border-brand-gold transition-colors"
                     >
                       ↓ Download
                     </a>
@@ -217,7 +217,7 @@ function SellingView({
               Earnings
             </span>
             <p
-              className="font-display text-4xl mt-2 text-brand-emerald"
+              className="font-display text-4xl mt-2 text-brand-gold"
               style={{ letterSpacing: '-0.03em' }}
             >
               ${Number(totalEarnings).toLocaleString()}
@@ -271,7 +271,7 @@ function SellingView({
           </h2>
           <Link
             href="/sell/new"
-            className="inline-flex items-center gap-2 bg-brand-emerald text-brand-cream font-medium px-6 py-3 text-sm hover:bg-brand-emerald-deep transition-colors"
+            className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-6 py-3 text-sm hover:bg-brand-gold-dark transition-colors"
           >
             Publish a new listing
             <span aria-hidden>→</span>
@@ -284,7 +284,7 @@ function SellingView({
             <p className="mt-2 text-brand-muted">Publish your first listing in about ten minutes.</p>
             <Link
               href="/sell/new"
-              className="mt-6 inline-block text-sm border-b border-brand-ink pb-0.5 hover:text-brand-emerald hover:border-brand-emerald transition-colors"
+              className="mt-6 inline-block text-sm border-b border-brand-ink pb-0.5 hover:text-brand-gold hover:border-brand-gold transition-colors"
             >
               Start a new listing →
             </Link>
@@ -299,7 +299,7 @@ function SellingView({
                 <li key={p.id} className="py-6 sm:py-7">
                   <div className="grid grid-cols-12 gap-4 items-baseline">
                     <div className="col-span-12 sm:col-span-5">
-                      <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+                      <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
                         {p.type} · {p.version}
                       </span>
                       <h3
@@ -308,7 +308,7 @@ function SellingView({
                       >
                         <Link
                           href={`/marketplace/${p.id}`}
-                          className="hover:text-brand-emerald transition-colors"
+                          className="hover:text-brand-gold transition-colors"
                         >
                           {p.title}
                         </Link>
@@ -330,7 +330,7 @@ function SellingView({
                         Revenue (30d)
                       </span>
                       <span
-                        className="font-display text-2xl mt-1 text-brand-emerald"
+                        className="font-display text-2xl mt-1 text-brand-gold"
                         style={{ letterSpacing: '-0.02em' }}
                       >
                         ${monthRevenue}
@@ -340,7 +340,7 @@ function SellingView({
                       <div className="flex sm:justify-end gap-3 flex-wrap">
                         <a
                           href="#"
-                          className="font-mono text-[11px] uppercase tracking-[0.18em] border-b border-brand-ink pb-0.5 hover:text-brand-emerald hover:border-brand-emerald transition-colors"
+                          className="font-mono text-[11px] uppercase tracking-[0.18em] border-b border-brand-ink pb-0.5 hover:text-brand-gold hover:border-brand-gold transition-colors"
                         >
                           Edit
                         </a>

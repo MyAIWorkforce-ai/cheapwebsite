@@ -8,7 +8,7 @@ export default function AboutPage() {
   return (
     <article className="paper px-6 lg:px-10 py-16 sm:py-24">
       <div className="max-w-3xl mx-auto">
-        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
           About
         </span>
         <h1
@@ -16,7 +16,7 @@ export default function AboutPage() {
           style={{ letterSpacing: '-0.03em' }}
         >
           We sell the{' '}
-          <em className="italic text-brand-emerald font-medium">good stuff.</em>
+          <em className="italic text-brand-gold font-medium">good stuff.</em>
         </h1>
 
         <div className="mt-12 max-w-prose space-y-6 text-lg leading-relaxed">
@@ -43,7 +43,7 @@ export default function AboutPage() {
             Get in touch:{' '}
             <a
               href="mailto:hello@skillzy.com"
-              className="text-brand-ink border-b border-brand-ink hover:text-brand-emerald hover:border-brand-emerald pb-0.5"
+              className="text-brand-ink border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
             >
               hello@skillzy.com
             </a>

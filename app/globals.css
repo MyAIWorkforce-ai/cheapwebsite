@@ -3,12 +3,13 @@
 @tailwind utilities;
 
 :root {
-  --cream: #F6EFE0;
-  --cream-card: #FBF6EA;
-  --ink: #161512;
-  --muted: #6E6557;
-  --emerald: #0F5132;
-  --hairline: #D9CDB4;
+  --cream: #E8ECF0;
+  --cream-card: #F2F4F8;
+  --ink: #0F1729;
+  --muted: #5F6B7E;
+  --navy: #0F1729;
+  --gold: #C19E50;
+  --hairline: #CCD2DD;
 }
 
 html {
@@ -28,8 +29,8 @@ body {
 }
 
 ::selection {
-  background: #0F5132;
-  color: #F6EFE0;
+  background: #C19E50;
+  color: #0F1729;
 }
 
 .font-display {
@@ -49,12 +50,11 @@ body {
   border-color: var(--hairline);
 }
 
-/* A whisper of paper texture. No images. */
 .paper {
   background-color: var(--cream);
   background-image:
-    radial-gradient(rgba(15, 81, 50, 0.022) 1px, transparent 1px),
-    radial-gradient(rgba(15, 81, 50, 0.018) 1px, transparent 1px);
+    radial-gradient(rgba(15, 23, 41, 0.022) 1px, transparent 1px),
+    radial-gradient(rgba(15, 23, 41, 0.018) 1px, transparent 1px);
   background-size: 22px 22px, 14px 14px;
   background-position: 0 0, 7px 7px;
 }

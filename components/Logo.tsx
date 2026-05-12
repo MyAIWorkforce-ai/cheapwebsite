@@ -8,7 +8,7 @@ type LogoProps = {
 }
 
 const toneClass = {
-  emerald: 'text-brand-emerald',
+  emerald: 'text-brand-gold',
   cream: 'text-brand-cream',
   ink: 'text-brand-ink',
 }

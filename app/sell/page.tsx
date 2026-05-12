@@ -19,8 +19,8 @@ function Sticker({
 }) {
   const toneClass =
     tone === 'mustard'
-      ? 'bg-brand-mustard text-brand-ink'
-      : 'bg-brand-emerald text-brand-cream'
+      ? 'bg-brand-gold text-brand-ink'
+      : 'bg-brand-navy text-brand-cream'
   return (
     <span
       className={`inline-block font-mono text-[11px] uppercase tracking-[0.18em] px-3 py-1.5 ${toneClass} ${className}`}
@@ -56,7 +56,7 @@ export default function SellPage() {
           >
             <span className="block">Built it?</span>
             <span className="block">
-              <em className="italic font-medium text-brand-emerald">Sell it.</em>
+              <em className="italic font-medium text-brand-gold">Sell it.</em>
             </span>
           </h1>
 
@@ -68,14 +68,14 @@ export default function SellPage() {
             <div className="lg:col-span-5 flex items-center gap-6 lg:justify-end">
               <Link
                 href="/sell/new"
-                className="inline-flex items-center gap-2 bg-brand-emerald text-brand-cream font-medium px-7 py-4 text-[15px] hover:bg-brand-emerald-deep transition-colors"
+                className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
               >
                 Start selling
                 <span aria-hidden>→</span>
               </Link>
               <Link
                 href="/marketplace"
-                className="text-sm text-brand-ink hover:text-brand-emerald transition-colors border-b border-brand-ink hover:border-brand-emerald pb-0.5"
+                className="text-sm text-brand-ink hover:text-brand-gold transition-colors border-b border-brand-ink hover:border-brand-gold pb-0.5"
               >
                 See what sells
               </Link>
@@ -94,7 +94,7 @@ export default function SellPage() {
           ].map((s) => (
             <div key={s.label} className="bg-brand-cream-card p-8 sm:p-10">
               <p
-                className="font-display text-7xl sm:text-8xl text-brand-emerald"
+                className="font-display text-7xl sm:text-8xl text-brand-gold"
                 style={{ letterSpacing: '-0.04em' }}
               >
                 {s.n}
@@ -113,13 +113,13 @@ export default function SellPage() {
             className="font-display text-5xl sm:text-7xl tracking-tight max-w-3xl"
             style={{ letterSpacing: '-0.03em' }}
           >
-            Six steps. <em className="italic text-brand-emerald font-medium">Ten minutes.</em>
+            Six steps. <em className="italic text-brand-gold font-medium">Ten minutes.</em>
           </h2>
 
           <ol className="mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">
             {steps.map((s) => (
               <li key={s.n} className="bg-brand-cream-card p-7 sm:p-8">
-                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
                   №{s.n}
                 </span>
                 <h3
@@ -136,7 +136,7 @@ export default function SellPage() {
       </section>
 
       {/* AGENT SETUPS — the moneymaker */}
-      <section className="relative px-6 lg:px-10 py-20 sm:py-32 bg-brand-emerald text-brand-cream overflow-hidden">
+      <section className="relative px-6 lg:px-10 py-20 sm:py-32 bg-brand-navy text-brand-cream overflow-hidden">
         <div
           aria-hidden
           className="absolute top-8 right-8 sm:top-14 sm:right-14 hidden sm:block"
@@ -156,7 +156,7 @@ export default function SellPage() {
             style={{ letterSpacing: '-0.025em' }}
           >
             Agent setups{' '}
-            <em className="italic text-brand-mustard-soft font-medium">sell for more.</em>
+            <em className="italic text-brand-gold-soft font-medium">sell for more.</em>
           </h2>
 
           <div className="mt-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
@@ -169,7 +169,7 @@ export default function SellPage() {
             <div className="lg:col-span-5 lg:flex lg:justify-end">
               <Link
                 href="/sell/new"
-                className="inline-flex items-center gap-2 bg-brand-cream text-brand-ink font-medium px-7 py-4 text-[15px] hover:bg-white transition-colors"
+                className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
               >
                 Publish your first setup
                 <span aria-hidden>→</span>

@@ -41,7 +41,7 @@ export default function CreatorPage({ params }: { params: { handle: string } }) 
           aria-label="Breadcrumb"
           className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted"
         >
-          <Link href="/marketplace" className="hover:text-brand-emerald transition-colors">
+          <Link href="/marketplace" className="hover:text-brand-gold transition-colors">
             Marketplace
           </Link>
           <span className="mx-2">/</span>
@@ -52,7 +52,7 @@ export default function CreatorPage({ params }: { params: { handle: string } }) 
       {/* HERO */}
       <section className="px-6 lg:px-10 pt-10 sm:pt-14 pb-16 sm:pb-20 border-b border-brand-hairline">
         <div className="max-w-page mx-auto">
-          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-emerald">
+          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
             Creator · {creator.handle}
           </span>
           <h1
@@ -71,7 +71,7 @@ export default function CreatorPage({ params }: { params: { handle: string } }) 
                 Sales
               </dt>
               <dd
-                className="font-display text-3xl mt-1.5 text-brand-emerald"
+                className="font-display text-3xl mt-1.5 text-brand-gold"
                 style={{ letterSpacing: '-0.03em' }}
               >
                 {creator.totalSales.toLocaleString()}
@@ -122,7 +122,7 @@ export default function CreatorPage({ params }: { params: { handle: string } }) 
             style={{ letterSpacing: '-0.03em' }}
           >
             What they{' '}
-            <em className="italic text-brand-emerald font-medium">ship.</em>
+            <em className="italic text-brand-gold font-medium">ship.</em>
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">
@@ -138,7 +138,7 @@ export default function CreatorPage({ params }: { params: { handle: string } }) 
           <div className="mt-10 flex flex-wrap items-center gap-4">
             <a
               href={`mailto:${normalizeHandleEmail(creator.handle)}`}
-              className="text-sm border-b border-brand-ink pb-0.5 hover:text-brand-emerald hover:border-brand-emerald transition-colors"
+              className="text-sm border-b border-brand-ink pb-0.5 hover:text-brand-gold hover:border-brand-gold transition-colors"
             >
               Contact {creator.name} →
             </a>

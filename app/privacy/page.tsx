@@ -7,7 +7,7 @@ export default function PrivacyPage() {
   return (
     <article className="paper px-6 lg:px-10 py-16 sm:py-24">
       <div className="max-w-2xl mx-auto">
-        <span className="label-cap text-brand-emerald">Fine print</span>
+        <span className="label-cap text-brand-gold">Fine print</span>
         <h1
           className="font-display mt-5 text-5xl sm:text-6xl tracking-tight"
           style={{ letterSpacing: '-0.025em' }}
@@ -48,7 +48,7 @@ export default function PrivacyPage() {
               Data deletion or privacy questions:{' '}
               <a
                 href="mailto:hello@skillzy.com"
-                className="border-b border-brand-ink hover:text-brand-emerald hover:border-brand-emerald pb-0.5"
+                className="border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
               >
                 hello@skillzy.com
               </a>
