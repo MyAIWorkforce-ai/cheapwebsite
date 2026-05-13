@@ -157,5 +157,5 @@ export default function CreatorPage({ params }: { params: { handle: string } }) 
 
 function normalizeHandleEmail(handle: string) {
   const h = handle.replace(/^@/, '').toLowerCase()
-  return `${h}@creator.skillzy.com`
+  return `${h}@creator.skillzy.ai`
 }

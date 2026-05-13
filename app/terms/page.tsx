@@ -64,9 +64,6 @@ export default function TermsPage() {
             </p>
           </section>
 
-          <p className="text-brand-muted italic">
-            Placeholder. Full terms will replace this page before public launch.
-          </p>
         </div>
       </div>
     </article>

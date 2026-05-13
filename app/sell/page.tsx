@@ -88,9 +88,9 @@ export default function SellPage() {
       <section className="px-6 lg:px-10 py-14 sm:py-20 border-b border-brand-hairline">
         <div className="max-w-page mx-auto grid grid-cols-1 md:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">
           {[
+            { n: '∞', label: 'Resales', desc: 'List once. Sell it forever.' },
             { n: '80%', label: 'You keep', desc: 'On every sale. Always.' },
             { n: '10 min', label: 'To publish', desc: 'Average time from sign-up to live.' },
-            { n: 'Stripe', label: 'Pays you direct', desc: 'Never held by us. Ever.' },
           ].map((s) => (
             <div key={s.label} className="bg-brand-cream-card p-8 sm:p-10">
               <p

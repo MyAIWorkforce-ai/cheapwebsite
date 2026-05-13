@@ -207,7 +207,7 @@ export default function HomePage() {
                 Sell it.
               </span>{' '}
               <span className="text-brand-muted">
-                · Drops into any agent. Upgrades it in minutes · Keep 80% of every sale
+                · One listing. Sell it forever · Keep 80% of every sale
               </span>
             </span>
           </div>

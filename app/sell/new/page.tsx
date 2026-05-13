@@ -287,7 +287,7 @@ export default function NewListingPage() {
                 >
                   $199.20
                 </p>
-                <p className="text-xs text-brand-muted">per sale, paid to Stripe</p>
+                <p className="text-xs text-brand-muted">per sale &times; unlimited resales</p>
               </div>
               <div className="bg-brand-cream-card p-5">
                 <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
@@ -371,10 +371,6 @@ export default function NewListingPage() {
               Submit for review
               <span aria-hidden>→</span>
             </Link>
-            <p className="mt-4 text-xs text-brand-muted max-w-xs">
-              Mock flow for the prototype. Real publishing kicks in once
-              auth + Stripe Connect are wired up.
-            </p>
           </div>
         </div>
       </Step>

@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     title: 'Skillzy — Give your agent skills',
     description:
       'A marketplace for skills, guides, and ready-to-go agent setups. Made by humans, dropped into your agent.',
-    url: 'https://skillzy.com',
+    url: 'https://skillzy.ai',
     siteName: 'Skillzy',
     type: 'website',
   },
