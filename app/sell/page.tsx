@@ -47,14 +47,14 @@ export default function SellPage() {
       <section className="px-6 lg:px-10 pt-16 sm:pt-28 pb-20 sm:pb-28 border-b border-brand-hairline">
         <div className="max-w-page mx-auto">
           <Sticker rotate="-2deg" className="mb-8">
-            Made something? cash it.
+            ✿ Keep 80%
           </Sticker>
 
           <h1
             className="font-display text-[3.25rem] sm:text-[7rem] lg:text-[9.5rem] leading-[0.88] tracking-tight"
             style={{ letterSpacing: '-0.035em' }}
           >
-            <span className="block">Built it?</span>
+            <span className="block">Made it?</span>
             <span className="block">
               <em className="italic font-medium text-brand-gold">Sell it.</em>
             </span>
