@@ -58,3 +58,18 @@ body {
   background-size: 22px 22px, 14px 14px;
   background-position: 0 0, 7px 7px;
 }
+
+/* Slow horizontal scroller for the creators' marquee on the homepage.
+   The wrapped content is rendered twice; the keyframe translates by
+   -50% so the loop is seamless. */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 45s linear infinite;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee { animation: none; }
+}

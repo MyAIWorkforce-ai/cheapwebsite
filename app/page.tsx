@@ -373,14 +373,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* SELL — emerald, sticker, creator pitch */}
-      <section className="relative px-6 lg:px-10 py-24 sm:py-36 bg-brand-navy text-brand-cream overflow-hidden">
+      {/* CREATORS' REVOLUTION — dark manifesto strip */}
+      <section className="relative px-6 lg:px-10 py-24 sm:py-32 bg-brand-navy text-brand-cream overflow-hidden">
         <div
           aria-hidden
           className="absolute top-10 right-10 sm:top-16 sm:right-20 hidden sm:block"
         >
           <Sticker tone="mustard" rotate="6deg">
-            80% to you. Always.
+            ✿ Manifesto
           </Sticker>
         </div>
 
@@ -390,34 +390,87 @@ export default function HomePage() {
           </span>
 
           <h2
-            className="font-display mt-6 text-6xl sm:text-8xl lg:text-[8.5rem] leading-[0.9] tracking-tight"
+            className="font-display mt-6 text-5xl sm:text-7xl lg:text-[7.5rem] leading-[0.92] tracking-tight"
             style={{ letterSpacing: '-0.03em' }}
           >
-            Built it?{' '}
-            <em className="italic text-brand-gold-soft font-medium">Sell it.</em>
+            <span className="block">The creators&rsquo;</span>
+            <span className="block">
+              <em className="italic text-brand-gold-soft font-medium">revolution</em>{' '}
+              starts here.
+            </span>
           </h2>
 
-          <div className="mt-10 sm:mt-14 grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
-            <p className="lg:col-span-7 text-xl sm:text-2xl leading-snug max-w-2xl text-brand-cream/90">
-              Skillzy turns your agent and your skills into income. Publish
-              once. Stripe pays you direct. We never touch the money.
-            </p>
-            <div className="lg:col-span-5 lg:flex lg:justify-end">
-              <Link
-                href="/sell"
-                className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
-              >
-                Start selling
-                <span aria-hidden>→</span>
-              </Link>
-            </div>
+          <p className="mt-10 text-xl sm:text-2xl leading-snug max-w-3xl text-brand-cream/90">
+            The old marketplaces took 70% and locked your IP behind their
+            walls. Skillzy gives you 80%, keeps your name on the work, and
+            lets every listing earn forever.{' '}
+            <span className="text-brand-cream">You build. We sell. They use.</span>
+          </p>
+
+          <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-px bg-brand-cream/10 border border-brand-cream/15">
+            {[
+              { n: '80%', label: 'Stays with you', desc: 'Every sale. No exceptions.' },
+              { n: '$0', label: 'Held by us', desc: 'Stripe pays you direct, instantly.' },
+              { n: '∞', label: 'Resales per listing', desc: 'List once. Earn forever.' },
+            ].map((s) => (
+              <div key={s.label} className="bg-brand-navy p-8">
+                <p
+                  className="font-display text-6xl sm:text-7xl text-brand-gold-soft"
+                  style={{ letterSpacing: '-0.04em' }}
+                >
+                  {s.n}
+                </p>
+                <p className="font-display text-xl mt-3">{s.label}</p>
+                <p className="text-sm text-brand-cream/70 mt-1.5">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-12">
+            <Link
+              href="/sell"
+              className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
+            >
+              Become a creator
+              <span aria-hidden>→</span>
+            </Link>
           </div>
 
           {/* mobile-only sticker, placed in flow */}
-          <div className="mt-10 sm:hidden">
+          <div className="mt-12 sm:hidden">
             <Sticker tone="mustard" rotate="-3deg">
-              80% to you. Always.
+              ✿ Manifesto
             </Sticker>
+          </div>
+        </div>
+
+        {/* creator handles marquee — full-bleed under the section */}
+        <div className="mt-16 sm:mt-20 -mx-6 lg:-mx-10 overflow-hidden border-y border-brand-cream/15 py-5">
+          <div className="flex gap-12 animate-marquee whitespace-nowrap font-display text-2xl sm:text-3xl text-brand-cream/85">
+            {[...Array(2)].map((_, dup) => (
+              <div key={dup} className="flex gap-12 shrink-0" aria-hidden={dup === 1}>
+                {[
+                  '@harlow',
+                  '@ledgerlab',
+                  '@sitebench',
+                  '@storefrontlabs',
+                  '@practiceos',
+                  '@fronthouse',
+                  '@jonask',
+                  '@paperless',
+                  '@datajedi',
+                  '@kaim',
+                  '@mirasato',
+                  '@agentschool',
+                  '@promptforge',
+                ].map((handle) => (
+                  <span key={`${dup}-${handle}`} className="inline-flex items-baseline gap-12">
+                    <span style={{ letterSpacing: '-0.018em' }}>{handle}</span>
+                    <span aria-hidden className="text-brand-gold-soft/70">·</span>
+                  </span>
+                ))}
+              </div>
+            ))}
           </div>
         </div>
       </section>
