@@ -248,7 +248,7 @@ export default function ProductDetailPage({
             className="font-display text-4xl sm:text-6xl tracking-tight max-w-3xl"
             style={{ letterSpacing: '-0.03em' }}
           >
-            Plug it in.{' '}
+            Drop it in.{' '}
             <em className="italic text-brand-gold font-medium">Press go.</em>
           </h2>
 
@@ -448,7 +448,7 @@ export default function ProductDetailPage({
       <section className="px-6 lg:px-10 py-10 sm:py-14 border-t border-brand-hairline">
         <div className="max-w-page mx-auto flex items-center justify-between flex-wrap gap-6">
           <a
-            href={`mailto:safety@skillzy.com?subject=Report%20listing%20${encodeURIComponent(p.id)}`}
+            href={`mailto:hi@skillzy.ai?subject=Report%20listing%20${encodeURIComponent(p.id)}`}
             className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted hover:text-brand-ink transition-colors"
           >
             Report this listing
@@ -472,7 +472,7 @@ export default function ProductDetailPage({
               style={{ letterSpacing: '-0.03em' }}
             >
               You might also{' '}
-              <em className="italic text-brand-gold font-medium">plug in.</em>
+              <em className="italic text-brand-gold font-medium">drop in.</em>
             </h2>
 
             <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">

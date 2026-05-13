@@ -14,9 +14,9 @@ const toneClass = {
 }
 
 const sizeClass = {
-  sm: 'text-xl',
-  md: 'text-2xl',
-  lg: 'text-4xl',
+  sm: 'text-2xl',
+  md: 'text-[2rem] sm:text-[2.25rem]',
+  lg: 'text-5xl',
   xl: 'text-6xl sm:text-7xl',
 }
 
@@ -32,9 +32,6 @@ export default function Logo({
       style={{ letterSpacing: '-0.02em' }}
     >
       Skillzy
-      <span aria-hidden className="align-top text-[0.45em] ml-0.5">
-        .
-      </span>
     </span>
   )
 

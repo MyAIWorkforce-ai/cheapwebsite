@@ -145,7 +145,7 @@ export const products: Product[] = [
     id: 'real-estate-agent-setup',
     type: 'Agent Setup',
     title: 'Real Estate, end to end.',
-    tagline: 'Lead capture, listings, follow-ups, market reports. Plug it in, get an agent that runs the desk.',
+    tagline: 'Lead capture, listings, follow-ups, market reports. Drop it in, get an agent that runs the desk.',
     niche: 'Real Estate',
     creator: creators.harlow,
     platformList: ['Claude', 'OpenClaw', 'n8n', 'Make'],

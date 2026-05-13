@@ -223,7 +223,7 @@ export default function NewListingPage() {
                 Real Estate, end to end.
               </h3>
               <p className="mt-2 text-brand-muted text-sm">
-                Lead capture, listings, follow-ups, market reports. Plug it in,
+                Lead capture, listings, follow-ups, market reports. Drop it in,
                 get an agent that runs the desk.
               </p>
 

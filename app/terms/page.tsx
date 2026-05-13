@@ -21,10 +21,10 @@ export default function TermsPage() {
             By using Skillzy, you agree to these terms. If anything’s unclear,
             email{' '}
             <a
-              href="mailto:hello@skillzy.com"
+              href="mailto:hi@skillzy.ai"
               className="border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
             >
-              hello@skillzy.com
+              hi@skillzy.ai
             </a>
             .
           </p>

@@ -22,7 +22,7 @@ export default function NotFound() {
           >
             <span className="block">Nothing</span>
             <span className="block">
-              <em className="italic text-brand-gold font-medium">to plug in.</em>
+              <em className="italic text-brand-gold font-medium">to drop in.</em>
             </span>
           </h1>
 

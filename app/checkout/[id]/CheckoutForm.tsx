@@ -88,7 +88,7 @@ export default function CheckoutForm({
         disabled={loading}
         className="mt-8 inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-8 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors disabled:opacity-60"
       >
-        {loading ? 'Redirecting to Stripe…' : `Pay ${price} — plug it in`}
+        {loading ? 'Redirecting to Stripe…' : `Pay ${price} — drop it in`}
         {!loading && <span aria-hidden>→</span>}
       </button>
 

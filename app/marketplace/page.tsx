@@ -56,7 +56,7 @@ export default function MarketplacePage({
             className="font-display mt-5 text-5xl sm:text-7xl tracking-tight"
             style={{ letterSpacing: '-0.03em' }}
           >
-            Plug in.{' '}
+            Drop in.{' '}
             <em className="italic text-brand-gold font-medium">Pick up speed.</em>
           </h1>
           <p className="mt-5 text-brand-muted max-w-prose">
@@ -139,18 +139,7 @@ export default function MarketplacePage({
             <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted mr-2">
               Niche
             </span>
-            <Link
-              href={`/marketplace${activeKey !== 'all' ? `?type=${activeKey}` : ''}`}
-              className={
-                'px-1.5 transition-colors ' +
-                (!niche
-                  ? 'text-brand-gold font-semibold'
-                  : 'text-brand-muted hover:text-brand-ink')
-              }
-            >
-              Any
-            </Link>
-            {niches.map((n) => {
+            {niches.map((n, i) => {
               const slug = n.toLowerCase().replace(/\s+/g, '-')
               const active = niche === slug || niche === n.toLowerCase()
               const params = new URLSearchParams()
@@ -158,9 +147,11 @@ export default function MarketplacePage({
               params.set('niche', slug)
               return (
                 <span key={n} className="inline-flex items-baseline">
-                  <span className="text-brand-hairline px-0.5" aria-hidden>
-                    ·
-                  </span>
+                  {i > 0 && (
+                    <span className="text-brand-hairline px-0.5" aria-hidden>
+                      ·
+                    </span>
+                  )}
                   <Link
                     href={`/marketplace?${params.toString()}`}
                     className={
@@ -175,24 +166,29 @@ export default function MarketplacePage({
                 </span>
               )
             })}
+            <span className="inline-flex items-baseline">
+              <span className="text-brand-hairline px-0.5" aria-hidden>
+                ·
+              </span>
+              <Link
+                href={`/marketplace${activeKey !== 'all' ? `?type=${activeKey}` : ''}`}
+                className={
+                  'px-1.5 transition-colors ' +
+                  (!niche
+                    ? 'text-brand-gold font-semibold'
+                    : 'text-brand-muted hover:text-brand-ink')
+                }
+              >
+                All
+              </Link>
+            </span>
           </div>
 
           <div className="flex items-baseline flex-wrap gap-x-1 gap-y-1.5 text-sm">
             <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted mr-2">
               Platform
             </span>
-            <Link
-              href={`/marketplace${activeKey !== 'all' ? `?type=${activeKey}` : ''}${niche ? `${activeKey !== 'all' ? '&' : '?'}niche=${niche}` : ''}`}
-              className={
-                'px-1.5 transition-colors ' +
-                (!platform
-                  ? 'text-brand-gold font-semibold'
-                  : 'text-brand-muted hover:text-brand-ink')
-              }
-            >
-              Any
-            </Link>
-            {platforms.map((pl) => {
+            {platforms.map((pl, i) => {
               const slug = pl.toLowerCase()
               const active = platform === slug
               const params = new URLSearchParams()
@@ -201,9 +197,11 @@ export default function MarketplacePage({
               params.set('platform', slug)
               return (
                 <span key={pl} className="inline-flex items-baseline">
-                  <span className="text-brand-hairline px-0.5" aria-hidden>
-                    ·
-                  </span>
+                  {i > 0 && (
+                    <span className="text-brand-hairline px-0.5" aria-hidden>
+                      ·
+                    </span>
+                  )}
                   <Link
                     href={`/marketplace?${params.toString()}`}
                     className={
@@ -218,6 +216,22 @@ export default function MarketplacePage({
                 </span>
               )
             })}
+            <span className="inline-flex items-baseline">
+              <span className="text-brand-hairline px-0.5" aria-hidden>
+                ·
+              </span>
+              <Link
+                href={`/marketplace${activeKey !== 'all' ? `?type=${activeKey}` : ''}${niche ? `${activeKey !== 'all' ? '&' : '?'}niche=${niche}` : ''}`}
+                className={
+                  'px-1.5 transition-colors ' +
+                  (!platform
+                    ? 'text-brand-gold font-semibold'
+                    : 'text-brand-muted hover:text-brand-ink')
+                }
+              >
+                All
+              </Link>
+            </span>
           </div>
         </div>
 

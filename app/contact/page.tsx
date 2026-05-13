@@ -23,10 +23,10 @@ export default function ContactPage() {
             <dt className="label-cap text-brand-gold">General</dt>
             <dd className="mt-3">
               <a
-                href="mailto:hello@skillzy.com"
+                href="mailto:hi@skillzy.ai"
                 className="font-display text-2xl border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
               >
-                hello@skillzy.com
+                hi@skillzy.ai
               </a>
             </dd>
             <p className="mt-3 text-sm text-brand-muted">
@@ -37,10 +37,10 @@ export default function ContactPage() {
             <dt className="label-cap text-brand-gold">Trust &amp; safety</dt>
             <dd className="mt-3">
               <a
-                href="mailto:safety@skillzy.com"
+                href="mailto:hi@skillzy.ai"
                 className="font-display text-2xl border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
               >
-                safety@skillzy.com
+                hi@skillzy.ai
               </a>
             </dd>
             <p className="mt-3 text-sm text-brand-muted">

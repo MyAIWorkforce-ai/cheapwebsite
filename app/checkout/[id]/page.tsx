@@ -50,8 +50,8 @@ export default async function CheckoutPage({ params }: { params: { id: string } 
             <em className="italic text-brand-gold font-medium">step.</em>
           </h1>
           <p className="mt-4 text-brand-muted max-w-prose">
-            Pay, plug in, plug along. Stripe handles the money. Files in your
-            inbox in under a minute.
+            Pay, drop it in, get back to work. Stripe handles the money. Files
+            in your inbox in under a minute.
           </p>
 
           <div className="mt-12 grid grid-cols-1 lg:grid-cols-12 gap-10">

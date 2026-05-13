@@ -42,10 +42,10 @@ export default function AboutPage() {
           <p className="text-brand-muted">
             Get in touch:{' '}
             <a
-              href="mailto:hello@skillzy.com"
+              href="mailto:hi@skillzy.ai"
               className="text-brand-ink border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
             >
-              hello@skillzy.com
+              hi@skillzy.ai
             </a>
           </p>
         </div>
