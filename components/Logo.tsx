@@ -15,7 +15,7 @@ const toneClass = {
 
 const sizeClass = {
   sm: 'text-2xl',
-  md: 'text-[2rem] sm:text-[2.25rem]',
+  md: 'text-[2.5rem] sm:text-[2.75rem]',
   lg: 'text-5xl',
   xl: 'text-6xl sm:text-7xl',
 }

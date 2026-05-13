@@ -51,7 +51,7 @@ export default function SellPage() {
           </Sticker>
 
           <h1
-            className="font-display text-[3.25rem] sm:text-[7rem] lg:text-[9.5rem] leading-[0.88] tracking-tight"
+            className="font-display text-5xl sm:text-7xl leading-[0.92] tracking-tight"
             style={{ letterSpacing: '-0.035em' }}
           >
             <span className="block">Built it?</span>
