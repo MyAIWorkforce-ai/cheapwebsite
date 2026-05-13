@@ -54,7 +54,7 @@ export default function SellPage() {
             className="font-display text-[3.25rem] sm:text-[7rem] lg:text-[9.5rem] leading-[0.88] tracking-tight"
             style={{ letterSpacing: '-0.035em' }}
           >
-            <span className="block">Made it?</span>
+            <span className="block">Built it?</span>
             <span className="block">
               <em className="italic font-medium text-brand-gold">Sell it.</em>
             </span>
