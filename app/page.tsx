@@ -95,7 +95,7 @@ export default function HomePage() {
       <section className="px-6 lg:px-10 pt-14 sm:pt-24 pb-20 sm:pb-28">
         <div className="max-w-page mx-auto">
           <Sticker rotate="-2.5deg" className="mb-8">
-            ✿ Works out of the box
+            ✿ Built by creators
           </Sticker>
 
           <h1
