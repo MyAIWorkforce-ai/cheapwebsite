@@ -75,7 +75,7 @@ export default function NewListingPage() {
             className="font-display mt-7 text-5xl sm:text-7xl lg:text-[6.5rem] tracking-tight leading-[0.95]"
             style={{ letterSpacing: '-0.03em' }}
           >
-            Created something?{' '}
+            Built something good?{' '}
             <em className="italic text-brand-gold font-medium">
               Get paid.
             </em>
