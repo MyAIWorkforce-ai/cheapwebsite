@@ -99,7 +99,7 @@ export default function HomePage() {
           </Sticker>
 
           <h1
-            className="font-display text-[3.5rem] sm:text-[7rem] lg:text-[9.5rem] leading-[0.88] tracking-tight text-brand-ink"
+            className="font-display text-5xl sm:text-7xl lg:text-[7rem] leading-[0.92] tracking-tight text-brand-ink"
             style={{ letterSpacing: '-0.035em' }}
           >
             <span className="block">Drop it in.</span>
