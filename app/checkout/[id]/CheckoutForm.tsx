@@ -97,8 +97,7 @@ export default function CheckoutForm({
       )}
 
       <p className="mt-4 text-xs text-brand-muted max-w-md">
-        Stripe charges only on confirmation. 30-day refund if the bundle
-        doesn&rsquo;t do what the listing said.
+        Stripe charges only on confirmation.
       </p>
     </form>
   )

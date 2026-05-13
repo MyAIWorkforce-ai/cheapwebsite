@@ -192,9 +192,9 @@ export default async function PayoutsPage({
               <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold block mb-2">
                 Refunds
               </span>
-              If a buyer requests a refund inside the 30-day window, Skillzy
-              reverses the charge automatically. Your Stripe balance will show
-              the deduction on the next reconciliation.
+              If a buyer disputes a charge or you choose to refund a sale,
+              Skillzy reverses it through Stripe. Your Stripe balance will
+              show the deduction on the next reconciliation.
             </div>
           </div>
         </div>

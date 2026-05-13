@@ -208,7 +208,6 @@ When a new lead arrives via email or form:
       { q: 'Will it work with my CRM?', a: 'Out of the box: HubSpot, Pipedrive, Follow Up Boss. Others via n8n in about 30 minutes.' },
       { q: 'Does it write listings I can use?', a: 'Yes, but read them before you publish. It’s good, not perfect.' },
       { q: 'Can I customise the voice?', a: 'Yes. There’s a personality config you edit once. The whole agent shifts.' },
-      { q: 'Refunds?', a: '30 days, no questions, as long as the setup wasn’t modified beyond recognition.' },
     ],
     relatedIds: ['daily-summary-email', 'invoice-generator', 'wire-claude-and-n8n'],
   },

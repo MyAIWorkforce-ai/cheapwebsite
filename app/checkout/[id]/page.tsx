@@ -119,10 +119,6 @@ export default async function CheckoutPage({ params }: { params: { id: string } 
                     <span aria-hidden className="text-brand-gold">✓</span>
                     Scanned and human-reviewed
                   </li>
-                  <li className="flex items-start gap-2">
-                    <span aria-hidden className="text-brand-gold">✓</span>
-                    30-day refund if it doesn’t work
-                  </li>
                 </ul>
               </div>
             </aside>

@@ -180,10 +180,6 @@ export default function ProductDetailPage({
                   <span aria-hidden className="text-brand-gold">✓</span>
                   Scanned + reviewed by Skillzy
                 </li>
-                <li className="flex items-start gap-2">
-                  <span aria-hidden className="text-brand-gold">✓</span>
-                  30-day refund if it doesn’t work
-                </li>
               </ul>
 
               <p className="mt-6 pt-5 border-t border-brand-hairline text-xs text-brand-muted">

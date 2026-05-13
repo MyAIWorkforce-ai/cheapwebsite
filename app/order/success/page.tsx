@@ -115,7 +115,7 @@ export default function OrderSuccessPage({
             </div>
           )}
 
-          <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline max-w-3xl">
+          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-px bg-brand-hairline border border-brand-hairline max-w-2xl">
             <div className="bg-brand-cream-card p-6">
               <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
                 Order
@@ -136,17 +136,6 @@ export default function OrderSuccessPage({
                 style={{ letterSpacing: '-0.02em' }}
               >
                 {email}
-              </p>
-            </div>
-            <div className="bg-brand-cream-card p-6">
-              <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
-                Refund window
-              </span>
-              <p
-                className="font-display text-2xl mt-2"
-                style={{ letterSpacing: '-0.02em' }}
-              >
-                30 days
               </p>
             </div>
           </div>

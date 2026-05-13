@@ -53,8 +53,8 @@ export async function sendPurchaseConfirmation({
         <ul style="margin:16px 0 0;padding-left:18px;font-size:14px;">${downloads}</ul>
       </div>
       <p style="margin-top:32px;font-size:13px;color:#5F6B7E;">
-        30-day refund if it doesn’t work. Reply to this email or write to
-        <a href="mailto:hello@skillzy.com" style="color:#5F6B7E;">hello@skillzy.com</a>.
+        Questions? Reply to this email or write to
+        <a href="mailto:hi@skillzy.ai" style="color:#5F6B7E;">hi@skillzy.ai</a>.
       </p>
       <p style="margin-top:32px;font-size:12px;color:#5F6B7E;border-top:1px solid #CCD2DD;padding-top:16px;">
         Skillzy — a marketplace for agent skills.
@@ -63,7 +63,7 @@ export async function sendPurchaseConfirmation({
   </body>
   </html>`
 
-  const text = `Plugged in. Done.\n\nOrder ${orderId}\n\n${product.title}\n${product.type} · by ${product.creator.name}\n\nDownloads (also on your dashboard at ${env.siteUrl}/dashboard):\n${(downloadUrls ?? [{ name: `${product.id}.bundle.zip`, url: '' }]).map((f) => `• ${f.name} ${f.url}`).join('\n')}\n\n30-day refund. hello@skillzy.com`
+  const text = `Plugged in. Done.\n\nOrder ${orderId}\n\n${product.title}\n${product.type} · by ${product.creator.name}\n\nDownloads (also on your dashboard at ${env.siteUrl}/dashboard):\n${(downloadUrls ?? [{ name: `${product.id}.bundle.zip`, url: '' }]).map((f) => `• ${f.name} ${f.url}`).join('\n')}\n\nQuestions? hi@skillzy.ai`
 
   return resend.emails.send({
     from: `Skillzy <${env.resend.fromEmail}>`,
