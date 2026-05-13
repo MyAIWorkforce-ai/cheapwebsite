@@ -99,7 +99,7 @@ export default function HomePage() {
           </Sticker>
 
           <h1
-            className="font-display text-5xl sm:text-7xl lg:text-[7rem] leading-[0.92] tracking-tight text-brand-ink"
+            className="font-display text-[3rem] sm:text-[6rem] lg:text-[8rem] leading-[0.9] tracking-tight text-brand-ink"
             style={{ letterSpacing: '-0.035em' }}
           >
             <span className="block">Drop it in.</span>
@@ -226,7 +226,7 @@ export default function HomePage() {
           <div className="flex items-end justify-between gap-6 mb-12 sm:mb-14 flex-wrap">
             <div>
               <h2
-                className="font-display text-5xl sm:text-7xl tracking-tight"
+                className="font-display text-4xl sm:text-6xl tracking-tight"
                 style={{ letterSpacing: '-0.03em' }}
               >
                 Setups.
@@ -257,7 +257,7 @@ export default function HomePage() {
           <div className="flex items-end justify-between gap-6 mb-12 sm:mb-14 flex-wrap">
             <div>
               <h2
-                className="font-display text-5xl sm:text-7xl tracking-tight"
+                className="font-display text-4xl sm:text-6xl tracking-tight"
                 style={{ letterSpacing: '-0.03em' }}
               >
                 Skills.
@@ -312,7 +312,7 @@ export default function HomePage() {
           <div className="flex items-end justify-between gap-6 mb-12 sm:mb-14 flex-wrap">
             <div>
               <h2
-                className="font-display text-5xl sm:text-7xl tracking-tight"
+                className="font-display text-4xl sm:text-6xl tracking-tight"
                 style={{ letterSpacing: '-0.03em' }}
               >
                 Guides.

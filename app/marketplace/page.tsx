@@ -57,7 +57,7 @@ export default function MarketplacePage({
             style={{ letterSpacing: '-0.03em' }}
           >
             Drop in.{' '}
-            <em className="italic text-brand-gold font-medium">Pick up speed.</em>
+            <em className="italic text-brand-gold font-medium">Agent supercharged.</em>
           </h1>
           <p className="mt-5 text-brand-muted max-w-prose">
             Skills, guides, full agent setups. Every listing reviewed by a human.
