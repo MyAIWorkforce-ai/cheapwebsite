@@ -72,13 +72,15 @@ export default function NewListingPage() {
         <div className="max-w-page mx-auto">
           <Sticker rotate="-2deg">New listing</Sticker>
           <h1
-            className="font-display mt-7 text-5xl sm:text-7xl lg:text-[6.5rem] tracking-tight leading-[0.95]"
+            className="font-display mt-7 text-5xl sm:text-7xl tracking-tight leading-[0.95]"
             style={{ letterSpacing: '-0.03em' }}
           >
-            Built something good?{' '}
-            <em className="italic text-brand-gold font-medium">
-              Get paid.
-            </em>
+            <span className="block">Built something good?</span>
+            <span className="block">
+              <em className="italic text-brand-gold font-medium">
+                Get paid.
+              </em>
+            </span>
           </h1>
           <p className="mt-7 text-xl text-brand-ink max-w-2xl">
             Five sections, ten minutes. The AI does the writing so you don’t
