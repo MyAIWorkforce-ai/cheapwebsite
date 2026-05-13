@@ -183,7 +183,7 @@ export default function HomePage() {
               Works with
             </p>
             <p className="font-display text-lg sm:text-xl leading-relaxed text-brand-ink">
-              Claude · OpenClaw · <em className="italic text-brand-gold">Hermes</em> ·
+              Claude · OpenClaw · Hermes ·
               ChatGPT · Gemini · Grok · Ollama · Mistral · DeepSeek · n8n ·
               Make · Zapier
             </p>
