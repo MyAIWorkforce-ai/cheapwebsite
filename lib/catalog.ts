@@ -91,7 +91,7 @@ const creators: Record<string, Creator> = {
   jonas: {
     name: 'Jonas Krüger',
     handle: '@jonask',
-    bio: 'Indie builder. Berlin. I ship one skill a fortnight.',
+    bio: 'Indie builder. Berlin. I publish one skill a fortnight.',
     totalSales: 1820,
     joined: 'January 2026',
   },
@@ -126,7 +126,7 @@ const creators: Record<string, Creator> = {
   agentschool: {
     name: 'agentschool',
     handle: '@agentschool',
-    bio: 'A small classroom for people teaching themselves to ship agents.',
+    bio: 'A small classroom for people teaching themselves to build agents.',
     totalSales: 3502,
     joined: 'November 2025',
   },
@@ -156,7 +156,7 @@ export const products: Product[] = [
     updated: '12 May 2026',
     description: [
       'A full real-estate desk in a box. Drop this in and your agent will capture inbound leads, draft listings, push follow-ups, generate comparable-sales reports, and write market updates in your voice.',
-      'Built from a working agency that used it on 240+ listings over six months before we shipped it. Every prompt has been beaten on by a real agent at 10pm on a Thursday.',
+      'Built from a working agency that used it on 240+ listings over six months before we listed it here. Every prompt has been beaten on by a real agent at 10pm on a Thursday.',
     ],
     whatYouGet: [
       '12 SKILL.md files covering leads, listings, follow-ups, market reports, comparables, and admin',
@@ -400,13 +400,13 @@ For each new ticket:
       { who: 'Marketplace seller', what: 'Consistent voice across 5,000 SKUs and a dozen ticket types.' },
     ],
     reviews: [
-      { author: 'Leah O.', location: 'London', rating: 5, date: '5 May 2026', body: 'CSAT went up after we shipped it. I had to double-check.' },
+      { author: 'Leah O.', location: 'London', rating: 5, date: '5 May 2026', body: 'CSAT went up after we rolled it out. I had to double-check.' },
       { author: 'Bren V.', location: 'Auckland', rating: 5, date: '29 Apr 2026', body: 'Worth the price five times over in BFCM alone.' },
       { author: 'Mat S.', location: 'Toronto', rating: 4, date: '15 Apr 2026', body: 'Wanted more Klaviyo hooks. Said it’s on the roadmap.' },
     ],
     faqs: [
       { q: 'Will it reply on its own?', a: 'Only the ones you let it. Auto-vs-suggest is a per-skill toggle.' },
-      { q: 'What about Klaviyo?', a: 'Marketing flows aren’t in scope here, but a sister skill ships soon.' },
+      { q: 'What about Klaviyo?', a: 'Marketing flows aren’t in scope here, but a sister skill drops soon.' },
       { q: 'Multi-store?', a: 'Yes. Brand-voice file per store. Same backbone.' },
     ],
     relatedIds: ['review-responder', 'invoice-generator', 'agent-prompt-patterns'],
@@ -731,7 +731,7 @@ Behaviour:
     ],
     faqs: [
       { q: 'Is this legal?', a: 'You’re responsible for what you scrape. The skill respects robots.txt by default.' },
-      { q: 'Will it bypass logins?', a: 'No. Not a thing we ship.' },
+      { q: 'Will it bypass logins?', a: 'No. Not a thing we sell.' },
       { q: 'JS-heavy sites?', a: 'Yes. It renders when it has to.' },
     ],
     relatedIds: ['invoice-generator', 'review-responder', 'ecom-support-agent-setup'],
@@ -813,7 +813,7 @@ Never: defensive language, exclamation marks > 1, "we strive to."
     updated: '8 May 2026',
     description: [
       'A practical guide to wiring Claude into n8n so it can do real work for you. Not theory. Not "here’s the docs page." Step-by-step builds of three actual agents.',
-      'Read it on a Saturday, ship by Sunday.',
+      'Read it on a Saturday, live by Sunday.',
     ],
     whatYouGet: [
       '60-page PDF and Markdown bundle',
@@ -843,7 +843,7 @@ Never: defensive language, exclamation marks > 1, "we strive to."
     id: 'first-skill-md',
     type: 'Guide',
     title: 'Your first SKILL.md, the right way.',
-    tagline: 'The short version of "how to ship a skill people will actually buy."',
+    tagline: 'The short version of "how to publish a skill people will actually buy."',
     creator: creators.agentschool,
     platformList: ['All platforms'],
     rating: 4.8,
@@ -866,7 +866,7 @@ Never: defensive language, exclamation marks > 1, "we strive to."
       { n: '03', title: 'Ship one', desc: 'Use the template. List it on Skillzy.' },
     ],
     reviews: [
-      { author: 'Otis K.', rating: 5, date: '3 May 2026', body: 'My second skill sold in a week. Wouldn’t have shipped the first without this.' },
+      { author: 'Otis K.', rating: 5, date: '3 May 2026', body: 'My second skill sold in a week. Wouldn’t have published the first without this.' },
       { author: 'Roni P.', rating: 5, date: '18 Apr 2026', body: 'Cleaned up my scoping immediately. Worth ten times the price.' },
       { author: 'Mei L.', rating: 4, date: '10 Apr 2026', body: 'I wanted more on pricing strategy. Maybe a follow-up?' },
     ],

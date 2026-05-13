@@ -338,7 +338,7 @@ export default function NewListingPage() {
               },
               {
                 title: 'Human review on first listing',
-                body: 'A real person looks at your first listing within 24 hours. Returning creators ship instantly.',
+                body: 'A real person looks at your first listing within 24 hours. Returning creators publish instantly.',
               },
               {
                 title: 'Connect Stripe at publish',

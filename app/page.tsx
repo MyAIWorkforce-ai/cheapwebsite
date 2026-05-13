@@ -204,7 +204,7 @@ export default function HomePage() {
                 Sell it.
               </span>{' '}
               <span className="text-brand-muted">
-                · Most ship in under 10 minutes · Keep 80% of every sale
+                · Drops into any agent. Upgrades it in minutes · Keep 80% of every sale
               </span>
             </span>
           </div>
@@ -315,7 +315,7 @@ export default function HomePage() {
                 Guides.
               </h2>
               <p className="mt-3 text-lg text-brand-muted">
-                From people who already shipped it.
+                From people who already did it.
               </p>
             </div>
             <Link

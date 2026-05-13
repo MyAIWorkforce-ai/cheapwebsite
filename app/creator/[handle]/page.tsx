@@ -122,7 +122,7 @@ export default function CreatorPage({ params }: { params: { handle: string } }) 
             style={{ letterSpacing: '-0.03em' }}
           >
             What they{' '}
-            <em className="italic text-brand-gold font-medium">ship.</em>
+            <em className="italic text-brand-gold font-medium">sell.</em>
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">
