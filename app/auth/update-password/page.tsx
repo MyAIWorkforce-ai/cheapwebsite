@@ -2,7 +2,9 @@ import { hasSupabase } from '@/lib/env'
 import UpdatePasswordForm from './UpdatePasswordForm'
 
 export const metadata = {
-  title: 'Set new password — Skillzy',
+  title: 'Set new password',
+  description: 'Choose a new password for your Skillzy account.',
+  robots: { index: false, follow: false },
 }
 
 export default function UpdatePasswordPage() {

@@ -2,7 +2,9 @@ import Link from 'next/link'
 import { products, getProductsByCreatorHandle, Product } from '@/lib/catalog'
 
 export const metadata = {
-  title: 'Dashboard — Skillzy',
+  title: 'Dashboard',
+  description: 'Your purchases, downloads, listings, and sales on Skillzy.',
+  robots: { index: false, follow: false },
 }
 
 // Mock signed-in user. In real life: pull from auth.

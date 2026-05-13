@@ -2,7 +2,9 @@ import Link from 'next/link'
 import { getProduct } from '@/lib/catalog'
 
 export const metadata = {
-  title: 'Plugged in — Skillzy',
+  title: 'Plugged in',
+  description: 'Your Skillzy purchase is ready to drop into your agent.',
+  robots: { index: false, follow: false },
 }
 
 function Sticker({

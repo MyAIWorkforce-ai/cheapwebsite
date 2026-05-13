@@ -1,6 +1,6 @@
 export const metadata = {
-  title: 'Privacy — Skillzy',
-  description: 'Skillzy privacy policy.',
+  title: 'Privacy',
+  description: 'How Skillzy handles your data — what we collect, how we use it, who we share it with.',
 }
 
 export default function PrivacyPage() {

@@ -7,7 +7,9 @@ import { getProduct } from '@/lib/catalog'
 import EditForm, { type EditDefaults } from './EditForm'
 
 export const metadata = {
-  title: 'Edit listing — Skillzy',
+  title: 'Edit listing',
+  description: 'Update title, price, niche, platforms, and status on an existing Skillzy listing.',
+  robots: { index: false, follow: false },
 }
 
 async function loadDefaults(

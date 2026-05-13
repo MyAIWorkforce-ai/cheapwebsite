@@ -10,8 +10,12 @@ export function generateStaticParams() {
 
 export function generateMetadata({ params }: { params: { id: string } }) {
   const p = getProduct(params.id)
-  if (!p) return { title: 'Checkout — Skillzy' }
-  return { title: `Checkout · ${p.title} — Skillzy` }
+  if (!p) return { title: 'Checkout', robots: { index: false, follow: false } }
+  return {
+    title: `Checkout · ${p.title}`,
+    description: `Secure Stripe checkout for ${p.title}.`,
+    robots: { index: false, follow: false },
+  }
 }
 
 export default async function CheckoutPage({ params }: { params: { id: string } }) {

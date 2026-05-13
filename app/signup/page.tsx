@@ -4,8 +4,10 @@ import { getUser } from '@/lib/auth'
 import SignUpForm from './SignUpForm'
 
 export const metadata = {
-  title: 'Create an account — Skillzy',
-  description: 'Join Skillzy to buy, sell, and re-download skills and agent setups.',
+  title: 'Create an account',
+  description:
+    'Join Skillzy to buy, sell, and re-download skills, guides, and ready-to-go agent setups.',
+  keywords: ['Skillzy sign up', 'create account', 'AI agent marketplace account'],
 }
 
 export default async function SignUpPage() {

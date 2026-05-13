@@ -1,9 +1,18 @@
 import Link from 'next/link'
 
 export const metadata = {
-  title: 'Sell your skills — Skillzy',
+  title: 'Built it? Sell it.',
   description:
-    'Publish skills, guides, and agent setups. Keep 80% of every sale. Stripe pays you directly.',
+    'Publish a skill, guide, or full agent setup. List once, sell it forever. Keep 80% of every sale. Stripe pays you direct.',
+  keywords: [
+    'sell AI skills',
+    'sell AI agents',
+    'creator marketplace',
+    'monetize AI agent',
+    'sell prompts',
+    'agent maker income',
+    'Stripe payouts',
+  ],
 }
 
 function Sticker({

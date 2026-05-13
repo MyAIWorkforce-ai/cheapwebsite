@@ -4,8 +4,9 @@ import { getUser } from '@/lib/auth'
 import SignInForm from './SignInForm'
 
 export const metadata = {
-  title: 'Sign in — Skillzy',
-  description: 'Sign in to Skillzy.',
+  title: 'Sign in',
+  description: 'Sign in to your Skillzy account.',
+  robots: { index: false, follow: true },
 }
 
 export default async function SignInPage() {

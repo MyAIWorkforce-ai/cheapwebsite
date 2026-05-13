@@ -9,10 +9,27 @@ export function generateStaticParams() {
 
 export function generateMetadata({ params }: { params: { id: string } }) {
   const p = getProduct(params.id)
-  if (!p) return { title: 'Not found — Skillzy' }
+  if (!p) return { title: 'Not found' }
   return {
-    title: `${p.title} — ${p.type} on Skillzy`,
+    title: `${p.title} — ${p.type}`,
     description: p.tagline,
+    keywords: [
+      p.type,
+      p.niche,
+      ...p.platformList,
+      p.creator.name,
+      'Skillzy',
+    ].filter(Boolean) as string[],
+    openGraph: {
+      title: `${p.title} — ${p.type} on Skillzy`,
+      description: p.tagline,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${p.title} — ${p.type}`,
+      description: p.tagline,
+    },
   }
 }
 

@@ -1,6 +1,6 @@
 export const metadata = {
-  title: 'Terms — Skillzy',
-  description: 'Skillzy terms of service.',
+  title: 'Terms',
+  description: 'Terms of service for buyers, creators, and visitors using Skillzy.',
 }
 
 export default function TermsPage() {

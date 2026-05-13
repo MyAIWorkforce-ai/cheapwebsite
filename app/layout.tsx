@@ -19,22 +19,55 @@ const sans = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Skillzy — Give your agent skills',
+  metadataBase: new URL('https://skillzy.ai'),
+  title: {
+    default: 'Skillzy — Drop it in. Agent supercharged.',
+    template: '%s — Skillzy',
+  },
   description:
-    'A marketplace for skills, guides, and ready-to-go agent setups. Made by humans, dropped into your agent.',
+    'A marketplace for skills, guides, and ready-to-go agent setups. Built by creators. Plug them into any agent — yours levels up instantly.',
+  keywords: [
+    'AI agent marketplace',
+    'agent skills',
+    'agent setups',
+    'Claude skills',
+    'OpenClaw',
+    'n8n',
+    'AI prompts',
+    'SKILL.md',
+    'sell AI skills',
+    'creator marketplace',
+  ],
+  authors: [{ name: 'Skillzy' }],
+  creator: 'Skillzy',
+  publisher: 'Skillzy',
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
-    title: 'Skillzy — Give your agent skills',
+    title: 'Skillzy — Drop it in. Agent supercharged.',
     description:
-      'A marketplace for skills, guides, and ready-to-go agent setups. Made by humans, dropped into your agent.',
+      'A marketplace for skills, guides, and ready-to-go agent setups. Built by creators.',
     url: 'https://skillzy.ai',
     siteName: 'Skillzy',
     type: 'website',
+    locale: 'en_US',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Skillzy — Give your agent skills',
+    title: 'Skillzy — Drop it in. Agent supercharged.',
     description:
       'A marketplace for skills, guides, and ready-to-go agent setups.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 }
 

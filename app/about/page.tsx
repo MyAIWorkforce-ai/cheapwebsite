@@ -1,7 +1,12 @@
 export const metadata = {
-  title: 'About — Skillzy',
+  title: 'About',
   description:
-    'Skillzy is a marketplace for skills, guides, and ready-to-go agent setups.',
+    'Skillzy is a marketplace where creators sell skills, guides, and full plug-and-play agent setups. Creators keep 80%. We never hold the money.',
+  keywords: [
+    'about Skillzy',
+    'agent marketplace',
+    'AI creator economy',
+  ],
 }
 
 export default function AboutPage() {

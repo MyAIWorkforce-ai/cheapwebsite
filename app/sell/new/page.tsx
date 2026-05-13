@@ -1,8 +1,16 @@
 import Link from 'next/link'
 
 export const metadata = {
-  title: 'New listing — Skillzy',
-  description: 'Publish a skill, guide, or agent setup on Skillzy.',
+  title: 'New listing',
+  description:
+    'Publish a skill, guide, or agent setup on Skillzy. Five sections, ten minutes. The AI does the writing so you don’t have to.',
+  keywords: [
+    'publish AI skill',
+    'list AI agent',
+    'creator onboarding',
+    'SKILL.md',
+    'sell on Skillzy',
+  ],
 }
 
 function Sticker({

@@ -1,6 +1,8 @@
 export const metadata = {
-  title: 'Contact — Skillzy',
-  description: 'Get in touch with the Skillzy team.',
+  title: 'Contact',
+  description:
+    'Get in touch with the Skillzy team. Buyer support, creator onboarding, partnerships, and trust + safety.',
+  keywords: ['contact Skillzy', 'support', 'trust and safety'],
 }
 
 export default function ContactPage() {

@@ -14,10 +14,16 @@ export function generateStaticParams() {
 
 export function generateMetadata({ params }: { params: { handle: string } }) {
   const creator = getCreatorByHandle(params.handle)
-  if (!creator) return { title: 'Creator not found — Skillzy' }
+  if (!creator) return { title: 'Creator not found' }
   return {
-    title: `${creator.name} — Skillzy`,
+    title: creator.name,
     description: creator.bio,
+    keywords: [creator.name, creator.handle, 'Skillzy creator', 'AI agent creator'],
+    openGraph: {
+      title: `${creator.name} on Skillzy`,
+      description: creator.bio,
+      type: 'profile',
+    },
   }
 }
 

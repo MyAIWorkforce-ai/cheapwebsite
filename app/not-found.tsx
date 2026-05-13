@@ -1,7 +1,9 @@
 import Link from 'next/link'
 
 export const metadata = {
-  title: 'Unplugged — Skillzy',
+  title: 'Unplugged',
+  description: 'This page doesn’t exist on Skillzy.',
+  robots: { index: false, follow: true },
 }
 
 export default function NotFound() {

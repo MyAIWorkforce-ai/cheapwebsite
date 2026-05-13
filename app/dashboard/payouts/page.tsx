@@ -5,7 +5,9 @@ import { hasSupabase, hasStripe } from '@/lib/env'
 import ConnectButton from './ConnectButton'
 
 export const metadata = {
-  title: 'Payouts — Skillzy',
+  title: 'Payouts',
+  description: 'Connect Stripe and receive payouts on every sale.',
+  robots: { index: false, follow: false },
 }
 
 type ProfileRow = {

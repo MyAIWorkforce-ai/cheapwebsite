@@ -3,9 +3,18 @@ import ProductCard from '@/components/ProductCard'
 import { products, toCardProduct, type ProductType } from '@/lib/catalog'
 
 export const metadata = {
-  title: 'The catalogue — Skillzy',
+  title: 'The catalogue',
   description:
-    'Browse skills, guides, and ready-to-go agent setups for Claude, OpenClaw, Hermes, n8n and more.',
+    'Drop in. Agent supercharged. Browse skills, guides, and ready-to-go agent setups for Claude, OpenClaw, Hermes, n8n and more. Every listing reviewed by a human.',
+  keywords: [
+    'agent skills',
+    'AI agent marketplace',
+    'Claude skills',
+    'n8n agents',
+    'OpenClaw skills',
+    'SKILL.md',
+    'AI agent setups',
+  ],
 }
 
 const filters: { label: string; type?: ProductType; key: string }[] = [
