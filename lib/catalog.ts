@@ -863,7 +863,7 @@ Never: defensive language, exclamation marks > 1, "we strive to."
     howItWorks: [
       { n: '01', title: 'Download', desc: 'PDF + template hit your inbox.' },
       { n: '02', title: 'Skim it', desc: 'It’s short. The shape of a good skill is mostly the shape of a good thought.' },
-      { n: '03', title: 'Ship one', desc: 'Use the template. List it on Skillzy.' },
+      { n: '03', title: 'Publish one', desc: 'Use the template. List it on Skillzy.' },
     ],
     reviews: [
       { author: 'Otis K.', rating: 5, date: '3 May 2026', body: 'My second skill sold in a week. Wouldn’t have published the first without this.' },
@@ -892,7 +892,7 @@ Never: defensive language, exclamation marks > 1, "we strive to."
     updated: '9 May 2026',
     description: [
       'Eighteen prompt patterns that’ve been tested across model upgrades, jailbreak attempts, and the long tail of weird real-world input. Each pattern includes the failure mode it solves and a template you can paste.',
-      'Built for builders. Skip the theory. Read the patterns. Ship better agents.',
+      'Built for builders. Skip the theory. Read the patterns. Build better agents.',
     ],
     whatYouGet: [
       '80-page PDF',
@@ -902,7 +902,7 @@ Never: defensive language, exclamation marks > 1, "we strive to."
     howItWorks: [
       { n: '01', title: 'Download', desc: 'PDF + templates.' },
       { n: '02', title: 'Read a pattern', desc: 'They’re 3 pages each. No filler.' },
-      { n: '03', title: 'Paste into your agent', desc: 'Adjust the slots. Ship.' },
+      { n: '03', title: 'Paste into your agent', desc: 'Adjust the slots. Done.' },
     ],
     reviews: [
       { author: 'Anders B.', rating: 5, date: '11 May 2026', body: 'The "guardrail-then-creativity" pattern alone is worth the cover price.' },
