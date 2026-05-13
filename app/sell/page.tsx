@@ -47,7 +47,7 @@ export default function SellPage() {
       <section className="px-6 lg:px-10 pt-16 sm:pt-28 pb-20 sm:pb-28 border-b border-brand-hairline">
         <div className="max-w-page mx-auto">
           <Sticker rotate="-2deg" className="mb-8">
-            ✿ Keep 80%
+            ✿ Buyers are waiting
           </Sticker>
 
           <h1
