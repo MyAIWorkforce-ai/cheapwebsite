@@ -102,25 +102,28 @@ export default function HomePage() {
             className="font-display text-[3.5rem] sm:text-[7rem] lg:text-[9.5rem] leading-[0.88] tracking-tight text-brand-ink"
             style={{ letterSpacing: '-0.035em' }}
           >
-            <span className="block">Plug it in.</span>
-            <span className="block pl-[0.06em]">Press go.</span>
-            <span className="relative inline-block">
-              <em className="italic font-medium text-brand-gold">Done.</em>
-              <Squiggle className="absolute -bottom-3 sm:-bottom-5 left-0 w-full h-3 sm:h-5 text-brand-gold" />
+            <span className="block">Drop it in.</span>
+            <span className="block pl-[0.06em]">Your agent</span>
+            <span className="block pl-[0.06em]">
+              just got{' '}
+              <span className="relative inline-block">
+                <em className="italic font-medium text-brand-gold">smarter.</em>
+                <Squiggle className="absolute -bottom-3 sm:-bottom-5 left-0 w-full h-3 sm:h-5 text-brand-gold" />
+              </span>
             </span>
           </h1>
 
           <div className="mt-14 sm:mt-20 grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
             <p className="lg:col-span-7 text-xl sm:text-2xl leading-snug max-w-2xl text-brand-ink">
-              Skills, guides, and full agent setups built by humans. Drop them
-              into whatever you run.
+              Pre-built skills, guides, and full agent setups from creators in
+              the field. Plug them into any agent — yours levels up instantly.
             </p>
             <div className="lg:col-span-5 flex items-center gap-6 lg:justify-end">
               <Link
                 href="/marketplace"
                 className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
               >
-                Browse the goods
+                Browse skills
                 <span aria-hidden>→</span>
               </Link>
               <Link
