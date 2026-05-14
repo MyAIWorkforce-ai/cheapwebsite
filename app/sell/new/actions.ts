@@ -1,7 +1,7 @@
 'use server'
 
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { hasSupabase } from '@/lib/env'
 
 export type PublishState = {
@@ -9,12 +9,23 @@ export type PublishState = {
   info?: string
 }
 
+const BUCKET = 'skillzy-products'
+const MAX_FILE_SIZE = 25 * 1024 * 1024 // 25 MB per file
+
 function slugify(s: string) {
   return s
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 60)
+}
+
+// Sanitise a filename for use as a Storage path segment.
+function safeName(name: string) {
+  return name
+    .replace(/[^A-Za-z0-9._-]+/g, '-')
+    .replace(/-{2,}/g, '-')
+    .slice(0, 80)
 }
 
 export async function publishListing(
@@ -50,6 +61,18 @@ export async function publishListing(
     /* no-op */
   }
 
+  // Bundle files (zero or more). FormData.getAll preserves order.
+  const rawBundle = formData.getAll('bundle')
+  const bundle: File[] = rawBundle.filter(
+    (entry): entry is File => entry instanceof File && entry.size > 0,
+  )
+
+  for (const f of bundle) {
+    if (f.size > MAX_FILE_SIZE) {
+      return { error: `${f.name} exceeds the 25 MB per-file limit.` }
+    }
+  }
+
   if (!title) return { error: 'Title is required.' }
   if (!tagline) return { error: 'Tagline is required.' }
   if (!Number.isFinite(price) || price <= 0) return { error: 'Set a price.' }
@@ -68,21 +91,56 @@ export async function publishListing(
     redirect('/signin?next=/sell/new')
   }
 
-  const { error } = await supabase.from('listings').insert({
-    creator_id: user!.id,
-    slug: `${slugify(title)}-${Date.now().toString(36).slice(-4)}`,
-    type,
-    status: 'pending_review',
-    title,
-    tagline,
-    niche,
-    price_cents: Math.round(price * 100),
-    platform_list: platforms,
-    description,
-    what_you_get: whatYouGet,
-  })
+  // 1. Create the listing row.
+  const slug = `${slugify(title)}-${Date.now().toString(36).slice(-4)}`
+  const { data: inserted, error } = await supabase
+    .from('listings')
+    .insert({
+      creator_id: user!.id,
+      slug,
+      type,
+      status: 'pending_review',
+      title,
+      tagline,
+      niche,
+      price_cents: Math.round(price * 100),
+      platform_list: platforms,
+      description,
+      what_you_get: whatYouGet,
+    })
+    .select('id')
+    .single()
 
-  if (error) return { error: error.message }
+  if (error || !inserted) return { error: error?.message ?? 'Could not save listing.' }
+
+  // 2. Upload any files to Storage at {creator_id}/{listing_id}/{file}
+  //    and write a row in public.files for each. Uses the service-role
+  //    client to bypass RLS for the writes.
+  if (bundle.length > 0) {
+    const admin = createServiceClient()
+    for (const f of bundle) {
+      const path = `${user!.id}/${inserted.id}/${safeName(f.name)}`
+      const bytes = new Uint8Array(await f.arrayBuffer())
+      const up = await admin.storage
+        .from(BUCKET)
+        .upload(path, bytes, {
+          contentType: f.type || 'application/octet-stream',
+          upsert: true,
+        })
+      if (up.error) {
+        return { error: `Upload failed for ${f.name}: ${up.error.message}` }
+      }
+      const fileRow = await admin.from('files').insert({
+        listing_id: inserted.id,
+        name: f.name,
+        storage_path: path,
+        size_bytes: f.size,
+      })
+      if (fileRow.error) {
+        return { error: `Could not record ${f.name}: ${fileRow.error.message}` }
+      }
+    }
+  }
 
   redirect('/dashboard?view=selling&submitted=1')
 }

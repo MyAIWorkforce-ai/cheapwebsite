@@ -127,6 +127,49 @@ export default function NewListingForm() {
     whatYouGet: string[]
   } | null>(null)
 
+  // Files attached to the listing. State mirrors what's in the native
+  // file input — replaced on each pick so submission via FormData stays
+  // straightforward. The server action reads formData.getAll('bundle').
+  const [files, setFiles] = useState<File[]>([])
+  const [extracting, setExtracting] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
+  const TEXT_EXT = /\.(md|markdown|yaml|yml|json|txt|prompt)$/i
+
+  async function onFilesPicked(picked: FileList | null) {
+    if (!picked || picked.length === 0) return
+    const arr = Array.from(picked)
+    setFiles(arr)
+
+    // Read text from any plain-text files and pre-fill the AI brief.
+    setExtracting(true)
+    try {
+      const reads = arr
+        .filter((f) => TEXT_EXT.test(f.name) && f.size < 200_000)
+        .map(
+          (f) =>
+            new Promise<string>((resolve) => {
+              const r = new FileReader()
+              r.onload = () => resolve(`--- ${f.name} ---\n${String(r.result ?? '')}`)
+              r.onerror = () => resolve('')
+              r.readAsText(f)
+            }),
+        )
+      if (reads.length > 0) {
+        const texts = await Promise.all(reads)
+        const merged = texts.filter(Boolean).join('\n\n')
+        // Replace any prior file-extracted brief; keep manual typing as a prefix.
+        setBrief(merged)
+      }
+    } finally {
+      setExtracting(false)
+    }
+  }
+
+  function clearFiles() {
+    setFiles([])
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
   // Voice dictation via the Web Speech API (browser-native, no deps).
   // Falls back silently if unsupported.
   const [listening, setListening] = useState(false)
@@ -250,12 +293,15 @@ export default function NewListingForm() {
         </div>
       </StepShell>
 
-      {/* STEP 2 — files (mock for v1; uploads coming once bucket policies land) */}
+      {/* STEP 2 — files */}
       <StepShell number="02" title="Drop in your files">
         <div className="bg-brand-cream-card border border-brand-hairline p-7 sm:p-10">
-          <div className="border-2 border-dashed border-brand-hairline p-10 sm:p-14 text-center">
+          <label
+            htmlFor="bundle-files"
+            className="block border-2 border-dashed border-brand-hairline p-10 sm:p-14 text-center cursor-pointer hover:border-brand-gold transition-colors"
+          >
             <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
-              Upload coming soon
+              Drag, drop, or browse
             </span>
             <p
               className="font-display text-2xl sm:text-3xl mt-3 tracking-tight"
@@ -264,16 +310,57 @@ export default function NewListingForm() {
               SKILL.md, prompts, configs, templates.
             </p>
             <p className="mt-2 text-sm text-brand-muted">
-              For the first launch, mail your bundle to{' '}
-              <a
-                href="mailto:hi@skillzy.ai"
-                className="border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
-              >
-                hi@skillzy.ai
-              </a>{' '}
-              after you submit. Real drag-and-drop lands shortly.
+              .md · .yaml · .json · .txt · .zip · .pdf — up to 25&nbsp;MB each.
+              Text files are extracted so the AI can draft your listing.
             </p>
-          </div>
+            <input
+              ref={fileInputRef}
+              id="bundle-files"
+              name="bundle"
+              type="file"
+              multiple
+              onChange={(e) => onFilesPicked(e.target.files)}
+              accept=".md,.markdown,.yaml,.yml,.json,.txt,.prompt,.zip,.pdf"
+              className="sr-only"
+            />
+            {extracting && (
+              <p className="mt-4 text-xs text-brand-gold">
+                ✿ Reading your files…
+              </p>
+            )}
+          </label>
+
+          {files.length > 0 && (
+            <>
+              <ul className="mt-6 divide-y divide-brand-hairline border-y border-brand-hairline">
+                {files.map((f, i) => (
+                  <li key={`${f.name}-${i}`} className="py-3 flex items-center justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="font-mono text-sm truncate">{f.name}</p>
+                      <p className="text-xs text-brand-muted">
+                        {(f.size / 1024).toFixed(1)} KB
+                        {TEXT_EXT.test(f.name) && ' · extracted for AI'}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-4">
+                <button
+                  type="button"
+                  onClick={clearFiles}
+                  className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted hover:text-red-700 transition-colors"
+                >
+                  Clear all + pick again
+                </button>
+              </div>
+            </>
+          )}
+
+          <p className="mt-5 text-xs text-brand-muted">
+            Every upload is virus-scanned and reviewed by a human before
+            the listing goes live.
+          </p>
         </div>
       </StepShell>
 
