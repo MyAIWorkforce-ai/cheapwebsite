@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import ProductCard from '@/components/ProductCard'
-import { products, toCardProduct, type ProductType } from '@/lib/catalog'
+import { products, toCardProduct, NICHES, type ProductType } from '@/lib/catalog'
 
 export const metadata = {
   title: 'The catalogue',
@@ -52,7 +52,9 @@ export default function MarketplacePage({
   })
 
   const platforms = Array.from(new Set(products.flatMap((p) => p.platformList))).sort()
-  const niches = Array.from(new Set(products.map((p) => p.niche).filter(Boolean))) as string[]
+  // Master niche list (defined in lib/catalog.ts) — shows every niche
+  // in the filter even before listings exist in it.
+  const niches = [...NICHES] as string[]
 
   return (
     <div className="paper">
@@ -263,11 +265,11 @@ export default function MarketplacePage({
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">
-            {filtered.map((p, i) => (
+            {filtered.map((p) => (
               <ProductCard
                 key={p.id}
                 product={toCardProduct(p)}
-                variant={i % 5 === 2 ? 'emerald' : 'cream'}
+                variant={p.featured ? 'emerald' : 'cream'}
               />
             ))}
           </div>

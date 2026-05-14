@@ -11,6 +11,7 @@ export type Product = {
   rating: number
   ratingCount?: number
   price: string
+  featured?: boolean
   number?: string // editorial №01, etc.
 }
 
@@ -43,9 +44,10 @@ export default function ProductCard({
           <span
             className={
               'label-cap ' +
-              (emerald ? 'text-brand-cream/70' : 'text-brand-gold')
+              (emerald ? 'text-brand-gold' : 'text-brand-gold')
             }
           >
+            {product.featured && '✿ Featured · '}
             {typeAbbrev[product.type]}
             {product.number ? ` · ${product.number}` : ''}
           </span>

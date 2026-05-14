@@ -244,8 +244,12 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">
-            {agentSetups.map((p, i) => (
-              <ProductCard key={p.id} product={p} variant={i === 1 ? 'emerald' : 'cream'} />
+            {agentSetups.map((p) => (
+              <ProductCard
+                key={p.id}
+                product={p}
+                variant={p.featured ? 'emerald' : 'cream'}
+              />
             ))}
           </div>
         </div>
@@ -331,7 +335,7 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-px bg-brand-hairline border border-brand-hairline">
             <div className="lg:col-span-7">
-              <ProductCard product={guides[0]} variant="emerald" />
+              <ProductCard product={guides[0]} variant={guides[0].featured ? 'emerald' : 'cream'} />
             </div>
             <div className="lg:col-span-5 grid grid-cols-1 gap-px bg-brand-hairline">
               <ProductCard product={guides[1]} />

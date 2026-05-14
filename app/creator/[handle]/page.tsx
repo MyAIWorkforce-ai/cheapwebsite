@@ -132,11 +132,11 @@ export default function CreatorPage({ params }: { params: { handle: string } }) 
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">
-            {items.map((p, i) => (
+            {items.map((p) => (
               <ProductCard
                 key={p.id}
                 product={toCardProduct(p)}
-                variant={i % 5 === 2 ? 'emerald' : 'cream'}
+                variant={p.featured ? 'emerald' : 'cream'}
               />
             ))}
           </div>
