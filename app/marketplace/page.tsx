@@ -18,10 +18,10 @@ export const metadata = {
 }
 
 const filters: { label: string; type?: ProductType; key: string }[] = [
-  { label: 'All', key: 'all' },
   { label: 'Agent Setups', type: 'Agent Setup', key: 'agent-setup' },
   { label: 'Skills', type: 'Skill', key: 'skill' },
   { label: 'Guides', type: 'Guide', key: 'guide' },
+  { label: 'All', key: 'all' },
 ]
 
 export default function MarketplacePage({
