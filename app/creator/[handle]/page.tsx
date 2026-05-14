@@ -142,26 +142,15 @@ export default function CreatorPage({ params }: { params: { handle: string } }) 
           </div>
 
           <div className="mt-10 flex flex-wrap items-center gap-4">
-            <a
-              href={`mailto:${normalizeHandleEmail(creator.handle)}`}
-              className="text-sm border-b border-brand-ink pb-0.5 hover:text-brand-gold hover:border-brand-gold transition-colors"
-            >
-              Contact {creator.name} →
-            </a>
             <Link
               href="/marketplace"
-              className="text-sm text-brand-muted hover:text-brand-ink transition-colors"
+              className="text-sm border-b border-brand-ink pb-0.5 hover:text-brand-gold hover:border-brand-gold transition-colors"
             >
-              Back to the catalogue
+              Back to the catalogue →
             </Link>
           </div>
         </div>
       </section>
     </div>
   )
-}
-
-function normalizeHandleEmail(handle: string) {
-  const h = handle.replace(/^@/, '').toLowerCase()
-  return `${h}@creator.skillzy.ai`
 }
