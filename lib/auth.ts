@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { hasSupabase } from '@/lib/env'
 
 export type SessionUser = {
@@ -33,5 +33,38 @@ export async function getUser(): Promise<SessionUser | null> {
     }
   } catch {
     return null
+  }
+}
+
+/**
+ * Claim purchases that were made as a guest with this user's email,
+ * before they had an account. Idempotent — only updates rows where
+ * buyer_id is still NULL. Uses the service-role client to bypass RLS
+ * since the buyer doesn't yet own those rows.
+ *
+ * Returns the number of purchases that were just linked. Safe to
+ * call on every /dashboard page load — the query is indexed on
+ * buyer_email and short-circuits to 0 updates after the first claim.
+ */
+export async function claimOrphanPurchases(
+  user: SessionUser,
+): Promise<number> {
+  if (!hasSupabase) return 0
+  try {
+    const admin = createServiceClient()
+    const { data, error } = await admin
+      .from('purchases')
+      .update({ buyer_id: user.id })
+      .eq('buyer_email', user.email)
+      .is('buyer_id', null)
+      .select('id')
+    if (error) {
+      console.error('claimOrphanPurchases:', error.message)
+      return 0
+    }
+    return data?.length ?? 0
+  } catch (err) {
+    console.error('claimOrphanPurchases threw:', err)
+    return 0
   }
 }

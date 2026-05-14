@@ -48,8 +48,14 @@ export async function signInWithPassword(
   if (!email || !password) return { error: 'Email and password required.' }
 
   const supabase = createClient()
-  const { error } = await supabase.auth.signInWithPassword({ email, password })
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
   if (error) return { error: error.message }
+
+  // Claim guest-checkout purchases made with this email pre-account.
+  if (data.user?.email && data.user.id) {
+    const { claimOrphanPurchases } = await import('@/lib/auth')
+    await claimOrphanPurchases({ id: data.user.id, email: data.user.email })
+  }
 
   redirect('/dashboard')
 }
