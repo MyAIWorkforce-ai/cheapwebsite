@@ -74,6 +74,27 @@ export default function DashboardPage({
           <p className="mt-5 text-brand-muted max-w-prose">
             Everything you’ve bought lives here. Everything you’ve sold too.
           </p>
+
+          <div className="mt-6 flex items-center gap-5 flex-wrap text-sm">
+            <Link
+              href="/account"
+              className="border-b border-brand-ink pb-0.5 hover:text-brand-gold hover:border-brand-gold transition-colors"
+            >
+              Account settings →
+            </Link>
+            <Link
+              href="/dashboard/payouts"
+              className="text-brand-muted hover:text-brand-ink transition-colors"
+            >
+              Payouts
+            </Link>
+            <Link
+              href="/help"
+              className="text-brand-muted hover:text-brand-ink transition-colors"
+            >
+              Help
+            </Link>
+          </div>
         </div>
       </section>
 

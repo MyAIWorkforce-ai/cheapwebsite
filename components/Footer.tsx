@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Logo from './Logo'
+import NewsletterForm from './NewsletterForm'
 
 export default function Footer() {
   const year = new Date().getFullYear()
@@ -14,9 +15,18 @@ export default function Footer() {
               A marketplace for skills, guides, and ready-to-go agent setups.
               Made by humans. Dropped into your agent.
             </p>
+
+            <div className="mt-8 max-w-sm">
+              <p className="label-cap text-brand-gold mb-2">The dispatch</p>
+              <p className="text-xs text-brand-muted leading-relaxed">
+                New listings, creator interviews, the occasional discount.
+                Every other Friday.
+              </p>
+              <NewsletterForm />
+            </div>
           </div>
 
-          <div className="md:col-span-3">
+          <div className="md:col-span-2">
             <p className="label-cap text-brand-gold mb-4">Catalogue</p>
             <ul className="space-y-2.5 text-sm">
               <li><Link href="/marketplace?type=agent-setup" className="hover:text-brand-gold transition-colors">Agent Setups</Link></li>
@@ -31,11 +41,12 @@ export default function Footer() {
             <ul className="space-y-2.5 text-sm">
               <li><Link href="/about" className="hover:text-brand-gold transition-colors">About</Link></li>
               <li><Link href="/sell" className="hover:text-brand-gold transition-colors">Sell</Link></li>
+              <li><Link href="/help" className="hover:text-brand-gold transition-colors">Help</Link></li>
               <li><Link href="/contact" className="hover:text-brand-gold transition-colors">Contact</Link></li>
             </ul>
           </div>
 
-          <div className="md:col-span-2">
+          <div className="md:col-span-3">
             <p className="label-cap text-brand-gold mb-4">Fine print</p>
             <ul className="space-y-2.5 text-sm">
               <li><Link href="/terms" className="hover:text-brand-gold transition-colors">Terms</Link></li>
