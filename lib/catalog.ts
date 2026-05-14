@@ -28,6 +28,7 @@ export type Product = {
   title: string
   tagline: string
   niche?: string
+  featured?: boolean
   creator: Creator
   platformList: string[]
   rating: number
@@ -604,7 +605,6 @@ Send before send_at. Skip weekends unless told otherwise.
     faqs: [
       { q: 'Do I need anything else?', a: 'Just an agent that runs scheduled tasks.' },
       { q: 'Will it pick up Slack?', a: 'Yes, if you give it Slack access via your agent.' },
-      { q: 'Refunds?', a: '14 days, no fuss.' },
     ],
     relatedIds: ['review-responder', 'invoice-generator', 'agent-prompt-patterns'],
   },
@@ -667,7 +667,6 @@ Send: as an attachment, with a one-line covering email.
     faqs: [
       { q: 'Can it sync with Xero?', a: 'It can email the PDF to your Xero inbox. Sync via the connector in the related Agent Setups.' },
       { q: 'Multi-currency?', a: 'Yes. Set per-invoice or per-customer.' },
-      { q: 'Refunds?', a: '14 days.' },
     ],
     relatedIds: ['daily-summary-email', 'bookkeeper-agent-setup', 'website-scraper'],
   },
@@ -834,7 +833,6 @@ Never: defensive language, exclamation marks > 1, "we strive to."
     faqs: [
       { q: 'Total beginner OK?', a: 'If you can install an app and read a paragraph, you’re fine.' },
       { q: 'Updates?', a: 'Free updates for the life of this edition.' },
-      { q: 'Refunds?', a: '14 days.' },
     ],
     relatedIds: ['first-skill-md', 'agent-prompt-patterns', 'real-estate-agent-setup'],
   },
@@ -873,7 +871,6 @@ Never: defensive language, exclamation marks > 1, "we strive to."
     faqs: [
       { q: 'Will this help me sell on Skillzy?', a: 'Yes. We literally use it ourselves.' },
       { q: 'Skill type coverage?', a: 'Skill, Guide, Setup are all touched on; deep on Skill.' },
-      { q: 'Refunds?', a: '14 days.' },
     ],
     relatedIds: ['agent-prompt-patterns', 'wire-claude-and-n8n', 'daily-summary-email'],
   },
@@ -912,7 +909,6 @@ Never: defensive language, exclamation marks > 1, "we strive to."
     faqs: [
       { q: 'Model-specific?', a: 'No. The patterns work across Claude, GPT, Hermes, Mistral.' },
       { q: 'Updates?', a: 'Edition updates are free if you bought a prior edition.' },
-      { q: 'Refunds?', a: '14 days.' },
     ],
     relatedIds: ['first-skill-md', 'wire-claude-and-n8n', 'ecom-support-agent-setup'],
   },
@@ -948,6 +944,26 @@ export function allCreatorHandles(): string[] {
   return Array.from(set)
 }
 
+// Master niche list. Powers the marketplace filter row so every
+// niche is visible even before a listing exists in it. Order kept
+// roughly by how common we expect listings to be.
+export const NICHES = [
+  'Real Estate',
+  'Accountants',
+  'Tradies',
+  'Builders',
+  'E-commerce',
+  'Coaches',
+  'Hospitality',
+  'Healthcare',
+  'Legal',
+  'Education',
+  'Fitness',
+  'Beauty',
+  'Marketing',
+  'Consultants',
+] as const
+
 export type CardProduct = {
   id: string
   type: ProductType
@@ -956,6 +972,7 @@ export type CardProduct = {
   platform?: string
   rating: number
   ratingCount: number
+  featured?: boolean
   price: string
 }
 
@@ -969,5 +986,6 @@ export function toCardProduct(p: Product): CardProduct {
     rating: p.rating,
     ratingCount: p.ratingCount,
     price: p.price,
+    featured: p.featured,
   }
 }

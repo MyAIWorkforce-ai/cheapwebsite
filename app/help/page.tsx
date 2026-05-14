@@ -33,15 +33,17 @@ const buyer: QA[] = [
     q: 'What if the listing doesn’t work?',
     a: (
       <>
-        Open your dashboard, find the order, and request a refund. The platform takes the
-        request seriously — creators have to address issues or refund. Email{' '}
+        Email{' '}
         <a
           href="mailto:hi@skillzy.ai"
           className="border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
         >
           hi@skillzy.ai
         </a>{' '}
-        if a creator goes quiet.
+        with your order number and what went wrong. A human reviews every
+        request. Refunds aren&rsquo;t automatic and aren&rsquo;t time-boxed,
+        but a genuine case where the listing didn&rsquo;t deliver what was
+        promised gets sorted.
       </>
     ),
   },
@@ -111,7 +113,7 @@ const creator: QA[] = [
   },
   {
     q: 'What if a buyer disputes or refunds?',
-    a: 'Refunds reverse through Stripe automatically. Your Stripe balance shows the deduction on the next reconciliation. If a buyer chargebacks, Stripe handles it; we step in if it’s clearly bad-faith.',
+    a: 'Skillzy doesn’t advertise a refund window. Buyers email us with a reason; a human reviews. If a refund is granted, it reverses through Stripe and your Stripe balance shows the deduction on the next reconciliation. Card-issuer chargebacks are handled by Stripe; we step in if it’s clearly bad-faith.',
   },
   {
     q: 'Can I sell on Skillzy and somewhere else?',
