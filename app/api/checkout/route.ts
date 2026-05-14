@@ -89,12 +89,19 @@ export async function POST(request: NextRequest) {
         quantity: 1,
       },
     ],
-    payment_intent_data: destinationAccount
-      ? {
-          application_fee_amount: platformFee,
-          transfer_data: { destination: destinationAccount },
-        }
-      : undefined,
+    payment_intent_data: {
+      // Card statement suffix — appears after the account-level prefix
+      // (e.g. "SKILLZY*REAL-ESTATE-SETUP"). Stripe truncates to 22
+      // chars max for the suffix and strips disallowed characters.
+      statement_descriptor_suffix: product.id
+        .toUpperCase()
+        .replace(/[^A-Z0-9 ]/g, '-')
+        .slice(0, 22),
+      ...(destinationAccount && {
+        application_fee_amount: platformFee,
+        transfer_data: { destination: destinationAccount },
+      }),
+    },
     metadata: {
       listing_id: product.id,
       buyer_id: buyerId ?? '',
