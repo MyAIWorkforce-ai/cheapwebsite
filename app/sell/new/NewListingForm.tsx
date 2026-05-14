@@ -73,7 +73,11 @@ function StepShell({
 
 export default function NewListingForm() {
   const [state, action] = useFormState(publishListing, initial)
-  const [price, setPrice] = useState(249)
+  // Stored as a string so leading-zero / iOS controlled-number quirks
+  // can't interfere with editing. Parsed to a number for the math
+  // below and posted back via the form's "price" field.
+  const [priceText, setPriceText] = useState('249')
+  const price = Math.max(0, Number(priceText) || 0)
 
   const platformFeeCents = Math.round(price * 100 * 0.2)
   const youKeepCents = price * 100 - platformFeeCents
@@ -227,14 +231,20 @@ export default function NewListingForm() {
                 $
               </span>
               <input
-                type="number"
+                type="text"
                 inputMode="numeric"
+                pattern="[0-9]*"
                 name="price"
-                min={1}
-                step={1}
-                value={price}
-                onChange={(e) => setPrice(Math.max(0, Number(e.target.value) || 0))}
-                className="font-display text-6xl bg-transparent border-b border-brand-ink focus:border-brand-gold outline-none w-40 py-1"
+                value={priceText}
+                onChange={(e) => {
+                  const digits = e.target.value
+                    .replace(/\D/g, '')           // digits only
+                    .replace(/^0+(?=\d)/, '')     // strip leading zeros
+                  setPriceText(digits)
+                }}
+                onFocus={(e) => e.currentTarget.select()}
+                placeholder="249"
+                className="font-display text-6xl bg-transparent border-b border-brand-ink focus:border-brand-gold outline-none w-40 py-1 placeholder:text-brand-muted/40"
                 style={{ letterSpacing: '-0.03em' }}
                 required
               />
