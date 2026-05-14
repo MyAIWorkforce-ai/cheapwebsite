@@ -1,6 +1,7 @@
 'use client'
 
 import { FormEvent, useState } from 'react'
+import { COUNTRIES_TOP, COUNTRIES_ALL } from '@/lib/countries'
 
 export default function CheckoutForm({
   listingId,
@@ -67,13 +68,20 @@ export default function CheckoutForm({
             defaultValue="AU"
             className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg"
           >
-            <option value="AU">Australia</option>
-            <option value="NZ">New Zealand</option>
-            <option value="US">United States</option>
-            <option value="GB">United Kingdom</option>
-            <option value="CA">Canada</option>
-            <option value="DE">Germany</option>
-            <option value="other">Somewhere else</option>
+            <optgroup label="Common">
+              {COUNTRIES_TOP.map((c) => (
+                <option key={`top-${c.code}`} value={c.code}>
+                  {c.name}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label="Every country">
+              {COUNTRIES_ALL.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.name}
+                </option>
+              ))}
+            </optgroup>
           </select>
         </label>
       </fieldset>
