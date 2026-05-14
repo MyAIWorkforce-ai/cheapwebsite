@@ -1,94 +1,135 @@
-import { NextRequest, NextResponse } from 'next/server'
-import Stripe from 'stripe'
-import { createClient } from '@supabase/supabase-js'
-import { Resend } from 'resend'
+import { NextResponse, type NextRequest } from 'next/server'
+import type Stripe from 'stripe'
+import { getStripe, hasStripe } from '@/lib/stripe'
+import { env, hasSupabase, hasResend } from '@/lib/env'
+import { createServiceClient } from '@/lib/supabase/server'
+import { sendPurchaseConfirmation } from '@/lib/email/purchase-confirmation'
+import { getProduct } from '@/lib/catalog'
 
-// Lazy init — env vars only available at runtime on Vercel, not build time
+export const runtime = 'nodejs'
 
-export async function POST(req: NextRequest) {
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
-  const resend = new Resend(process.env.RESEND_API_KEY)
-
-  const body = await req.text()
-  const sig = req.headers.get('stripe-signature')!
-
-  let event: Stripe.Event
-
-  try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET!
-    )
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Webhook error'
-    console.error('Webhook signature verification failed:', message)
-    return NextResponse.json({ error: `Webhook Error: ${message}` }, { status: 400 })
+export async function POST(request: NextRequest) {
+  if (!hasStripe) {
+    return NextResponse.json({ ok: true, mock: true })
   }
 
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object as Stripe.Checkout.Session
-    const meta = session.metadata || {}
+  const signature = request.headers.get('stripe-signature')
+  if (!signature) {
+    return NextResponse.json({ error: 'Missing stripe-signature' }, { status: 400 })
+  }
 
-    const orderData = {
-      stripe_session_id: session.id,
-      tier: meta.tier || '',
-      price: (session.amount_total || 0) / 100,
-      website_url: meta.websiteUrl || '',
-      business_name: meta.businessName || '',
-      what_to_update: meta.whatToUpdate || '',
-      specific_requirements: meta.specificRequirements || '',
-      name: meta.customerName || '',
-      email: meta.email || session.customer_email || '',
-      phone: meta.phone || '',
-      status: 'paid',
+  const stripe = getStripe()
+  const rawBody = await request.text()
+
+  let event: Stripe.Event
+  try {
+    event = stripe.webhooks.constructEvent(rawBody, signature, env.stripe.webhookSecret)
+  } catch (err) {
+    return NextResponse.json(
+      { error: `Webhook signature failed: ${(err as Error).message}` },
+      { status: 400 },
+    )
+  }
+
+  switch (event.type) {
+    case 'checkout.session.completed': {
+      const session = event.data.object as Stripe.Checkout.Session
+      await handleCheckoutCompleted(session)
+      break
     }
-
-    // Save to Supabase
-    const { error: dbError } = await supabase
-      .from('website_orders')
-      .insert([orderData])
-
-    if (dbError) {
-      console.error('Supabase insert error:', dbError)
-      // Don't fail the webhook — table may not exist yet
+    case 'account.updated': {
+      const account = event.data.object as Stripe.Account
+      await handleAccountUpdated(account)
+      break
     }
-
-    // Send notification email via Resend
-    try {
-      await resend.emails.send({
-        from: 'onboarding@resend.dev',
-        to: 'hi@myaiworkforce.ai',
-        subject: `New website order! ${meta.tier} - ${meta.businessName} - ${meta.websiteUrl}`,
-        html: `
-          <h2>New Website Order! 🎉</h2>
-          <table style="border-collapse: collapse; width: 100%;">
-            <tr><td style="padding: 8px; font-weight: bold; border: 1px solid #eee;">Tier</td><td style="padding: 8px; border: 1px solid #eee;">${meta.tier}</td></tr>
-            <tr><td style="padding: 8px; font-weight: bold; border: 1px solid #eee;">Price</td><td style="padding: 8px; border: 1px solid #eee;">$${orderData.price} AUD</td></tr>
-            <tr><td style="padding: 8px; font-weight: bold; border: 1px solid #eee;">Business</td><td style="padding: 8px; border: 1px solid #eee;">${meta.businessName}</td></tr>
-            <tr><td style="padding: 8px; font-weight: bold; border: 1px solid #eee;">Website URL</td><td style="padding: 8px; border: 1px solid #eee;"><a href="${meta.websiteUrl}">${meta.websiteUrl}</a></td></tr>
-            <tr><td style="padding: 8px; font-weight: bold; border: 1px solid #eee;">Customer</td><td style="padding: 8px; border: 1px solid #eee;">${meta.customerName}</td></tr>
-            <tr><td style="padding: 8px; font-weight: bold; border: 1px solid #eee;">Email</td><td style="padding: 8px; border: 1px solid #eee;"><a href="mailto:${meta.email}">${meta.email}</a></td></tr>
-            <tr><td style="padding: 8px; font-weight: bold; border: 1px solid #eee;">Phone</td><td style="padding: 8px; border: 1px solid #eee;">${meta.phone || 'Not provided'}</td></tr>
-            <tr><td style="padding: 8px; font-weight: bold; border: 1px solid #eee;">What to update</td><td style="padding: 8px; border: 1px solid #eee;">${meta.whatToUpdate}</td></tr>
-            <tr><td style="padding: 8px; font-weight: bold; border: 1px solid #eee;">Specific requirements</td><td style="padding: 8px; border: 1px solid #eee;">${meta.specificRequirements || 'None'}</td></tr>
-            <tr><td style="padding: 8px; font-weight: bold; border: 1px solid #eee;">Stripe Session</td><td style="padding: 8px; border: 1px solid #eee;">${session.id}</td></tr>
-          </table>
-          <p style="margin-top: 20px;">
-            <a href="https://cheapwebsite.com.au/admin" style="background: #2563EB; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold;">
-              View in Admin →
-            </a>
-          </p>
-        `,
-      })
-    } catch (emailErr) {
-      console.error('Resend email error:', emailErr)
+    case 'charge.refunded': {
+      const charge = event.data.object as Stripe.Charge
+      await handleChargeRefunded(charge)
+      break
     }
+    default:
+      // Ignore other events for now.
+      break
   }
 
   return NextResponse.json({ received: true })
+}
+
+async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
+  const listingId = (session.metadata?.listing_id as string | undefined) ?? null
+  if (!listingId) return
+
+  const product = getProduct(listingId)
+  const buyerEmail =
+    session.customer_details?.email ||
+    (session.metadata?.buyer_email as string | undefined) ||
+    ''
+
+  // Record the purchase.
+  if (hasSupabase) {
+    try {
+      const supabase = createServiceClient()
+      const amount = session.amount_total ?? 0
+      const fee = Math.round(amount * 0.2)
+      const payout = amount - fee
+      await supabase.from('purchases').upsert(
+        {
+          buyer_id: (session.metadata?.buyer_id as string | undefined) || null,
+          buyer_email: buyerEmail,
+          listing_id: listingId,
+          amount_cents: amount,
+          currency: session.currency ?? 'usd',
+          platform_fee_cents: fee,
+          creator_payout_cents: payout,
+          stripe_checkout_session_id: session.id,
+          stripe_payment_intent_id: (session.payment_intent as string) ?? null,
+          status: 'paid',
+        },
+        { onConflict: 'stripe_checkout_session_id' },
+      )
+    } catch (err) {
+      console.error('Failed to record purchase', err)
+    }
+  }
+
+  // Email the buyer.
+  if (hasResend && buyerEmail && product) {
+    try {
+      await sendPurchaseConfirmation({
+        to: buyerEmail,
+        product,
+        orderId: session.id.replace('cs_', '').slice(0, 12).toUpperCase(),
+      })
+    } catch (err) {
+      console.error('Failed to send purchase email', err)
+    }
+  }
+}
+
+async function handleAccountUpdated(account: Stripe.Account) {
+  if (!hasSupabase) return
+  try {
+    const supabase = createServiceClient()
+    await supabase
+      .from('profiles')
+      .update({
+        stripe_payouts_enabled: account.charges_enabled && account.payouts_enabled,
+      })
+      .eq('stripe_account_id', account.id)
+  } catch (err) {
+    console.error('Failed to update account state', err)
+  }
+}
+
+async function handleChargeRefunded(charge: Stripe.Charge) {
+  if (!hasSupabase || !charge.payment_intent) return
+  try {
+    const supabase = createServiceClient()
+    await supabase
+      .from('purchases')
+      .update({ status: 'refunded', refunded_at: new Date().toISOString() })
+      .eq('stripe_payment_intent_id', charge.payment_intent as string)
+  } catch (err) {
+    console.error('Failed to mark refund', err)
+  }
 }

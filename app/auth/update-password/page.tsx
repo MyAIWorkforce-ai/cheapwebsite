@@ -1,0 +1,31 @@
+import { hasSupabase } from '@/lib/env'
+import UpdatePasswordForm from './UpdatePasswordForm'
+
+export const metadata = {
+  title: 'Set new password',
+  description: 'Choose a new password for your Skillzy account.',
+  robots: { index: false, follow: false },
+}
+
+export default function UpdatePasswordPage() {
+  return (
+    <div className="paper px-6 lg:px-10 py-20 sm:py-28">
+      <div className="max-w-md mx-auto">
+        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
+          Almost there
+        </span>
+        <h1
+          className="font-display mt-4 text-5xl tracking-tight"
+          style={{ letterSpacing: '-0.03em' }}
+        >
+          New <em className="italic text-brand-gold font-medium">password.</em>
+        </h1>
+        <p className="mt-4 text-brand-muted">
+          Pick something you&rsquo;ll remember. We&rsquo;ll sign you in once it&rsquo;s saved.
+        </p>
+
+        <UpdatePasswordForm demoMode={!hasSupabase} />
+      </div>
+    </div>
+  )
+}

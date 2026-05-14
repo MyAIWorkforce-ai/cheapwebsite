@@ -1,343 +1,477 @@
 import Link from 'next/link'
+import Logo from '@/components/Logo'
+import ProductCard from '@/components/ProductCard'
+import { products, toCardProduct } from '@/lib/catalog'
 
-const tiers = [
-  {
-    name: 'Brand New Website',
-    icon: '🆕',
-    price: '$797',
-    description: 'We build you a brand new website from scratch',
-    features: [
-      'Tell us your business — we handle design, copy, images and launch',
-      '5 pages included',
-      'Mobile-friendly & SEO-ready',
-      'Contact form included',
-      '🏠 Hosting included — fast, reliable, we handle everything',
-      'Delivered in 48 hours',
-    ],
-    cta: 'Get a Brand New Website',
-    highlight: false,
-    badge: null,
-    badgeColor: null,
-    id: 'brand-new-website',
-  },
-  {
-    name: 'Refresh Existing Website',
-    icon: '🔄',
-    price: '$397',
-    description: 'We modernise your existing website',
-    features: [
-      'Better design, updated content',
-      'Fixed links & improved SEO',
-      'Faster loading',
-      '🏠 Hosting included — fast, reliable, we handle everything',
-      'Submit your URL — we handle the rest',
-      'Delivered in 24 hours',
-    ],
-    cta: 'Refresh My Website',
-    highlight: true,
-    badge: 'MOST POPULAR',
-    badgeColor: null,
-    id: 'refresh-existing-website',
-  },
-  {
-    name: 'Full Package',
-    icon: '📦',
-    price: '$997',
-    description: 'Everything you need to go online — done for you',
-    features: [
-      'Everything in Brand New Website',
-      'Domain name registration (we handle it)',
-      '🏠 Hosting included — fast, reliable, we handle everything',
-      '12 months hosting included',
-      'Professional email setup (you@yourbusiness.com)',
-      'Google Business Profile setup',
-      'Launch-ready in 48 hours',
-    ],
-    cta: 'Get the Full Package',
-    highlight: false,
-    badge: 'BEST VALUE',
-    badgeColor: 'orange',
-    id: 'full-package',
-  },
+const agentSetups = products
+  .filter((p) => p.type === 'Agent Setup')
+  .slice(0, 3)
+  .map(toCardProduct)
+
+const skills = products
+  .filter((p) => p.type === 'Skill')
+  .slice(0, 4)
+  .map(toCardProduct)
+
+const guides = products
+  .filter((p) => p.type === 'Guide')
+  .slice(0, 3)
+  .map(toCardProduct)
+
+const niches = [
+  'Real Estate',
+  'Builders',
+  'Accountants',
+  'E-commerce',
+  'Coaches',
+  'Lawyers',
+  'Marketing',
+  'Hospitality',
+  'Healthcare',
+  'Recruiters',
+  'Schools',
+  'Anything else',
 ]
 
-const faqs = [
-  {
-    q: 'How does it actually work?',
-    a: 'You submit your website URL, tell us what you want updated, and pay. Our AI-powered team gets to work immediately — analysing your existing site, rebuilding it with modern standards, and delivering the result within 48 hours.',
-  },
-  {
-    q: 'What do I get at the end?',
-    a: 'Depending on your tier, you\'ll receive the updated website files, or we can deploy directly to your hosting. We\'ll send everything to your email once complete.',
-  },
-  {
-    q: 'Do I need to provide anything?',
-    a: 'Just your website URL and a description of what you\'d like updated. We do the rest. If we need anything specific, we\'ll reach out within 2 hours of your order.',
-  },
-  {
-    q: 'What if I\'m not happy with the result?',
-    a: 'We offer one round of revisions included with every order. If you\'re still not satisfied, we\'ll work with you to make it right.',
-  },
-  {
-    q: 'Is this really AI-powered?',
-    a: 'Yes! We use a combination of AI tools and human oversight to analyse, rebuild, and optimise your website. This is how we keep costs low without sacrificing quality.',
-  },
-]
+function Squiggle({ className = '' }: { className?: string }) {
+  // hand-drawn-feel underline
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 300 14"
+      preserveAspectRatio="none"
+      className={className}
+    >
+      <path
+        d="M2 9 C 40 -2, 80 14, 120 6 S 200 0, 240 8 S 290 4, 298 8"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        fill="none"
+      />
+    </svg>
+  )
+}
+
+function Sticker({
+  children,
+  rotate = '-3deg',
+  tone = 'mustard',
+  className = '',
+}: {
+  children: React.ReactNode
+  rotate?: string
+  tone?: 'mustard' | 'emerald' | 'cream'
+  className?: string
+}) {
+  const toneClass =
+    tone === 'mustard'
+      ? 'bg-brand-gold text-brand-ink'
+      : tone === 'emerald'
+        ? 'bg-brand-navy text-brand-cream'
+        : 'bg-brand-cream text-brand-ink border border-brand-ink'
+  return (
+    <span
+      className={`inline-block font-mono text-[11px] uppercase tracking-[0.18em] px-3 py-1.5 ${toneClass} ${className}`}
+      style={{ transform: `rotate(${rotate})` }}
+    >
+      {children}
+    </span>
+  )
+}
 
 export default function HomePage() {
   return (
-    <div className="bg-white">
-      {/* Hero */}
-      <section className="bg-gradient-to-br from-blue-50 via-white to-orange-50 py-20 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-sm font-medium mb-6">
-            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-            48-hour delivery · Australian owned
-          </div>
-          <h1 className="text-5xl sm:text-6xl font-extrabold text-[#1A1A2E] mb-6 leading-tight">
-            Your Business Online.{' '}
-            <span className="text-[#2563EB]">Simple,</span>{' '}
-            <br className="hidden sm:block" />
-            Fast,{' '}
-            <span className="text-[#F97316]">Affordable.</span>
-          </h1>
-          <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-            New website, refresh, or the complete package — we handle everything.{' '}
-            <strong>AI-powered, delivered in 48 hours.</strong>
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/submit"
-              className="bg-[#2563EB] text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200"
-            >
-              Get Started →
-            </Link>
-            <Link
-              href="#examples"
-              className="border-2 border-[#1A1A2E] text-[#1A1A2E] px-8 py-4 rounded-xl text-lg font-semibold hover:bg-gray-50 transition-colors"
-            >
-              See Examples
-            </Link>
-          </div>
-          <p className="mt-6 text-sm text-gray-500">No lock-in contracts. Pay once, get results.</p>
-        </div>
-      </section>
+    <div className="paper overflow-x-clip">
+      {/* identity strip — no nav */}
+      <div className="max-w-page mx-auto px-6 lg:px-10 pt-7 sm:pt-9 flex items-center justify-between">
+        <Logo size="md" />
+        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted hidden sm:block">
+          A marketplace for agent skills · Est. 2026
+        </span>
+      </div>
 
-      {/* How It Works */}
-      <section id="how-it-works" className="py-20 px-4 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl sm:text-4xl font-bold text-[#1A1A2E] mb-4">How It Works</h2>
-            <p className="text-gray-600 text-lg">Simple. Fast. No technical knowledge needed.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                step: '01',
-                title: 'Submit Your URL',
-                desc: 'Tell us your website URL and what you want updated. Takes less than 5 minutes.',
-                icon: '🔗',
-              },
-              {
-                step: '02',
-                title: 'We Get to Work',
-                desc: 'Our AI team analyses and rebuilds your site within 48 hours. No back and forth needed.',
-                icon: '⚡',
-              },
-              {
-                step: '03',
-                title: 'You Get Your New Site',
-                desc: 'We send you the files or deploy directly to your hosting. Done!',
-                icon: '🚀',
-              },
-            ].map((item) => (
-              <div key={item.step} className="relative bg-gray-50 rounded-2xl p-8 text-center hover:shadow-md transition-shadow">
-                <div className="text-4xl mb-4">{item.icon}</div>
-                <div className="absolute top-4 right-4 text-5xl font-extrabold text-gray-100 select-none">
-                  {item.step}
-                </div>
-                <h3 className="text-xl font-bold text-[#1A1A2E] mb-3">{item.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-          <div className="text-center mt-10">
-            <Link href="/how-it-works" className="text-[#2563EB] font-semibold hover:underline">
-              Learn more about the process →
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* HERO */}
+      <section className="px-6 lg:px-10 pt-14 sm:pt-24 pb-20 sm:pb-28">
+        <div className="max-w-page mx-auto">
+          <Sticker rotate="-2.5deg" className="mb-8">
+            ✿ Built by creators
+          </Sticker>
 
-      {/* Pricing */}
-      <section id="pricing" className="py-20 px-4 bg-gray-50">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl sm:text-4xl font-bold text-[#1A1A2E] mb-4">Simple, Transparent Pricing</h2>
-            <p className="text-gray-600 text-lg">No hidden fees. No surprise invoices. Pay once, get results.</p>
-          <div className="mt-6 inline-flex items-center gap-2 bg-green-100 text-green-800 px-5 py-2.5 rounded-full text-sm font-semibold">
-            <span>🏠</span>
-            <span>Fast, reliable hosting included on all packages — we handle everything</span>
-          </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {tiers.map((tier) => (
-              <div
-                key={tier.name}
-                className={`rounded-2xl p-8 flex flex-col relative ${
-                  tier.highlight
-                    ? 'bg-[#2563EB] text-white shadow-xl shadow-blue-200 scale-105'
-                    : 'bg-white border border-gray-200'
-                }`}
-              >
-                {tier.badge && (
-                  <div className={`text-white text-xs font-bold px-3 py-1 rounded-full mb-4 self-start ${
-                    tier.badgeColor === 'orange' ? 'bg-[#F97316]' : 'bg-[#F97316]'
-                  }`}>
-                    {tier.badge}
-                  </div>
-                )}
-                <div className="text-3xl mb-2">{tier.icon}</div>
-                <h3 className={`text-2xl font-bold mb-1 ${tier.highlight ? 'text-white' : 'text-[#1A1A2E]'}`}>
-                  {tier.name}
-                </h3>
-                <div className={`text-4xl font-extrabold mb-2 ${tier.highlight ? 'text-white' : 'text-[#2563EB]'}`}>
-                  {tier.price}
-                  <span className={`text-base font-normal ml-1 ${tier.highlight ? 'text-blue-200' : 'text-gray-500'}`}>AUD</span>
-                </div>
-                <p className={`text-sm mb-6 ${tier.highlight ? 'text-blue-100' : 'text-gray-500'}`}>{tier.description}</p>
-                <ul className="space-y-3 flex-1 mb-8">
-                  {tier.features.map((f) => (
-                    <li key={f} className={`flex items-start gap-2 text-sm ${tier.highlight ? 'text-blue-50' : 'text-gray-600'}`}>
-                      <svg className={`w-4 h-4 mt-0.5 flex-shrink-0 ${tier.highlight ? 'text-white' : 'text-green-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                      </svg>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  href={`/submit?tier=${tier.id}`}
-                  className={`w-full text-center py-3 rounded-xl font-semibold transition-colors ${
-                    tier.highlight
-                      ? 'bg-white text-[#2563EB] hover:bg-blue-50'
-                      : 'bg-[#2563EB] text-white hover:bg-blue-700'
-                  }`}
-                >
-                  {tier.cta}
-                </Link>
-              </div>
-            ))}
-          </div>
-          <div className="text-center mt-8">
-            <Link href="/pricing" className="text-[#2563EB] font-semibold hover:underline">
-              See full feature comparison →
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Examples */}
-      <section id="examples" className="py-20 px-4 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl sm:text-4xl font-bold text-[#1A1A2E] mb-4">Before & After</h2>
-            <p className="text-gray-600 text-lg">Real results for real Australian businesses.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {[
-              { business: 'Local Plumber', before: 'Old, broken mobile layout from 2015', after: 'Modern, fast, mobile-first site with booking form', tier: 'Full Refresh', saved: '$3,400 vs agency' },
-              { business: 'Café & Restaurant', before: 'Slow loading, no online menu, outdated photos', after: 'New design, digital menu, fast load, SEO optimised', tier: 'Full Refresh', saved: '$2,800 vs agency' },
-              { business: 'Accountant', before: 'No SSL, broken links, dated look', after: 'Professional, trustworthy, fully mobile responsive', tier: 'Quick Fix', saved: '$1,200 vs agency' },
-              { business: 'Real Estate Agent', before: 'Clunky navigation, no property search, slow', after: 'Clean modern design, easy nav, lightning fast', tier: 'Complete Rebuild', saved: '$6,500 vs agency' },
-            ].map((ex) => (
-              <div key={ex.business} className="border border-gray-200 rounded-2xl overflow-hidden hover:shadow-md transition-shadow">
-                <div className="grid grid-cols-2">
-                  <div className="bg-red-50 p-4 border-r border-gray-200">
-                    <div className="text-xs font-bold text-red-500 uppercase tracking-wide mb-2">Before</div>
-                    <p className="text-sm text-gray-600">{ex.before}</p>
-                  </div>
-                  <div className="bg-green-50 p-4">
-                    <div className="text-xs font-bold text-green-600 uppercase tracking-wide mb-2">After</div>
-                    <p className="text-sm text-gray-600">{ex.after}</p>
-                  </div>
-                </div>
-                <div className="p-4 bg-gray-50 flex items-center justify-between">
-                  <div>
-                    <span className="font-semibold text-[#1A1A2E]">{ex.business}</span>
-                    <span className="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">{ex.tier}</span>
-                  </div>
-                  <span className="text-sm text-green-600 font-semibold">Saved {ex.saved}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Why Us */}
-      <section className="py-20 px-4 bg-gradient-to-br from-blue-50 to-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl sm:text-4xl font-bold text-[#1A1A2E] mb-4">Why Choose CheapWebsite?</h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { icon: '⚡', title: 'Fast', desc: '48-hour turnaround. Most agencies take weeks.' },
-              { icon: '💰', title: 'Affordable', desc: 'Starting from $297. Agencies charge $3,000+.' },
-              { icon: '🤖', title: 'AI-Powered', desc: 'Modern AI tools mean better results, faster.' },
-              { icon: '🇦🇺', title: 'Australian', desc: 'Proudly Australian owned and operated.' },
-            ].map((item) => (
-              <div key={item.title} className="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                <div className="text-4xl mb-3">{item.icon}</div>
-                <h3 className="text-lg font-bold text-[#1A1A2E] mb-2">{item.title}</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="py-20 px-4 bg-white">
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl sm:text-4xl font-bold text-[#1A1A2E] mb-4">Frequently Asked Questions</h2>
-          </div>
-          <div className="space-y-4">
-            {faqs.map((faq, i) => (
-              <details key={i} className="group border border-gray-200 rounded-xl overflow-hidden">
-                <summary className="flex items-center justify-between p-6 cursor-pointer font-semibold text-[#1A1A2E] hover:bg-gray-50 transition-colors list-none">
-                  {faq.q}
-                  <svg className="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </summary>
-                <div className="px-6 pb-6 text-gray-600 leading-relaxed border-t border-gray-100 pt-4">
-                  {faq.a}
-                </div>
-              </details>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Banner */}
-      <section className="py-20 px-4 bg-[#1A1A2E]">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            Ready to get started?
-          </h2>
-          <p className="text-gray-300 text-lg mb-8">
-            Join hundreds of Australian businesses who&apos;ve refreshed their website without the agency price tag.
-          </p>
-          <Link
-            href="/submit"
-            className="inline-block bg-[#F97316] text-white px-10 py-4 rounded-xl text-lg font-semibold hover:bg-orange-500 transition-colors shadow-lg"
+          <h1
+            className="font-display text-[3rem] sm:text-[6rem] lg:text-[8rem] leading-[0.9] tracking-tight text-brand-ink"
+            style={{ letterSpacing: '-0.035em' }}
           >
-            Get Started — From $397 →
+            <span className="block">Drop it in.</span>
+            <span className="block pl-[0.06em]">Your agent</span>
+            <span className="block pl-[0.06em]">
+              just got{' '}
+              <span className="relative inline-block">
+                <em className="italic font-medium text-brand-gold">smarter.</em>
+                <Squiggle className="absolute -bottom-3 sm:-bottom-5 left-0 w-full h-3 sm:h-5 text-brand-gold" />
+              </span>
+            </span>
+          </h1>
+
+          <div className="mt-14 sm:mt-20 grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
+            <p className="lg:col-span-7 text-xl sm:text-2xl leading-snug max-w-2xl text-brand-ink">
+              Pre-built skills, guides, and full agent setups from creators in
+              the field. Drop them into any agent — yours levels up instantly.
+            </p>
+            <div className="lg:col-span-5 flex items-center gap-6 lg:justify-end">
+              <Link
+                href="/marketplace"
+                className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
+              >
+                Browse skills
+                <span aria-hidden>→</span>
+              </Link>
+              <Link
+                href="/sell"
+                className="text-sm text-brand-ink hover:text-brand-gold transition-colors border-b border-brand-ink hover:border-brand-gold pb-0.5"
+              >
+                Or sell yours
+              </Link>
+            </div>
+          </div>
+
+          {/* search */}
+          <form
+            action="/marketplace"
+            method="GET"
+            className="mt-16 sm:mt-20 pt-8 border-t border-brand-hairline"
+          >
+            <label
+              htmlFor="hero-search"
+              className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold block mb-4"
+            >
+              Or look something up
+            </label>
+            <div className="flex items-baseline gap-4 border-b border-brand-ink pb-3">
+              <svg
+                aria-hidden
+                className="w-5 h-5 text-brand-ink shrink-0"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.75}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z"
+                />
+              </svg>
+              <input
+                id="hero-search"
+                type="search"
+                name="q"
+                placeholder="invoices, real estate, daily summary…"
+                className="flex-1 bg-transparent outline-none font-display text-2xl sm:text-3xl text-brand-ink placeholder:text-brand-muted/70 placeholder:italic"
+                style={{ letterSpacing: '-0.015em' }}
+                autoComplete="off"
+              />
+              <button
+                type="submit"
+                className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-ink hover:text-brand-gold transition-colors"
+              >
+                Search →
+              </button>
+            </div>
+          </form>
+
+          {/* platforms */}
+          <div className="mt-12 sm:mt-14">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted mb-4">
+              Works with
+            </p>
+            <p className="font-display text-lg sm:text-xl leading-relaxed text-brand-ink">
+              Claude · OpenClaw · Hermes ·
+              ChatGPT · Gemini · Grok · Ollama · Mistral · DeepSeek · n8n ·
+              Make · Zapier
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* CREATOR HOOK — quiet strip between hero and products */}
+      <section className="border-y border-brand-hairline">
+        <div className="max-w-page mx-auto px-6 lg:px-10 py-6 sm:py-7 flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-baseline gap-x-3 gap-y-1 flex-wrap">
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
+              For creators
+            </span>
+            <span className="text-brand-ink">
+              Built something good?{' '}
+              <span className="font-display text-lg italic text-brand-gold">
+                Sell it.
+              </span>{' '}
+              <span className="text-brand-muted">
+                · One listing. Sell it forever · Keep 80% of every sale
+              </span>
+            </span>
+          </div>
+          <Link
+            href="/sell"
+            className="font-mono text-[11px] uppercase tracking-[0.18em] border-b border-brand-ink pb-0.5 hover:text-brand-gold hover:border-brand-gold transition-colors whitespace-nowrap"
+          >
+            Start selling →
           </Link>
-          <p className="mt-4 text-gray-500 text-sm">48-hour delivery · No lock-in contracts · Pay once</p>
+        </div>
+      </section>
+
+      {/* SETUPS */}
+      <section className="px-6 lg:px-10 py-20 sm:py-28">
+        <div className="max-w-page mx-auto">
+          <div className="flex items-end justify-between gap-6 mb-12 sm:mb-14 flex-wrap">
+            <div>
+              <h2
+                className="font-display text-4xl sm:text-6xl tracking-tight"
+                style={{ letterSpacing: '-0.03em' }}
+              >
+                Setups.
+              </h2>
+              <p className="mt-3 text-lg text-brand-muted">
+                The whole agent. In a box.
+              </p>
+            </div>
+            <Link
+              href="/marketplace?type=agent-setup"
+              className="text-sm border-b border-brand-ink pb-0.5 hover:text-brand-gold hover:border-brand-gold transition-colors"
+            >
+              See all setups →
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">
+            {agentSetups.map((p, i) => (
+              <ProductCard key={p.id} product={p} variant={i === 1 ? 'emerald' : 'cream'} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SKILLS */}
+      <section className="px-6 lg:px-10 py-20 sm:py-28 border-t border-brand-hairline">
+        <div className="max-w-page mx-auto">
+          <div className="flex items-end justify-between gap-6 mb-12 sm:mb-14 flex-wrap">
+            <div>
+              <h2
+                className="font-display text-4xl sm:text-6xl tracking-tight"
+                style={{ letterSpacing: '-0.03em' }}
+              >
+                Skills.
+              </h2>
+              <p className="mt-3 text-lg text-brand-muted">
+                One thing. Done sharp.
+              </p>
+            </div>
+            <Link
+              href="/marketplace?type=skill"
+              className="text-sm border-b border-brand-ink pb-0.5 hover:text-brand-gold hover:border-brand-gold transition-colors"
+            >
+              See all skills →
+            </Link>
+          </div>
+
+          <ol className="divide-y divide-brand-hairline border-y border-brand-hairline">
+            {skills.map((s, i) => (
+              <li key={s.id}>
+                <Link
+                  href={`/marketplace/${s.id}`}
+                  className="group grid grid-cols-12 gap-4 py-6 sm:py-7 items-baseline hover:bg-brand-cream-card transition-colors px-2 -mx-2"
+                >
+                  <span className="col-span-1 font-mono text-xs text-brand-muted">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <h3
+                    className="font-display col-span-12 sm:col-span-6 text-2xl sm:text-3xl tracking-tight group-hover:text-brand-gold transition-colors"
+                    style={{ letterSpacing: '-0.02em' }}
+                  >
+                    {s.title}
+                  </h3>
+                  <span className="hidden sm:block sm:col-span-3 text-sm text-brand-muted">
+                    {s.creator}
+                  </span>
+                  <span className="hidden sm:block sm:col-span-1 font-mono text-[11px] uppercase tracking-widest text-brand-muted">
+                    {s.platform}
+                  </span>
+                  <span className="col-span-12 sm:col-span-1 sm:text-right font-display text-xl">
+                    {s.price}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* GUIDES */}
+      <section className="px-6 lg:px-10 py-20 sm:py-28 border-t border-brand-hairline">
+        <div className="max-w-page mx-auto">
+          <div className="flex items-end justify-between gap-6 mb-12 sm:mb-14 flex-wrap">
+            <div>
+              <h2
+                className="font-display text-4xl sm:text-6xl tracking-tight"
+                style={{ letterSpacing: '-0.03em' }}
+              >
+                Guides.
+              </h2>
+              <p className="mt-3 text-lg text-brand-muted">
+                From people who already did it.
+              </p>
+            </div>
+            <Link
+              href="/marketplace?type=guide"
+              className="text-sm border-b border-brand-ink pb-0.5 hover:text-brand-gold hover:border-brand-gold transition-colors"
+            >
+              See all guides →
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-px bg-brand-hairline border border-brand-hairline">
+            <div className="lg:col-span-7">
+              <ProductCard product={guides[0]} variant="emerald" />
+            </div>
+            <div className="lg:col-span-5 grid grid-cols-1 gap-px bg-brand-hairline">
+              <ProductCard product={guides[1]} />
+              <ProductCard product={guides[2]} />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* NICHES — sticker-pill grid */}
+      <section className="px-6 lg:px-10 py-20 sm:py-28 border-t border-brand-hairline">
+        <div className="max-w-page mx-auto">
+          <h2
+            className="font-display text-5xl sm:text-7xl tracking-tight"
+            style={{ letterSpacing: '-0.03em' }}
+          >
+            Pick your hustle.
+          </h2>
+          <p className="mt-3 text-lg text-brand-muted">
+            Built for the work you actually do.
+          </p>
+
+          <div className="mt-12 flex flex-wrap gap-3 sm:gap-4">
+            {niches.map((n, i) => {
+              const rotations = ['-1deg', '0.6deg', '-0.4deg', '1.2deg', '-1.4deg', '0.3deg']
+              const rot = rotations[i % rotations.length]
+              return (
+                <Link
+                  key={n}
+                  href={`/marketplace?niche=${encodeURIComponent(n.toLowerCase().replace(/\s+/g, '-'))}`}
+                  style={{ transform: `rotate(${rot})` }}
+                  className="inline-flex items-center bg-brand-cream-card border border-brand-ink px-5 py-2.5 text-base hover:bg-brand-navy hover:text-brand-cream hover:border-brand-navy transition-colors"
+                >
+                  {n}
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* CREATORS' REVOLUTION — dark manifesto strip */}
+      <section className="relative px-6 lg:px-10 py-24 sm:py-32 bg-brand-navy text-brand-cream overflow-hidden">
+        <div
+          aria-hidden
+          className="absolute top-10 right-10 sm:top-16 sm:right-20 hidden sm:block"
+        >
+          <Sticker tone="mustard" rotate="6deg">
+            ✿ Manifesto
+          </Sticker>
+        </div>
+
+        <div className="max-w-page mx-auto">
+          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-cream/70">
+            For creators
+          </span>
+
+          <h2
+            className="font-display mt-6 text-5xl sm:text-7xl lg:text-[7.5rem] leading-[0.92] tracking-tight"
+            style={{ letterSpacing: '-0.03em' }}
+          >
+            <span className="block">The creators&rsquo;</span>
+            <span className="block">
+              <em className="italic text-brand-gold-soft font-medium">revolution</em>{' '}
+              starts here.
+            </span>
+          </h2>
+
+          <p className="mt-10 text-xl sm:text-2xl leading-snug max-w-3xl text-brand-cream/90">
+            The old marketplaces took 70% and locked your IP behind their
+            walls. Skillzy gives you 80%, keeps your name on the work, and
+            lets every listing earn forever.{' '}
+            <span className="text-brand-cream">You build. We sell. They use.</span>
+          </p>
+
+          <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-px bg-brand-cream/10 border border-brand-cream/15">
+            {[
+              { n: '80%', label: 'Stays with you', desc: 'Every sale. No exceptions.' },
+              { n: '$0', label: 'Held by us', desc: 'Stripe pays you direct, instantly.' },
+              { n: '∞', label: 'Resales per listing', desc: 'List once. Earn forever.' },
+            ].map((s) => (
+              <div key={s.label} className="bg-brand-navy p-8">
+                <p
+                  className="font-display text-6xl sm:text-7xl text-brand-gold-soft"
+                  style={{ letterSpacing: '-0.04em' }}
+                >
+                  {s.n}
+                </p>
+                <p className="font-display text-xl mt-3">{s.label}</p>
+                <p className="text-sm text-brand-cream/70 mt-1.5">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-12">
+            <Link
+              href="/sell"
+              className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
+            >
+              Become a creator
+              <span aria-hidden>→</span>
+            </Link>
+          </div>
+
+          {/* mobile-only sticker, placed in flow */}
+          <div className="mt-12 sm:hidden">
+            <Sticker tone="mustard" rotate="-3deg">
+              ✿ Manifesto
+            </Sticker>
+          </div>
+        </div>
+
+        {/* creator handles marquee — full-bleed under the section */}
+        <div className="mt-16 sm:mt-20 -mx-6 lg:-mx-10 overflow-hidden border-y border-brand-cream/15 py-5">
+          <div className="flex gap-12 animate-marquee whitespace-nowrap font-display text-2xl sm:text-3xl text-brand-cream/85">
+            {[...Array(2)].map((_, dup) => (
+              <div key={dup} className="flex gap-12 shrink-0" aria-hidden={dup === 1}>
+                {[
+                  '@harlow',
+                  '@ledgerlab',
+                  '@sitebench',
+                  '@storefrontlabs',
+                  '@practiceos',
+                  '@fronthouse',
+                  '@jonask',
+                  '@paperless',
+                  '@datajedi',
+                  '@kaim',
+                  '@mirasato',
+                  '@agentschool',
+                  '@promptforge',
+                ].map((handle) => (
+                  <span key={`${dup}-${handle}`} className="inline-flex items-baseline gap-12">
+                    <span style={{ letterSpacing: '-0.018em' }}>{handle}</span>
+                    <span aria-hidden className="text-brand-gold-soft/70">·</span>
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     </div>

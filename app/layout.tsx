@@ -1,22 +1,73 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Fraunces, Inter } from 'next/font/google'
 import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 
-const inter = Inter({ subsets: ['latin'] })
+const display = Fraunces({
+  subsets: ['latin'],
+  variable: '--font-display',
+  display: 'swap',
+  weight: ['400', '500', '600', '700'],
+  style: ['normal', 'italic'],
+})
+
+const sans = Inter({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
-  title: 'CheapWebsite.com.au — Professional Website Refresh. Without the Agency Price Tag.',
-  description: 'Submit your URL today — we\'ll modernise your site, fix broken links, update content and improve your SEO. Delivered in 48 hours. From $297.',
-  keywords: 'website refresh, cheap website, website redesign, Australia, affordable web design',
+  metadataBase: new URL('https://skillzy.ai'),
+  title: {
+    default: 'Skillzy — Drop it in. Agent supercharged.',
+    template: '%s — Skillzy',
+  },
+  description:
+    'A marketplace for skills, guides, and ready-to-go agent setups. Built by creators. Plug them into any agent — yours levels up instantly.',
+  keywords: [
+    'AI agent marketplace',
+    'agent skills',
+    'agent setups',
+    'Claude skills',
+    'OpenClaw',
+    'n8n',
+    'AI prompts',
+    'SKILL.md',
+    'sell AI skills',
+    'creator marketplace',
+  ],
+  authors: [{ name: 'Skillzy' }],
+  creator: 'Skillzy',
+  publisher: 'Skillzy',
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
-    title: 'CheapWebsite.com.au — Professional Website Refresh',
-    description: 'Modernise your website from $297. 48-hour delivery. No agency markup.',
-    url: 'https://cheapwebsite.com.au',
-    siteName: 'CheapWebsite.com.au',
-    locale: 'en_AU',
+    title: 'Skillzy — Drop it in. Agent supercharged.',
+    description:
+      'A marketplace for skills, guides, and ready-to-go agent setups. Built by creators.',
+    url: 'https://skillzy.ai',
+    siteName: 'Skillzy',
     type: 'website',
+    locale: 'en_US',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Skillzy — Drop it in. Agent supercharged.',
+    description:
+      'A marketplace for skills, guides, and ready-to-go agent setups.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 }
 
@@ -26,8 +77,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en-AU">
-      <body className={inter.className}>
+    <html lang="en" className={`${display.variable} ${sans.variable}`}>
+      <body className="font-sans">
         <Navbar />
         <main>{children}</main>
         <Footer />
