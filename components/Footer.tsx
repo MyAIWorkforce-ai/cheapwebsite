@@ -57,7 +57,7 @@ export default function Footer() {
 
         <div className="mt-14 pt-6 border-t border-brand-hairline flex flex-col-reverse sm:flex-row items-start sm:items-center justify-between gap-4">
           <p className="text-xs text-brand-muted">
-            © {year} Skillzy &nbsp;·&nbsp; Set in Fraunces &amp; Inter
+            © {year} Skillzy
           </p>
           <div className="flex items-center gap-5 text-brand-muted">
             <a href="https://x.com/skillzy" aria-label="X" className="hover:text-brand-gold transition-colors">
