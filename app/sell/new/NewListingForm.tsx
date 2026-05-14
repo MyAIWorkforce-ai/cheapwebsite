@@ -1,8 +1,28 @@
 'use client'
 
 import { useFormState, useFormStatus } from 'react-dom'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { publishListing, type PublishState } from './actions'
+
+// Minimal local types for the Web Speech API (not in lib.dom by default).
+type SpeechRecResultLike = {
+  isFinal: boolean
+  0: { transcript: string }
+}
+type SpeechRecEventLike = {
+  resultIndex: number
+  results: ArrayLike<SpeechRecResultLike>
+}
+type SpeechRecLike = {
+  lang: string
+  continuous: boolean
+  interimResults: boolean
+  onresult: ((e: SpeechRecEventLike) => void) | null
+  onend: (() => void) | null
+  start: () => void
+  stop: () => void
+}
+type SpeechRecCtor = new () => SpeechRecLike
 
 const types = [
   {
@@ -71,6 +91,15 @@ function StepShell({
   )
 }
 
+type DraftResponse = {
+  title?: string
+  tagline?: string
+  niche?: string
+  platforms?: string[]
+  description?: string[]
+  whatYouGet?: string[]
+}
+
 export default function NewListingForm() {
   const [state, action] = useFormState(publishListing, initial)
   // Stored as a string so leading-zero / iOS controlled-number quirks
@@ -82,8 +111,108 @@ export default function NewListingForm() {
   const platformFeeCents = Math.round(price * 100 * 0.2)
   const youKeepCents = price * 100 - platformFeeCents
 
+  // Listing fields (controlled so the AI draft can fill them).
+  const [type, setType] = useState<'skill' | 'guide' | 'agent_setup'>('agent_setup')
+  const [title, setTitle] = useState('')
+  const [tagline, setTagline] = useState('')
+  const [niche, setNiche] = useState('')
+  const [platforms, setPlatforms] = useState('')
+
+  // AI panel state.
+  const [brief, setBrief] = useState('')
+  const [drafting, setDrafting] = useState(false)
+  const [draftError, setDraftError] = useState<string | null>(null)
+  const [draftExtras, setDraftExtras] = useState<{
+    description: string[]
+    whatYouGet: string[]
+  } | null>(null)
+
+  // Voice dictation via the Web Speech API (browser-native, no deps).
+  // Falls back silently if unsupported.
+  const [listening, setListening] = useState(false)
+  const recRef = useRef<SpeechRecLike | null>(null)
+  useEffect(() => () => recRef.current?.stop(), [])
+
+  const speechSupported =
+    typeof window !== 'undefined' &&
+    ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)
+
+  function toggleVoice() {
+    if (!speechSupported) return
+    if (listening) {
+      recRef.current?.stop()
+      setListening(false)
+      return
+    }
+    const w = window as unknown as {
+      SpeechRecognition?: SpeechRecCtor
+      webkitSpeechRecognition?: SpeechRecCtor
+    }
+    const Rec = w.SpeechRecognition ?? w.webkitSpeechRecognition
+    if (!Rec) return
+    const rec = new Rec()
+    rec.lang = 'en-US'
+    rec.continuous = true
+    rec.interimResults = true
+    rec.onresult = (e) => {
+      let final = ''
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const r = e.results[i]
+        if (r.isFinal) final += r[0].transcript
+      }
+      if (final) setBrief((b) => (b ? b + ' ' : '') + final.trim())
+    }
+    rec.onend = () => setListening(false)
+    rec.start()
+    recRef.current = rec
+    setListening(true)
+  }
+
+  async function draft() {
+    if (!brief.trim()) {
+      setDraftError('Tell the AI what you built first.')
+      return
+    }
+    setDrafting(true)
+    setDraftError(null)
+    try {
+      const res = await fetch('/api/listings/draft', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ brief, type }),
+      })
+      const json: DraftResponse & { error?: string } = await res.json()
+      if (!res.ok) {
+        setDraftError(json.error ?? `Request failed (${res.status})`)
+        return
+      }
+      if (json.title) setTitle(json.title)
+      if (json.tagline) setTagline(json.tagline)
+      if (json.niche) setNiche(json.niche)
+      if (json.platforms?.length) setPlatforms(json.platforms.join(', '))
+      setDraftExtras({
+        description: json.description ?? [],
+        whatYouGet: json.whatYouGet ?? [],
+      })
+    } catch (err) {
+      setDraftError((err as Error).message)
+    } finally {
+      setDrafting(false)
+    }
+  }
+
   return (
     <form action={action}>
+      <input
+        type="hidden"
+        name="description"
+        value={JSON.stringify(draftExtras?.description ?? [])}
+      />
+      <input
+        type="hidden"
+        name="what_you_get"
+        value={JSON.stringify(draftExtras?.whatYouGet ?? [])}
+      />
       {/* STEP 1 — type */}
       <StepShell number="01" title="Pick a type">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">
@@ -101,7 +230,8 @@ export default function NewListingForm() {
                 type="radio"
                 name="type"
                 value={t.key}
-                defaultChecked={t.key === 'agent_setup'}
+                checked={type === t.key}
+                onChange={() => setType(t.key as typeof type)}
                 className="sr-only peer"
                 required
               />
@@ -147,8 +277,93 @@ export default function NewListingForm() {
         </div>
       </StepShell>
 
-      {/* STEP 3 — write it */}
+      {/* STEP 3 — write it (AI assist on top, real inputs below) */}
       <StepShell number="03" title="Write it">
+        {/* AI panel */}
+        <div className="bg-brand-navy text-brand-cream p-7 sm:p-9 mb-10">
+          <div className="flex items-baseline justify-between flex-wrap gap-3 mb-5">
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold-soft">
+              ✿ Let the AI write a draft
+            </span>
+            <span className="text-xs text-brand-cream/60">
+              Edit anything before submitting.
+            </span>
+          </div>
+
+          <label className="block">
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-cream/70">
+              Tell it what you built
+            </span>
+            <textarea
+              value={brief}
+              onChange={(e) => setBrief(e.target.value)}
+              rows={4}
+              placeholder="e.g. Real estate skill bundle — captures leads, drafts listings, follows up. Used it on 240+ properties at my old agency."
+              className="mt-2 w-full bg-transparent border border-brand-cream/15 focus:border-brand-cream/40 outline-none p-3 text-sm font-mono placeholder:text-brand-cream/40"
+            />
+          </label>
+
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={draft}
+              disabled={drafting}
+              className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-5 py-2.5 text-sm hover:bg-brand-gold-dark transition-colors disabled:opacity-60"
+            >
+              {drafting ? 'Drafting…' : 'Draft with AI'}
+              <span aria-hidden>→</span>
+            </button>
+            {speechSupported && (
+              <button
+                type="button"
+                onClick={toggleVoice}
+                className={
+                  'inline-flex items-center gap-2 px-4 py-2.5 text-sm border transition-colors ' +
+                  (listening
+                    ? 'border-brand-gold text-brand-gold'
+                    : 'border-brand-cream/30 text-brand-cream hover:bg-brand-cream/10')
+                }
+              >
+                <span aria-hidden>{listening ? '●' : '🎙'}</span>
+                {listening ? 'Listening — tap to stop' : 'Talk instead'}
+              </button>
+            )}
+          </div>
+
+          {draftError && (
+            <p className="mt-4 text-sm text-red-300">{draftError}</p>
+          )}
+          {draftExtras && (draftExtras.description.length > 0 || draftExtras.whatYouGet.length > 0) && (
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-px bg-brand-cream/10">
+              {draftExtras.description.length > 0 && (
+                <div className="bg-brand-navy p-5">
+                  <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold-soft">
+                    Description (will be saved with your listing)
+                  </span>
+                  <ul className="mt-3 space-y-2 text-sm text-brand-cream/90">
+                    {draftExtras.description.map((d, i) => (
+                      <li key={i}>{d}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {draftExtras.whatYouGet.length > 0 && (
+                <div className="bg-brand-navy p-5">
+                  <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold-soft">
+                    What buyers get
+                  </span>
+                  <ul className="mt-3 space-y-1.5 text-sm text-brand-cream/90 list-disc pl-5">
+                    {draftExtras.whatYouGet.map((d, i) => (
+                      <li key={i}>{d}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Real inputs — pre-filled by the AI, editable by hand */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           <div className="lg:col-span-8 space-y-7 max-w-2xl">
             <label className="block">
@@ -159,6 +374,8 @@ export default function NewListingForm() {
                 type="text"
                 name="title"
                 required
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 placeholder="Real Estate, end to end."
                 className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 font-display text-2xl placeholder:text-brand-muted/60"
                 style={{ letterSpacing: '-0.018em' }}
@@ -173,6 +390,8 @@ export default function NewListingForm() {
                 name="tagline"
                 rows={2}
                 required
+                value={tagline}
+                onChange={(e) => setTagline(e.target.value)}
                 placeholder="One sentence that tells a buyer what their agent gets."
                 className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg placeholder:text-brand-muted/60"
               />
@@ -186,6 +405,8 @@ export default function NewListingForm() {
                 <input
                   type="text"
                   name="niche"
+                  value={niche}
+                  onChange={(e) => setNiche(e.target.value)}
                   placeholder="Real Estate, Builders, Bookkeeping…"
                   className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg placeholder:text-brand-muted/60"
                 />
@@ -197,6 +418,8 @@ export default function NewListingForm() {
                 <input
                   type="text"
                   name="platforms"
+                  value={platforms}
+                  onChange={(e) => setPlatforms(e.target.value)}
                   placeholder="Claude, OpenClaw, n8n"
                   className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg placeholder:text-brand-muted/60"
                 />
@@ -210,7 +433,7 @@ export default function NewListingForm() {
                 Tips
               </span>
               <ul className="mt-4 text-sm text-brand-muted space-y-2 leading-relaxed">
-                <li>· Title in caps + period (e.g. <em>Real Estate, end to end.</em>) reads punchier.</li>
+                <li>· Title is a noun-led phrase ending in a period (e.g. <em>Real Estate, end to end.</em>).</li>
                 <li>· Tagline starts with a verb (<em>captures leads</em>, <em>writes invoices</em>).</li>
                 <li>· Pick the niche your buyer searches first.</li>
               </ul>

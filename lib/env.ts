@@ -21,8 +21,14 @@ export const env = {
     apiKey: process.env.RESEND_API_KEY || '',
     fromEmail: process.env.EMAIL_FROM || process.env.RESEND_FROM_EMAIL || 'hi@skillzy.ai',
   },
+
+  anthropic: {
+    apiKey: process.env.ANTHROPIC_API_KEY || '',
+    model: process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001',
+  },
 }
 
 export const hasSupabase = Boolean(env.supabase.url && env.supabase.anonKey)
 export const hasStripe = Boolean(env.stripe.secretKey)
 export const hasResend = Boolean(env.resend.apiKey)
+export const hasAnthropic = Boolean(env.anthropic.apiKey)

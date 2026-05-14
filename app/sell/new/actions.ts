@@ -34,6 +34,22 @@ export async function publishListing(
     .map((s) => s.trim())
     .filter(Boolean)
 
+  // Optional AI-drafted extras (hidden inputs on the form).
+  let description: string[] = []
+  let whatYouGet: string[] = []
+  try {
+    const d = JSON.parse(String(formData.get('description') ?? '[]'))
+    if (Array.isArray(d)) description = d.map(String).filter(Boolean)
+  } catch {
+    /* no-op */
+  }
+  try {
+    const w = JSON.parse(String(formData.get('what_you_get') ?? '[]'))
+    if (Array.isArray(w)) whatYouGet = w.map(String).filter(Boolean)
+  } catch {
+    /* no-op */
+  }
+
   if (!title) return { error: 'Title is required.' }
   if (!tagline) return { error: 'Tagline is required.' }
   if (!Number.isFinite(price) || price <= 0) return { error: 'Set a price.' }
@@ -62,6 +78,8 @@ export async function publishListing(
     niche,
     price_cents: Math.round(price * 100),
     platform_list: platforms,
+    description,
+    what_you_get: whatYouGet,
   })
 
   if (error) return { error: error.message }
