@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Logo from '@/components/Logo'
 import ProductCard from '@/components/ProductCard'
-import { products, toCardProduct } from '@/lib/catalog'
+import { products, toCardProduct, NICHES } from '@/lib/catalog'
 
 const agentSetups = products
   .filter((p) => p.type === 'Agent Setup')
@@ -18,20 +18,10 @@ const guides = products
   .slice(0, 3)
   .map(toCardProduct)
 
-const niches = [
-  'Real Estate',
-  'Builders',
-  'Accountants',
-  'E-commerce',
-  'Coaches',
-  'Lawyers',
-  'Marketing',
-  'Hospitality',
-  'Healthcare',
-  'Recruiters',
-  'Schools',
-  'Anything else',
-]
+// Pulled from the master list in lib/catalog so every place that
+// shows niches (filter row, hustle grid) stays in sync. "Anything
+// else" is a CTA tile, not a real niche, so it's appended here only.
+const niches = [...NICHES, 'Anything else']
 
 function Squiggle({ className = '' }: { className?: string }) {
   // hand-drawn-feel underline
@@ -362,12 +352,16 @@ export default function HomePage() {
             {niches.map((n, i) => {
               const rotations = ['-1deg', '0.6deg', '-0.4deg', '1.2deg', '-1.4deg', '0.3deg']
               const rot = rotations[i % rotations.length]
+              const isCatchAll = n === 'Anything else'
+              const href = isCatchAll
+                ? '/marketplace'
+                : `/marketplace?niche=${encodeURIComponent(n.toLowerCase().replace(/\s+/g, '-'))}`
               return (
                 <Link
                   key={n}
-                  href={`/marketplace?niche=${encodeURIComponent(n.toLowerCase().replace(/\s+/g, '-'))}`}
+                  href={href}
                   style={{ transform: `rotate(${rot})` }}
-                  className="inline-flex items-center bg-brand-cream-card border border-brand-ink px-5 py-2.5 text-base hover:bg-brand-navy hover:text-brand-cream hover:border-brand-navy transition-colors"
+                  className="inline-flex items-center bg-brand-cream-card border border-brand-ink px-4 py-2 text-sm sm:text-base hover:bg-brand-navy hover:text-brand-cream hover:border-brand-navy transition-colors"
                 >
                   {n}
                 </Link>

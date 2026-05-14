@@ -946,24 +946,39 @@ export function allCreatorHandles(): string[] {
   return Array.from(set)
 }
 
-// Master niche list. Powers the marketplace filter row so every
-// niche is visible even before a listing exists in it. Order kept
-// roughly by how common we expect listings to be.
+// Master niche list. Powers the marketplace filter row + the "Pick
+// your hustle" chip grid on the homepage, so every niche stays
+// visible even before a listing exists in it. Order roughly groups
+// related trades together.
 export const NICHES = [
   'Real Estate',
-  'Accountants',
+  'Property Mgmt',
   'Tradies',
   'Builders',
-  'E-commerce',
-  'Coaches',
-  'Hospitality',
-  'Healthcare',
-  'Legal',
-  'Education',
-  'Fitness',
-  'Beauty',
-  'Marketing',
+  'Plumbers',
+  'Electricians',
+  'Accountants',
+  'Bookkeepers',
+  'Lawyers',
   'Consultants',
+  'Coaches',
+  'E-commerce',
+  'Hospitality',
+  'Restaurants',
+  'Cafes',
+  'Healthcare',
+  'Dentists',
+  'Vets',
+  'Therapists',
+  'Education',
+  'Tutors',
+  'Fitness',
+  'Salons',
+  'Marketing',
+  'Agencies',
+  'Recruiters',
+  'Photographers',
+  'Designers',
 ] as const
 
 export type CardProduct = {
