@@ -10,7 +10,7 @@ export type PublishState = {
 }
 
 const BUCKET = 'skillzy-products'
-const MAX_FILE_SIZE = 25 * 1024 * 1024 // 25 MB per file
+const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50 MB per file (matches Supabase bucket cap)
 
 function slugify(s: string) {
   return s

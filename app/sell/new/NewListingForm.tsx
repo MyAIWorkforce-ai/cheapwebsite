@@ -310,7 +310,7 @@ export default function NewListingForm() {
               SKILL.md, prompts, configs, templates.
             </p>
             <p className="mt-2 text-sm text-brand-muted">
-              .md · .yaml · .json · .txt · .zip · .pdf — up to 25&nbsp;MB each.
+              .md · .yaml · .json · .txt · .zip · .pdf — up to 50&nbsp;MB each.
               Text files are extracted so the AI can draft your listing.
             </p>
             <input
