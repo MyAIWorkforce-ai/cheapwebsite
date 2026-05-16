@@ -49,6 +49,12 @@ export async function publishListing(
   // anything not on the embed host allowlist instead of silently saving
   // a dead/unsafe URL.
   const videoUrl = normalizeVideoUrl(String(formData.get('video_url') ?? ''))
+  // Creator-chosen heading for the video. Plain text, length-capped so
+  // it can't break the listing-page layout; ignored without a video.
+  const videoLabel =
+    String(formData.get('video_label') ?? '')
+      .trim()
+      .slice(0, 48) || null
 
   // Optional AI-drafted extras (hidden inputs on the form).
   let description: string[] = []
@@ -120,6 +126,7 @@ export async function publishListing(
       description,
       what_you_get: whatYouGet,
       video_url: videoUrl,
+      video_label: videoUrl ? videoLabel : null,
     })
     .select('id')
     .single()

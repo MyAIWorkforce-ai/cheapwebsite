@@ -81,6 +81,11 @@ export default function ProductDetailPage({
     p.type === 'Agent Setup' ? 'Agent Setups' : p.type === 'Skill' ? 'Skills' : 'Guides'
 
   const videoEmbed = p.videoUrl ? videoEmbedUrl(p.videoUrl) : null
+  // Creator names their own video; we keep the house two-tone heading by
+  // emphasising the last word. Falls back to "Watch it work".
+  const videoHeading = (p.videoLabel?.trim() || 'Watch it work').split(/\s+/)
+  const videoHeadLast = videoHeading[videoHeading.length - 1]
+  const videoHeadRest = videoHeading.slice(0, -1).join(' ')
 
   return (
     <div className="paper">
@@ -274,8 +279,10 @@ export default function ProductDetailPage({
                 className="font-display text-4xl sm:text-6xl tracking-tight"
                 style={{ letterSpacing: '-0.03em' }}
               >
-                Watch it{' '}
-                <em className="italic text-brand-gold-soft font-medium">work.</em>
+                {videoHeadRest && <>{videoHeadRest}{' '}</>}
+                <em className="italic text-brand-gold-soft font-medium">
+                  {videoHeadLast}
+                </em>
               </h2>
               <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-cream/70">
                 {p.creator.name}’s walkthrough

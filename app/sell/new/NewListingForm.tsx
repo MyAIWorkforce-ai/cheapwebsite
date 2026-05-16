@@ -535,23 +535,43 @@ export default function NewListingForm({
               </label>
             </div>
 
-            <label className="block">
-              <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
-                Walkthrough video — optional
-              </span>
-              <input
-                type="url"
-                name="video_url"
-                inputMode="url"
-                placeholder="Loom, YouTube, or Vimeo link"
-                className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg placeholder:text-brand-muted/60"
-              />
-              <span className="mt-2 block text-xs text-brand-muted">
-                Paste a link — we embed it, never host it. A 60-second
-                “here’s it running” clip is the single biggest thing you
-                can add to convert a browser into a buyer.
-              </span>
-            </label>
+            <div className="space-y-5">
+              <label className="block">
+                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+                  Walkthrough video — optional
+                </span>
+                <input
+                  type="url"
+                  name="video_url"
+                  inputMode="url"
+                  placeholder="Loom, YouTube, or Vimeo link"
+                  className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg placeholder:text-brand-muted/60"
+                />
+                <span className="mt-2 block text-xs text-brand-muted">
+                  Paste a link — we embed it, never host it. A 60-second
+                  “here’s it running” clip is the single biggest thing you
+                  can add to convert a browser into a buyer.
+                </span>
+              </label>
+
+              <label className="block">
+                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+                  Call the video what you want
+                </span>
+                <input
+                  type="text"
+                  name="video_label"
+                  maxLength={48}
+                  placeholder="Watch it work"
+                  className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg placeholder:text-brand-muted/60"
+                />
+                <span className="mt-2 block text-xs text-brand-muted">
+                  Your call — e.g. “Watch it work”, “2-minute explainer”,
+                  “See it in action”, “Watch me set it up live”. Leave it
+                  blank and we’ll just say “Watch it work”.
+                </span>
+              </label>
+            </div>
           </div>
 
           <aside className="lg:col-span-4">

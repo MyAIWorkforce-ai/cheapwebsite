@@ -44,6 +44,7 @@ export type Product = {
   howItWorks: Step[]
   skillMdPreview?: string
   videoUrl?: string
+  videoLabel?: string
   useCases?: UseCase[]
   reviews: Review[]
   faqs: Faq[]
