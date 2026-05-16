@@ -1,7 +1,9 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useFormState, useFormStatus } from 'react-dom'
 import { subscribeToNewsletter, type NewsletterState } from '@/app/_actions/newsletter'
+import { track } from '@/lib/analytics'
 
 const initial: NewsletterState = {}
 
@@ -30,6 +32,13 @@ export default function EmailGate({
   ctaLabel: string
 }) {
   const [state, action] = useFormState(subscribeToNewsletter, initial)
+
+  useEffect(() => {
+    if (state.ok) {
+      track.newsletterSignup(`free:${listingId}`)
+      track.freeListingDownload(listingId)
+    }
+  }, [state.ok, listingId])
 
   if (state.ok) {
     return (

@@ -1,7 +1,9 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useFormState, useFormStatus } from 'react-dom'
 import { subscribeToNewsletter, type NewsletterState } from '@/app/_actions/newsletter'
+import { track } from '@/lib/analytics'
 
 const initial: NewsletterState = {}
 
@@ -20,6 +22,10 @@ function Submit() {
 
 export default function NewsletterForm() {
   const [state, action] = useFormState(subscribeToNewsletter, initial)
+
+  useEffect(() => {
+    if (state.ok) track.newsletterSignup('footer')
+  }, [state.ok])
 
   return (
     <form action={action} className="mt-3">
