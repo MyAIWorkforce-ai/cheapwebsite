@@ -142,5 +142,26 @@ export async function publishListing(
     }
   }
 
+  // Email the creator their share kit (link + QR + promo) so it's in
+  // their inbox too — never block the publish if mail fails.
+  if (user!.email) {
+    try {
+      const { sendListingShareKit } = await import(
+        '@/lib/email/listing-share-kit'
+      )
+      await sendListingShareKit({
+        to: user!.email,
+        title,
+        tagline,
+        slug,
+        handle:
+          (user!.user_metadata?.user_name as string | undefined) ||
+          (user!.user_metadata?.preferred_username as string | undefined),
+      })
+    } catch (err) {
+      console.error('share-kit email failed', err)
+    }
+  }
+
   redirect(`/sell/new/done?slug=${encodeURIComponent(slug)}`)
 }
