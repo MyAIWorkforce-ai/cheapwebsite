@@ -26,6 +26,20 @@ export const env = {
     apiKey: process.env.ANTHROPIC_API_KEY || '',
     model: process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001',
   },
+
+  // Comma-separated emails allowed into /admin and admin endpoints.
+  adminEmails: (process.env.ADMIN_EMAILS || '')
+    .split(',')
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean),
+
+  // Optional shared secret for cron endpoints (Vercel Cron sends it).
+  cronSecret: process.env.CRON_SECRET || '',
+}
+
+export function isAdminEmail(email?: string | null): boolean {
+  if (!email) return false
+  return env.adminEmails.includes(email.toLowerCase())
 }
 
 export const hasSupabase = Boolean(env.supabase.url && env.supabase.anonKey)
