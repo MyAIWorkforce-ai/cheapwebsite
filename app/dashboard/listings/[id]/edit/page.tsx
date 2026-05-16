@@ -4,6 +4,7 @@ import { getUser } from '@/lib/auth'
 import { createClient } from '@/lib/supabase/server'
 import { hasSupabase } from '@/lib/env'
 import { getProduct } from '@/lib/catalog'
+import ShareListing from '@/components/ShareListing'
 import EditForm, { type EditDefaults } from './EditForm'
 
 export const metadata = {
@@ -106,6 +107,10 @@ export default async function EditListingPage({
 
         <div className="mt-12 max-w-2xl">
           <EditForm defaults={defaults} />
+        </div>
+
+        <div id="share" className="mt-12 max-w-2xl scroll-mt-20">
+          <ShareListing slug={params.id} refHandle={user?.handle} />
         </div>
       </section>
     </div>

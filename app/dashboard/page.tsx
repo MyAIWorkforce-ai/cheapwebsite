@@ -576,6 +576,12 @@ function SellingView({
                           Edit
                         </Link>
                         <Link
+                          href={`/dashboard/listings/${p.slug}/edit#share`}
+                          className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted hover:text-brand-ink transition-colors"
+                        >
+                          Share
+                        </Link>
+                        <Link
                           href={`/marketplace/${p.slug}`}
                           className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted hover:text-brand-ink transition-colors"
                         >
