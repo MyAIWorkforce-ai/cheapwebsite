@@ -157,15 +157,21 @@ export default function ProductDetailPage({
               </span>
             </div>
 
-            <div className="mt-6 flex flex-wrap gap-2">
-              {p.platformList.map((platform) => (
-                <span
-                  key={platform}
-                  className="font-mono text-[11px] uppercase tracking-[0.18em] border border-brand-hairline px-2.5 py-1.5 text-brand-ink"
-                >
-                  {platform}
-                </span>
-              ))}
+            <div className="mt-6">
+              <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted mb-2">
+                Compatible with
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {p.platformList.map((platform) => (
+                  <Link
+                    key={platform}
+                    href={`/platforms/${platform.toLowerCase()}`}
+                    className="font-mono text-[11px] uppercase tracking-[0.18em] border border-brand-hairline px-2.5 py-1.5 text-brand-ink hover:border-brand-ink hover:bg-brand-navy hover:text-brand-cream transition-colors"
+                  >
+                    {platform}
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -533,6 +539,27 @@ export default function ProductDetailPage({
           </div>
         </section>
       )}
+
+      {/* Sticky mobile buy bar — lg:hidden, always reachable */}
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-brand-ink bg-brand-cream-card/95 backdrop-blur supports-[backdrop-filter]:bg-brand-cream-card/80">
+        <div className="flex items-center justify-between gap-4 px-5 py-3">
+          <div className="min-w-0">
+            <p className="font-display text-2xl leading-none" style={{ letterSpacing: '-0.03em' }}>
+              {p.free ? 'Free' : p.price}
+            </p>
+            <p className="text-[11px] text-brand-muted truncate">{p.title}</p>
+          </div>
+          <Link
+            href={p.free ? '#top' : `/checkout/${p.id}`}
+            className="shrink-0 inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-5 py-3 text-sm hover:bg-brand-gold-dark transition-colors"
+          >
+            {headlineCta}
+            <span aria-hidden>→</span>
+          </Link>
+        </div>
+      </div>
+      {/* spacer so the sticky bar never covers footer content on mobile */}
+      <div className="lg:hidden h-20" aria-hidden />
     </div>
   )
 }
