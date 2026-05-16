@@ -139,6 +139,20 @@ export async function POST(req: Request) {
     }
 
     const json = await res.json()
+
+    // Per-draft cost telemetry. Anthropic returns token counts on every
+    // response; we log them + a USD estimate so real cost-per-listing is
+    // visible in the Vercel logs instead of guessed. Rates are Haiku 4.5
+    // ($1/1M in, $5/1M out) — update if env.anthropic.model changes.
+    const u = json?.usage ?? {}
+    const inTok = Number(u.input_tokens ?? 0)
+    const outTok = Number(u.output_tokens ?? 0)
+    const usdEst = (inTok / 1e6) * 1 + (outTok / 1e6) * 5
+    console.log(
+      `[listing-draft] model=${env.anthropic.model} source=${pdf ? 'pdf' : 'text'} ` +
+        `type=${typeStr} in=${inTok} out=${outTok} ~$${usdEst.toFixed(4)}`,
+    )
+
     const text: string = json?.content?.[0]?.text ?? ''
     const stripped = text.replace(/^```(?:json)?\s*|\s*```$/g, '').trim()
     let parsed: DraftResult
