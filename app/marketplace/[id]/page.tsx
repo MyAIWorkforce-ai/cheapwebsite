@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getProduct, getRelated, products, toCardProduct } from '@/lib/catalog'
 import ProductCard from '@/components/ProductCard'
+import GuaranteeBadge from '@/components/GuaranteeBadge'
 import StructuredData from '@/components/StructuredData'
 import { pageMetadata } from '@/lib/seo'
 import { productLd, breadcrumbLd, faqLd } from '@/lib/jsonld'
@@ -210,6 +211,20 @@ export default function ProductDetailPage({
                 Secure checkout via Stripe. Creators keep 80% of every sale.
               </p>
             </div>
+
+            <div className="mt-5">
+              <GuaranteeBadge />
+            </div>
+
+            <p className="mt-5 text-xs text-brand-muted">
+              New to this?{' '}
+              <a
+                href="/how-it-works"
+                className="border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold"
+              >
+                How it works →
+              </a>
+            </p>
           </aside>
         </div>
       </section>

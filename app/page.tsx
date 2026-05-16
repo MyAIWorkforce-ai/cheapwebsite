@@ -124,21 +124,40 @@ export default function HomePage() {
               Pre-built skills, guides, and full agent setups from creators in
               the field. Drop them into any agent — yours levels up instantly.
             </p>
-            <div className="lg:col-span-5 flex items-center gap-6 lg:justify-end">
+            <div className="lg:col-span-5 flex flex-col gap-3 lg:items-end">
+              <div className="flex items-center gap-6">
+                <Link
+                  href="/marketplace"
+                  className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
+                >
+                  Browse skills
+                  <span aria-hidden>→</span>
+                </Link>
+                <Link
+                  href="/sell"
+                  className="text-sm text-brand-ink hover:text-brand-gold transition-colors border-b border-brand-ink hover:border-brand-gold pb-0.5"
+                >
+                  Or sell yours
+                </Link>
+              </div>
               <Link
-                href="/marketplace"
-                className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
+                href="/how-it-works"
+                className="text-xs text-brand-muted hover:text-brand-gold transition-colors"
               >
-                Browse skills
-                <span aria-hidden>→</span>
-              </Link>
-              <Link
-                href="/sell"
-                className="text-sm text-brand-ink hover:text-brand-gold transition-colors border-b border-brand-ink hover:border-brand-gold pb-0.5"
-              >
-                Or sell yours
+                How does this work? →
               </Link>
             </div>
+          </div>
+
+          {/* trust strip — honest signals, no fabricated metrics */}
+          <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+            <span>✦ Every listing human-reviewed</span>
+            <span className="hidden sm:inline text-brand-hairline">·</span>
+            <span>Creators keep 80%</span>
+            <span className="hidden sm:inline text-brand-hairline">·</span>
+            <span>Stripe pays direct</span>
+            <span className="hidden sm:inline text-brand-hairline">·</span>
+            <span>Re-download forever</span>
           </div>
 
           {/* search */}

@@ -40,6 +40,7 @@ export default function Footer() {
             <p className="label-cap text-brand-gold mb-4">Skillzy</p>
             <ul className="space-y-2.5 text-sm">
               <li><Link href="/about" className="hover:text-brand-gold transition-colors">About</Link></li>
+              <li><Link href="/how-it-works" className="hover:text-brand-gold transition-colors">How it works</Link></li>
               <li><Link href="/sell" className="hover:text-brand-gold transition-colors">Sell</Link></li>
               <li><Link href="/help" className="hover:text-brand-gold transition-colors">Help</Link></li>
               <li><Link href="/contact" className="hover:text-brand-gold transition-colors">Contact</Link></li>
