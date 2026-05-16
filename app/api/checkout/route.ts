@@ -106,6 +106,7 @@ export async function POST(request: NextRequest) {
       listing_id: product.id,
       buyer_id: buyerId ?? '',
       buyer_email: buyerEmail ?? '',
+      referrer_slug: request.cookies.get('skz_ref')?.value ?? '',
     },
     success_url: `${env.siteUrl}/order/success?id=${product.id}&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${env.siteUrl}/marketplace/${product.id}?canceled=1`,

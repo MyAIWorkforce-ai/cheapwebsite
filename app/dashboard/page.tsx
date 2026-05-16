@@ -39,6 +39,8 @@ type SellerStats = {
   totalSales: number
   monthSalesByListing: Record<string, number>
   monthRevenueByListing: Record<string, number> // cents
+  referredSales: number
+  referredPayout: number   // cents
 }
 
 const TYPE_LABEL: Record<SellerListing['type'], string> = {
@@ -161,6 +163,8 @@ async function loadSeller(userId: string): Promise<{
         totalSales: 0,
         monthSalesByListing: {},
         monthRevenueByListing: {},
+        referredSales: 0,
+        referredPayout: 0,
       },
     }
   }
@@ -170,18 +174,24 @@ async function loadSeller(userId: string): Promise<{
 
   const { data: salesData } = await supabase
     .from('purchases')
-    .select('listing_id, creator_payout_cents, status, created_at')
+    .select('listing_id, creator_payout_cents, status, created_at, referrer_slug')
     .in('listing_id', listingIds)
     .eq('status', 'paid')
 
   let totalEarnings = 0
   let totalSales = 0
+  let referredSales = 0
+  let referredPayout = 0
   const monthSalesByListing: Record<string, number> = {}
   const monthRevenueByListing: Record<string, number> = {}
 
   for (const row of salesData ?? []) {
     totalEarnings += row.creator_payout_cents ?? 0
     totalSales += 1
+    if (row.referrer_slug) {
+      referredSales += 1
+      referredPayout += row.creator_payout_cents ?? 0
+    }
     if (new Date(row.created_at) >= since) {
       monthSalesByListing[row.listing_id] = (monthSalesByListing[row.listing_id] ?? 0) + 1
       monthRevenueByListing[row.listing_id] =
@@ -191,7 +201,14 @@ async function loadSeller(userId: string): Promise<{
 
   return {
     listings,
-    stats: { totalEarnings, totalSales, monthSalesByListing, monthRevenueByListing },
+    stats: {
+      totalEarnings,
+      totalSales,
+      monthSalesByListing,
+      monthRevenueByListing,
+      referredSales,
+      referredPayout,
+    },
   }
 }
 
@@ -234,7 +251,7 @@ export default async function DashboardPage({
 
   const [purchases, sellerData] = user
     ? await Promise.all([loadBuyer(user.id), loadSeller(user.id)])
-    : [[], { listings: [], stats: { totalEarnings: 0, totalSales: 0, monthSalesByListing: {}, monthRevenueByListing: {} } }]
+    : [[], { listings: [], stats: { totalEarnings: 0, totalSales: 0, monthSalesByListing: {}, monthRevenueByListing: {}, referredSales: 0, referredPayout: 0 } }]
 
   const displayName = user?.name ?? user?.email?.split('@')[0] ?? 'there'
 
@@ -478,6 +495,43 @@ function SellingView({
             </p>
             <p className="mt-1 text-xs text-brand-muted">On Stripe&rsquo;s cadence</p>
           </div>
+        </div>
+
+        {/* Referrals — sales driven through a creator's own share link/QR */}
+        <div className="border border-brand-ink bg-brand-cream-card p-6 sm:p-7 mb-10 sm:mb-14">
+          <div className="flex items-baseline justify-between flex-wrap gap-3">
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
+              Referrals
+            </span>
+            <span className="text-xs text-brand-muted">
+              Sales you drove via your own link &amp; QR
+            </span>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-px bg-brand-hairline border border-brand-hairline">
+            <div className="bg-brand-cream-card p-5">
+              <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+                Referred sales
+              </span>
+              <p className="font-display text-4xl mt-2" style={{ letterSpacing: '-0.03em' }}>
+                {stats.referredSales.toLocaleString()}
+              </p>
+            </div>
+            <div className="bg-brand-cream-card p-5">
+              <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+                Earned from referrals
+              </span>
+              <p
+                className="font-display text-4xl mt-2 text-brand-gold"
+                style={{ letterSpacing: '-0.03em' }}
+              >
+                ${(stats.referredPayout / 100).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              </p>
+            </div>
+          </div>
+          <p className="mt-4 text-sm text-brand-muted">
+            Share any listing&rsquo;s link or QR (Edit → Share) to drive your
+            own traffic. Sales through it are tracked here.
+          </p>
         </div>
 
         <div className="flex items-end justify-between gap-6 flex-wrap mb-8">
