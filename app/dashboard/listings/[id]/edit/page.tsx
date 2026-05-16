@@ -110,7 +110,12 @@ export default async function EditListingPage({
         </div>
 
         <div id="share" className="mt-12 max-w-2xl scroll-mt-20">
-          <ShareListing slug={params.id} refHandle={user?.handle} />
+          <ShareListing
+            slug={params.id}
+            refHandle={user?.handle}
+            title={defaults.title}
+            tagline={defaults.tagline}
+          />
         </div>
       </section>
     </div>

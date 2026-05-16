@@ -3,16 +3,21 @@
 import { useState } from 'react'
 
 // Creator distribution kit: the direct purchase link + a QR that
-// points at it, both carrying ?ref=<handle> so sales driven through
-// the creator's own channels attribute back to them.
+// points at it (both carrying ?ref=<handle> for attribution), PLUS
+// a where-to-post checklist and ready-to-paste promo copy. The whole
+// point is to remove every excuse not to distribute.
 export default function ShareListing({
   slug,
   refHandle,
+  title,
+  tagline,
 }: {
   slug: string
   refHandle?: string
+  title: string
+  tagline: string
 }) {
-  const [copied, setCopied] = useState(false)
+  const [copied, setCopied] = useState<string | null>(null)
 
   const base =
     typeof window !== 'undefined' ? window.location.origin : 'https://skillzy.ai'
@@ -20,15 +25,29 @@ export default function ShareListing({
   const link = `${base}/marketplace/${slug}${ref}`
   const qrSrc = `/marketplace/${slug}/qr${ref}`
 
-  async function copy() {
+  const shortPromo = `Just listed "${title}" on Skillzy — ${tagline} Drop it into your agent: ${link}`
+  const longPromo = `I put "${title}" on Skillzy.\n\n${tagline}\n\nIt's a drop-in agent skill — no setup tutorial, no DIY. Paste it into Claude / OpenClaw / n8n and it just works.\n\nGrab it here: ${link}`
+
+  async function copy(text: string, key: string) {
     try {
-      await navigator.clipboard.writeText(link)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 1800)
+      await navigator.clipboard.writeText(text)
+      setCopied(key)
+      setTimeout(() => setCopied((k) => (k === key ? null : k)), 1800)
     } catch {
-      /* clipboard blocked — user can still select the text */
+      /* clipboard blocked — text is still selectable */
     }
   }
+
+  const channels = [
+    'Instagram — bio link + a story with the QR',
+    'LinkedIn — post the long version, tag the niche',
+    'X / Twitter — the short version + the square image',
+    'Facebook groups for your trade',
+    'Your email signature + your next newsletter',
+    'WhatsApp / SMS to past clients who’d use it',
+    'Printed: business card, flyer, A-frame, the van',
+    'Any forum, Slack, or Discord where your buyers hang out',
+  ]
 
   return (
     <div className="border border-brand-ink bg-brand-cream-card p-6 sm:p-7">
@@ -39,14 +58,16 @@ export default function ShareListing({
         className="font-display text-2xl mt-2 tracking-tight"
         style={{ letterSpacing: '-0.02em' }}
       >
-        Your link & QR.
+        Your link, QR &amp; promo kit.
       </h3>
       <p className="mt-2 text-sm text-brand-muted leading-relaxed">
-        Drop this link in your bio, emails, or DMs — or print the QR for a
-        flyer, card, or van. Every sale through it is tracked to you.
+        You earn the same 80% whether Skillzy sends the buyer or you do —
+        so send them. Everything below already has your referral baked in,
+        so every sale you drive is tracked to you.
       </p>
 
-      <div className="mt-5 grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-6 items-start">
+      {/* link + QR */}
+      <div className="mt-6 grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-6 items-start">
         <div>
           <label className="block">
             <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
@@ -61,10 +82,10 @@ export default function ShareListing({
               />
               <button
                 type="button"
-                onClick={copy}
+                onClick={() => copy(link, 'link')}
                 className="shrink-0 font-mono text-[11px] uppercase tracking-[0.18em] px-3 hover:text-brand-gold transition-colors"
               >
-                {copied ? 'Copied' : 'Copy'}
+                {copied === 'link' ? 'Copied' : 'Copy'}
               </button>
             </div>
           </label>
@@ -97,11 +118,75 @@ export default function ShareListing({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={qrSrc}
-          alt={`QR code linking to the ${slug} listing`}
+          alt={`QR code linking to ${title}`}
           width={132}
           height={132}
           className="border border-brand-hairline bg-white p-2 self-center sm:self-start"
         />
+      </div>
+
+      {/* ready-to-paste promo copy */}
+      <div className="mt-7 border-t border-brand-hairline pt-6">
+        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
+          Copy &amp; paste this
+        </span>
+        <div className="mt-3 space-y-4">
+          <div>
+            <div className="flex items-baseline justify-between gap-3">
+              <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+                Short — X, SMS, Instagram caption
+              </span>
+              <button
+                type="button"
+                onClick={() => copy(shortPromo, 'short')}
+                className="font-mono text-[11px] uppercase tracking-[0.18em] hover:text-brand-gold transition-colors"
+              >
+                {copied === 'short' ? 'Copied' : 'Copy'}
+              </button>
+            </div>
+            <p className="mt-2 text-sm bg-white border border-brand-hairline p-3 leading-relaxed">
+              {shortPromo}
+            </p>
+          </div>
+          <div>
+            <div className="flex items-baseline justify-between gap-3">
+              <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+                Long — LinkedIn, email, newsletter
+              </span>
+              <button
+                type="button"
+                onClick={() => copy(longPromo, 'long')}
+                className="font-mono text-[11px] uppercase tracking-[0.18em] hover:text-brand-gold transition-colors"
+              >
+                {copied === 'long' ? 'Copied' : 'Copy'}
+              </button>
+            </div>
+            <p className="mt-2 text-sm bg-white border border-brand-hairline p-3 leading-relaxed whitespace-pre-line">
+              {longPromo}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* where to post it */}
+      <div className="mt-7 border-t border-brand-hairline pt-6">
+        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
+          Post it in these 8 spots — first 24 hours
+        </span>
+        <ul className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm text-brand-muted">
+          {channels.map((c, i) => (
+            <li key={i} className="flex items-start gap-2">
+              <span aria-hidden className="text-brand-gold mt-0.5">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <span>{c}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-4 text-xs text-brand-muted">
+          The creators who sell most aren’t the best builders — they’re the
+          ones who posted the link everywhere in week one.
+        </p>
       </div>
     </div>
   )
