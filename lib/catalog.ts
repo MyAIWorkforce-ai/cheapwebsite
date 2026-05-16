@@ -1,3 +1,5 @@
+import { seedProducts } from './catalog-seed'
+
 export type ProductType = 'Skill' | 'Guide' | 'Agent Setup'
 
 export type Review = {
@@ -140,7 +142,7 @@ const creators: Record<string, Creator> = {
   },
 }
 
-export const products: Product[] = [
+const baseProducts: Product[] = [
   // ===== AGENT SETUPS =====
   {
     id: 'real-estate-agent-setup',
@@ -915,6 +917,9 @@ Never: defensive language, exclamation marks > 1, "we strive to."
     relatedIds: ['first-skill-md', 'wire-claude-and-n8n', 'ecom-support-agent-setup'],
   },
 ]
+
+// Hand-authored hero listings + the generated seed batch (lib/catalog-seed.ts).
+export const products: Product[] = [...baseProducts, ...seedProducts]
 
 export function getProduct(id: string): Product | undefined {
   return products.find((p) => p.id === id)
