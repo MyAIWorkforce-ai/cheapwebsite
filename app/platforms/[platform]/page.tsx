@@ -6,6 +6,7 @@ import ProductCard from '@/components/ProductCard'
 import StructuredData from '@/components/StructuredData'
 import { pageMetadata } from '@/lib/seo'
 import { breadcrumbLd, faqLd } from '@/lib/jsonld'
+import { getAllPosts, readingMinutes } from '@/lib/blog'
 
 export function generateStaticParams() {
   return getAllPlatforms().map((p) => ({ platform: p.slug }))
@@ -49,6 +50,14 @@ export default function PlatformPage({
   const matches = products.filter((p) =>
     p.platformList.some((x) => x.toLowerCase() === pl.slug),
   )
+
+  // Field Notes tagged for this platform — builds the platform →
+  // post → listing internal-link cluster.
+  const platformPosts = getAllPosts()
+    .filter((post) =>
+      post.tags.some((t) => t.toLowerCase() === pl.slug),
+    )
+    .slice(0, 3)
 
   return (
     <div className="paper">
@@ -193,6 +202,52 @@ export default function PlatformPage({
           </dl>
         </div>
       </section>
+
+      {platformPosts.length > 0 && (
+        <section className="px-6 lg:px-10 py-14 sm:py-20 border-t border-brand-hairline">
+          <div className="max-w-page mx-auto">
+            <div className="flex items-end justify-between gap-6 flex-wrap mb-8">
+              <h2
+                className="font-display text-3xl sm:text-5xl tracking-tight"
+                style={{ letterSpacing: '-0.03em' }}
+              >
+                Field Notes on{' '}
+                <em className="italic text-brand-gold font-medium">
+                  {pl.name}.
+                </em>
+              </h2>
+              <Link
+                href="/blog"
+                className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted hover:text-brand-gold transition-colors"
+              >
+                All Field Notes →
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">
+              {platformPosts.map((post) => (
+                <Link
+                  key={post.slug}
+                  href={`/blog/${post.slug}`}
+                  className="group bg-brand-cream-card p-6 sm:p-7 hover:bg-white transition-colors"
+                >
+                  <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+                    {readingMinutes(post)} min read
+                  </span>
+                  <h3
+                    className="font-display text-xl sm:text-2xl mt-3 tracking-tight group-hover:text-brand-gold transition-colors"
+                    style={{ letterSpacing: '-0.02em' }}
+                  >
+                    {post.title}
+                  </h3>
+                  <p className="mt-3 text-sm text-brand-muted leading-relaxed">
+                    {post.excerpt}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   )
 }
