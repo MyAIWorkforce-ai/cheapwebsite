@@ -8,6 +8,7 @@ import StructuredData from '@/components/StructuredData'
 import { pageMetadata } from '@/lib/seo'
 import { productLd, breadcrumbLd, faqLd } from '@/lib/jsonld'
 import { videoEmbedUrl } from '@/lib/video'
+import { getPostsForListing, readingMinutes } from '@/lib/blog'
 
 export function generateStaticParams() {
   return products.map((p) => ({ id: p.id }))
@@ -81,6 +82,7 @@ export default function ProductDetailPage({
     p.type === 'Agent Setup' ? 'Agent Setups' : p.type === 'Skill' ? 'Skills' : 'Guides'
 
   const videoEmbed = p.videoUrl ? videoEmbedUrl(p.videoUrl) : null
+  const featuredIn = getPostsForListing(p.id).slice(0, 3)
   // Creator names their own video; we keep the house two-tone heading by
   // emphasising the last word. Falls back to "Watch it work".
   const videoHeading = (p.videoLabel?.trim() || 'Watch it work').split(/\s+/)
@@ -555,6 +557,53 @@ export default function ProductDetailPage({
           </Link>
         </div>
       </section>
+
+      {/* FIELD NOTES that feature this listing — closes the cluster */}
+      {featuredIn.length > 0 && (
+        <section className="px-6 lg:px-10 py-16 sm:py-24 border-t border-brand-hairline">
+          <div className="max-w-page mx-auto">
+            <div className="flex items-end justify-between gap-6 flex-wrap mb-8 sm:mb-10">
+              <h2
+                className="font-display text-4xl sm:text-6xl tracking-tight"
+                style={{ letterSpacing: '-0.03em' }}
+              >
+                Seen in{' '}
+                <em className="italic text-brand-gold font-medium">
+                  Field Notes.
+                </em>
+              </h2>
+              <Link
+                href="/blog"
+                className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted hover:text-brand-gold transition-colors"
+              >
+                All Field Notes →
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">
+              {featuredIn.map((post) => (
+                <Link
+                  key={post.slug}
+                  href={`/blog/${post.slug}`}
+                  className="group bg-brand-cream-card p-6 sm:p-7 hover:bg-white transition-colors"
+                >
+                  <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+                    {readingMinutes(post)} min read
+                  </span>
+                  <h3
+                    className="font-display text-xl sm:text-2xl mt-3 tracking-tight group-hover:text-brand-gold transition-colors"
+                    style={{ letterSpacing: '-0.02em' }}
+                  >
+                    {post.title}
+                  </h3>
+                  <p className="mt-3 text-sm text-brand-muted leading-relaxed">
+                    {post.excerpt}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* RELATED */}
       {related.length > 0 && (

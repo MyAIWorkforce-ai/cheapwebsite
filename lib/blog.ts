@@ -572,6 +572,9 @@ export function getAllPosts(): Post[] {
 export function getPost(slug: string): Post | undefined {
   return POSTS.find((p) => p.slug === slug)
 }
+export function getPostsForListing(id: string): Post[] {
+  return getAllPosts().filter((p) => p.relatedListings.includes(id))
+}
 export function readingMinutes(p: Post): number {
   const words = p.body.reduce((acc, b) => {
     if (b.t === 'p' || b.t === 'h2' || b.t === 'quote') return acc + b.text.split(/\s+/).length
