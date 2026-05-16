@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { getUser } from '@/lib/auth'
 import NewListingForm from './NewListingForm'
 
 export const metadata = {
@@ -37,7 +38,8 @@ function Sticker({
   )
 }
 
-export default function NewListingPage() {
+export default async function NewListingPage() {
+  const user = await getUser()
   return (
     <div className="paper">
       {/* breadcrumb */}
@@ -75,7 +77,7 @@ export default function NewListingPage() {
         </div>
       </section>
 
-      <NewListingForm />
+      <NewListingForm githubUser={user?.handle} />
     </div>
   )
 }

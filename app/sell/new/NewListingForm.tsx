@@ -2,6 +2,7 @@
 
 import { useFormState, useFormStatus } from 'react-dom'
 import { useEffect, useRef, useState } from 'react'
+import GitHubImport from '@/components/GitHubImport'
 import { publishListing, type PublishState } from './actions'
 
 // Minimal local types for the Web Speech API (not in lib.dom by default).
@@ -100,7 +101,11 @@ type DraftResponse = {
   whatYouGet?: string[]
 }
 
-export default function NewListingForm() {
+export default function NewListingForm({
+  githubUser,
+}: {
+  githubUser?: string
+}) {
   const [state, action] = useFormState(publishListing, initial)
   // Stored as a string so leading-zero / iOS controlled-number quirks
   // can't interfere with editing. Parsed to a number for the math
@@ -245,7 +250,15 @@ export default function NewListingForm() {
   }
 
   return (
-    <form action={action}>
+    <>
+      <GitHubImport
+        defaultUsername={githubUser}
+        onImport={(imported, importedBrief) => {
+          setFiles(imported)
+          setBrief(importedBrief)
+        }}
+      />
+      <form action={action}>
       <input
         type="hidden"
         name="description"
@@ -666,6 +679,7 @@ export default function NewListingForm() {
           </div>
         </div>
       </StepShell>
-    </form>
+      </form>
+    </>
   )
 }
