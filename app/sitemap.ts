@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { products, allCreatorHandles } from '@/lib/catalog'
 import { getAllNiches, getAllPlatforms, COMBO_PAGES } from '@/lib/content'
+import { getAllPosts } from '@/lib/blog'
 import { SITE_URL } from '@/lib/seo'
 
 // Canonical host is the apex (https://skillzy.ai), matching every
@@ -15,6 +16,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/marketplace`, changeFrequency: 'daily',   priority: 0.9, lastModified },
     { url: `${base}/sell`,        changeFrequency: 'weekly',  priority: 0.7, lastModified },
     { url: `${base}/about`,       changeFrequency: 'monthly', priority: 0.5, lastModified },
+    { url: `${base}/how-it-works`, changeFrequency: 'monthly', priority: 0.6, lastModified },
+    { url: `${base}/blog`,        changeFrequency: 'weekly',  priority: 0.7, lastModified },
     { url: `${base}/help`,        changeFrequency: 'monthly', priority: 0.5, lastModified },
     { url: `${base}/contact`,     changeFrequency: 'monthly', priority: 0.4, lastModified },
     { url: `${base}/terms`,       changeFrequency: 'yearly',  priority: 0.2, lastModified },
@@ -56,6 +59,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified,
   }))
 
+  const blogRoutes: MetadataRoute.Sitemap = getAllPosts().map((p) => ({
+    url: `${base}/blog/${p.slug}`,
+    changeFrequency: 'monthly',
+    priority: 0.6,
+    lastModified: new Date(p.updatedAt),
+  }))
+
   return [
     ...staticRoutes,
     ...listingRoutes,
@@ -63,5 +73,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...nicheRoutes,
     ...platformRoutes,
     ...comboRoutes,
+    ...blogRoutes,
   ]
 }
