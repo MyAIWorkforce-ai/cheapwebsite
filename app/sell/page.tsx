@@ -1,9 +1,11 @@
 import Link from 'next/link'
+import { pageMetadata } from '@/lib/seo'
 
-export const metadata = {
-  title: 'Built it? Sell it.',
+export const metadata = pageMetadata({
+  title: 'Sell AI Agent Skills — Keep 80% — Skillzy',
   description:
-    'Publish a skill, guide, or full agent setup. List once, sell it forever. Keep 80% of every sale. Stripe pays you direct.',
+    'List once. Earn forever. Skillzy gives creators 80% of every sale, instant Stripe payouts, and zero IP lock-in.',
+  path: '/sell',
   keywords: [
     'sell AI skills',
     'sell AI agents',
@@ -13,7 +15,7 @@ export const metadata = {
     'agent maker income',
     'Stripe payouts',
   ],
-}
+})
 
 function Sticker({
   children,

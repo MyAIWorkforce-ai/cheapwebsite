@@ -7,6 +7,9 @@ import {
   toCardProduct,
 } from '@/lib/catalog'
 import ProductCard from '@/components/ProductCard'
+import StructuredData from '@/components/StructuredData'
+import { pageMetadata } from '@/lib/seo'
+import { breadcrumbLd } from '@/lib/jsonld'
 
 export function generateStaticParams() {
   return allCreatorHandles().map((handle) => ({ handle }))
@@ -14,17 +17,15 @@ export function generateStaticParams() {
 
 export function generateMetadata({ params }: { params: { handle: string } }) {
   const creator = getCreatorByHandle(params.handle)
-  if (!creator) return { title: 'Creator not found' }
-  return {
-    title: creator.name,
-    description: creator.bio,
+  if (!creator) return { title: 'Creator not found — Skillzy' }
+  const handle = creator.handle.replace(/^@/, '')
+  return pageMetadata({
+    title: `${creator.name} — Creator on Skillzy`,
+    description: creator.bio.slice(0, 160),
+    path: `/creator/${handle}`,
     keywords: [creator.name, creator.handle, 'Skillzy creator', 'AI agent creator'],
-    openGraph: {
-      title: `${creator.name} on Skillzy`,
-      description: creator.bio,
-      type: 'profile',
-    },
-  }
+    ogType: 'profile',
+  })
 }
 
 export default function CreatorPage({ params }: { params: { handle: string } }) {
@@ -39,8 +40,16 @@ export default function CreatorPage({ params }: { params: { handle: string } }) 
       items.reduce((acc, p) => acc + p.ratingCount, 0),
     )
 
+  const handle = creator.handle.replace(/^@/, '')
   return (
     <div className="paper">
+      <StructuredData
+        data={breadcrumbLd([
+          { name: 'Home', path: '/' },
+          { name: 'Creators', path: '/marketplace' },
+          { name: creator.name, path: `/creator/${handle}` },
+        ])}
+      />
       {/* breadcrumb */}
       <div className="max-w-page mx-auto px-6 lg:px-10 pt-8 sm:pt-10">
         <nav

@@ -1,11 +1,13 @@
 import Link from 'next/link'
+import { pageMetadata } from '@/lib/seo'
 
-export const metadata = {
-  title: 'Help',
+export const metadata = pageMetadata({
+  title: 'Help & FAQ — Skillzy',
   description:
-    'Answers for buyers and creators on Skillzy — how purchases work, how refunds happen, how creator payouts work, what a SKILL.md is, and more.',
+    'Answers for buyers and creators — how purchases work, how refunds work, how creator payouts work, what a SKILL.md is, and more.',
+  path: '/help',
   keywords: ['Skillzy help', 'FAQ', 'support', 'how Skillzy works'],
-}
+})
 
 type QA = { q: string; a: React.ReactNode }
 

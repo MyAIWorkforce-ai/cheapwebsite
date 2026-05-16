@@ -1,13 +1,17 @@
 import Link from 'next/link'
 import ProductCard from '@/components/ProductCard'
 import { products, toCardProduct, NICHES, type ProductType } from '@/lib/catalog'
+import { pageMetadata } from '@/lib/seo'
 
-export const metadata = {
-  title: 'The catalogue',
+// Canonical strips query strings → /marketplace?type=skill etc. all
+// canonicalise to https://skillzy.ai/marketplace (per SEO scope 1.1).
+export const metadata = pageMetadata({
+  title: 'Browse AI Agent Skills, Setups & Guides — Skillzy',
   description:
-    'Drop in. Agent supercharged. Browse skills, guides, and ready-to-go agent setups for Claude, OpenClaw, Hermes, n8n and more. Every listing reviewed by a human.',
+    '13+ human-reviewed AI agent skills, full setups, and guides. Filter by trade, platform, or type. Works with Claude, n8n, OpenClaw, Make, Zapier.',
+  path: '/marketplace',
   keywords: [
-    'agent skills',
+    'AI agent skills',
     'AI agent marketplace',
     'Claude skills',
     'n8n agents',
@@ -15,7 +19,7 @@ export const metadata = {
     'SKILL.md',
     'AI agent setups',
   ],
-}
+})
 
 const filters: { label: string; type?: ProductType; key: string }[] = [
   { label: 'Agent Setups', type: 'Agent Setup', key: 'agent-setup' },

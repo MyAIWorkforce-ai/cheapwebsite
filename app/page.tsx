@@ -2,6 +2,22 @@ import Link from 'next/link'
 import Logo from '@/components/Logo'
 import ProductCard from '@/components/ProductCard'
 import { products, toCardProduct, NICHES } from '@/lib/catalog'
+import { pageMetadata } from '@/lib/seo'
+
+export const metadata = pageMetadata({
+  title: 'Skillzy — AI agent skills, setups & guides. Drop-in, not DIY.',
+  description:
+    'Pre-built AI agent skills, full setups, and guides for Claude, n8n, OpenClaw, ChatGPT and more. Built for tradies, real estate, bookkeepers, and 20+ trades.',
+  path: '/',
+  keywords: [
+    'AI agent skills',
+    'AI agent setups',
+    'AI agent marketplace',
+    'Claude skills',
+    'n8n agents',
+    'SKILL.md',
+  ],
+})
 
 const agentSetups = products
   .filter((p) => p.type === 'Agent Setup')

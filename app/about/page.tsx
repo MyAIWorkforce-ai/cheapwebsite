@@ -1,16 +1,18 @@
 import Link from 'next/link'
+import { pageMetadata } from '@/lib/seo'
 
-export const metadata = {
-  title: 'About',
+export const metadata = pageMetadata({
+  title: 'About Skillzy — A creator-first agent marketplace',
   description:
-    'Skillzy is a marketplace for skills, guides, and plug-and-play agent setups. Built by creators. Drop them into any agent. Creators keep 80% of every sale.',
+    'Why we exist, who builds here, and the principles behind every listing. Skillzy gives creators 80%, keeps their name on the work, and never locks IP.',
+  path: '/about',
   keywords: [
     'about Skillzy',
     'agent marketplace',
     'AI creator economy',
     'AI agent skills',
   ],
-}
+})
 
 export default function AboutPage() {
   return (

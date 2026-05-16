@@ -1,7 +1,11 @@
-export const metadata = {
-  title: 'Privacy',
-  description: 'How Skillzy handles your data — what we collect, how we use it, who we share it with.',
-}
+import { pageMetadata } from '@/lib/seo'
+
+export const metadata = pageMetadata({
+  title: 'Privacy Policy — Skillzy',
+  description:
+    'How Skillzy handles your data — what we collect, how we use it, who we share it with, and your rights.',
+  path: '/privacy',
+})
 
 export default function PrivacyPage() {
   return (

@@ -2,6 +2,9 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getProduct, getRelated, products, toCardProduct } from '@/lib/catalog'
 import ProductCard from '@/components/ProductCard'
+import StructuredData from '@/components/StructuredData'
+import { pageMetadata } from '@/lib/seo'
+import { productLd, breadcrumbLd, faqLd } from '@/lib/jsonld'
 
 export function generateStaticParams() {
   return products.map((p) => ({ id: p.id }))
@@ -9,10 +12,13 @@ export function generateStaticParams() {
 
 export function generateMetadata({ params }: { params: { id: string } }) {
   const p = getProduct(params.id)
-  if (!p) return { title: 'Not found' }
-  return {
-    title: `${p.title} — ${p.type}`,
-    description: p.tagline,
+  if (!p) return { title: 'Not found — Skillzy' }
+  const ratingBit =
+    p.ratingCount > 0 ? ` ${p.rating}★ (${p.ratingCount} reviews).` : ''
+  return pageMetadata({
+    title: `${p.title} — AI ${p.type} — Skillzy`,
+    description: `${p.tagline} By ${p.creator.name}.${ratingBit}`.slice(0, 160),
+    path: `/marketplace/${p.id}`,
     keywords: [
       p.type,
       p.niche,
@@ -20,17 +26,7 @@ export function generateMetadata({ params }: { params: { id: string } }) {
       p.creator.name,
       'Skillzy',
     ].filter(Boolean) as string[],
-    openGraph: {
-      title: `${p.title} — ${p.type} on Skillzy`,
-      description: p.tagline,
-      type: 'website',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: `${p.title} — ${p.type}`,
-      description: p.tagline,
-    },
-  }
+  })
 }
 
 function Stars({ rating, className = '' }: { rating: number; className?: string }) {
@@ -83,6 +79,17 @@ export default function ProductDetailPage({
 
   return (
     <div className="paper">
+      <StructuredData
+        data={[
+          productLd(p),
+          breadcrumbLd([
+            { name: 'Home', path: '/' },
+            { name: 'Marketplace', path: '/marketplace' },
+            { name: p.title, path: `/marketplace/${p.id}` },
+          ]),
+          ...(p.faqs && p.faqs.length > 0 ? [faqLd(p.faqs)] : []),
+        ]}
+      />
       {/* breadcrumb */}
       <div className="max-w-page mx-auto px-6 lg:px-10 pt-8 sm:pt-10">
         <nav aria-label="Breadcrumb" className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">

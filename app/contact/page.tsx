@@ -1,9 +1,12 @@
-export const metadata = {
-  title: 'Contact',
+import { pageMetadata } from '@/lib/seo'
+
+export const metadata = pageMetadata({
+  title: 'Contact Skillzy — Support, Creators & Trust',
   description:
-    'Get in touch with the Skillzy team. Buyer support, creator onboarding, partnerships, and trust + safety.',
+    'Get in touch with the Skillzy team — buyer support, creator onboarding, partnerships, and trust + safety. A human reads every message.',
+  path: '/contact',
   keywords: ['contact Skillzy', 'support', 'trust and safety'],
-}
+})
 
 export default function ContactPage() {
   return (

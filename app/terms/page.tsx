@@ -1,7 +1,11 @@
-export const metadata = {
-  title: 'Terms',
-  description: 'Terms of service for buyers, creators, and visitors using Skillzy.',
-}
+import { pageMetadata } from '@/lib/seo'
+
+export const metadata = pageMetadata({
+  title: 'Terms of Service — Skillzy',
+  description:
+    'Terms of service for buyers, creators, and visitors using Skillzy — the marketplace, refunds, acceptable use, and creator payouts.',
+  path: '/terms',
+})
 
 export default function TermsPage() {
   return (
