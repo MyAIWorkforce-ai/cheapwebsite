@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 
-// Seller distribution kit: the direct purchase link + a QR that
+// Creator distribution kit: the direct purchase link + a QR that
 // points at it, both carrying ?ref=<handle> so sales driven through
-// the seller's own channels attribute back to them.
+// the creator's own channels attribute back to them.
 export default function ShareListing({
   slug,
   refHandle,

@@ -5,7 +5,7 @@ import { SITE_URL } from '@/lib/seo'
 export const runtime = 'nodejs'
 
 // QR code (PNG) that points straight at a listing's purchase page.
-// Optional ?ref=<handle> is passed through so a seller sharing their
+// Optional ?ref=<handle> is passed through so a creator sharing their
 // own listing gets the sale attributed (the middleware reads ?ref=
 // into the skz_ref cookie at landing).
 //
