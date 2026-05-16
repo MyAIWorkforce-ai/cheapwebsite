@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Logo from '@/components/Logo'
 import ProductCard from '@/components/ProductCard'
 import { products, toCardProduct, NICHES } from '@/lib/catalog'
+import { getAllPosts, readingMinutes } from '@/lib/blog'
 import { pageMetadata } from '@/lib/seo'
 
 export const metadata = pageMetadata({
@@ -87,6 +88,7 @@ function Sticker({
 }
 
 export default function HomePage() {
+  const latestPosts = getAllPosts().slice(0, 3)
   return (
     <div className="paper overflow-x-clip">
       {/* identity strip — no nav */}
@@ -505,6 +507,50 @@ export default function HomePage() {
                   </span>
                 ))}
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Latest Field Notes — fresh content + internal links from the
+          most-crawled page */}
+      <section className="px-6 lg:px-10 py-20 sm:py-28 border-t border-brand-hairline">
+        <div className="max-w-page mx-auto">
+          <div className="flex items-end justify-between gap-6 flex-wrap mb-10 sm:mb-12">
+            <h2
+              className="font-display text-5xl sm:text-7xl tracking-tight"
+              style={{ letterSpacing: '-0.03em' }}
+            >
+              From the{' '}
+              <em className="italic text-brand-gold font-medium">Field Notes.</em>
+            </h2>
+            <Link
+              href="/blog"
+              className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted hover:text-brand-gold transition-colors"
+            >
+              All Field Notes →
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">
+            {latestPosts.map((post) => (
+              <Link
+                key={post.slug}
+                href={`/blog/${post.slug}`}
+                className="group bg-brand-cream-card p-7 sm:p-8 hover:bg-white transition-colors"
+              >
+                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+                  {readingMinutes(post)} min read
+                </span>
+                <h3
+                  className="font-display text-2xl mt-3 tracking-tight group-hover:text-brand-gold transition-colors"
+                  style={{ letterSpacing: '-0.02em' }}
+                >
+                  {post.title}
+                </h3>
+                <p className="mt-3 text-sm text-brand-muted leading-relaxed">
+                  {post.excerpt}
+                </p>
+              </Link>
             ))}
           </div>
         </div>
