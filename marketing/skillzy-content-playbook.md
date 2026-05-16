@@ -110,31 +110,43 @@ it's **easy to list**, and it's **easy to buy**. Everything here is ready to pos
 
 ---
 
-## Ready-made video — "List → Sell" end to end
+## Ready-made videos — end to end, with voiceover
 
-**Files:** `marketing/video/skillzy-list-to-sell-9x16.mp4` (Reels/TikTok/Shorts)
-and `…-1x1.mp4` (feed). ~27s, 1080p, H.264, silent (burned-in text — autoplay-safe).
+Motion-graphics walkthroughs built from the brand system (gold-on-cream →
+navy payoff). **Not** screen recordings of the live app — a true product demo
+needs the running site + Stripe/Supabase. 1080p H.264, narrated.
 
-Motion-graphics walkthrough of the full creator journey, built from the brand
-system (it is **not** a screen recording of the live app — that needs the
-running product + Stripe/Supabase). 10 scenes, gold-on-cream → navy payoff:
+| Video | Files | ~Len | Journey |
+|-------|-------|------|---------|
+| **List → Sell** (creator) | `skillzy-list-to-sell-9x16.mp4`, `…-1x1.mp4` | ~39s | hook → sign up → drop files → AI writes listing → review → Stripe → live → sold → **80%** → CTA |
+| **Find → Drop in** (buyer) | `skillzy-find-and-drop-9x16.mp4`, `…-1x1.mp4` | ~29s | hook → search → pick → checkout → drop in → smarter → 60s → CTA |
 
-> hook → sign up → drop files → AI writes listing → quick review →
-> connect Stripe → you're live → sold → **80% stays with you** → CTA
+9x16 = Reels/TikTok/Shorts · 1x1 = feed. Each has burned-in text **and** a
+voiceover, so it works with sound on or off.
 
-**Caption:**
-> From "it's just sitting on my laptop" to "someone just bought it" — the whole thing.
-> Sign up → drop your files → AI drafts the listing → quick review → connect Stripe.
-> You keep 80%. Forever. List once → skillzy.ai/sell
->
+**Voiceover note:** the narration is an offline eSpeak voice (`mespeak`) —
+the network allowlist blocks cloud/neural TTS in this environment, so it
+sounds synthetic. To ship a polished voice, drop real audio into
+`marketing/video/vo/<journeyId>/NN.mp3` (or `.wav`) — one file per scene,
+`00`-indexed — and rerun. Present files override the synthesized track and
+scene timing auto-fits each clip. Journey ids: `list-to-sell`, `find-and-drop`.
+
+**Captions:**
+> *List → Sell:* From "it's just sitting on my laptop" to "someone just bought it."
+> Sign up → drop files → AI writes the listing → review → Stripe. Keep 80%, forever.
+> List once → skillzy.ai/sell
 > #creatoreconomy #buildinpublic #aiagents #sidehustle #passiveincome #aitools
 
-**Regenerate / edit:** copy is the `scenes` array in
-`scripts/gen-marketing-video.tsx`. Encoding needs a static ffmpeg (kept out of
-the project's deps):
+> *Find → Drop in:* Your agent can't do that — yet. Search the job → pick it →
+> one Stripe checkout → drop the files in. 60 seconds. → skillzy.ai/marketplace
+> #aiagents #productivity #automation #aitools #nocode #claudeai #chatgpt
+
+**Regenerate / edit:** copy + VO lines are the `sell` / `buy` arrays in
+`scripts/gen-marketing-video.tsx`. ffmpeg + the TTS engine are kept out of the
+project's deps:
 
 ```
-npm i ffmpeg-static --no-save && npx tsx scripts/gen-marketing-video.tsx
+npm i ffmpeg-static mespeak --no-save && npx tsx scripts/gen-marketing-video.tsx
 ```
 
 ---

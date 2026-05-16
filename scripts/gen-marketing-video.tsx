@@ -1,6 +1,7 @@
 import React from 'react'
 import { ImageResponse } from 'next/og'
-import { execFileSync } from 'node:child_process'
+import { execFileSync, spawnSync } from 'node:child_process'
+import { createRequire } from 'node:module'
 import {
   writeFileSync,
   existsSync,
@@ -116,16 +117,19 @@ type Scene = {
   sub?: string
   pill?: string
   big?: string
+  vo: string
 }
 
 function Frame({
   scene,
   W,
   H,
+  foot,
 }: {
   scene: Scene
   W: number
   H: number
+  foot: string
 }) {
   const tone = scene.tone
   const bg = tone === 'navy' ? C.navy : C.cream
@@ -164,72 +168,140 @@ function Frame({
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: `1px solid ${hl}`, paddingTop: 26 }}>
           <div style={{ display: 'flex', fontFamily: 'Fraunces', fontWeight: 600, fontSize: Math.round(W * 0.034), color: C.gold, letterSpacing: -1 }}>Skillzy</div>
-          <div style={{ display: 'flex', fontFamily: 'Inter', fontWeight: 600, fontSize: Math.round(W * 0.02), letterSpacing: 3, color: subc }}>skillzy.ai/sell</div>
+          <div style={{ display: 'flex', fontFamily: 'Inter', fontWeight: 600, fontSize: Math.round(W * 0.02), letterSpacing: 3, color: subc }}>{foot}</div>
         </div>
       </div>
     </div>
   )
 }
 
-// ---- the end-to-end creator journey ----------------------------------------
-const scenes: Scene[] = [
-  { tone: 'paper', eyebrow: 'For creators', headline: [[{ t: 'You built' }], [{ t: 'something ' }, { t: 'good', em: true, sq: true }, { t: '.' }]], sub: 'It’s on your laptop. It could be earning while you sleep.' },
-  { tone: 'paper', eyebrow: 'List · Step 01', headline: [[{ t: 'Sign up' }]], sub: '30 seconds. Email or one-click GitHub. No application.', pill: 'Step 1 of 6' },
-  { tone: 'paper', eyebrow: 'List · Step 02', headline: [[{ t: 'Drop your' }], [{ t: 'files' }]], sub: 'Skill, guide, or full agent setup — upload it as-is.', pill: 'Step 2 of 6' },
-  { tone: 'paper', eyebrow: 'List · Step 03', headline: [[{ t: 'AI writes' }], [{ t: 'the ' }, { t: 'listing', em: true }]], sub: 'Talk or type. It drafts the title, blurb and features.', pill: 'Step 3 of 6' },
-  { tone: 'paper', eyebrow: 'List · Step 04', headline: [[{ t: 'Quick' }], [{ t: 'review' }]], sub: 'Auto-scan plus a human look. Live in under 24 hours.', pill: 'Step 4 of 6' },
-  { tone: 'paper', eyebrow: 'List · Step 05', headline: [[{ t: 'Connect' }], [{ t: 'Stripe' }]], sub: 'One click. Payouts go straight to you. We never hold it.', pill: 'Step 5 of 6' },
-  { tone: 'navy', eyebrow: 'You’re live', headline: [[{ t: 'In the' }], [{ t: 'marketplace', em: true }, { t: '.' }]], sub: 'Listed once. Found by every buyer searching that job.', pill: 'Step 6 of 6' },
-  { tone: 'navy', eyebrow: 'Sold', headline: [[{ t: 'Someone' }], [{ t: 'dropped it ' }, { t: 'in', em: true }, { t: '.' }]], sub: 'Stripe splits the sale the moment it happens.' },
-  { tone: 'navy', eyebrow: 'Paid', big: '80%', headline: [[{ t: 'Stays with ' }, { t: 'you', em: true }, { t: '.' }]], sub: 'Every sale. No exceptions. ∞ resales per listing.' },
-  { tone: 'navy', eyebrow: 'Become a creator', headline: [[{ t: 'List once.' }], [{ t: 'Earn ' }, { t: 'forever', em: true }, { t: '.' }]], pill: 'skillzy.ai/sell →' },
+// ---- journeys --------------------------------------------------------------
+type Journey = { id: string; name: string; foot: string; scenes: Scene[] }
+
+const sell: Scene[] = [
+  { tone: 'paper', eyebrow: 'For creators', headline: [[{ t: 'You built' }], [{ t: 'something ' }, { t: 'good', em: true, sq: true }, { t: '.' }]], sub: 'It’s on your laptop. It could be earning while you sleep.', vo: 'You built something good. It is just sitting there.' },
+  { tone: 'paper', eyebrow: 'List · Step 01', headline: [[{ t: 'Sign up' }]], sub: '30 seconds. Email or one-click GitHub. No application.', pill: 'Step 1 of 6', vo: 'Step one. Sign up. Email, or one click GitHub.' },
+  { tone: 'paper', eyebrow: 'List · Step 02', headline: [[{ t: 'Drop your' }], [{ t: 'files' }]], sub: 'Skill, guide, or full agent setup — upload it as-is.', pill: 'Step 2 of 6', vo: 'Step two. Drop your files. Upload it as is.' },
+  { tone: 'paper', eyebrow: 'List · Step 03', headline: [[{ t: 'AI writes' }], [{ t: 'the ' }, { t: 'listing', em: true }]], sub: 'Talk or type. It drafts the title, blurb and features.', pill: 'Step 3 of 6', vo: 'Step three. The A I writes your listing.' },
+  { tone: 'paper', eyebrow: 'List · Step 04', headline: [[{ t: 'Quick' }], [{ t: 'review' }]], sub: 'Auto-scan plus a human look. Live in under 24 hours.', pill: 'Step 4 of 6', vo: 'Step four. A quick review. Live in a day.' },
+  { tone: 'paper', eyebrow: 'List · Step 05', headline: [[{ t: 'Connect' }], [{ t: 'Stripe' }]], sub: 'One click. Payouts go straight to you. We never hold it.', pill: 'Step 5 of 6', vo: 'Step five. Connect Stripe. Paid direct.' },
+  { tone: 'navy', eyebrow: 'You’re live', headline: [[{ t: 'In the' }], [{ t: 'marketplace', em: true }, { t: '.' }]], sub: 'Listed once. Found by every buyer searching that job.', pill: 'Step 6 of 6', vo: 'And you are live in the marketplace.' },
+  { tone: 'navy', eyebrow: 'Sold', headline: [[{ t: 'Someone' }], [{ t: 'dropped it ' }, { t: 'in', em: true }, { t: '.' }]], sub: 'Stripe splits the sale the moment it happens.', vo: 'Then it sells. Someone drops it in.' },
+  { tone: 'navy', eyebrow: 'Paid', big: '80%', headline: [[{ t: 'Stays with ' }, { t: 'you', em: true }, { t: '.' }]], sub: 'Every sale. No exceptions. ∞ resales per listing.', vo: 'You keep eighty percent. Every sale. Forever.' },
+  { tone: 'navy', eyebrow: 'Become a creator', headline: [[{ t: 'List once.' }], [{ t: 'Earn ' }, { t: 'forever', em: true }, { t: '.' }]], pill: 'skillzy.ai/sell →', vo: 'List once. Earn forever. Skillzy dot A I, slash sell.' },
+]
+
+const buy: Scene[] = [
+  { tone: 'paper', eyebrow: 'For buyers', headline: [[{ t: 'Your agent' }], [{ t: 'can’t do ' }, { t: 'that', em: true, sq: true }, { t: '.' }]], sub: 'Generic models guess. They’ve never done your job.', vo: 'Your agent can not do that. It has never done your job.' },
+  { tone: 'paper', eyebrow: 'Buy · Step 01', headline: [[{ t: 'Search' }], [{ t: 'it' }]], sub: 'Type the job: invoices, follow-ups, daily summaries.', pill: 'Step 1 of 4', vo: 'Step one. Search the job.' },
+  { tone: 'paper', eyebrow: 'Buy · Step 02', headline: [[{ t: 'Pick' }], [{ t: 'it' }]], sub: 'Real reviews, version, what you get, which agents it runs on.', pill: 'Step 2 of 4', vo: 'Step two. Pick it. Real reviews, real versions.' },
+  { tone: 'paper', eyebrow: 'Buy · Step 03', headline: [[{ t: 'Check' }], [{ t: 'out' }]], sub: 'One Stripe checkout. Instant access. No hoops.', pill: 'Step 3 of 4', vo: 'Step three. Check out. One Stripe click.' },
+  { tone: 'paper', eyebrow: 'Buy · Step 04', headline: [[{ t: 'Drop it' }], [{ t: 'in' }]], sub: 'Download the files, drop them into your agent.', pill: 'Step 4 of 4', vo: 'Step four. Drop it into your agent.' },
+  { tone: 'navy', eyebrow: 'Result', headline: [[{ t: 'It just got' }], [{ t: 'smarter', em: true }, { t: '.' }]], sub: 'Built by someone who already does the work.', vo: 'And it just got smarter.' },
+  { tone: 'navy', eyebrow: 'Total time', big: '60s', headline: [[{ t: 'That’s the' }], [{ t: 'whole ' }, { t: 'thing', em: true }, { t: '.' }]], sub: 'No subscription. No onboarding call. It just works.', vo: 'Sixty seconds. That is the whole thing.' },
+  { tone: 'navy', eyebrow: 'Your move', headline: [[{ t: 'Find the' }], [{ t: 'skill', em: true }, { t: ' you need.' }]], pill: 'skillzy.ai/marketplace →', vo: 'Find the skill you needed. Skillzy dot A I, slash marketplace.' },
+]
+
+const JOURNEYS: Journey[] = [
+  { id: 'list-to-sell', name: 'List → Sell', foot: 'skillzy.ai/sell', scenes: sell },
+  { id: 'find-and-drop', name: 'Find → Drop in', foot: 'skillzy.ai/marketplace', scenes: buy },
 ]
 
 const FPS = 30
-const D = 3.0 // seconds per scene
-const T = 0.35 // crossfade seconds
+const T = 0.4 // crossfade seconds
+const LEAD = 0.35 // quiet before the VO starts inside a scene
+const TAIL = 0.55 // quiet after the VO before crossfade out
+const SR = 44100
 const FORMATS: { name: string; W: number; H: number }[] = [
   { name: '9x16', W: 1080, H: 1920 },
   { name: '1x1', W: 1080, H: 1080 },
 ]
 
-async function renderScenes(fonts: any, W: number, H: number, dir: string) {
+// ---- voiceover -------------------------------------------------------------
+// Offline eSpeak (mespeak) so it works on the network allowlist. To use a real
+// voice instead, drop NN.mp3 / NN.wav into marketing/video/vo/<journeyId>/ and
+// rerun — present files override the synthesized track.
+const require = createRequire(import.meta.url)
+let mespeak: any
+function initVoice() {
+  mespeak = require('mespeak')
+  mespeak.loadConfig(require('mespeak/src/mespeak_config.json'))
+  mespeak.loadVoice(require('mespeak/voices/en/en-us.json'))
+}
+function synthVO(text: string, outWav: string) {
+  const buf = mespeak.speak(text, { rawdata: 'buffer', speed: 178, pitch: 46, amplitude: 100, wordgap: 1 })
+  writeFileSync(outWav, Buffer.from(buf))
+}
+function audioDuration(file: string): number {
+  const r = spawnSync(ffmpegPath as unknown as string, ['-hide_banner', '-i', file], { encoding: 'utf8' })
+  const m = (r.stderr || '').match(/Duration:\s*(\d+):(\d+):(\d+\.\d+)/)
+  if (!m) throw new Error('no duration for ' + file)
+  return +m[1] * 3600 + +m[2] * 60 + +m[3]
+}
+function findOverride(dir: string, i: number): string | null {
+  for (const ext of ['mp3', 'wav', 'm4a', 'aac']) {
+    const p = join(dir, `${String(i).padStart(2, '0')}.${ext}`)
+    if (existsSync(p)) return p
+  }
+  return null
+}
+
+async function renderScenes(fonts: any, scenes: Scene[], foot: string, W: number, H: number, dir: string) {
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
   for (let i = 0; i < scenes.length; i++) {
-    const img = new ImageResponse(<Frame scene={scenes[i]} W={W} H={H} />, { width: W, height: H, fonts })
+    const img = new ImageResponse(<Frame scene={scenes[i]} W={W} H={H} foot={foot} />, { width: W, height: H, fonts })
     writeFileSync(join(dir, `${String(i).padStart(2, '0')}.png`), Buffer.from(await img.arrayBuffer()))
   }
 }
 
-function encode(framesDir: string, W: number, H: number, outFile: string) {
-  const n = scenes.length
+function encode(
+  framesDir: string,
+  audio: string[],
+  durs: number[],
+  W: number,
+  H: number,
+  outFile: string,
+) {
+  const n = durs.length
   const args: string[] = ['-y']
-  for (let i = 0; i < n; i++) args.push('-framerate', String(FPS), '-loop', '1', '-t', String(D), '-i', join(framesDir, `${String(i).padStart(2, '0')}.png`))
-  const total = n * D - (n - 1) * T
-  args.push('-f', 'lavfi', '-t', String(total.toFixed(3)), '-i', 'anullsrc=channel_layout=stereo:sample_rate=44100')
+  for (let i = 0; i < n; i++)
+    args.push('-framerate', String(FPS), '-loop', '1', '-t', durs[i].toFixed(3), '-i', join(framesDir, `${String(i).padStart(2, '0')}.png`))
+  for (let i = 0; i < n; i++) args.push('-i', audio[i])
+
+  // cumulative geometry for variable-length crossfade chain
+  const cumPre: number[] = [0]
+  for (let i = 0; i < n; i++) cumPre.push(cumPre[i] + durs[i])
+  const total = cumPre[n] - (n - 1) * T
+  const sceneStart = (i: number) => (i === 0 ? 0 : cumPre[i] - (i - 1) * T)
 
   const parts: string[] = []
-  for (let i = 0; i < n; i++) {
-    parts.push(
-      `[${i}:v]scale=${W}:${H},setsar=1,format=yuv420p,fps=${FPS}[v${i}]`,
-    )
-  }
+  for (let i = 0; i < n; i++) parts.push(`[${i}:v]scale=${W}:${H},setsar=1,format=yuv420p,fps=${FPS}[v${i}]`)
   let prev = 'v0'
   for (let i = 1; i < n; i++) {
-    const off = (i * (D - T)).toFixed(3)
-    const out = i === n - 1 ? 'vout' : `x${i}`
+    const off = (cumPre[i] - i * T).toFixed(3)
+    const out = i === n - 1 ? 'vx' : `x${i}`
     parts.push(`[${prev}][v${i}]xfade=transition=fade:duration=${T}:offset=${off}[${out}]`)
     prev = out
   }
-  parts.push(`[vout]fade=t=in:st=0:d=0.4,fade=t=out:st=${(total - 0.5).toFixed(3)}:d=0.5[vf]`)
+  parts.push(`[vx]fade=t=in:st=0:d=0.4,fade=t=out:st=${(total - 0.5).toFixed(3)}:d=0.5[vf]`)
+
+  const alabels: string[] = []
+  for (let i = 0; i < n; i++) {
+    const delay = Math.round((sceneStart(i) + LEAD) * 1000)
+    parts.push(`[${n + i}:a]aformat=channel_layouts=stereo:sample_rates=${SR},adelay=${delay}|${delay}[a${i}]`)
+    alabels.push(`[a${i}]`)
+  }
+  parts.push(
+    `${alabels.join('')}amix=inputs=${n}:normalize=0:dropout_transition=0[amix];` +
+      `[amix]aresample=${SR},dynaudnorm=f=220:g=7,afade=t=in:st=0:d=0.2,afade=t=out:st=${(total - 0.6).toFixed(3)}:d=0.6,apad,atrim=0:${total.toFixed(3)}[aud]`,
+  )
 
   args.push(
     '-filter_complex', parts.join(';'),
-    '-map', '[vf]',
-    '-map', `${n}:a`,
+    '-map', '[vf]', '-map', '[aud]',
     '-c:v', 'libx264', '-preset', 'medium', '-crf', '19', '-pix_fmt', 'yuv420p',
-    '-r', String(FPS), '-c:a', 'aac', '-b:a', '128k', '-shortest',
-    '-movflags', '+faststart', '-t', String(total.toFixed(3)),
+    '-r', String(FPS), '-c:a', 'aac', '-b:a', '160k',
+    '-movflags', '+faststart', '-t', total.toFixed(3),
     outFile,
   )
   execFileSync(ffmpegPath as unknown as string, args, { stdio: ['ignore', 'ignore', 'inherit'] })
@@ -239,14 +311,39 @@ async function main() {
   if (!existsSync(OUT)) mkdirSync(OUT, { recursive: true })
   console.log('loading fonts…')
   const fonts = await loadFonts()
-  for (const f of FORMATS) {
-    const fdir = join(TMP, f.name)
-    console.log(`rendering ${scenes.length} scenes @ ${f.W}x${f.H} (${f.name})…`)
-    await renderScenes(fonts, f.W, f.H, fdir)
-    const out = join(OUT, `skillzy-list-to-sell-${f.name}.mp4`)
-    console.log(`encoding ${f.name} → ${out}`)
-    encode(fdir, f.W, f.H, out)
-    console.log(`  done ${f.name}`)
+  initVoice()
+
+  for (const j of JOURNEYS) {
+    const n = j.scenes.length
+    const voDir = join(OUT, 'vo', j.id)
+    const voOut = join(TMP, j.id, 'vo')
+    if (!existsSync(voOut)) mkdirSync(voOut, { recursive: true })
+
+    console.log(`voiceover: ${j.name} (${n} lines)`)
+    const audio: string[] = []
+    const durs: number[] = []
+    for (let i = 0; i < n; i++) {
+      const override = existsSync(voDir) ? findOverride(voDir, i) : null
+      let file: string
+      if (override) {
+        file = override
+      } else {
+        file = join(voOut, `${String(i).padStart(2, '0')}.wav`)
+        synthVO(j.scenes[i].vo, file)
+      }
+      const d = audioDuration(file)
+      audio.push(file)
+      durs.push(Math.min(5.6, Math.max(2.5, LEAD + d + TAIL)))
+    }
+
+    for (const f of FORMATS) {
+      const fdir = join(TMP, j.id, f.name)
+      console.log(`  render ${n} scenes @ ${f.W}x${f.H} (${f.name})`)
+      await renderScenes(fonts, j.scenes, j.foot, f.W, f.H, fdir)
+      const out = join(OUT, `skillzy-${j.id}-${f.name}.mp4`)
+      console.log(`  encode → ${out}`)
+      encode(fdir, audio, durs, f.W, f.H, out)
+    }
   }
   rmSync(TMP, { recursive: true, force: true })
   console.log('done →', OUT)
