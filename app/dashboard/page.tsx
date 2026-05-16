@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import ProfileShareKit from '@/components/ProfileShareKit'
 import { getUser, claimOrphanPurchases } from '@/lib/auth'
 import { createClient } from '@/lib/supabase/server'
 import { hasSupabase } from '@/lib/env'
@@ -337,6 +338,8 @@ export default async function DashboardPage({
         <SellingView
           listings={sellerData.listings}
           stats={sellerData.stats}
+          handle={user?.handle}
+          name={displayName}
         />
       )}
     </div>
@@ -437,14 +440,21 @@ function BuyingView({ purchases }: { purchases: Purchase[] }) {
 function SellingView({
   listings,
   stats,
+  handle,
+  name,
 }: {
   listings: SellerListing[]
   stats: SellerStats
+  handle?: string
+  name: string
 }) {
   const earningsDollars = stats.totalEarnings / 100
   return (
     <section className="px-6 lg:px-10 py-12 sm:py-16">
       <div className="max-w-page mx-auto">
+        <div className="mb-10 sm:mb-14">
+          <ProfileShareKit handle={handle} name={name} />
+        </div>
         {/* stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-brand-hairline border border-brand-hairline mb-10 sm:mb-14">
           <div className="bg-brand-cream-card p-6">
