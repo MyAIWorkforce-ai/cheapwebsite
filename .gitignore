@@ -37,3 +37,5 @@ next-env.d.ts
 
 # marketing image generator font cache (regenerated on demand)
 /scripts/.fontcache
+# transient video frame scratch dir
+/marketing/video/.frames

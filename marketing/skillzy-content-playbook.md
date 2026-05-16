@@ -110,6 +110,35 @@ it's **easy to list**, and it's **easy to buy**. Everything here is ready to pos
 
 ---
 
+## Ready-made video — "List → Sell" end to end
+
+**Files:** `marketing/video/skillzy-list-to-sell-9x16.mp4` (Reels/TikTok/Shorts)
+and `…-1x1.mp4` (feed). ~27s, 1080p, H.264, silent (burned-in text — autoplay-safe).
+
+Motion-graphics walkthrough of the full creator journey, built from the brand
+system (it is **not** a screen recording of the live app — that needs the
+running product + Stripe/Supabase). 10 scenes, gold-on-cream → navy payoff:
+
+> hook → sign up → drop files → AI writes listing → quick review →
+> connect Stripe → you're live → sold → **80% stays with you** → CTA
+
+**Caption:**
+> From "it's just sitting on my laptop" to "someone just bought it" — the whole thing.
+> Sign up → drop your files → AI drafts the listing → quick review → connect Stripe.
+> You keep 80%. Forever. List once → skillzy.ai/sell
+>
+> #creatoreconomy #buildinpublic #aiagents #sidehustle #passiveincome #aitools
+
+**Regenerate / edit:** copy is the `scenes` array in
+`scripts/gen-marketing-video.tsx`. Encoding needs a static ffmpeg (kept out of
+the project's deps):
+
+```
+npm i ffmpeg-static --no-save && npx tsx scripts/gen-marketing-video.tsx
+```
+
+---
+
 ## Reels / short-video scripts (≤30s, 9:16)
 
 Each opens on its title card in `instagram/reel-cards/`. Hold the hook ≤2s.
