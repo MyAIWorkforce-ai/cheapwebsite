@@ -162,8 +162,10 @@ export default function NewListingForm({
       if (reads.length > 0) {
         const texts = await Promise.all(reads)
         const merged = texts.filter(Boolean).join('\n\n')
-        // Replace any prior file-extracted brief; keep manual typing as a prefix.
         setBrief(merged)
+        // Drop it in → AI reads, names, and explains it automatically.
+        // The creator just edits or submits.
+        void draft(merged)
       }
     } finally {
       setExtracting(false)
@@ -216,8 +218,9 @@ export default function NewListingForm({
     setListening(true)
   }
 
-  async function draft() {
-    if (!brief.trim()) {
+  async function draft(briefOverride?: string) {
+    const text = (briefOverride ?? brief).trim()
+    if (!text) {
       setDraftError('Tell the AI what you built first.')
       return
     }
@@ -227,7 +230,7 @@ export default function NewListingForm({
       const res = await fetch('/api/listings/draft', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ brief, type }),
+        body: JSON.stringify({ brief: text, type }),
       })
       const json: DraftResponse & { error?: string } = await res.json()
       if (!res.ok) {
@@ -256,6 +259,8 @@ export default function NewListingForm({
         onImport={(imported, importedBrief) => {
           setFiles(imported)
           setBrief(importedBrief)
+          // Imported from GitHub → AI drafts the listing immediately.
+          void draft(importedBrief)
         }}
       />
       <form action={action}>
@@ -336,12 +341,16 @@ export default function NewListingForm({
               accept=".md,.markdown,.yaml,.yml,.json,.txt,.prompt,.zip,.pdf"
               className="sr-only"
             />
-            {extracting && (
+            {(extracting || drafting) && (
               <p className="mt-4 text-xs text-brand-gold">
-                ✿ Reading your files…
+                ✿ Reading your skill, naming it, writing the listing…
               </p>
             )}
           </label>
+          <p className="mt-4 text-sm text-brand-muted">
+            Drop your files and the AI reads them, names the skill, and
+            drafts the whole listing. You just check it and submit.
+          </p>
 
           {files.length > 0 && (
             <>
@@ -383,10 +392,10 @@ export default function NewListingForm({
         <div className="bg-brand-navy text-brand-cream p-7 sm:p-9 mb-10">
           <div className="flex items-baseline justify-between flex-wrap gap-3 mb-5">
             <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold-soft">
-              ✿ Let the AI write a draft
+              ✿ AI draft — auto-runs when you drop a file
             </span>
             <span className="text-xs text-brand-cream/60">
-              Edit anything before submitting.
+              Or describe it here. Edit anything before submitting.
             </span>
           </div>
 
@@ -406,7 +415,7 @@ export default function NewListingForm({
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <button
               type="button"
-              onClick={draft}
+              onClick={() => draft()}
               disabled={drafting}
               className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-5 py-2.5 text-sm hover:bg-brand-gold-dark transition-colors disabled:opacity-60"
             >

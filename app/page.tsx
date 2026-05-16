@@ -151,9 +151,9 @@ export default function HomePage() {
 
           {/* trust strip — honest signals, no fabricated metrics */}
           <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
-            <span>✦ Every listing human-reviewed</span>
+            <span>✦ Built &amp; tested by humans, not auto-generated</span>
             <span className="hidden sm:inline text-brand-hairline">·</span>
-            <span>Creators keep 80%</span>
+            <span>Works on any agent — no platform lock-in</span>
             <span className="hidden sm:inline text-brand-hairline">·</span>
             <span>Stripe pays direct</span>
             <span className="hidden sm:inline text-brand-hairline">·</span>
@@ -434,8 +434,10 @@ export default function HomePage() {
           </h2>
 
           <p className="mt-10 text-xl sm:text-2xl leading-snug max-w-3xl text-brand-cream/90">
-            The old marketplaces took 70% and locked your IP behind their
-            walls. Skillzy gives you 80%, keeps your name on the work, and
+            The labs are bundling auto-generated skills into their own
+            walled stores. Ours are different: built, used, and battle-tested
+            by the humans who do the work — and yours to take to any agent.
+            Skillzy gives creators 80%, keeps their name on the work, and
             lets every listing earn forever.{' '}
             <span className="text-brand-cream">You build. We sell. They use.</span>
           </p>
