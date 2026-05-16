@@ -8,7 +8,7 @@ import { pageMetadata } from '@/lib/seo'
 export const metadata = pageMetadata({
   title: 'Browse AI Agent Skills, Setups & Guides — Skillzy',
   description:
-    '13+ human-reviewed AI agent skills, full setups, and guides. Filter by trade, platform, or type. Works with Claude, n8n, OpenClaw, Make, Zapier.',
+    'Human-reviewed AI agent skills, full setups, and guides. Filter by trade, platform, or type. Works with Claude, n8n, OpenClaw, Make, Zapier.',
   path: '/marketplace',
   keywords: [
     'AI agent skills',

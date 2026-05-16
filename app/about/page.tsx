@@ -219,7 +219,7 @@ export default function AboutPage() {
               <span className="text-brand-gold group-hover:translate-x-1 inline-block transition-transform">→</span>
             </p>
             <p className="mt-3 text-sm text-brand-muted">
-              13 listings, every one human-reviewed.
+              Every listing human-reviewed before it goes live.
             </p>
           </Link>
           <Link
