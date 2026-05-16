@@ -19,7 +19,7 @@ export default function PosterPage({
   const creator = getCreatorByHandle(handle) || getCreatorByHandle(`@${handle}`)
   const name = creator?.name ?? `@${handle}`
   const profileUrl = `${SITE_URL}/creator/${handle}`
-  const qrSrc = `/creator/${handle}/qr?ref=${encodeURIComponent(handle)}`
+  const qrSrc = `/creator/${handle}/qr?ref=${encodeURIComponent(handle)}&c=print`
 
   return (
     <div className="paper">

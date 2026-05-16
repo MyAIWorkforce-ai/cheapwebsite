@@ -14,10 +14,15 @@ export async function GET(
   { params }: { params: { handle: string } },
 ) {
   const handle = params.handle.replace(/^@/, '')
-  const ref = new URL(req.url).searchParams.get('ref')
+  const sp = new URL(req.url).searchParams
+  const ref = sp.get('ref')
+  const ch = sp.get('c')
+  const qs = new URLSearchParams()
+  if (ref) qs.set('ref', ref)
+  if (ch) qs.set('c', ch)
   const target =
     `${SITE_URL}/creator/${encodeURIComponent(handle)}` +
-    (ref ? `?ref=${encodeURIComponent(ref)}` : '')
+    (qs.toString() ? `?${qs.toString()}` : '')
 
   const png = await QRCode.toBuffer(target, {
     type: 'png',

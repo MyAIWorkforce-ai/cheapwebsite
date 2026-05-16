@@ -37,9 +37,9 @@ export default function ProfileShareKit({
   const clean = handle.replace(/^@/, '')
   const base =
     typeof window !== 'undefined' ? window.location.origin : 'https://skillzy.ai'
-  const ref = `?ref=${encodeURIComponent(clean)}`
-  const link = `${base}/creator/${clean}${ref}`
-  const qrSrc = `/creator/${clean}/qr${ref}`
+  const refQ = `?ref=${encodeURIComponent(clean)}&c=profile`
+  const link = `${base}/creator/${clean}${refQ}`
+  const qrSrc = `/creator/${clean}/qr${refQ}`
 
   const promo = `All my AI agent skills, in one place on Skillzy. Drop-in, no setup tutorials. ${link}`
 

@@ -42,6 +42,17 @@ type SellerStats = {
   monthRevenueByListing: Record<string, number> // cents
   referredSales: number
   referredPayout: number   // cents
+  byChannel: Record<string, number>
+}
+
+const CHANNEL_LABEL: Record<string, string> = {
+  qr: 'QR code',
+  social: 'Social post',
+  post: 'LinkedIn/email',
+  profile: 'Profile link',
+  print: 'Print/poster',
+  link: 'Direct link',
+  other: 'Other',
 }
 
 const TYPE_LABEL: Record<SellerListing['type'], string> = {
@@ -166,6 +177,7 @@ async function loadSeller(userId: string): Promise<{
         monthRevenueByListing: {},
         referredSales: 0,
         referredPayout: 0,
+        byChannel: {},
       },
     }
   }
@@ -175,7 +187,7 @@ async function loadSeller(userId: string): Promise<{
 
   const { data: salesData } = await supabase
     .from('purchases')
-    .select('listing_id, creator_payout_cents, status, created_at, referrer_slug')
+    .select('listing_id, creator_payout_cents, status, created_at, referrer_slug, referrer_channel')
     .in('listing_id', listingIds)
     .eq('status', 'paid')
 
@@ -185,6 +197,7 @@ async function loadSeller(userId: string): Promise<{
   let referredPayout = 0
   const monthSalesByListing: Record<string, number> = {}
   const monthRevenueByListing: Record<string, number> = {}
+  const byChannel: Record<string, number> = {}
 
   for (const row of salesData ?? []) {
     totalEarnings += row.creator_payout_cents ?? 0
@@ -192,6 +205,8 @@ async function loadSeller(userId: string): Promise<{
     if (row.referrer_slug) {
       referredSales += 1
       referredPayout += row.creator_payout_cents ?? 0
+      const ch = (row.referrer_channel as string | null) || 'other'
+      byChannel[ch] = (byChannel[ch] ?? 0) + 1
     }
     if (new Date(row.created_at) >= since) {
       monthSalesByListing[row.listing_id] = (monthSalesByListing[row.listing_id] ?? 0) + 1
@@ -209,6 +224,7 @@ async function loadSeller(userId: string): Promise<{
       monthRevenueByListing,
       referredSales,
       referredPayout,
+      byChannel,
     },
   }
 }
@@ -252,7 +268,7 @@ export default async function DashboardPage({
 
   const [purchases, sellerData] = user
     ? await Promise.all([loadBuyer(user.id), loadSeller(user.id)])
-    : [[], { listings: [], stats: { totalEarnings: 0, totalSales: 0, monthSalesByListing: {}, monthRevenueByListing: {}, referredSales: 0, referredPayout: 0 } }]
+    : [[], { listings: [], stats: { totalEarnings: 0, totalSales: 0, monthSalesByListing: {}, monthRevenueByListing: {}, referredSales: 0, referredPayout: 0, byChannel: {} } }]
 
   const displayName = user?.name ?? user?.email?.split('@')[0] ?? 'there'
 
@@ -538,9 +554,29 @@ function SellingView({
               </p>
             </div>
           </div>
+          {Object.keys(stats.byChannel).length > 0 && (
+            <div className="mt-5">
+              <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+                Which channel converts
+              </span>
+              <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1.5 text-sm">
+                {Object.entries(stats.byChannel)
+                  .sort((a, b) => b[1] - a[1])
+                  .map(([ch, n]) => (
+                    <span key={ch} className="text-brand-ink">
+                      <span className="font-display text-lg">{n}</span>{' '}
+                      <span className="text-brand-muted">
+                        {CHANNEL_LABEL[ch] ?? ch}
+                      </span>
+                    </span>
+                  ))}
+              </div>
+            </div>
+          )}
           <p className="mt-4 text-sm text-brand-muted">
             Share any listing&rsquo;s link or QR (Edit → Share) to drive your
-            own traffic. Sales through it are tracked here.
+            own traffic. Each surface is tagged, so you can see exactly which
+            one converts.
           </p>
         </div>
 

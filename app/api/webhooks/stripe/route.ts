@@ -85,6 +85,8 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
           stripe_payment_intent_id: (session.payment_intent as string) ?? null,
           referrer_slug:
             (session.metadata?.referrer_slug as string | undefined) || null,
+          referrer_channel:
+            (session.metadata?.referrer_channel as string | undefined) || null,
           status: 'paid',
         },
         { onConflict: 'stripe_checkout_session_id' },

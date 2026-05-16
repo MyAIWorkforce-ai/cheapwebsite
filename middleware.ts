@@ -32,6 +32,17 @@ export async function middleware(request: NextRequest) {
     })
   }
 
+  // Channel tag (?c=qr|social|post|profile|print|link) so creators
+  // can see which surface actually converts.
+  const ch = url.searchParams.get('c')
+  if (ch) {
+    res.cookies.set('skz_ch', ch.slice(0, 16), {
+      maxAge: 60 * 60 * 24 * 30,
+      path: '/',
+      sameSite: 'lax',
+    })
+  }
+
   return res
 }
 

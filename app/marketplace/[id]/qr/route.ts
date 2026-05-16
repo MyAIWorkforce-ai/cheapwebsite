@@ -18,10 +18,15 @@ export async function GET(
   const p = getProduct(params.id)
   if (!p) return new Response('Not found', { status: 404 })
 
-  const ref = new URL(req.url).searchParams.get('ref')
+  const sp = new URL(req.url).searchParams
+  const ref = sp.get('ref')
+  const ch = sp.get('c')
+  const qs = new URLSearchParams()
+  if (ref) qs.set('ref', ref)
+  if (ch) qs.set('c', ch)
   const target =
     `${SITE_URL}/marketplace/${p.id}` +
-    (ref ? `?ref=${encodeURIComponent(ref)}` : '')
+    (qs.toString() ? `?${qs.toString()}` : '')
 
   const png = await QRCode.toBuffer(target, {
     type: 'png',

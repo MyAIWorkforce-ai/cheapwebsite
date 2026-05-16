@@ -21,12 +21,29 @@ export default function ShareListing({
 
   const base =
     typeof window !== 'undefined' ? window.location.origin : 'https://skillzy.ai'
-  const ref = refHandle ? `?ref=${encodeURIComponent(refHandle)}` : ''
-  const link = `${base}/marketplace/${slug}${ref}`
-  const qrSrc = `/marketplace/${slug}/qr${ref}`
 
-  const shortPromo = `Just listed "${title}" on Skillzy — ${tagline} Drop it into your agent: ${link}`
-  const longPromo = `I put "${title}" on Skillzy.\n\n${tagline}\n\nIt's a drop-in agent skill — no setup tutorial, no DIY. Paste it into Claude / OpenClaw / n8n and it just works.\n\nGrab it here: ${link}`
+  // Per-surface tagged links — ?ref attributes to the creator, ?c
+  // tells them which channel actually converted.
+  function mk(channel: string) {
+    const qs = new URLSearchParams()
+    if (refHandle) qs.set('ref', refHandle.replace(/^@/, ''))
+    qs.set('c', channel)
+    return `${base}/marketplace/${slug}?${qs.toString()}`
+  }
+  const refQ = (channel: string) => {
+    const qs = new URLSearchParams()
+    if (refHandle) qs.set('ref', refHandle.replace(/^@/, ''))
+    qs.set('c', channel)
+    return `?${qs.toString()}`
+  }
+
+  const link = mk('link')
+  const qrSrc = `/marketplace/${slug}/qr${refQ('qr')}`
+  const shortLink = mk('social')
+  const longLink = mk('post')
+
+  const shortPromo = `Just listed "${title}" on Skillzy — ${tagline} Drop it into your agent: ${shortLink}`
+  const longPromo = `I put "${title}" on Skillzy.\n\n${tagline}\n\nIt's a drop-in agent skill — no setup tutorial, no DIY. Paste it into Claude / OpenClaw / n8n and it just works.\n\nGrab it here: ${longLink}`
 
   async function copy(text: string, key: string) {
     try {

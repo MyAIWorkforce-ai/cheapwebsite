@@ -142,5 +142,5 @@ export async function publishListing(
     }
   }
 
-  redirect('/dashboard?view=selling&submitted=1')
+  redirect(`/sell/new/done?slug=${encodeURIComponent(slug)}`)
 }
