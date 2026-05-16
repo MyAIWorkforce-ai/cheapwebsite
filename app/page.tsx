@@ -371,7 +371,7 @@ export default function HomePage() {
               const isCatchAll = n === 'Anything else'
               const href = isCatchAll
                 ? '/marketplace'
-                : `/marketplace?niche=${encodeURIComponent(n.toLowerCase().replace(/\s+/g, '-'))}`
+                : `/for/${n.toLowerCase().replace(/\s+/g, '-')}`
               return (
                 <Link
                   key={n}

@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { products, allCreatorHandles } from '@/lib/catalog'
+import { getAllNiches, getAllPlatforms, COMBO_PAGES } from '@/lib/content'
 import { SITE_URL } from '@/lib/seo'
 
 // Canonical host is the apex (https://skillzy.ai), matching every
@@ -34,5 +35,33 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified,
   }))
 
-  return [...staticRoutes, ...listingRoutes, ...creatorRoutes]
+  const nicheRoutes: MetadataRoute.Sitemap = getAllNiches().map((n) => ({
+    url: `${base}/for/${n.slug}`,
+    changeFrequency: 'weekly',
+    priority: 0.8,
+    lastModified,
+  }))
+
+  const platformRoutes: MetadataRoute.Sitemap = getAllPlatforms().map((p) => ({
+    url: `${base}/platforms/${p.slug}`,
+    changeFrequency: 'weekly',
+    priority: 0.7,
+    lastModified,
+  }))
+
+  const comboRoutes: MetadataRoute.Sitemap = COMBO_PAGES.map((c) => ({
+    url: `${base}/for/${c.niche}/${c.platform}`,
+    changeFrequency: 'weekly',
+    priority: 0.6,
+    lastModified,
+  }))
+
+  return [
+    ...staticRoutes,
+    ...listingRoutes,
+    ...creatorRoutes,
+    ...nicheRoutes,
+    ...platformRoutes,
+    ...comboRoutes,
+  ]
 }
