@@ -534,6 +534,24 @@ export default function NewListingForm({
                 />
               </label>
             </div>
+
+            <label className="block">
+              <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+                Walkthrough video — optional
+              </span>
+              <input
+                type="url"
+                name="video_url"
+                inputMode="url"
+                placeholder="Loom, YouTube, or Vimeo link"
+                className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg placeholder:text-brand-muted/60"
+              />
+              <span className="mt-2 block text-xs text-brand-muted">
+                Paste a link — we embed it, never host it. A 60-second
+                “here’s it running” clip is the single biggest thing you
+                can add to convert a browser into a buyer.
+              </span>
+            </label>
           </div>
 
           <aside className="lg:col-span-4">

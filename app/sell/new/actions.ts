@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { hasSupabase } from '@/lib/env'
+import { normalizeVideoUrl } from '@/lib/video'
 
 export type PublishState = {
   error?: string
@@ -44,6 +45,10 @@ export async function publishListing(
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean)
+  // Walkthrough video: we store the link only (never the file). Reject
+  // anything not on the embed host allowlist instead of silently saving
+  // a dead/unsafe URL.
+  const videoUrl = normalizeVideoUrl(String(formData.get('video_url') ?? ''))
 
   // Optional AI-drafted extras (hidden inputs on the form).
   let description: string[] = []
@@ -76,6 +81,13 @@ export async function publishListing(
   if (!title) return { error: 'Title is required.' }
   if (!tagline) return { error: 'Tagline is required.' }
   if (!Number.isFinite(price) || price <= 0) return { error: 'Set a price.' }
+  const rawVideo = String(formData.get('video_url') ?? '').trim()
+  if (rawVideo && !videoUrl) {
+    return {
+      error:
+        'That video link isn’t supported. Use a Loom, YouTube, or Vimeo URL — or leave it blank.',
+    }
+  }
 
   if (!hasSupabase) {
     return {
@@ -107,6 +119,7 @@ export async function publishListing(
       platform_list: platforms,
       description,
       what_you_get: whatYouGet,
+      video_url: videoUrl,
     })
     .select('id')
     .single()

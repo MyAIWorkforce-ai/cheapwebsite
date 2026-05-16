@@ -7,6 +7,7 @@ import EmailGate from '@/components/EmailGate'
 import StructuredData from '@/components/StructuredData'
 import { pageMetadata } from '@/lib/seo'
 import { productLd, breadcrumbLd, faqLd } from '@/lib/jsonld'
+import { videoEmbedUrl } from '@/lib/video'
 
 export function generateStaticParams() {
   return products.map((p) => ({ id: p.id }))
@@ -78,6 +79,8 @@ export default function ProductDetailPage({
 
   const filterLabel =
     p.type === 'Agent Setup' ? 'Agent Setups' : p.type === 'Skill' ? 'Skills' : 'Guides'
+
+  const videoEmbed = p.videoUrl ? videoEmbedUrl(p.videoUrl) : null
 
   return (
     <div className="paper">
@@ -261,6 +264,37 @@ export default function ProductDetailPage({
           </div>
         </div>
       </section>
+
+      {/* WALKTHROUGH VIDEO — creator-linked, never hosted by us */}
+      {videoEmbed && (
+        <section className="px-6 lg:px-10 py-16 sm:py-24 border-t border-brand-hairline bg-brand-navy-deep text-brand-cream">
+          <div className="max-w-page mx-auto">
+            <div className="flex items-end justify-between gap-6 flex-wrap mb-8 sm:mb-10">
+              <h2
+                className="font-display text-4xl sm:text-6xl tracking-tight"
+                style={{ letterSpacing: '-0.03em' }}
+              >
+                Watch it{' '}
+                <em className="italic text-brand-gold-soft font-medium">work.</em>
+              </h2>
+              <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-cream/70">
+                {p.creator.name}’s walkthrough
+              </span>
+            </div>
+            <div className="relative aspect-video border border-brand-cream/15 bg-black">
+              <iframe
+                src={videoEmbed}
+                title={`${p.title} — walkthrough by ${p.creator.name}`}
+                loading="lazy"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                allowFullScreen
+                className="absolute inset-0 h-full w-full"
+              />
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* WHAT'S INSIDE */}
       <section className="px-6 lg:px-10 py-16 sm:py-24 border-t border-brand-hairline">
