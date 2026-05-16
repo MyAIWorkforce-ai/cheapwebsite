@@ -6,7 +6,10 @@
  * description the creator can edit.
  *
  * POST /api/listings/draft
- *   body: { brief: string, type: 'skill'|'guide'|'agent_setup' }
+ *   body: { brief?: string, type: 'skill'|'guide'|'agent_setup',
+ *           pdfBase64?: string, pdfName?: string }
+ *   Claude reads a dropped PDF natively (document block); a text
+ *   brief works too. At least one must be present.
  *   200 -> { title, tagline, niche, platforms[], description[], whatYouGet[] }
  *
  * Demo mode (no ANTHROPIC_API_KEY): returns a deterministic stub so
@@ -71,19 +74,45 @@ function demoDraft(brief: string, type: string): DraftResult {
 }
 
 export async function POST(req: Request) {
-  const { brief, type } = await req.json().catch(() => ({}))
+  const { brief, type, pdfBase64, pdfName } = await req
+    .json()
+    .catch(() => ({}))
   const briefStr = String(brief ?? '').trim()
   const typeStr = String(type ?? 'skill') as 'skill' | 'guide' | 'agent_setup'
+  const pdf = typeof pdfBase64 === 'string' ? pdfBase64.trim() : ''
+  const pdfLabel = String(pdfName ?? 'the attached document').trim()
 
-  if (!briefStr) {
-    return NextResponse.json({ error: 'Brief is required.' }, { status: 400 })
+  if (!briefStr && !pdf) {
+    return NextResponse.json(
+      { error: 'Add a brief or drop a file first.' },
+      { status: 400 },
+    )
   }
 
   if (!hasAnthropic) {
-    return NextResponse.json(demoDraft(briefStr, typeStr))
+    // Seed the stub from whatever we have so the form still fills in.
+    return NextResponse.json(demoDraft(briefStr || pdfLabel, typeStr))
   }
 
-  const userPrompt = `Product type: ${typeStr}\n\nCreator brief:\n${briefStr}\n\nWrite the listing.`
+  const instruction = pdf
+    ? `Product type: ${typeStr}\n\nThe creator dropped a document ("${pdfLabel}"). Read it in full and write the listing from what it actually describes.${
+        briefStr ? `\n\nThey also added: ${briefStr}` : ''
+      }\n\nWrite the listing.`
+    : `Product type: ${typeStr}\n\nCreator brief:\n${briefStr}\n\nWrite the listing.`
+
+  const userContent = pdf
+    ? [
+        {
+          type: 'document',
+          source: {
+            type: 'base64',
+            media_type: 'application/pdf',
+            data: pdf,
+          },
+        },
+        { type: 'text', text: instruction },
+      ]
+    : instruction
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -97,7 +126,7 @@ export async function POST(req: Request) {
         model: env.anthropic.model,
         max_tokens: 1024,
         system: SYSTEM,
-        messages: [{ role: 'user', content: userPrompt }],
+        messages: [{ role: 'user', content: userContent }],
       }),
     })
 

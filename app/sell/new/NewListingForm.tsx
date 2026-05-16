@@ -140,14 +140,31 @@ export default function NewListingForm({
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const TEXT_EXT = /\.(md|markdown|yaml|yml|json|txt|prompt)$/i
 
+  // ~4MB once base64-encoded, under Vercel's 4.5MB request-body cap.
+  const PDF_AUTOREAD_MAX = 3_000_000
+
+  function readAsBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader()
+      r.onload = () => {
+        const res = String(r.result ?? '')
+        const i = res.indexOf(',')
+        resolve(i >= 0 ? res.slice(i + 1) : res)
+      }
+      r.onerror = () => reject(new Error('Could not read that file.'))
+      r.readAsDataURL(file)
+    })
+  }
+
   async function onFilesPicked(picked: FileList | null) {
     if (!picked || picked.length === 0) return
     const arr = Array.from(picked)
     setFiles(arr)
+    setDraftError(null)
 
-    // Read text from any plain-text files and pre-fill the AI brief.
     setExtracting(true)
     try {
+      // 1. Plain-text files → merged brief.
       const reads = arr
         .filter((f) => TEXT_EXT.test(f.name) && f.size < 200_000)
         .map(
@@ -159,14 +176,33 @@ export default function NewListingForm({
               r.readAsText(f)
             }),
         )
-      if (reads.length > 0) {
-        const texts = await Promise.all(reads)
-        const merged = texts.filter(Boolean).join('\n\n')
-        setBrief(merged)
-        // Drop it in → AI reads, names, and explains it automatically.
-        // The creator just edits or submits.
-        void draft(merged)
+      const texts = reads.length > 0 ? await Promise.all(reads) : []
+      const merged = texts.filter(Boolean).join('\n\n')
+      if (merged) setBrief(merged)
+
+      // 2. First PDF → Claude reads it natively (no client-side parser).
+      const pdfFile = arr.find((f) => /\.pdf$/i.test(f.name))
+      let pdfPayload: { data: string; name: string } | undefined
+      if (pdfFile) {
+        if (pdfFile.size > PDF_AUTOREAD_MAX) {
+          setDraftError(
+            `${pdfFile.name} uploads fine, but it’s too large to auto-read. Paste its key text below and tap “Draft with AI”.`,
+          )
+        } else {
+          pdfPayload = {
+            data: await readAsBase64(pdfFile),
+            name: pdfFile.name,
+          }
+        }
       }
+
+      // Drop it in → AI reads, names, and explains it automatically.
+      // The creator just edits or submits.
+      if (merged || pdfPayload) {
+        void draft(merged, pdfPayload)
+      }
+    } catch (err) {
+      setDraftError((err as Error).message)
     } finally {
       setExtracting(false)
     }
@@ -218,10 +254,13 @@ export default function NewListingForm({
     setListening(true)
   }
 
-  async function draft(briefOverride?: string) {
+  async function draft(
+    briefOverride?: string,
+    pdf?: { data: string; name: string },
+  ) {
     const text = (briefOverride ?? brief).trim()
-    if (!text) {
-      setDraftError('Tell the AI what you built first.')
+    if (!text && !pdf) {
+      setDraftError('Tell the AI what you built, or drop a file.')
       return
     }
     setDrafting(true)
@@ -230,7 +269,12 @@ export default function NewListingForm({
       const res = await fetch('/api/listings/draft', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ brief: text, type }),
+        body: JSON.stringify({
+          brief: text,
+          type,
+          pdfBase64: pdf?.data,
+          pdfName: pdf?.name,
+        }),
       })
       const json: DraftResponse & { error?: string } = await res.json()
       if (!res.ok) {
@@ -329,7 +373,7 @@ export default function NewListingForm({
             </p>
             <p className="mt-2 text-sm text-brand-muted">
               .md · .yaml · .json · .txt · .zip · .pdf — up to 50&nbsp;MB each.
-              Text files are extracted so the AI can draft your listing.
+              Text files and PDFs are read by the AI to draft your listing.
             </p>
             <input
               ref={fileInputRef}
