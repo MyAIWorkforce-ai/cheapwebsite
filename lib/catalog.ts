@@ -31,6 +31,7 @@ export type Product = {
   tagline: string
   niche?: string
   featured?: boolean
+  free?: boolean
   creator: Creator
   platformList: string[]
   rating: number
@@ -995,6 +996,7 @@ export type CardProduct = {
   rating: number
   ratingCount: number
   featured?: boolean
+  free?: boolean
   price: string
 }
 
@@ -1009,5 +1011,6 @@ export function toCardProduct(p: Product): CardProduct {
     ratingCount: p.ratingCount,
     price: p.price,
     featured: p.featured,
+    free: p.free,
   }
 }

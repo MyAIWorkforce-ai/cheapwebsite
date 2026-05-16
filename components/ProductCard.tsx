@@ -12,6 +12,7 @@ export type Product = {
   ratingCount?: number
   price: string
   featured?: boolean
+  free?: boolean
   number?: string // editorial №01, etc.
 }
 
@@ -47,6 +48,7 @@ export default function ProductCard({
               (emerald ? 'text-brand-gold' : 'text-brand-gold')
             }
           >
+            {product.free && 'Free · '}
             {product.featured && '✿ Featured · '}
             {typeAbbrev[product.type]}
             {product.number ? ` · ${product.number}` : ''}

@@ -45,6 +45,7 @@ type Spec = {
   ratingCount: number
   description: string[]
   whatYouGet: string[]
+  free?: boolean
 }
 
 const SPECS: Spec[] = [
@@ -112,6 +113,13 @@ const SPECS: Spec[] = [
   // Guides (cross-niche)
   { id: 'guide-first-agent-20-min', type: 'Guide', title: 'Your first agent in 20 minutes.', tagline: 'Non-developer? Wire Claude into your work in one sitting.', niche: 'Education', creator: C.chalkline, platforms: ['Claude', 'OpenClaw'], price: '$12', rating: 4.8, ratingCount: 64, description: ['A no-jargon walkthrough from zero to a working agent doing one real task in your business.'], whatYouGet: ['28-page PDF', 'Copy-paste starter SKILL.md', 'Three worked examples'] },
   { id: 'guide-pricing-your-skill', type: 'Guide', title: 'Pricing your skill, right.', tagline: 'What to charge so it sells and you’re not leaving money on the table.', niche: 'Consultants', creator: C.northbound, platforms: ['Claude'], price: '$14', rating: 4.6, ratingCount: 30, description: ['The pricing logic behind listings that actually convert on Skillzy. Real numbers, real reasoning.'], whatYouGet: ['18-page PDF', 'Pricing worksheet', 'Three teardowns'] },
+
+  // ===== FREE — top of funnel (email-gated) =====
+  { id: 'free-daily-standup', type: 'Skill', title: 'Daily standup summary.', tagline: 'Bullet points in, a Slack-ready standup out. Free.', niche: 'Agencies', creator: C.northbound, platforms: ['Claude', 'OpenClaw'], price: 'Free', rating: 4.7, ratingCount: 120, free: true, description: ['A free taste of what a good skill feels like: paste your rough notes, get a clean standup your team will actually read.'], whatYouGet: ['1 SKILL.md', 'Slack-format output', 'Tone config'] },
+  { id: 'free-invoice-parser', type: 'Skill', title: 'Invoice line-item parser.', tagline: 'Messy invoice text in. Structured line items out. Free.', niche: 'Bookkeepers', creator: C.benchnote, platforms: ['Claude', 'n8n'], price: 'Free', rating: 4.6, ratingCount: 98, free: true, description: ['Free, useful, and a fair preview of the paid bookkeeping skills. Extracts structured data from invoice text.'], whatYouGet: ['1 SKILL.md', 'Output schema', 'Worked examples'] },
+  { id: 'free-review-responder-starter', type: 'Skill', title: 'Review responder — starter.', tagline: 'A stripped-down review responder. Free to try.', niche: 'E-commerce', creator: C.brewline, platforms: ['Claude'], price: 'Free', rating: 4.5, ratingCount: 76, free: true, description: ['The free starter version of the paid Review Responder. One tone, one channel, genuinely useful.'], whatYouGet: ['1 SKILL.md', 'Brand-voice config', 'Examples'] },
+  { id: 'free-first-agent-guide', type: 'Guide', title: 'Your first AI agent in 20 minutes.', tagline: 'Non-dev walkthrough: wire Claude into Telegram. Free.', niche: 'Education', creator: C.chalkline, platforms: ['Claude'], price: 'Free', rating: 4.8, ratingCount: 210, free: true, description: ['A free, no-jargon walkthrough that gets a non-developer from zero to a working agent in one sitting.'], whatYouGet: ['Step-by-step guide', 'Copy-paste starter', 'Troubleshooting notes'] },
+  { id: 'free-skillmd-cheatsheet', type: 'Guide', title: 'The SKILL.md cheat sheet.', tagline: 'One page. Every field. Free reference.', niche: 'Education', creator: C.chalkline, platforms: ['Claude', 'OpenClaw'], price: 'Free', rating: 4.7, ratingCount: 156, free: true, description: ['A single-page reference for the SKILL.md format. Print it, pin it, ship faster.'], whatYouGet: ['1-page PDF', 'Field-by-field reference', 'Common mistakes'] },
 ]
 
 // ---- builder --------------------------------------------------------
@@ -163,6 +171,7 @@ export const seedProducts: Product[] = SPECS.map((s) => ({
   title: s.title,
   tagline: s.tagline,
   niche: s.niche,
+  free: s.free,
   creator: s.creator,
   platformList: s.platforms,
   rating: s.rating,

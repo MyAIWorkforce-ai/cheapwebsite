@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { getProduct, getRelated, products, toCardProduct } from '@/lib/catalog'
 import ProductCard from '@/components/ProductCard'
 import GuaranteeBadge from '@/components/GuaranteeBadge'
+import EmailGate from '@/components/EmailGate'
 import StructuredData from '@/components/StructuredData'
 import { pageMetadata } from '@/lib/seo'
 import { productLd, breadcrumbLd, faqLd } from '@/lib/jsonld'
@@ -181,16 +182,22 @@ export default function ProductDetailPage({
                 {p.price}
               </p>
               <p className="text-sm text-brand-muted mt-2">
-                One-time. {isSetup ? 'Re-installable forever.' : 'Re-download forever.'}
+                {p.free
+                  ? 'Free. Yours forever. Re-download any time.'
+                  : `One-time. ${isSetup ? 'Re-installable forever.' : 'Re-download forever.'}`}
               </p>
 
-              <Link
-                href={`/checkout/${p.id}`}
-                className="mt-7 w-full inline-flex items-center justify-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
-              >
-                {headlineCta}
-                <span aria-hidden>→</span>
-              </Link>
+              {p.free ? (
+                <EmailGate listingId={p.id} ctaLabel={headlineCta} />
+              ) : (
+                <Link
+                  href={`/checkout/${p.id}`}
+                  className="mt-7 w-full inline-flex items-center justify-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
+                >
+                  {headlineCta}
+                  <span aria-hidden>→</span>
+                </Link>
+              )}
 
               <ul className="mt-6 space-y-2.5 text-sm text-brand-ink">
                 <li className="flex items-start gap-2">
@@ -493,10 +500,10 @@ export default function ProductDetailPage({
             Report this listing
           </a>
           <Link
-            href={`/checkout/${p.id}`}
+            href={p.free ? '#top' : `/checkout/${p.id}`}
             className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-3.5 text-[15px] hover:bg-brand-gold-dark transition-colors"
           >
-            {headlineCta} — {p.price}
+            {headlineCta} — {p.free ? 'Free' : p.price}
             <span aria-hidden>→</span>
           </Link>
         </div>
