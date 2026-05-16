@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getAllPosts, getPost, readingMinutes } from '@/lib/blog'
 import { getProduct } from '@/lib/catalog'
+import { getNiche, getPlatform, nicheSlug } from '@/lib/content'
 import StructuredData from '@/components/StructuredData'
 import NewsletterForm from '@/components/NewsletterForm'
 import { pageMetadata, SITE_URL } from '@/lib/seo'
@@ -52,7 +53,38 @@ export default function BlogPost({ params }: { params: { slug: string } }) {
   const post = getPost(params.slug)
   if (!post) notFound()
 
-  const related = getAllPosts().filter((p) => p.slug !== post.slug).slice(0, 3)
+  // Topical first: posts sharing a tag, then recent ones to fill 3.
+  const others = getAllPosts().filter((p) => p.slug !== post.slug)
+  const sameTag = others.filter((p) =>
+    p.tags.some((t) => post.tags.includes(t)),
+  )
+  const related = [
+    ...sameTag,
+    ...others.filter((p) => !sameTag.some((s) => s.slug === p.slug)),
+  ].slice(0, 3)
+
+  // Close the cluster loop: link the post out to the niche/platform
+  // landing pages of the listings it features.
+  const linkedProducts = post.relatedListings
+    .map((id) => getProduct(id))
+    .filter((x): x is NonNullable<typeof x> => Boolean(x))
+  const nicheLinks = Array.from(
+    new Map(
+      linkedProducts
+        .map((p) => (p.niche ? getNiche(nicheSlug(p.niche)) : undefined))
+        .filter((x): x is NonNullable<typeof x> => Boolean(x))
+        .map((n) => [n.slug, n] as const),
+    ).values(),
+  ).slice(0, 3)
+  const platformLinks = Array.from(
+    new Map(
+      linkedProducts
+        .flatMap((p) => p.platformList)
+        .map((x) => getPlatform(x.toLowerCase()))
+        .filter((x): x is NonNullable<typeof x> => Boolean(x))
+        .map((pl) => [pl.slug, pl] as const),
+    ).values(),
+  ).slice(0, 4)
 
   const articleLd = {
     '@context': 'https://schema.org',
@@ -183,6 +215,36 @@ export default function BlogPost({ params }: { params: { slug: string } }) {
           </div>
         </div>
       </div>
+
+      {(nicheLinks.length > 0 || platformLinks.length > 0) && (
+        <section className="px-6 lg:px-10 py-12 border-t border-brand-hairline">
+          <div className="max-w-page mx-auto">
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
+              Browse the catalogue
+            </span>
+            <div className="mt-5 flex flex-wrap gap-3">
+              {nicheLinks.map((n) => (
+                <Link
+                  key={`n-${n.slug}`}
+                  href={`/for/${n.slug}`}
+                  className="inline-flex items-center border border-brand-ink px-4 py-2 text-sm hover:bg-brand-navy hover:text-brand-cream hover:border-brand-navy transition-colors"
+                >
+                  AI agents for {n.name}
+                </Link>
+              ))}
+              {platformLinks.map((pl) => (
+                <Link
+                  key={`p-${pl.slug}`}
+                  href={`/platforms/${pl.slug}`}
+                  className="inline-flex items-center border border-brand-ink px-4 py-2 text-sm hover:bg-brand-navy hover:text-brand-cream hover:border-brand-navy transition-colors"
+                >
+                  Skills for {pl.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {related.length > 0 && (
         <section className="px-6 lg:px-10 py-14 border-t border-brand-hairline">
