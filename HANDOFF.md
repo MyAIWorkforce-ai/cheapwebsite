@@ -20,28 +20,41 @@ Branch: `claude/build-skillzy-website-MIbCF`
 
 ## Go-live runbook (Vercel + Stripe logins — no Monty needed)
 
-### Step 1 — Point skillzy.ai at this branch — ✅ CONFIRMED DONE
+### Step 1 — How skillzy.ai is wired — ✅ VERIFIED 2026-05-18
 
-Verified 2026-05-17: pushes to `claude/build-skillzy-website-MIbCF`
-auto-deploy to skillzy.ai (the live site shows the latest content,
-including the content-machine listing added that day). The production
-branch is correctly pointed at this branch and no Vercel Deployment
-Protection is blocking the public site. **No action needed here.**
+Vercel project: **`cheapwebsite-preview`** (repo
+`MyAIWorkforce-ai/cheapwebsite`). Domains tab shows:
 
-### Step 2 — Stripe keys, TEST first (Stripe + Vercel, ~5 min)
+- **`skillzy.ai`** (apex, the address buyers use) → pinned directly to
+  branch **`claude/build-skillzy-website-MIbCF`**, blue tick / working.
+  This deploys as a **Preview** deployment, NOT Production. Every push
+  to that branch rebuilds it. This is why the live site already shows
+  the checkout fix + latest content.
+- `www.skillzy.ai` → assigned to Production (`main`), **"Verification
+  Needed"** — not working. Minor follow-up (see Optional). Apex works.
+- The project's Production branch is `main`, which does NOT have the
+  checkout fix — irrelevant while skillzy.ai is pinned to the branch.
 
-1. stripe.com → log into the shared account → turn **Test mode ON**
-   (top toggle).
-2. Developers → API keys → copy the **Secret key** (`sk_test_…`) and
-   **Publishable key** (`pk_test_…`).
-3. Vercel → Skillzy project → Settings → Environment Variables, add for
-   **Production** (paste keys directly — never share them in chat/email):
-   - `STRIPE_SECRET_KEY` = `sk_test_…`
-   - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` = `pk_test_…`
-   - `NEXT_PUBLIC_SITE_URL` = `https://skillzy.ai` (if not already set)
-4. Redeploy (env changes need a redeploy).
-5. Confirm `RESEND_API_KEY` and the Supabase vars already exist in this
-   project (needed for the confirmation email + recording the sale).
+Implication: env vars must be scoped to **Preview** (or all), because
+skillzy.ai runs as a Preview deployment. They are ("Production and
+Preview"). **No action needed here.**
+
+### Step 2 — Stripe keys, TEST first — ✅ DONE 2026-05-18
+
+All required env vars already existed in the project, scoped
+"Production and Preview" (correct for the branch-pinned domain).
+`RESEND_API_KEY`, `EMAIL_FROM`, Supabase vars all present.
+
+Discovered the values in `STRIPE_SECRET_KEY` /
+`NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` were **live** keys (so the earlier
+bad purchase ran on real money). Swapped both to the shared account's
+**test** keys (`sk_test_…` / `pk_test_…`) for the safe test run.
+`NEXT_PUBLIC_SITE_URL` verified `https://skillzy.ai`.
+
+`NEXT_PUBLIC_*` vars bake in at build time — a fresh build of the
+branch is required after any key change (a normal cached "Redeploy"
+will keep the old publishable key). Pushing any commit to the branch
+triggers that fresh build.
 
 ### Step 3 — Test purchase
 
