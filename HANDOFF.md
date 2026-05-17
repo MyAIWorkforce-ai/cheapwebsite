@@ -18,21 +18,52 @@ Branch: `claude/build-skillzy-website-MIbCF`
   optional safety net if an endpoint is ever configured.
 - Build passes. One shared Stripe account; My AI Workforce untouched.
 
-## Outstanding — infra (NOT code; needs Vercel + Stripe logins)
+## Go-live runbook (Vercel + Stripe logins — no Monty needed)
 
-These do not require Monty specifically — anyone with the logins can
-do them in ~10 min. There are only TWO:
+### Step 1 — Point skillzy.ai at this branch (Vercel, ~3 min)
 
-1. **Deployment** — confirm skillzy.ai is served by the Vercel project
-   that builds branch `claude/build-skillzy-website-MIbCF`.
-2. **Stripe keys in Skillzy's Vercel env** (from the existing/shared
-   Stripe account — Dashboard → Developers → API keys):
-   - `STRIPE_SECRET_KEY`
-   - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
-   - (`STRIPE_WEBHOOK_SECRET` is **no longer required** — leave unset.)
+1. vercel.com → log in → open the project whose **Domains** list
+   includes `skillzy.ai`.
+2. Settings → Git → confirm the repo is `MyAIWorkforce-ai/cheapwebsite`.
+3. Settings → Git → **Production Branch**: set it to
+   `claude/build-skillzy-website-MIbCF` and save.
+4. Deployments → ⋯ on the latest → **Redeploy**.
+5. Settings → Domains → confirm `skillzy.ai` shows **Valid** for this
+   project.
 
-Do NOT change account branding, disable Stripe emails, delete Payment
-Links, or create a new Stripe account.
+### Step 2 — Stripe keys, TEST first (Stripe + Vercel, ~5 min)
+
+1. stripe.com → log into the shared account → turn **Test mode ON**
+   (top toggle).
+2. Developers → API keys → copy the **Secret key** (`sk_test_…`) and
+   **Publishable key** (`pk_test_…`).
+3. Vercel → Skillzy project → Settings → Environment Variables, add for
+   **Production** (paste keys directly — never share them in chat/email):
+   - `STRIPE_SECRET_KEY` = `sk_test_…`
+   - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` = `pk_test_…`
+   - `NEXT_PUBLIC_SITE_URL` = `https://skillzy.ai` (if not already set)
+4. Redeploy (env changes need a redeploy).
+5. Confirm `RESEND_API_KEY` and the Supabase vars already exist in this
+   project (needed for the confirmation email + recording the sale).
+
+### Step 3 — Test purchase
+
+- On skillzy.ai, buy any listing with test card `4242 4242 4242 4242`,
+  any future expiry, any CVC.
+- Confirm: stay on Skillzy the whole time, **no "My AI Workforce"
+  anywhere** in checkout or the confirmation email, success page shows,
+  email arrives.
+
+### Step 4 — Flip to live
+
+- Stripe → Test mode **OFF** → API keys → reveal **live** keys
+  (`sk_live_…`, `pk_live_…`).
+- Update the same two Vercel env vars with the live keys → redeploy.
+- Do one more real purchase (small) to confirm, then refund it in Stripe.
+
+`STRIPE_WEBHOOK_SECRET` is **not required** — leave it unset. Do NOT
+change account branding, disable Stripe emails, delete Payment Links,
+or create a new Stripe account.
 
 ## Optional (later, nice-to-have)
 
