@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import { getProduct } from '@/lib/catalog'
+import { getStripe, hasStripe } from '@/lib/stripe'
+import { fulfillPaymentIntent, orderIdFromIntent } from '@/lib/fulfillment'
 
 export const metadata = {
   title: 'Plugged in',
@@ -24,14 +26,49 @@ function Sticker({
   )
 }
 
-export default function OrderSuccessPage({
+export default async function OrderSuccessPage({
   searchParams,
 }: {
-  searchParams: { id?: string; email?: string }
+  searchParams: {
+    id?: string
+    email?: string
+    payment_intent?: string
+    redirect_status?: string
+  }
 }) {
-  const p = searchParams.id ? getProduct(searchParams.id) : undefined
-  const orderId = (Math.random().toString(36).slice(2, 6) + Date.now().toString(36).slice(-4)).toUpperCase()
-  const email = searchParams.email || 'you@example.com'
+  let productId = searchParams.id
+  let email = searchParams.email
+  let orderId =
+    Math.random().toString(36).slice(2, 6) +
+    Date.now().toString(36).slice(-4)
+
+  // Stripe redirects here after payment with ?payment_intent=... — this
+  // is where we fulfil the order (record it + send the Skillzy email),
+  // so checkout works even with no webhook endpoint configured. Fully
+  // idempotent, so a webhook (if set up later) is just a safety net.
+  const piId = searchParams.payment_intent
+  if (hasStripe && piId) {
+    try {
+      const stripe = getStripe()
+      const intent = await stripe.paymentIntents.retrieve(piId)
+      if (intent.status === 'succeeded') {
+        await fulfillPaymentIntent(intent)
+        productId =
+          (intent.metadata?.listing_id as string | undefined) || productId
+        email =
+          intent.receipt_email ||
+          (intent.metadata?.buyer_email as string | undefined) ||
+          email
+        orderId = orderIdFromIntent(intent.id)
+      }
+    } catch (err) {
+      console.error('Order-success fulfilment failed', err)
+    }
+  }
+
+  const p = productId ? getProduct(productId) : undefined
+  orderId = orderId.toUpperCase()
+  email = email || 'you@example.com'
 
   return (
     <div className="paper">
