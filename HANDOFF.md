@@ -20,16 +20,13 @@ Branch: `claude/build-skillzy-website-MIbCF`
 
 ## Go-live runbook (Vercel + Stripe logins — no Monty needed)
 
-### Step 1 — Point skillzy.ai at this branch (Vercel, ~3 min)
+### Step 1 — Point skillzy.ai at this branch — ✅ CONFIRMED DONE
 
-1. vercel.com → log in → open the project whose **Domains** list
-   includes `skillzy.ai`.
-2. Settings → Git → confirm the repo is `MyAIWorkforce-ai/cheapwebsite`.
-3. Settings → Git → **Production Branch**: set it to
-   `claude/build-skillzy-website-MIbCF` and save.
-4. Deployments → ⋯ on the latest → **Redeploy**.
-5. Settings → Domains → confirm `skillzy.ai` shows **Valid** for this
-   project.
+Verified 2026-05-17: pushes to `claude/build-skillzy-website-MIbCF`
+auto-deploy to skillzy.ai (the live site shows the latest content,
+including the content-machine listing added that day). The production
+branch is correctly pointed at this branch and no Vercel Deployment
+Protection is blocking the public site. **No action needed here.**
 
 ### Step 2 — Stripe keys, TEST first (Stripe + Vercel, ~5 min)
 
