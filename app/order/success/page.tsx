@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { getProduct } from '@/lib/catalog'
 import { getStripe, hasStripe } from '@/lib/stripe'
 import { fulfillPaymentIntent, orderIdFromIntent } from '@/lib/fulfillment'
+import { listingFiles } from '@/lib/delivery'
 
 export const metadata = {
   title: 'Plugged in',
@@ -46,12 +47,14 @@ export default async function OrderSuccessPage({
   // is where we fulfil the order (record it + send the Skillzy email),
   // so checkout works even with no webhook endpoint configured. Fully
   // idempotent, so a webhook (if set up later) is just a safety net.
+  let verified = false
   const piId = searchParams.payment_intent
   if (hasStripe && piId) {
     try {
       const stripe = getStripe()
       const intent = await stripe.paymentIntents.retrieve(piId)
       if (intent.status === 'succeeded') {
+        verified = true
         await fulfillPaymentIntent(intent)
         productId =
           (intent.metadata?.listing_id as string | undefined) || productId
@@ -67,6 +70,10 @@ export default async function OrderSuccessPage({
   }
 
   const p = productId ? getProduct(productId) : undefined
+
+  // Only serve files once the payment is verified — the succeeded
+  // PaymentIntent is the buyer's proof of purchase (no login needed).
+  const files = verified && productId ? await listingFiles(productId) : []
   orderId = orderId.toUpperCase()
   email = email || 'you@example.com'
 
@@ -119,37 +126,47 @@ export default async function OrderSuccessPage({
                 <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted mb-4">
                   Download now
                 </p>
-                <ul className="space-y-3">
-                  <li className="flex items-center justify-between gap-4 border-b border-brand-hairline pb-3">
-                    <span className="font-mono text-sm">
-                      {p.id}.bundle.zip
-                    </span>
+                {files.length > 0 ? (
+                  <ul className="space-y-3">
+                    {files.map((f, i) => (
+                      <li
+                        key={f.name}
+                        className={`flex items-center justify-between gap-4 ${
+                          i < files.length - 1
+                            ? 'border-b border-brand-hairline pb-3'
+                            : ''
+                        }`}
+                      >
+                        <span className="font-mono text-sm break-all">
+                          {f.name}
+                        </span>
+                        <a
+                          href={f.url}
+                          className="font-mono text-[11px] uppercase tracking-[0.18em] border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5 whitespace-nowrap"
+                        >
+                          ↓ Download
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-brand-muted leading-relaxed">
+                    Your files are being prepared. We’ve emailed{' '}
+                    <span className="font-semibold text-brand-ink">
+                      {email}
+                    </span>{' '}
+                    — your download link works from that email and from your
+                    dashboard, and stays available for re-download. If nothing
+                    arrives within a few minutes, write to{' '}
                     <a
-                      href="#"
-                      className="font-mono text-[11px] uppercase tracking-[0.18em] border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
+                      href="mailto:hi@skillzy.ai"
+                      className="border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold"
                     >
-                      ↓ Download
+                      hi@skillzy.ai
                     </a>
-                  </li>
-                  <li className="flex items-center justify-between gap-4 border-b border-brand-hairline pb-3">
-                    <span className="font-mono text-sm">setup-guide.pdf</span>
-                    <a
-                      href="#"
-                      className="font-mono text-[11px] uppercase tracking-[0.18em] border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
-                    >
-                      ↓ Download
-                    </a>
-                  </li>
-                  <li className="flex items-center justify-between gap-4">
-                    <span className="font-mono text-sm">receipt.pdf</span>
-                    <a
-                      href="#"
-                      className="font-mono text-[11px] uppercase tracking-[0.18em] border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
-                    >
-                      ↓ Download
-                    </a>
-                  </li>
-                </ul>
+                    .
+                  </p>
+                )}
               </div>
             </div>
           )}

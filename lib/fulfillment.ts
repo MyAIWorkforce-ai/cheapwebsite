@@ -1,5 +1,5 @@
 import type Stripe from 'stripe'
-import { hasSupabase, hasResend } from '@/lib/env'
+import { env, hasSupabase, hasResend } from '@/lib/env'
 import { createServiceClient } from '@/lib/supabase/server'
 import { sendPurchaseConfirmation } from '@/lib/email/purchase-confirmation'
 import { getProduct } from '@/lib/catalog'
@@ -69,6 +69,7 @@ export async function fulfillPaymentIntent(intent: Stripe.PaymentIntent) {
         to: buyerEmail,
         product,
         orderId: orderIdFromIntent(intent.id),
+        downloadPageUrl: `${env.siteUrl}/order/success?payment_intent=${intent.id}&id=${listingId}`,
       })
     } catch (err) {
       console.error('Failed to send purchase email', err)
