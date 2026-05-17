@@ -32,6 +32,11 @@ export async function POST(request: NextRequest) {
   }
 
   switch (event.type) {
+    case 'payment_intent.succeeded': {
+      const intent = event.data.object as Stripe.PaymentIntent
+      await handlePaymentSucceeded(intent)
+      break
+    }
     case 'checkout.session.completed': {
       const session = event.data.object as Stripe.Checkout.Session
       await handleCheckoutCompleted(session)
@@ -53,6 +58,66 @@ export async function POST(request: NextRequest) {
   }
 
   return NextResponse.json({ received: true })
+}
+
+async function handlePaymentSucceeded(intent: Stripe.PaymentIntent) {
+  const listingId =
+    (intent.metadata?.listing_id as string | undefined) ?? null
+  if (!listingId) return
+
+  const product = getProduct(listingId)
+  const buyerEmail =
+    intent.receipt_email ||
+    (intent.metadata?.buyer_email as string | undefined) ||
+    ''
+  const orderId = intent.id.replace(/^pi_/, '').slice(0, 12).toUpperCase()
+
+  if (hasSupabase) {
+    try {
+      const supabase = createServiceClient()
+
+      // Webhooks can be delivered more than once — only record once.
+      const { data: existing } = await supabase
+        .from('purchases')
+        .select('id')
+        .eq('stripe_payment_intent_id', intent.id)
+        .maybeSingle()
+      if (existing) return
+
+      const amount = intent.amount_received ?? intent.amount ?? 0
+      const fee = Math.round(amount * 0.2)
+      const payout = amount - fee
+      await supabase.from('purchases').insert({
+        buyer_id: (intent.metadata?.buyer_id as string | undefined) || null,
+        buyer_email: buyerEmail,
+        listing_id: listingId,
+        amount_cents: amount,
+        currency: intent.currency ?? 'usd',
+        platform_fee_cents: fee,
+        creator_payout_cents: payout,
+        stripe_payment_intent_id: intent.id,
+        referrer_slug:
+          (intent.metadata?.referrer_slug as string | undefined) || null,
+        referrer_channel:
+          (intent.metadata?.referrer_channel as string | undefined) || null,
+        status: 'paid',
+      })
+    } catch (err) {
+      console.error('Failed to record purchase', err)
+    }
+  }
+
+  if (hasResend && buyerEmail && product) {
+    try {
+      await sendPurchaseConfirmation({
+        to: buyerEmail,
+        product,
+        orderId,
+      })
+    } catch (err) {
+      console.error('Failed to send purchase email', err)
+    }
+  }
 }
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {

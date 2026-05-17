@@ -1,7 +1,47 @@
 'use client'
 
-import { FormEvent, useState } from 'react'
+import { FormEvent, useEffect, useRef, useState } from 'react'
+import {
+  loadStripe,
+  type Stripe,
+  type StripeElements,
+  type Appearance,
+} from '@stripe/stripe-js'
 import { COUNTRIES_TOP, COUNTRIES_ALL } from '@/lib/countries'
+
+// Skillzy-branded styling for the embedded Stripe Payment Element so the
+// card form blends into our page — the buyer never leaves skillzy.ai and
+// never sees the underlying Stripe account name.
+const appearance: Appearance = {
+  theme: 'flat',
+  variables: {
+    colorPrimary: '#C19E50',
+    colorBackground: '#F2F4F8',
+    colorText: '#0F1729',
+    colorTextSecondary: '#5F6B7E',
+    colorDanger: '#b91c1c',
+    fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+    borderRadius: '0px',
+    spacingUnit: '4px',
+  },
+  rules: {
+    '.Input': {
+      border: '1px solid #CCD2DD',
+      backgroundColor: 'transparent',
+      padding: '12px',
+    },
+    '.Input:focus': {
+      border: '1px solid #C19E50',
+      boxShadow: 'none',
+    },
+    '.Label': {
+      color: '#5F6B7E',
+      fontSize: '11px',
+      textTransform: 'uppercase',
+      letterSpacing: '0.18em',
+    },
+  },
+}
 
 export default function CheckoutForm({
   listingId,
@@ -13,14 +53,106 @@ export default function CheckoutForm({
   defaultEmail?: string
 }) {
   const [email, setEmail] = useState(defaultEmail ?? '')
-  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [initializing, setInitializing] = useState(true)
+  const [paying, setPaying] = useState(false)
+  const [ready, setReady] = useState(false)
+
+  // Mock mode (no Stripe configured): keep the old redirect behaviour.
+  const [mockRedirect, setMockRedirect] = useState<string | null>(null)
+
+  const paymentElRef = useRef<HTMLDivElement>(null)
+  const stripeRef = useRef<Stripe | null>(null)
+  const elementsRef = useRef<StripeElements | null>(null)
+
+  const amountCents = Math.round(
+    Number(price.replace(/[^0-9.]/g, '')) * 100,
+  )
+
+  // Initialise the embedded Payment Element in Stripe's deferred mode —
+  // the PaymentIntent is only created at submit time (with the buyer's
+  // email), so Stripe never sends its own account-branded receipt.
+  useEffect(() => {
+    let cancelled = false
+
+    ;(async () => {
+      try {
+        const res = await fetch('/api/checkout')
+        const json = await res.json()
+        if (cancelled) return
+
+        if (json.mock) {
+          setMockRedirect(`/order/success?id=${listingId}`)
+          setInitializing(false)
+          return
+        }
+
+        if (!json.publishableKey) {
+          throw new Error('Payments are not fully configured.')
+        }
+
+        const stripe = await loadStripe(json.publishableKey as string)
+        if (cancelled) return
+        if (!stripe) throw new Error('Could not load the payment form.')
+
+        const elements = stripe.elements({
+          mode: 'payment',
+          amount: amountCents,
+          currency: 'usd',
+          appearance,
+        })
+        const paymentElement = elements.create('payment', { layout: 'tabs' })
+        if (!paymentElRef.current) return
+        paymentElement.mount(paymentElRef.current)
+        paymentElement.on('ready', () => setReady(true))
+
+        stripeRef.current = stripe
+        elementsRef.current = elements
+        setInitializing(false)
+      } catch (err) {
+        if (!cancelled) {
+          setError((err as Error).message)
+          setInitializing(false)
+        }
+      }
+    })()
+
+    return () => {
+      cancelled = true
+    }
+  }, [listingId, amountCents])
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
-    setLoading(true)
     setError(null)
 
+    // Mock checkout — Stripe not configured.
+    if (mockRedirect) {
+      window.location.href = email
+        ? `${mockRedirect}&email=${encodeURIComponent(email)}`
+        : mockRedirect
+      return
+    }
+
+    const stripe = stripeRef.current
+    const elements = elementsRef.current
+    if (!stripe || !elements) {
+      setError('The payment form is still loading. One moment…')
+      return
+    }
+
+    setPaying(true)
+
+    // 1. Validate the card details collected by the Payment Element.
+    const submitResult = await elements.submit()
+    if (submitResult.error) {
+      setError(submitResult.error.message ?? 'Please check your card details.')
+      setPaying(false)
+      return
+    }
+
+    // 2. Create the PaymentIntent now that we have a valid email.
+    let clientSecret: string
     try {
       const res = await fetch('/api/checkout', {
         method: 'POST',
@@ -28,18 +160,34 @@ export default function CheckoutForm({
         body: JSON.stringify({ id: listingId, email }),
       })
       const json = await res.json()
-      if (!res.ok) throw new Error(json.error ?? 'Checkout failed')
-      if (!json.redirectUrl) throw new Error('No redirect URL returned')
-      window.location.href = json.redirectUrl
+      if (!res.ok || !json.clientSecret) {
+        throw new Error(json.error ?? 'Could not start the payment.')
+      }
+      clientSecret = json.clientSecret as string
     } catch (err) {
       setError((err as Error).message)
-      setLoading(false)
+      setPaying(false)
+      return
+    }
+
+    // 3. Confirm the payment. On success Stripe redirects to return_url.
+    const { error: stripeError } = await stripe.confirmPayment({
+      elements,
+      clientSecret,
+      confirmParams: {
+        return_url: `${window.location.origin}/order/success?id=${listingId}&email=${encodeURIComponent(email)}`,
+      },
+    })
+
+    if (stripeError) {
+      setError(stripeError.message ?? 'Payment could not be completed.')
+      setPaying(false)
     }
   }
 
   return (
     <form onSubmit={onSubmit} className="lg:col-span-7">
-      <fieldset className="space-y-7">
+      <fieldset className="space-y-7" disabled={paying}>
         <legend className="font-display text-2xl tracking-tight mb-5">
           Where do we send the files?
         </legend>
@@ -86,26 +234,41 @@ export default function CheckoutForm({
         </label>
       </fieldset>
 
-      <p className="mt-12 pt-10 border-t border-brand-hairline text-sm text-brand-muted max-w-md">
-        Card details are entered on Stripe&rsquo;s secure checkout page after
-        you confirm — nothing sensitive ever lives on Skillzy.
-      </p>
+      <div className="mt-10 pt-10 border-t border-brand-hairline">
+        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+          Payment
+        </span>
+
+        {!mockRedirect && (
+          <div className="mt-5 min-h-[1px]">
+            <div ref={paymentElRef} />
+            {initializing && (
+              <p className="text-sm text-brand-muted">
+                Loading secure payment…
+              </p>
+            )}
+          </div>
+        )}
+
+        <p className="mt-6 text-sm text-brand-muted max-w-md">
+          Card details are entered securely on this page and handled by Stripe.
+          Nothing sensitive ever touches Skillzy&rsquo;s servers.
+        </p>
+      </div>
 
       <button
         type="submit"
-        disabled={loading}
+        disabled={paying || initializing || (!mockRedirect && !ready)}
         className="mt-8 inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-8 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors disabled:opacity-60"
       >
-        {loading ? 'Redirecting to Stripe…' : `Pay ${price} — drop it in`}
-        {!loading && <span aria-hidden>→</span>}
+        {paying ? 'Processing…' : `Pay ${price} — drop it in`}
+        {!paying && <span aria-hidden>→</span>}
       </button>
 
-      {error && (
-        <p className="mt-4 text-sm text-red-700">{error}</p>
-      )}
+      {error && <p className="mt-4 text-sm text-red-700">{error}</p>}
 
       <p className="mt-4 text-xs text-brand-muted max-w-md">
-        Stripe charges only on confirmation.
+        You&rsquo;re only charged when you confirm. Secured by Stripe.
       </p>
     </form>
   )
