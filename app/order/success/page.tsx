@@ -5,7 +5,7 @@ import { fulfillPaymentIntent, orderIdFromIntent } from '@/lib/fulfillment'
 import { listingFiles } from '@/lib/delivery'
 
 export const metadata = {
-  title: 'Plugged in',
+  title: "You're all set",
   description: 'Your Skillzy purchase is ready to drop into your agent.',
   robots: { index: false, follow: false },
 }
@@ -81,7 +81,7 @@ export default async function OrderSuccessPage({
     <div className="paper">
       <section className="px-6 lg:px-10 pt-16 sm:pt-24 pb-20 sm:pb-28">
         <div className="max-w-page mx-auto">
-          <Sticker rotate="-2.5deg">Plugged in ✿ Done.</Sticker>
+          <Sticker rotate="-2.5deg">You're all set.</Sticker>
 
           <h1
             className="font-display mt-7 text-[3.5rem] sm:text-[6.5rem] lg:text-[8rem] leading-[0.9] tracking-tight"

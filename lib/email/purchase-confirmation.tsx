@@ -27,7 +27,7 @@ export async function sendPurchaseConfirmation({
   if (!hasResend) return { skipped: true as const }
 
   const resend = getResend()
-  const subject = `Plugged in — ${product.title}`
+  const subject = `Your Skillzy order — ${product.title}`
 
   const downloadUrl = downloadPageUrl ?? `${env.siteUrl}/dashboard`
 
@@ -35,8 +35,8 @@ export async function sendPurchaseConfirmation({
   <html>
   <body style="margin:0;padding:32px;background:#E8ECF0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#0F1729;">
     <div style="max-width:560px;margin:0 auto;background:#F2F4F8;border:1px solid #CCD2DD;padding:32px;">
-      <div style="font-family:'Times New Roman',serif;font-size:48px;line-height:1;letter-spacing:-1.5px;color:#0F1729;">
-        Plugged in. <em style="color:#C19E50;">Done.</em>
+      <div style="font-family:'Times New Roman',serif;font-size:44px;line-height:1.05;letter-spacing:-1.2px;color:#0F1729;">
+        You&rsquo;re all set.
       </div>
       <p style="margin:24px 0 0;font-size:16px;line-height:1.5;color:#0F1729;">
         Order <strong>№${orderId}</strong>. Your purchase is ready.
@@ -64,7 +64,7 @@ export async function sendPurchaseConfirmation({
   </body>
   </html>`
 
-  const text = `Plugged in. Done.\n\nOrder ${orderId}\n\n${product.title}\n${product.type} · by ${product.creator.name}\n\nDownload your files (no sign-in needed, keeps working):\n${downloadUrl}\n\nQuestions? hi@skillzy.ai`
+  const text = `You're all set.\n\nOrder ${orderId}\n\n${product.title}\n${product.type} · by ${product.creator.name}\n\nDownload your files (no sign-in needed, keeps working):\n${downloadUrl}\n\nQuestions? hi@skillzy.ai`
 
   return resend.emails.send({
     from: `Skillzy <${env.resend.fromEmail}>`,
