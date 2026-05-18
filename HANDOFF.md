@@ -157,6 +157,20 @@ partially-applied DB). Also ensure a PRIVATE Storage bucket named
   published; truthful seller copy; constant-time admin token.
 
 ### Outstanding — only you can do (config/dashboards/DB/legal)
+
+> **OFFICE LIST — Stripe account settings (do these in the Stripe dashboard).**
+> The code now forces `SKILLZY <product>` on the card statement
+> (commit `b9e0c60`), but the *definitive* fix is account-level —
+> until these two are done, buyers' card statements / Stripe emails
+> can still surface "MY AI WORKFORCE" and your personal mobile:
+>
+> 1. **Statement descriptor → `SKILLZY`.** Stripe → Settings →
+>    Business / Public details (Customer support). Set the account
+>    statement descriptor to `SKILLZY`.
+> 2. **Remove personal mobile from support phone.** Same area —
+>    delete your personal number; replace with `hi@skillzy.ai` (or a
+>    support URL) or leave blank.
+
 1. Apply `db/RECONCILE_PRODUCTION.sql` (linchpin).
 2. Stripe Connect: enable Connect + complete platform profile + flip
    to LIVE keys, so creators actually get paid. Until then a sale
