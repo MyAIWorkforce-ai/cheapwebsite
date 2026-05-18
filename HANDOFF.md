@@ -212,3 +212,25 @@ partially-applied DB). Also ensure a PRIVATE Storage bucket named
 - Refund should reverse the Connect transfer + revoke download —
   depends on Connect being live; post-launch hardening.
 - Moderation (file scanning / review gate) — awaiting your decision.
+
+## Demo listings — decision update (2026-05-18, supersedes earlier "non-purchasable")
+
+Earlier passes left demo/seed listings as a static "not for sale"
+showcase (see Outstanding #1 above + "Demo/seed listings
+non-purchasable showcase"). That is now superseded.
+
+**Current behaviour:** demo/sample listings show a real buy CTA. A
+click does NOT charge — it emails us a demand signal (`ADMIN_EMAILS`,
+else the Skillzy inbox) and shows the buyer "Sorry — this isn't
+available anymore." Code: `components/DemoInterest.tsx`,
+`app/_actions/demo-interest.ts`, `lib/email/demo-interest.ts`; all
+demo buy entry points (listing page, slim/sticky CTAs, direct
+`/checkout/<seed-id>`) funnel through it.
+
+**TODO — remove the demo catalogue entirely once we have ~100
+organic (real, DB-backed) listings.** At that point the marketplace
+stands on real inventory and the samples/interest-capture become
+noise. Removal = drop the seed catalogue (`lib/catalog-seed.ts` seed
+data) and delete the DemoInterest path + its three files; nothing
+else depends on it. Track real-listing count to know when we hit
+the threshold.
