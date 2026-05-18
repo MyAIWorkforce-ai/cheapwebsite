@@ -11,7 +11,15 @@ export default function ConnectButton({ label }: { label: string }) {
     setError(null)
     try {
       const res = await fetch('/api/stripe/connect/start', { method: 'POST' })
-      const json = await res.json()
+      const text = await res.text()
+      let json: { url?: string; error?: string } = {}
+      try {
+        json = text ? JSON.parse(text) : {}
+      } catch {
+        // Non-JSON response (e.g. an upstream 500 HTML page) — don't let
+        // the browser surface a cryptic JSON-parse error.
+        throw new Error(`Onboarding failed (server error ${res.status})`)
+      }
       if (!res.ok) throw new Error(json.error ?? 'Could not start onboarding')
       if (!json.url) throw new Error('No onboarding URL returned')
       window.location.href = json.url
