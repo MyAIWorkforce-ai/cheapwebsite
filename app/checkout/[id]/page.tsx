@@ -15,8 +15,38 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
 }
 
 export default async function CheckoutPage({ params }: { params: { id: string } }) {
-  // Demo/showcase listings aren't for sale.
-  if (isSeedProductId(params.id)) notFound()
+  // Demo/showcase listings have nothing to deliver — show the same
+  // graceful message as the listing page rather than a raw 404.
+  if (isSeedProductId(params.id)) {
+    return (
+      <div className="paper">
+        <section className="px-6 lg:px-10 py-24 sm:py-32">
+          <div className="max-w-prose mx-auto">
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
+              Checkout
+            </span>
+            <h1
+              className="font-display mt-5 text-4xl sm:text-6xl tracking-tight leading-[0.95]"
+              style={{ letterSpacing: '-0.03em' }}
+            >
+              Sorry — this isn’t available anymore.
+            </h1>
+            <p className="mt-4 text-brand-muted">
+              This was a sample listing. Browse the marketplace for agent
+              skills and setups you can buy and download right now.
+            </p>
+            <Link
+              href="/marketplace"
+              className="mt-8 inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
+            >
+              Browse the marketplace
+              <span aria-hidden>→</span>
+            </Link>
+          </div>
+        </section>
+      </div>
+    )
+  }
   const p = await resolveProduct(params.id)
   if (!p) notFound()
   const user = await getUser()

@@ -5,6 +5,7 @@ import { resolveProduct, isSeedProductId } from '@/lib/listings'
 import ProductCard from '@/components/ProductCard'
 import GuaranteeBadge from '@/components/GuaranteeBadge'
 import EmailGate from '@/components/EmailGate'
+import DemoInterest from '@/components/DemoInterest'
 import StructuredData from '@/components/StructuredData'
 import { pageMetadata } from '@/lib/seo'
 import { productLd, breadcrumbLd, faqLd } from '@/lib/jsonld'
@@ -213,10 +214,7 @@ export default async function ProductDetailPage({
               </p>
 
               {isDemo ? (
-                <div className="mt-7 w-full text-center border border-brand-hairline bg-brand-cream-card px-6 py-4 text-sm text-brand-muted">
-                  Sample listing — an example of what sellers publish. Not
-                  for sale.
-                </div>
+                <DemoInterest listingId={p.id} ctaLabel={headlineCta} />
               ) : p.free ? (
                 <EmailGate listingId={p.id} ctaLabel={headlineCta} />
               ) : (
@@ -563,7 +561,7 @@ export default async function ProductDetailPage({
             Report this listing
           </a>
           <Link
-            href={p.free ? '#top' : `/checkout/${p.id}`}
+            href={p.free || isDemo ? '#top' : `/checkout/${p.id}`}
             className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-3.5 text-[15px] hover:bg-brand-gold-dark transition-colors"
           >
             {headlineCta} — {p.free ? 'Free' : p.price}
@@ -654,7 +652,7 @@ export default async function ProductDetailPage({
             <p className="text-[11px] text-brand-muted truncate">{p.title}</p>
           </div>
           <Link
-            href={p.free ? '#top' : `/checkout/${p.id}`}
+            href={p.free || isDemo ? '#top' : `/checkout/${p.id}`}
             className="shrink-0 inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-5 py-3 text-sm hover:bg-brand-gold-dark transition-colors"
           >
             {headlineCta}
