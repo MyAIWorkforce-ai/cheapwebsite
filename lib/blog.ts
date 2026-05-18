@@ -30,6 +30,54 @@ const L = (id: string, label: string): Block => ({ t: 'listing', id, label })
 
 export const POSTS: Post[] = [
   {
+    slug: 'getting-started-with-ai-agents',
+    title: 'Getting started with AI agents: the plain-English starter guide',
+    excerpt:
+      'New to AI agents? Start here. What they are, what they’re good for, and exactly how to get your first one running — no code.',
+    publishedAt: '2026-08-18',
+    updatedAt: '2026-08-18',
+    author: 'Toby Banks',
+    authorRole: 'Founder, Skillzy',
+    tags: ['guides', 'fundamentals', 'getting-started'],
+    relatedListings: ['guide-first-agent-20-min', 'first-skill-md'],
+    body: [
+      P('If you keep hearing “AI agents” and quietly nodding along, this is the page that fixes that. No jargon, no code, no hype — just what an agent actually is and how to get one doing real work for you today.'),
+      H('What is an AI agent?'),
+      P('An AI agent is a general AI — like Claude — that has been given one specific job, clear instructions for how to do it, and access to the tools it needs. A chatbot answers questions. An agent does the work: it reads the email, drafts the quote, chases the invoice, books the appointment — on its own, the same way, every time.'),
+      P('The simplest way to picture it: a chatbot is a smart person you message. An agent is a smart person you hired, trained for one task, and pointed at your inbox.'),
+      H('What is a “skill”?'),
+      P('You don’t train an agent by re-explaining the job every time. You hand it a skill — a single file (a SKILL.md) holding the intent, the inputs, the steps and the output for one task. Drop it into the agent and it knows that job. Stack a few skills and you have an agent that runs a whole desk.'),
+      UL([
+        'One skill = one job, done predictably and unattended',
+        'Portable — the same file works across Claude, OpenClaw and most agents',
+        'Buy a proven one, or write your own — both work the same way',
+      ]),
+      H('What can it actually do for a small business?'),
+      P('Real, boring, money-saving things — not science fiction:'),
+      UL([
+        'Answer the “do you have Saturday?” booking DMs and put them in the calendar',
+        'Turn a job photo plus a few notes into an itemised quote',
+        'Chase overdue invoices in a tone that keeps the client',
+        'Triage after-hours calls so you only wake for real emergencies',
+        'Write the weekly client update from your task list, in your voice',
+      ]),
+      H('How to get started (no code)'),
+      UL([
+        'Pick ONE job that eats your time every week — start narrow',
+        'Pick a platform — Claude is the easiest place to begin',
+        'Get the skill — buy a ready-made one, or write your own',
+        'Drop it in and run it on one real example',
+        'Edit the voice/config block once so it sounds like you, then let it run',
+      ]),
+      QUOTE('Don’t try to automate everything. Automate the one task you’d pay a person to take off your plate, prove it works, then add the next.'),
+      H('Where to go next'),
+      P('To be running in one sitting, start with the 20-minute guide. To understand the building block first, read up on the SKILL.md file.'),
+      L('guide-first-agent-20-min', 'Your first agent in 20 minutes'),
+      L('first-skill-md', 'Your first SKILL.md, the right way'),
+      P('When you’re ready for something that already works, the marketplace is full of skills and full agent setups built by people who run them in real businesses — drop one in and you’re going today.'),
+    ],
+  },
+  {
     slug: 'what-is-a-skill-md-file',
     title: 'What is a SKILL.md file (and why it matters in 2026)',
     excerpt:
