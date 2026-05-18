@@ -2,10 +2,10 @@
 
 import { useEffect } from 'react'
 import { useFormState, useFormStatus } from 'react-dom'
-import { subscribeToNewsletter, type NewsletterState } from '@/app/_actions/newsletter'
+import { claimFreeListing, type FreeClaimState } from '@/app/_actions/free-claim'
 import { track } from '@/lib/analytics'
 
-const initial: NewsletterState = {}
+const initial: FreeClaimState = {}
 
 function Submit({ label }: { label: string }) {
   const { pending } = useFormStatus()
@@ -31,7 +31,7 @@ export default function EmailGate({
   listingId: string
   ctaLabel: string
 }) {
-  const [state, action] = useFormState(subscribeToNewsletter, initial)
+  const [state, action] = useFormState(claimFreeListing, initial)
 
   useEffect(() => {
     if (state.ok) {
@@ -54,7 +54,7 @@ export default function EmailGate({
 
   return (
     <form action={action} className="mt-7">
-      <input type="hidden" name="source" value={`free:${listingId}`} />
+      <input type="hidden" name="listing" value={listingId} />
       <label className="block">
         <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
           Your email — it’s free

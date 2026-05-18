@@ -21,3 +21,24 @@ export function deliveryTokenValid(
   const b = Buffer.from(deliveryToken(paymentIntentId))
   return a.length === b.length && timingSafeEqual(a, b)
 }
+
+// Free listings have no PaymentIntent — bind delivery to the
+// (listing, email) pair instead, same HMAC scheme.
+function freeKey(listingId: string, email: string): string {
+  return `free:${listingId}:${email.trim().toLowerCase()}`
+}
+
+export function freeToken(listingId: string, email: string): string {
+  return deliveryToken(freeKey(listingId, email))
+}
+
+export function freeTokenValid(
+  listingId: string,
+  email: string,
+  token?: string | null,
+): boolean {
+  if (!token) return false
+  const a = Buffer.from(token)
+  const b = Buffer.from(freeToken(listingId, email))
+  return a.length === b.length && timingSafeEqual(a, b)
+}
