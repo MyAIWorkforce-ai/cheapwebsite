@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og'
-import { getProduct } from '@/lib/catalog'
+import { resolveProduct } from '@/lib/listings'
 
 export const runtime = 'nodejs'
 
@@ -8,7 +8,7 @@ export async function GET(
   _req: Request,
   { params }: { params: { id: string } },
 ) {
-  const p = getProduct(params.id)
+  const p = await resolveProduct(params.id)
   if (!p) return new Response('Not found', { status: 404 })
 
   return new ImageResponse(

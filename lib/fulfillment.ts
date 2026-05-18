@@ -2,7 +2,7 @@ import type Stripe from 'stripe'
 import { env, hasSupabase, hasResend } from '@/lib/env'
 import { createServiceClient } from '@/lib/supabase/server'
 import { sendPurchaseConfirmation } from '@/lib/email/purchase-confirmation'
-import { getProduct } from '@/lib/catalog'
+import { resolveProduct } from '@/lib/listings'
 
 export function orderIdFromIntent(intentId: string) {
   return intentId.replace(/^pi_/, '').slice(0, 12).toUpperCase()
@@ -23,7 +23,7 @@ export async function fulfillPaymentIntent(intent: Stripe.PaymentIntent) {
   if (!listingId) return
   if (intent.status !== 'succeeded') return
 
-  const product = getProduct(listingId)
+  const product = await resolveProduct(listingId)
   const buyerEmail =
     intent.receipt_email ||
     (intent.metadata?.buyer_email as string | undefined) ||

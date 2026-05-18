@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import ProductCard from '@/components/ProductCard'
 import { products, toCardProduct, NICHES, type ProductType } from '@/lib/catalog'
+import { liveDbProducts } from '@/lib/listings'
 import { pageMetadata } from '@/lib/seo'
 
 // Canonical strips query strings → /marketplace?type=skill etc. all
@@ -28,7 +29,7 @@ const filters: { label: string; type?: ProductType; key: string }[] = [
   { label: 'All', key: 'all' },
 ]
 
-export default function MarketplacePage({
+export default async function MarketplacePage({
   searchParams,
 }: {
   searchParams: { type?: string; q?: string; niche?: string; platform?: string }
@@ -38,7 +39,10 @@ export default function MarketplacePage({
   const niche = searchParams.niche?.toLowerCase().trim()
   const platform = searchParams.platform?.toLowerCase().trim()
 
-  const filtered = products.filter((p) => {
+  // Real seller listings (newest first) ahead of the demo showcase.
+  const allProducts = [...(await liveDbProducts()), ...products]
+
+  const filtered = allProducts.filter((p) => {
     const f = filters.find((x) => x.key === activeKey)
     if (f?.type && p.type !== f.type) return false
     if (query) {
@@ -55,7 +59,7 @@ export default function MarketplacePage({
     return true
   })
 
-  const platforms = Array.from(new Set(products.flatMap((p) => p.platformList))).sort()
+  const platforms = Array.from(new Set(allProducts.flatMap((p) => p.platformList))).sort()
   // Master niche list (defined in lib/catalog.ts) — shows every niche
   // in the filter even before listings exist in it.
   const niches = [...NICHES] as string[]
@@ -126,8 +130,8 @@ export default function MarketplacePage({
             const active = f.key === activeKey
             const count =
               f.key === 'all'
-                ? products.length
-                : products.filter((p) => p.type === f.type).length
+                ? allProducts.length
+                : allProducts.filter((p) => p.type === f.type).length
             return (
               <Link
                 key={f.key}

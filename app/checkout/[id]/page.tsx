@@ -1,15 +1,11 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getProduct, products } from '@/lib/catalog'
+import { resolveProduct, isSeedProductId } from '@/lib/listings'
 import { getUser } from '@/lib/auth'
 import CheckoutForm from './CheckoutForm'
 
-export function generateStaticParams() {
-  return products.map((p) => ({ id: p.id }))
-}
-
-export function generateMetadata({ params }: { params: { id: string } }) {
-  const p = getProduct(params.id)
+export async function generateMetadata({ params }: { params: { id: string } }) {
+  const p = await resolveProduct(params.id)
   if (!p) return { title: 'Checkout', robots: { index: false, follow: false } }
   return {
     title: `Checkout · ${p.title}`,
@@ -19,7 +15,9 @@ export function generateMetadata({ params }: { params: { id: string } }) {
 }
 
 export default async function CheckoutPage({ params }: { params: { id: string } }) {
-  const p = getProduct(params.id)
+  // Demo/showcase listings aren't for sale.
+  if (isSeedProductId(params.id)) notFound()
+  const p = await resolveProduct(params.id)
   if (!p) notFound()
   const user = await getUser()
 

@@ -4,7 +4,7 @@ import { getStripe, hasStripe } from '@/lib/stripe'
 import { env, hasSupabase, hasResend } from '@/lib/env'
 import { createServiceClient } from '@/lib/supabase/server'
 import { sendPurchaseConfirmation } from '@/lib/email/purchase-confirmation'
-import { getProduct } from '@/lib/catalog'
+import { resolveProduct } from '@/lib/listings'
 import { fulfillPaymentIntent } from '@/lib/fulfillment'
 
 export const runtime = 'nodejs'
@@ -65,7 +65,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const listingId = (session.metadata?.listing_id as string | undefined) ?? null
   if (!listingId) return
 
-  const product = getProduct(listingId)
+  const product = await resolveProduct(listingId)
   const buyerEmail =
     session.customer_details?.email ||
     (session.metadata?.buyer_email as string | undefined) ||

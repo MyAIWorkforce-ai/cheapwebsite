@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { getStripe, hasStripe, platformFeeAmount } from '@/lib/stripe'
 import { env } from '@/lib/env'
-import { getProduct } from '@/lib/catalog'
+import { resolveProduct, isSeedProductId } from '@/lib/listings'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { hasSupabase } from '@/lib/env'
 
@@ -25,9 +25,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Missing listing id' }, { status: 400 })
   }
 
-  // 1. Resolve the product. For now we use the static catalogue;
-  //    when DB-backed listings ship, we'll prefer those.
-  const product = getProduct(id)
+  // 1. Demo/showcase listings are not for sale (no files to deliver).
+  if (isSeedProductId(id)) {
+    return NextResponse.json(
+      { error: 'This is a sample listing and isn’t for sale yet.' },
+      { status: 403 },
+    )
+  }
+
+  // 2. Resolve the real (DB-backed) listing.
+  const product = await resolveProduct(id)
   if (!product) {
     return NextResponse.json({ error: 'Listing not found' }, { status: 404 })
   }

@@ -1,5 +1,5 @@
 import QRCode from 'qrcode'
-import { getProduct } from '@/lib/catalog'
+import { resolveProduct } from '@/lib/listings'
 import { SITE_URL } from '@/lib/seo'
 
 export const runtime = 'nodejs'
@@ -15,7 +15,7 @@ export async function GET(
   req: Request,
   { params }: { params: { id: string } },
 ) {
-  const p = getProduct(params.id)
+  const p = await resolveProduct(params.id)
   if (!p) return new Response('Not found', { status: 404 })
 
   const sp = new URL(req.url).searchParams

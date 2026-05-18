@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { getProduct } from '@/lib/catalog'
+import { resolveProduct } from '@/lib/listings'
 import { getStripe, hasStripe } from '@/lib/stripe'
 import { fulfillPaymentIntent, orderIdFromIntent } from '@/lib/fulfillment'
 import { listingFiles } from '@/lib/delivery'
@@ -69,7 +69,7 @@ export default async function OrderSuccessPage({
     }
   }
 
-  const p = productId ? getProduct(productId) : undefined
+  const p = productId ? await resolveProduct(productId) : undefined
 
   // Only serve files once the payment is verified — the succeeded
   // PaymentIntent is the buyer's proof of purchase (no login needed).

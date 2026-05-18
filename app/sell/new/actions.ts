@@ -111,7 +111,7 @@ export async function publishListing(
       creator_id: user!.id,
       slug,
       type,
-      status: 'pending_review',
+      status: 'live',
       title,
       tagline,
       niche,

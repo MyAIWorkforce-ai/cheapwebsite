@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getProduct, getRelated, products, toCardProduct } from '@/lib/catalog'
+import { getRelated, products, toCardProduct } from '@/lib/catalog'
+import { resolveProduct, isSeedProductId } from '@/lib/listings'
 import ProductCard from '@/components/ProductCard'
 import GuaranteeBadge from '@/components/GuaranteeBadge'
 import EmailGate from '@/components/EmailGate'
@@ -14,8 +15,8 @@ export function generateStaticParams() {
   return products.map((p) => ({ id: p.id }))
 }
 
-export function generateMetadata({ params }: { params: { id: string } }) {
-  const p = getProduct(params.id)
+export async function generateMetadata({ params }: { params: { id: string } }) {
+  const p = await resolveProduct(params.id)
   if (!p) return { title: 'Not found — Skillzy' }
   const ratingBit =
     p.ratingCount > 0 ? ` ${p.rating}★ (${p.ratingCount} reviews).` : ''
@@ -59,14 +60,15 @@ function Stars({ rating, className = '' }: { rating: number; className?: string 
   )
 }
 
-export default function ProductDetailPage({
+export default async function ProductDetailPage({
   params,
 }: {
   params: { id: string }
 }) {
-  const p = getProduct(params.id)
+  const p = await resolveProduct(params.id)
   if (!p) notFound()
 
+  const isDemo = isSeedProductId(p.id)
   const isSetup = p.type === 'Agent Setup'
   const isGuide = p.type === 'Guide'
 
@@ -203,7 +205,12 @@ export default function ProductDetailPage({
                   : `One-time. ${isSetup ? 'Re-installable forever.' : 'Re-download forever.'}`}
               </p>
 
-              {p.free ? (
+              {isDemo ? (
+                <div className="mt-7 w-full text-center border border-brand-hairline bg-brand-cream-card px-6 py-4 text-sm text-brand-muted">
+                  Sample listing — an example of what sellers publish. Not
+                  for sale.
+                </div>
+              ) : p.free ? (
                 <EmailGate listingId={p.id} ctaLabel={headlineCta} />
               ) : (
                 <Link
