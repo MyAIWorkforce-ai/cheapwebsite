@@ -55,7 +55,7 @@ export async function claimOrphanPurchases(
     const { data, error } = await admin
       .from('purchases')
       .update({ buyer_id: user.id })
-      .eq('buyer_email', user.email)
+      .eq('buyer_email', user.email.trim().toLowerCase())
       .is('buyer_id', null)
       .select('id')
     if (error) {

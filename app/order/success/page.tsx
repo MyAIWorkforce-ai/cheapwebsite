@@ -3,6 +3,7 @@ import { resolveProduct } from '@/lib/listings'
 import { getStripe, hasStripe } from '@/lib/stripe'
 import { fulfillPaymentIntent, orderIdFromIntent } from '@/lib/fulfillment'
 import { listingFiles } from '@/lib/delivery'
+import { deliveryTokenValid } from '@/lib/delivery-token'
 
 export const metadata = {
   title: "You're all set",
@@ -34,7 +35,9 @@ export default async function OrderSuccessPage({
     id?: string
     email?: string
     payment_intent?: string
+    payment_intent_client_secret?: string
     redirect_status?: string
+    t?: string
   }
 }) {
   let productId = searchParams.id
@@ -43,26 +46,37 @@ export default async function OrderSuccessPage({
     Math.random().toString(36).slice(2, 6) +
     Date.now().toString(36).slice(-4)
 
-  // Stripe redirects here after payment with ?payment_intent=... — this
-  // is where we fulfil the order (record it + send the Skillzy email),
-  // so checkout works even with no webhook endpoint configured. Fully
-  // idempotent, so a webhook (if set up later) is just a safety net.
+  // Files are only revealed when the visitor proves they own this
+  // purchase — either the PaymentIntent client_secret (Stripe appends
+  // it to the post-payment redirect) or the signed delivery token (in
+  // the confirmation email). A bare/guessed ?payment_intent= shows the
+  // page but NO files and triggers NO fulfilment/email.
   let verified = false
+  let paidButLocked = false
   const piId = searchParams.payment_intent
   if (hasStripe && piId) {
     try {
       const stripe = getStripe()
       const intent = await stripe.paymentIntents.retrieve(piId)
       if (intent.status === 'succeeded') {
-        verified = true
-        await fulfillPaymentIntent(intent)
+        const authorized =
+          (!!intent.client_secret &&
+            searchParams.payment_intent_client_secret ===
+              intent.client_secret) ||
+          deliveryTokenValid(piId, searchParams.t)
         productId =
           (intent.metadata?.listing_id as string | undefined) || productId
-        email =
-          intent.receipt_email ||
-          (intent.metadata?.buyer_email as string | undefined) ||
-          email
         orderId = orderIdFromIntent(intent.id)
+        if (authorized) {
+          verified = true
+          await fulfillPaymentIntent(intent)
+          email =
+            intent.receipt_email ||
+            (intent.metadata?.buyer_email as string | undefined) ||
+            email
+        } else {
+          paidButLocked = true
+        }
       }
     } catch (err) {
       console.error('Order-success fulfilment failed', err)
@@ -126,7 +140,23 @@ export default async function OrderSuccessPage({
                 <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted mb-4">
                   Download now
                 </p>
-                {files.length > 0 ? (
+                {paidButLocked ? (
+                  <p className="text-sm text-brand-muted leading-relaxed">
+                    For your security, open the{' '}
+                    <span className="font-semibold text-brand-ink">
+                      download link in your confirmation email
+                    </span>{' '}
+                    to get your files — this page only reveals them through
+                    that secure link. Can’t find the email? Write to{' '}
+                    <a
+                      href="mailto:hi@skillzy.ai"
+                      className="border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold"
+                    >
+                      hi@skillzy.ai
+                    </a>
+                    .
+                  </p>
+                ) : files.length > 0 ? (
                   <ul className="space-y-3">
                     {files.map((f, i) => (
                       <li

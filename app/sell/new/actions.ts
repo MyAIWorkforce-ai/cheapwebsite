@@ -81,6 +81,14 @@ export async function publishListing(
   if (!title) return { error: 'Title is required.' }
   if (!tagline) return { error: 'Tagline is required.' }
   if (!Number.isFinite(price) || price <= 0) return { error: 'Set a price.' }
+  if (
+    description.some((d) => /ANTHROPIC_API_KEY|^\s*Demo draft/i.test(d))
+  ) {
+    return {
+      error:
+        'The AI draft did not generate. Write a short description before publishing.',
+    }
+  }
   const rawVideo = String(formData.get('video_url') ?? '').trim()
   if (rawVideo && !videoUrl) {
     return {

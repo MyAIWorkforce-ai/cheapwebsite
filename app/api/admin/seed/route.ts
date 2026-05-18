@@ -11,7 +11,7 @@
  */
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { createHash } from 'node:crypto'
+import { createHash, timingSafeEqual } from 'node:crypto'
 import { products, type Creator } from '@/lib/catalog'
 import { env, hasSupabase } from '@/lib/env'
 
@@ -41,7 +41,15 @@ export async function POST(req: Request) {
 
   const auth = req.headers.get('authorization') ?? ''
   const token = auth.replace(/^Bearer\s+/i, '')
-  if (!token || token !== env.supabase.serviceRoleKey) {
+  const expected = env.supabase.serviceRoleKey
+  const tokenBuf = Buffer.from(token)
+  const expectedBuf = Buffer.from(expected)
+  const authorized =
+    Boolean(token) &&
+    Boolean(expected) &&
+    tokenBuf.length === expectedBuf.length &&
+    timingSafeEqual(tokenBuf, expectedBuf)
+  if (!authorized) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

@@ -57,7 +57,7 @@ function Submit() {
       disabled={pending}
       className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors disabled:opacity-60"
     >
-      {pending ? 'Submitting…' : 'Submit for review'}
+      {pending ? 'Publishing…' : 'Publish listing'}
       <span aria-hidden>→</span>
     </button>
   )
@@ -424,8 +424,8 @@ export default function NewListingForm({
           )}
 
           <p className="mt-5 text-xs text-brand-muted">
-            Every upload is virus-scanned and reviewed by a human before
-            the listing goes live.
+            You’re responsible for what you upload — only list work you
+            have the rights to.
           </p>
         </div>
       </StepShell>
@@ -723,25 +723,25 @@ export default function NewListingForm({
       </StepShell>
 
       {/* STEP 5 — submit */}
-      <StepShell number="05" title="Submit for review">
+      <StepShell number="05" title="Publish">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
           <ul className="lg:col-span-7 bg-brand-cream-card border border-brand-hairline divide-y divide-brand-hairline">
             {[
               {
-                title: 'Auto-scan',
-                body: 'Every upload is scanned for malware, secrets, and copyright theft. Takes 30 seconds.',
+                title: 'Goes live instantly',
+                body: 'Your listing publishes the moment you submit — no waiting on review.',
               },
               {
-                title: 'Human review on first listing',
-                body: 'A real person looks at your first listing within 24 hours. Returning creators publish instantly.',
+                title: 'Connect Stripe to get paid',
+                body: 'One click. We never hold your money — Stripe pays you direct, you keep 80%.',
               },
               {
-                title: 'Connect Stripe at publish',
-                body: 'One click. We never hold your money — Stripe pays you direct on every sale.',
+                title: 'Buyers download immediately',
+                body: 'After payment, buyers get your files by email and a secure link — no account needed.',
               },
               {
-                title: 'Live the same day',
-                body: 'Approved listings go live within an hour. Your dashboard shows the first sale come in.',
+                title: 'You own what you upload',
+                body: 'Only list work you have the rights to. Report problems to hi@skillzy.ai.',
               },
             ].map((s) => (
               <li key={s.title} className="p-6 sm:p-7">
@@ -767,8 +767,9 @@ export default function NewListingForm({
             )}
 
             <p className="mt-5 text-xs text-brand-muted max-w-xs">
-              Once approved, your listing lands at <code>/marketplace/{'{slug}'}</code>.
-              You can edit price, tagline, status from your dashboard at any time.
+              Your listing goes live at <code>/marketplace/{'{slug}'}</code>{' '}
+              immediately. Edit price, tagline, or unpublish from your
+              dashboard any time.
             </p>
           </div>
         </div>

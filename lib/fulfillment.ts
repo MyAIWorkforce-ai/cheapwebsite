@@ -3,6 +3,7 @@ import { env, hasSupabase, hasResend } from '@/lib/env'
 import { createServiceClient } from '@/lib/supabase/server'
 import { sendPurchaseConfirmation } from '@/lib/email/purchase-confirmation'
 import { resolveProduct } from '@/lib/listings'
+import { deliveryToken } from '@/lib/delivery-token'
 
 export function orderIdFromIntent(intentId: string) {
   return intentId.replace(/^pi_/, '').slice(0, 12).toUpperCase()
@@ -24,10 +25,13 @@ export async function fulfillPaymentIntent(intent: Stripe.PaymentIntent) {
   if (intent.status !== 'succeeded') return
 
   const product = await resolveProduct(listingId)
-  const buyerEmail =
+  const buyerEmail = (
     intent.receipt_email ||
     (intent.metadata?.buyer_email as string | undefined) ||
     ''
+  )
+    .trim()
+    .toLowerCase()
 
   async function emailBuyer() {
     if (!hasResend || !buyerEmail || !product) return
@@ -36,7 +40,7 @@ export async function fulfillPaymentIntent(intent: Stripe.PaymentIntent) {
         to: buyerEmail,
         product,
         orderId: orderIdFromIntent(intent.id),
-        downloadPageUrl: `${env.siteUrl}/order/success?payment_intent=${intent.id}&id=${listingId}`,
+        downloadPageUrl: `${env.siteUrl}/order/success?payment_intent=${intent.id}&id=${listingId}&t=${deliveryToken(intent.id)}`,
       })
     } catch (err) {
       console.error('Failed to send purchase email', err)

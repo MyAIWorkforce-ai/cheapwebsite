@@ -37,7 +37,7 @@ async function loadDefaults(
     const { data } = await supabase
       .from('listings')
       .select('id, title, tagline, price_cents, niche, platform_list, status')
-      .eq('id', id)
+      .eq('slug', id)
       .eq('creator_id', userId)
       .single()
 
@@ -100,8 +100,7 @@ export default async function EditListingPage({
             Tweak. <em className="italic text-brand-gold font-medium">Save.</em>
           </h1>
           <p className="mt-5 text-brand-muted">
-            Changes to live listings publish instantly. Big rewrites kick off
-            another quick human review.
+            Changes to live listings publish instantly.
           </p>
         </div>
 

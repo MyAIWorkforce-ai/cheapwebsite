@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
     metadata: {
       listing_id: product.id,
       buyer_id: buyerId ?? '',
-      buyer_email: buyerEmail ?? '',
+      buyer_email: (buyerEmail ?? '').trim().toLowerCase(),
       referrer_slug: request.cookies.get('skz_ref')?.value ?? '',
       referrer_channel: request.cookies.get('skz_ch')?.value ?? '',
     },
