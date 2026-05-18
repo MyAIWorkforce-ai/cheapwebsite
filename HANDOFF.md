@@ -132,3 +132,61 @@ skillzy.ai is the apex domain, pinned to branch
    them in Supabase → Auth → Email Templates. Sign-in form now shows a
    clear post-submit confirmation.
 6. **Flip Stripe to live keys** — only after #1 and #2 are settled.
+
+## Public-launch readiness — full audit (2026-05-18)
+
+Four parallel audits (buyer pipeline, seller/payouts, SEO, security/legal)
+were run. Authoritative plan below.
+
+### THE linchpin — apply the DB schema
+The live Supabase DB is missing columns/migrations the code expects
+(root cause of: purchases not recording, webhook failing, lost video
+fields). **Action: paste `db/RECONCILE_PRODUCTION.sql` into the Supabase
+SQL editor and Run.** It is fully idempotent (safe on a
+partially-applied DB). Also ensure a PRIVATE Storage bucket named
+`skillzy-products` exists.
+
+### Shipped in this pass (code, pushed)
+- Non-enumerable downloads (ownership proof required).
+- buyer_email normalised (no more stranded guest purchases).
+- Duplicate confirmation emails fixed (email only after a recorded sale).
+- DB-backed marketplace + checkout (real listings sell & deliver);
+  listings publish live instantly.
+- Demo/seed listings non-purchasable showcase.
+- Listing edit fixed (lookup by slug); demo-draft text can't be
+  published; truthful seller copy; constant-time admin token.
+
+### Outstanding — only you can do (config/dashboards/DB/legal)
+1. Apply `db/RECONCILE_PRODUCTION.sql` (linchpin).
+2. Stripe Connect: enable Connect + complete platform profile + flip
+   to LIVE keys, so creators actually get paid. Until then a sale
+   keeps 100% on the platform with no creator transfer.
+3. Rotate all secrets (service-role, Stripe, webhook, Resend) — see
+   `.env.local` header.
+4. Email deliverability (stop spam-foldering): add a **DMARC** DNS
+   record at GoDaddy — `_dmarc.skillzy.ai` TXT
+   `v=DMARC1; p=none; rua=mailto:hi@skillzy.ai`. Confirm Resend shows
+   DKIM + SPF + return-path all Verified for skillzy.ai. New-domain
+   reputation needs warmup (low volume, zero bounces, recipients mark
+   "not spam"). Consider a dedicated sending subdomain later.
+5. `ANTHROPIC_API_KEY` (real listing drafts), `ADMIN_EMAILS`,
+   `CRON_SECRET` in Vercel.
+6. Moderation decision: with instant-publish + no malware scanning,
+   either add scanning, restore a review gate, or accept the risk
+   (false "scanned/reviewed" claims already removed from copy).
+7. Real legal pages: Terms/Privacy/refund/DMCA (currently placeholders)
+   + acceptance at signup/checkout.
+8. Optional: Google/GitHub OAuth providers; brand Supabase auth emails.
+
+### Outstanding — code (next passes)
+- SEO: carry `slug` on Product; async sitemap incl. live DB listings;
+  `noindex` + drop demo listings from sitemap; fix free/demo Offer
+  JSON-LD; ISR `revalidate` on marketplace + product pages.
+- Free listings currently deliver nothing (EmailGate only newsletters)
+  — wire free "purchases" through the same delivery/email path.
+- Rate-limiting on AI-draft / checkout / signup (needs Upstash/KV for
+  real serverless coverage).
+- After RECONCILE SQL is applied: restore richer purchase columns
+  (currency/fee/payout/referrer) + add a unique index on
+  `purchases.stripe_payment_intent_id`.
+- Refund should reverse the Connect transfer + revoke download.
