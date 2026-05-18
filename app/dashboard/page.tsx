@@ -187,23 +187,32 @@ async function loadSeller(userId: string): Promise<{
 
   const { data: salesData } = await supabase
     .from('purchases')
-    .select('listing_id, amount_cents, status, created_at')
+    .select(
+      'listing_id, amount_cents, creator_payout_cents, status, created_at, referrer_slug, referrer_channel',
+    )
     .in('listing_id', listingIds)
     .eq('status', 'paid')
 
   let totalEarnings = 0
   let totalSales = 0
-  const referredSales = 0
-  const referredPayout = 0
+  let referredSales = 0
+  let referredPayout = 0
   const monthSalesByListing: Record<string, number> = {}
   const monthRevenueByListing: Record<string, number> = {}
   const byChannel: Record<string, number> = {}
 
   for (const row of salesData ?? []) {
-    // Creator keeps 80% (20% platform fee).
-    const payout = Math.round((row.amount_cents ?? 0) * 0.8)
+    // Prefer the recorded payout; fall back to 80% of amount.
+    const payout =
+      row.creator_payout_cents ?? Math.round((row.amount_cents ?? 0) * 0.8)
     totalEarnings += payout
     totalSales += 1
+    if (row.referrer_slug) {
+      referredSales += 1
+      referredPayout += payout
+      const ch = (row.referrer_channel as string | null) || 'other'
+      byChannel[ch] = (byChannel[ch] ?? 0) + 1
+    }
     if (new Date(row.created_at) >= since) {
       monthSalesByListing[row.listing_id] = (monthSalesByListing[row.listing_id] ?? 0) + 1
       monthRevenueByListing[row.listing_id] =

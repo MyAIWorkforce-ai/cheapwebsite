@@ -69,12 +69,21 @@ export async function fulfillPaymentIntent(intent: Stripe.PaymentIntent) {
     if (existing) return
 
     const amount = intent.amount_received ?? intent.amount ?? 0
+    const fee = Math.round(amount * 0.2)
+    const payout = amount - fee
     const { error: insertError } = await supabase.from('purchases').insert({
       buyer_id: (intent.metadata?.buyer_id as string | undefined) || null,
       buyer_email: buyerEmail,
       listing_id: listingId,
       amount_cents: amount,
+      currency: intent.currency ?? 'usd',
+      platform_fee_cents: fee,
+      creator_payout_cents: payout,
       stripe_payment_intent_id: intent.id,
+      referrer_slug:
+        (intent.metadata?.referrer_slug as string | undefined) || null,
+      referrer_channel:
+        (intent.metadata?.referrer_channel as string | undefined) || null,
       status: 'paid',
     })
     if (insertError) {
