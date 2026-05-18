@@ -93,3 +93,42 @@ or create a new Stripe account.
   no "My AI Workforce" anywhere in checkout or email, sale recorded,
   Skillzy confirmation email received.
 - Must be a live re-test (no network/Stripe in the build environment).
+
+## Current status — 2026-05-18 (supersedes the runbook above)
+
+skillzy.ai is the apex domain, pinned to branch
+`claude/build-skillzy-website-MIbCF` (Preview deploy) on Vercel project
+`cheapwebsite-preview`. Stripe is on **TEST** keys (not live yet).
+
+### Verified working
+
+- Buyer checkout: embedded, 100% Skillzy-branded, no "My AI Workforce".
+- Purchase confirmation email via Resend (skillzy.ai verified;
+  `EMAIL_FROM=hi@skillzy.ai`). Copy is "You're all set."
+- No-login download/delivery page (re-verifies the PaymentIntent;
+  regenerates signed links each visit).
+- Sign-in: Supabase custom SMTP → Resend. Magic link delivers, link
+  logs in and lands on the dashboard. Prominent "check your email"
+  confirmation + OAuth error surfacing shipped.
+
+### Outstanding (ordered)
+
+1. **Demo catalog has no real data/files.** Seed listings (catalog.ts /
+   catalog-seed.ts) aren't DB rows, so buying one: records no purchase,
+   shows nothing on the dashboard, delivers no file, and (because the
+   idempotency guard is the DB insert) re-sends the email on each
+   success-page load. DECISION NEEDED: make seed listings non-buyable /
+   attach placeholder files / remove them / accept risk.
+2. **Real-listing delivery untested.** Create one real listing with an
+   uploaded file via /sell/new (now possible — auth works), buy it as a
+   guest, confirm the file actually downloads + dashboard shows it.
+3. **Seller Stripe Connect / payouts not enabled.** /dashboard/payouts
+   "Connect Stripe" fails — Stripe Connect must be enabled and the
+   platform profile completed in the Stripe dashboard (and on live keys
+   for real payouts). Route now fails gracefully with the real reason.
+4. **OAuth providers** (Google/GitHub) not configured in Supabase →
+   those buttons error (now surfaced). Magic link works without them.
+5. **Polish:** Supabase auth email templates are plain defaults — brand
+   them in Supabase → Auth → Email Templates. Sign-in form now shows a
+   clear post-submit confirmation.
+6. **Flip Stripe to live keys** — only after #1 and #2 are settled.
