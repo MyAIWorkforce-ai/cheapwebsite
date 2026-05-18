@@ -25,14 +25,22 @@ export async function registerDemoInterest(
   const product = await resolveProduct(listingId)
   const title = product?.title ?? listingId
 
-  let buyerEmail: string | null = null
-  try {
-    const user = await getUser()
-    buyerEmail = user?.email ?? null
-  } catch {
-    /* not signed in — fine */
+  // Prefer the email they typed into checkout; fall back to the
+  // signed-in session.
+  let buyerEmail =
+    String(formData.get('email') ?? '')
+      .trim()
+      .toLowerCase() || null
+  if (!buyerEmail) {
+    try {
+      const user = await getUser()
+      buyerEmail = user?.email ?? null
+    } catch {
+      /* not signed in — fine */
+    }
   }
 
+  const country = String(formData.get('country') ?? '').trim() || null
   const referrer = cookies().get('skz_ref')?.value ?? null
 
   if (hasResend) {
@@ -41,6 +49,7 @@ export async function registerDemoInterest(
         productTitle: title,
         listingId,
         buyerEmail,
+        country,
         referrer,
       })
     } catch (err) {

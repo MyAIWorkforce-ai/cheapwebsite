@@ -8,6 +8,7 @@ import {
   type Appearance,
 } from '@stripe/stripe-js'
 import { COUNTRIES_TOP, COUNTRIES_ALL } from '@/lib/countries'
+import { registerDemoInterest } from '@/app/_actions/demo-interest'
 
 // Skillzy-branded styling for the embedded Stripe Payment Element so the
 // card form blends into our page — the buyer never leaves skillzy.ai and
@@ -47,13 +48,16 @@ export default function CheckoutForm({
   listingId,
   price,
   defaultEmail,
+  demo = false,
 }: {
   listingId: string
   price: string
   defaultEmail?: string
+  demo?: boolean
 }) {
   const [email, setEmail] = useState(defaultEmail ?? '')
   const [error, setError] = useState<string | null>(null)
+  const [unavailable, setUnavailable] = useState(false)
   const [initializing, setInitializing] = useState(true)
   const [paying, setPaying] = useState(false)
   const [ready, setReady] = useState(false)
@@ -126,6 +130,24 @@ export default function CheckoutForm({
     e.preventDefault()
     setError(null)
 
+    // Demo/sample listing: no charge. Capture the form (email +
+    // country are real demand signal), ping us, then show the buyer
+    // the graceful "no longer available" message.
+    if (demo) {
+      const fd = new FormData(e.currentTarget as HTMLFormElement)
+      fd.set('listing', listingId)
+      fd.set('email', email)
+      setPaying(true)
+      try {
+        await registerDemoInterest({}, fd)
+      } catch {
+        /* non-fatal — the buyer still sees the message */
+      }
+      setUnavailable(true)
+      setPaying(false)
+      return
+    }
+
     // Mock checkout — Stripe not configured.
     if (mockRedirect) {
       window.location.href = email
@@ -183,6 +205,30 @@ export default function CheckoutForm({
       setError(stripeError.message ?? 'Payment could not be completed.')
       setPaying(false)
     }
+  }
+
+  if (unavailable) {
+    return (
+      <div className="lg:col-span-7">
+        <div className="border border-brand-ink bg-brand-cream-card p-7 sm:p-8">
+          <p className="font-display text-2xl sm:text-3xl tracking-tight">
+            Sorry — this isn’t available anymore.
+          </p>
+          <p className="mt-3 text-brand-muted max-w-prose">
+            This was a sample listing, so there was no charge. Browse the
+            marketplace for agent skills and setups you can buy and download
+            right now.
+          </p>
+          <a
+            href="/marketplace"
+            className="mt-7 inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
+          >
+            Browse the marketplace
+            <span aria-hidden>→</span>
+          </a>
+        </div>
+      </div>
+    )
   }
 
   return (

@@ -11,6 +11,7 @@ type Args = {
   productTitle: string
   listingId: string
   buyerEmail?: string | null
+  country?: string | null
   referrer?: string | null
 }
 
@@ -27,6 +28,7 @@ export async function sendDemoInterestNotification({
   productTitle,
   listingId,
   buyerEmail,
+  country,
   referrer,
 }: Args) {
   if (!hasResend) return { skipped: true as const }
@@ -40,7 +42,8 @@ export async function sendDemoInterestNotification({
   const rows = [
     ['Listing', productTitle],
     ['Listing ID', listingId],
-    ['Buyer email', buyerEmail || '— (not signed in)'],
+    ['Buyer email', buyerEmail || '— (none entered)'],
+    ['Country', country || '—'],
     ['Referrer', referrer || '—'],
     ['When', when],
   ]
@@ -74,7 +77,8 @@ export async function sendDemoInterestNotification({
 
 Listing: ${productTitle}
 Listing ID: ${listingId}
-Buyer email: ${buyerEmail || '— (not signed in)'}
+Buyer email: ${buyerEmail || '— (none entered)'}
+Country: ${country || '—'}
 Referrer: ${referrer || '—'}
 When: ${when}
 

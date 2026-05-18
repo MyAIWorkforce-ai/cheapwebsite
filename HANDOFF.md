@@ -219,18 +219,25 @@ Earlier passes left demo/seed listings as a static "not for sale"
 showcase (see Outstanding #1 above + "Demo/seed listings
 non-purchasable showcase"). That is now superseded.
 
-**Current behaviour:** demo/sample listings show a real buy CTA. A
-click does NOT charge — it emails us a demand signal (`ADMIN_EMAILS`,
-else the Skillzy inbox) and shows the buyer "Sorry — this isn't
-available anymore." Code: `components/DemoInterest.tsx`,
-`app/_actions/demo-interest.ts`, `lib/email/demo-interest.ts`; all
-demo buy entry points (listing page, slim/sticky CTAs, direct
-`/checkout/<seed-id>`) funnel through it.
+**Current behaviour:** demo/sample listings are indistinguishable
+from real ones through the *entire* funnel — same listing CTA, same
+`/checkout/<id>` page with the real (Stripe) payment form rendered.
+Only when the buyer clicks **"Pay $X"** is it intercepted
+client-side: no charge, we email ourselves the demand signal
+(listing, the email + country they typed, referrer; to
+`ADMIN_EMAILS`, else the Skillzy inbox), and the form swaps to
+"Sorry — this isn't available anymore." Code: `app/_actions/
+demo-interest.ts`, `lib/email/demo-interest.ts`, plus the `demo`
+branch in `app/checkout/[id]/CheckoutForm.tsx` (page passes
+`demo={isSeedProductId(...)}`). Demo pages stay `noindex` + out of
+JSON-LD Offers. `/api/checkout` still hard-403s seed ids as
+defense-in-depth (unreachable from the UI now).
 
 **TODO — remove the demo catalogue entirely once we have ~100
 organic (real, DB-backed) listings.** At that point the marketplace
 stands on real inventory and the samples/interest-capture become
 noise. Removal = drop the seed catalogue (`lib/catalog-seed.ts` seed
-data) and delete the DemoInterest path + its three files; nothing
-else depends on it. Track real-listing count to know when we hit
-the threshold.
+data), delete `app/_actions/demo-interest.ts` +
+`lib/email/demo-interest.ts`, and remove the `demo` branch/prop from
+the checkout page + form; nothing else depends on it. Track
+real-listing count to know when we hit the threshold.

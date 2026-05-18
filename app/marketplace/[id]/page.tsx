@@ -5,7 +5,6 @@ import { resolveProduct, isSeedProductId } from '@/lib/listings'
 import ProductCard from '@/components/ProductCard'
 import GuaranteeBadge from '@/components/GuaranteeBadge'
 import EmailGate from '@/components/EmailGate'
-import DemoInterest from '@/components/DemoInterest'
 import StructuredData from '@/components/StructuredData'
 import { pageMetadata } from '@/lib/seo'
 import { productLd, breadcrumbLd, faqLd } from '@/lib/jsonld'
@@ -213,9 +212,7 @@ export default async function ProductDetailPage({
                   : `One-time. ${isSetup ? 'Re-installable forever.' : 'Re-download forever.'}`}
               </p>
 
-              {isDemo ? (
-                <DemoInterest listingId={p.id} ctaLabel={headlineCta} />
-              ) : p.free ? (
+              {p.free ? (
                 <EmailGate listingId={p.id} ctaLabel={headlineCta} />
               ) : (
                 <Link
@@ -561,7 +558,7 @@ export default async function ProductDetailPage({
             Report this listing
           </a>
           <Link
-            href={p.free || isDemo ? '#top' : `/checkout/${p.id}`}
+            href={p.free ? '#top' : `/checkout/${p.id}`}
             className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-3.5 text-[15px] hover:bg-brand-gold-dark transition-colors"
           >
             {headlineCta} — {p.free ? 'Free' : p.price}
@@ -652,7 +649,7 @@ export default async function ProductDetailPage({
             <p className="text-[11px] text-brand-muted truncate">{p.title}</p>
           </div>
           <Link
-            href={p.free || isDemo ? '#top' : `/checkout/${p.id}`}
+            href={p.free ? '#top' : `/checkout/${p.id}`}
             className="shrink-0 inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-5 py-3 text-sm hover:bg-brand-gold-dark transition-colors"
           >
             {headlineCta}
