@@ -46,13 +46,17 @@ export function productLd(p: Product) {
     description: p.tagline,
     category: p.type,
     brand: { '@type': 'Brand', name: p.creator.name },
-    offers: {
+  }
+  // Free listings have no valid Offer (price 0 trips rich-result
+  // validators) — omit it and keep a plain Product.
+  if (!p.free && priceNumber(p.price) !== '0') {
+    ld.offers = {
       '@type': 'Offer',
       price: priceNumber(p.price),
       priceCurrency: 'USD',
       availability: 'https://schema.org/InStock',
-      url: `${SITE_URL}/marketplace/${p.id}`,
-    },
+      url: `${SITE_URL}/marketplace/${p.slug ?? p.id}`,
+    }
   }
   if (p.ratingCount > 0) {
     ld.aggregateRating = {

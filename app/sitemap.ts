@@ -1,13 +1,17 @@
 import type { MetadataRoute } from 'next'
-import { products, allCreatorHandles } from '@/lib/catalog'
+import { allCreatorHandles } from '@/lib/catalog'
+import { liveDbProducts } from '@/lib/listings'
 import { getAllNiches, getAllPlatforms, COMBO_PAGES } from '@/lib/content'
 import { getAllPosts } from '@/lib/blog'
 import { SITE_URL } from '@/lib/seo'
 
+// Refresh the sitemap every hour so new seller listings get indexed.
+export const revalidate = 3600
+
 // Canonical host is the apex (https://skillzy.ai), matching every
 // route's self-referencing canonical. www.skillzy.ai must 301 → apex
 // at the Vercel domain layer (config task, not code).
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = SITE_URL
   const lastModified = new Date()
 
@@ -25,8 +29,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/privacy`,     changeFrequency: 'yearly',  priority: 0.2, lastModified },
   ]
 
-  const listingRoutes: MetadataRoute.Sitemap = products.map((p) => ({
-    url: `${base}/marketplace/${p.id}`,
+  // Only real, live seller listings — never the demo/showcase catalogue
+  // (those are noindex and not for sale).
+  const dbListings = await liveDbProducts()
+  const listingRoutes: MetadataRoute.Sitemap = dbListings.map((p) => ({
+    url: `${base}/marketplace/${p.slug ?? p.id}`,
     changeFrequency: 'weekly',
     priority: 0.8,
     lastModified,

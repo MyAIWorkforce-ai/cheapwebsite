@@ -80,6 +80,7 @@ function mapRow(row: ListingRow): Product {
   const free = !row.price_cents || row.price_cents <= 0
   return {
     id: row.id,
+    slug: row.slug,
     type,
     title: row.title,
     tagline: row.tagline ?? '',

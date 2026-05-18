@@ -26,6 +26,8 @@ export type Creator = {
 
 export type Product = {
   id: string
+  // Public URL slug. Falls back to `id` for seed/demo listings.
+  slug?: string
   type: ProductType
   title: string
   tagline: string

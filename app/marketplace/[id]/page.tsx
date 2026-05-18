@@ -23,7 +23,9 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   return pageMetadata({
     title: `${p.title} — AI ${p.type} — Skillzy`,
     description: `${p.tagline} By ${p.creator.name}.${ratingBit}`.slice(0, 160),
-    path: `/marketplace/${p.id}`,
+    path: `/marketplace/${p.slug ?? p.id}`,
+    // Demo/showcase listings aren't for sale — keep them out of the index.
+    noindex: isSeedProductId(p.id),
     keywords: [
       p.type,
       p.niche,
@@ -33,6 +35,10 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
     ].filter(Boolean) as string[],
   })
 }
+
+// ISR: DB-backed product pages render on-demand then cache for 5 min
+// (real listings change rarely; keeps TTFB/crawl healthy).
+export const revalidate = 300
 
 function Stars({ rating, className = '' }: { rating: number; className?: string }) {
   return (
@@ -95,11 +101,12 @@ export default async function ProductDetailPage({
     <div className="paper">
       <StructuredData
         data={[
-          productLd(p),
+          // No Product/Offer schema for non-purchasable demo listings.
+          ...(isDemo ? [] : [productLd(p)]),
           breadcrumbLd([
             { name: 'Home', path: '/' },
             { name: 'Marketplace', path: '/marketplace' },
-            { name: p.title, path: `/marketplace/${p.id}` },
+            { name: p.title, path: `/marketplace/${p.slug ?? p.id}` },
           ]),
           ...(p.faqs && p.faqs.length > 0 ? [faqLd(p.faqs)] : []),
         ]}
