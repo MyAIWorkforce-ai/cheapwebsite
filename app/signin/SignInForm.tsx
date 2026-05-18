@@ -45,11 +45,54 @@ function ProviderButton({
 
 const initial: SignInState = {}
 
-export default function SignInForm({ demoMode }: { demoMode: boolean }) {
+export default function SignInForm({
+  demoMode,
+  oauthError,
+}: {
+  demoMode: boolean
+  oauthError?: string
+}) {
   const [mode, setMode] = useState<'link' | 'password'>('link')
+  const [email, setEmail] = useState('')
   const [linkState, linkAction] = useFormState(signInWithEmail, initial)
   const [pwState, pwAction] = useFormState(signInWithPassword, initial)
   const state = mode === 'link' ? linkState : pwState
+
+  // Email sent (magic link or sign-up confirmation): take over the
+  // whole panel with an unmissable confirmation, so it's obvious the
+  // next step is "go to your inbox" — not a tiny line under a form.
+  if (state.info) {
+    return (
+      <div className="mt-10 border border-brand-gold bg-brand-cream-card p-7 text-center">
+        <div
+          className="font-display text-3xl tracking-tight"
+          style={{ letterSpacing: '-0.02em' }}
+        >
+          Check your email
+        </div>
+        <p className="mt-3 text-sm text-brand-ink leading-relaxed">
+          {state.info}
+          {email && (
+            <>
+              {' '}
+              We sent it to{' '}
+              <span className="font-semibold">{email}</span>.
+            </>
+          )}
+        </p>
+        <p className="mt-4 text-xs text-brand-muted leading-relaxed">
+          Open the email and click the link to finish signing in. Can’t
+          find it? Check spam, or reload this page to try again.
+        </p>
+        <Link
+          href="/signin"
+          className="inline-block mt-5 text-sm border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
+        >
+          Use a different email
+        </Link>
+      </div>
+    )
+  }
 
   return (
     <>
@@ -57,6 +100,13 @@ export default function SignInForm({ demoMode }: { demoMode: boolean }) {
         <div className="mt-6 p-3 border border-brand-hairline bg-brand-cream-card text-xs text-brand-muted">
           Demo mode — auth requires Supabase env vars. See{' '}
           <span className="font-mono">.env.example</span>.
+        </div>
+      )}
+
+      {oauthError && (
+        <div className="mt-6 p-3 border border-red-300 bg-red-50 text-sm text-red-700">
+          Couldn’t sign in with that provider: {oauthError}. Try the email
+          link below instead.
         </div>
       )}
 
@@ -120,6 +170,8 @@ export default function SignInForm({ demoMode }: { demoMode: boolean }) {
               name="email"
               required
               autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
               className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 placeholder:text-brand-muted/60"
             />
@@ -128,7 +180,6 @@ export default function SignInForm({ demoMode }: { demoMode: boolean }) {
             We email a one-time link. No password.
           </p>
           {state.error && <p className="text-sm text-red-700">{state.error}</p>}
-          {state.info && <p className="text-sm text-brand-gold-dark">{state.info}</p>}
           <Submit label="Send sign-in link" />
         </form>
       ) : (
@@ -140,6 +191,8 @@ export default function SignInForm({ demoMode }: { demoMode: boolean }) {
               name="email"
               required
               autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
               className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 placeholder:text-brand-muted/60"
             />
@@ -164,7 +217,6 @@ export default function SignInForm({ demoMode }: { demoMode: boolean }) {
             </Link>
           </div>
           {state.error && <p className="text-sm text-red-700">{state.error}</p>}
-          {state.info && <p className="text-sm text-brand-gold-dark">{state.info}</p>}
           <Submit label="Sign in" />
         </form>
       )}
