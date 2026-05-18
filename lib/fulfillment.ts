@@ -29,41 +29,8 @@ export async function fulfillPaymentIntent(intent: Stripe.PaymentIntent) {
     (intent.metadata?.buyer_email as string | undefined) ||
     ''
 
-  if (hasSupabase) {
-    try {
-      const supabase = createServiceClient()
-
-      const { data: existing } = await supabase
-        .from('purchases')
-        .select('id')
-        .eq('stripe_payment_intent_id', intent.id)
-        .maybeSingle()
-      if (existing) return
-
-      const amount = intent.amount_received ?? intent.amount ?? 0
-      const fee = Math.round(amount * 0.2)
-      const payout = amount - fee
-      await supabase.from('purchases').insert({
-        buyer_id: (intent.metadata?.buyer_id as string | undefined) || null,
-        buyer_email: buyerEmail,
-        listing_id: listingId,
-        amount_cents: amount,
-        currency: intent.currency ?? 'usd',
-        platform_fee_cents: fee,
-        creator_payout_cents: payout,
-        stripe_payment_intent_id: intent.id,
-        referrer_slug:
-          (intent.metadata?.referrer_slug as string | undefined) || null,
-        referrer_channel:
-          (intent.metadata?.referrer_channel as string | undefined) || null,
-        status: 'paid',
-      })
-    } catch (err) {
-      console.error('Failed to record purchase', err)
-    }
-  }
-
-  if (hasResend && buyerEmail && product) {
+  async function emailBuyer() {
+    if (!hasResend || !buyerEmail || !product) return
     try {
       await sendPurchaseConfirmation({
         to: buyerEmail,
@@ -75,4 +42,54 @@ export async function fulfillPaymentIntent(intent: Stripe.PaymentIntent) {
       console.error('Failed to send purchase email', err)
     }
   }
+
+  // No DB to dedupe against — best-effort single send.
+  if (!hasSupabase) {
+    await emailBuyer()
+    return
+  }
+
+  // The recorded purchase row is the idempotency guard AND the thing
+  // the dashboards read. Email ONLY after a row is freshly recorded:
+  // if it already exists we've emailed once already; if recording
+  // fails we must not email (otherwise every success-page reload
+  // re-sends). Downloads still work regardless via the success page.
+  try {
+    const supabase = createServiceClient()
+
+    const { data: existing } = await supabase
+      .from('purchases')
+      .select('id')
+      .eq('stripe_payment_intent_id', intent.id)
+      .maybeSingle()
+    if (existing) return
+
+    const amount = intent.amount_received ?? intent.amount ?? 0
+    const fee = Math.round(amount * 0.2)
+    const payout = amount - fee
+    const { error: insertError } = await supabase.from('purchases').insert({
+      buyer_id: (intent.metadata?.buyer_id as string | undefined) || null,
+      buyer_email: buyerEmail,
+      listing_id: listingId,
+      amount_cents: amount,
+      currency: intent.currency ?? 'usd',
+      platform_fee_cents: fee,
+      creator_payout_cents: payout,
+      stripe_payment_intent_id: intent.id,
+      referrer_slug:
+        (intent.metadata?.referrer_slug as string | undefined) || null,
+      referrer_channel:
+        (intent.metadata?.referrer_channel as string | undefined) || null,
+      status: 'paid',
+    })
+    if (insertError) {
+      console.error('Failed to record purchase', insertError)
+      return
+    }
+  } catch (err) {
+    console.error('Failed to record purchase', err)
+    return
+  }
+
+  await emailBuyer()
 }
