@@ -241,3 +241,62 @@ data), delete `app/_actions/demo-interest.ts` +
 `lib/email/demo-interest.ts`, and remove the `demo` branch/prop from
 the checkout page + form; nothing else depends on it. Track
 real-listing count to know when we hit the threshold.
+
+## Listing-readiness pass — 2026-05-18 (legal, seller warranty, payout fix)
+
+Decisions taken (from the founder): listings stay **instant-publish**
+(product/profile/QR links must work immediately — no review gate);
+**Australian** governing law; prices in **USD**, sold worldwide;
+**no refunds + goodwill** (ACL-preserved).
+
+### Shipped this pass (code, pushed, full-build verified)
+
+- **Real legal pages** replacing the thin placeholders:
+  `/terms` (marketplace/buyer/seller terms, seller IP warranty +
+  indemnity, instant-publish + notice-and-takedown, 20/80, Stripe
+  Connect payouts, ACL-preserved, AU governing law, liability cap),
+  `/privacy` (actual data flows: Supabase/Stripe/Resend/AI processors,
+  cookies incl. referral, APP rights), new `/refunds` (all sales final
+  + goodwill + ACL), new `/dmca` (IP & notice-and-takedown,
+  counter-notice, repeat-infringer). Footer links all four.
+- **Removed false claims.** Old `/terms` still asserted "Every upload
+  is scanned. First-time creators are reviewed." — untrue and a
+  misleading-conduct risk. Gone; copy now truthfully says
+  not-pre-screened + notice-and-takedown.
+- **Acceptance gates:** signup agreement now cites Terms/Privacy/
+  Refunds; checkout has an explicit "by paying you agree to Terms +
+  Refund Policy — all sales final" line; **seller publish now has a
+  required content-warranty checkbox** ("I own/ am licensed, no
+  malware, no infringement, accept Seller Terms"), **enforced
+  server-side** in `app/sell/new/actions.ts` — this is the chosen
+  mitigation for instant-publish/no-scan.
+- **Launch-blocking payout bug FIXED.** Nothing ever set
+  `profiles.stripe_payouts_enabled`, so checkout never set a
+  `transfer_data.destination` → sellers would have received **$0**
+  (100% stuck on the platform) even after completing Stripe
+  onboarding. New `lib/stripe-connect.ts` `syncPayoutStatus()`
+  reconciles the flag from the live Stripe account; new
+  `/api/stripe/connect/return` route runs it on return from
+  onboarding; `/dashboard/payouts` self-heals on view. No webhook
+  needed (consistent with the app's no-webhook design).
+- Minor: publish error said "25 MB" but the limit is 50 MB — fixed.
+
+### Still only you can do (unchanged by this pass)
+
+1. **Stripe Connect must be enabled** + platform profile completed in
+   the Stripe dashboard, and **flip to LIVE keys** — the code path is
+   now correct and self-reconciling, but Connect being switched on is
+   still a dashboard action only you can do.
+2. PRIVATE Storage bucket `skillzy-products` must exist (file
+   delivery).
+3. Confirm the DB schema is actually applied on live Supabase
+   (`stripe_payouts_enabled`, `files`, `listings`, `purchases` unique
+   index) — the doc earlier both warned and claimed-applied.
+4. **Legal review:** these pages are written to be substantive and
+   accurate but are not legal advice. Have a lawyer review, and add
+   the registered operating entity / ABN (pages currently say
+   "operated from Australia" with no entity name — deliberately, not
+   a fake one).
+5. Env in Vercel: `ANTHROPIC_API_KEY`, `ADMIN_EMAILS`, `CRON_SECRET`.
+6. Rotate exposed secrets; add DMARC; end-to-end real seller test
+   (publish w/ file → buy as guest → download + dashboard + payout).

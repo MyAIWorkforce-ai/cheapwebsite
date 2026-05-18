@@ -757,6 +757,29 @@ export default function NewListingForm({
           </ul>
 
           <div className="lg:col-span-5">
+            <label className="flex items-start gap-3 mb-6 text-sm text-brand-muted cursor-pointer">
+              <input
+                type="checkbox"
+                name="accept_terms"
+                required
+                className="mt-1 accent-brand-gold w-4 h-4 shrink-0"
+              />
+              <span>
+                I own or am licensed to sell everything in this listing, it
+                contains no malware and infringes no one’s rights, and I
+                agree to the{' '}
+                <a
+                  href="/terms"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="border-b border-brand-muted hover:text-brand-ink hover:border-brand-ink"
+                >
+                  Seller Terms
+                </a>
+                .
+              </span>
+            </label>
+
             <Submit />
 
             {state.error && (

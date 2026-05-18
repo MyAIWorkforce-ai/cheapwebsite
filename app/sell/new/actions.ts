@@ -74,13 +74,21 @@ export async function publishListing(
 
   for (const f of bundle) {
     if (f.size > MAX_FILE_SIZE) {
-      return { error: `${f.name} exceeds the 25 MB per-file limit.` }
+      return { error: `${f.name} exceeds the 50 MB per-file limit.` }
     }
   }
 
   if (!title) return { error: 'Title is required.' }
   if (!tagline) return { error: 'Tagline is required.' }
   if (!Number.isFinite(price) || price <= 0) return { error: 'Set a price.' }
+  // Instant publish, no pre-screen — the seller's explicit warranty is
+  // the gate. Enforced server-side so it can't be bypassed.
+  if (formData.get('accept_terms') !== 'on') {
+    return {
+      error:
+        'Please confirm you have the rights to sell this content, it’s safe, and you accept the Seller Terms.',
+    }
+  }
   if (
     description.some((d) => /ANTHROPIC_API_KEY|^\s*Demo draft/i.test(d))
   ) {

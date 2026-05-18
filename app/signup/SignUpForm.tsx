@@ -122,9 +122,13 @@ export default function SignUpForm({ demoMode }: { demoMode: boolean }) {
           <Link href="/terms" className="border-b border-brand-muted hover:text-brand-ink hover:border-brand-ink">
             Terms
           </Link>{' '}
-          and{' '}
+          ,{' '}
           <Link href="/privacy" className="border-b border-brand-muted hover:text-brand-ink hover:border-brand-ink">
             Privacy
+          </Link>
+          , and{' '}
+          <Link href="/refunds" className="border-b border-brand-muted hover:text-brand-ink hover:border-brand-ink">
+            Refund Policy
           </Link>
           .
         </p>

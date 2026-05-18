@@ -314,7 +314,26 @@ export default function CheckoutForm({
       {error && <p className="mt-4 text-sm text-red-700">{error}</p>}
 
       <p className="mt-4 text-xs text-brand-muted max-w-md">
-        You&rsquo;re only charged when you confirm. Secured by Stripe.
+        You&rsquo;re only charged when you confirm. Secured by Stripe. By
+        paying you agree to the{' '}
+        <a
+          href="/terms"
+          target="_blank"
+          rel="noreferrer"
+          className="underline hover:text-brand-ink"
+        >
+          Terms
+        </a>{' '}
+        and{' '}
+        <a
+          href="/refunds"
+          target="_blank"
+          rel="noreferrer"
+          className="underline hover:text-brand-ink"
+        >
+          Refund Policy
+        </a>{' '}
+        — digital goods, all sales final.
       </p>
     </form>
   )

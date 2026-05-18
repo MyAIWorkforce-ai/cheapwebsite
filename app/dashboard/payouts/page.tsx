@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth'
 import { createClient } from '@/lib/supabase/server'
 import { hasSupabase, hasStripe } from '@/lib/env'
 import ConnectButton from './ConnectButton'
+import { syncPayoutStatus } from '@/lib/stripe-connect'
 
 export const metadata = {
   title: 'Payouts',
@@ -37,7 +38,12 @@ export default async function PayoutsPage({
 }) {
   const user = await getUser()
 
-  const profile = user ? await getPayoutProfile(user.id) : null
+  let profile = user ? await getPayoutProfile(user.id) : null
+  // Self-heal: if a Stripe account exists but payouts aren't marked
+  // enabled yet, reconcile from Stripe now (no webhook in this app).
+  if (user && profile?.stripe_account_id && !profile.stripe_payouts_enabled) {
+    profile = await syncPayoutStatus(user.id)
+  }
 
   const connected = Boolean(profile?.stripe_account_id)
   const payoutsEnabled = Boolean(profile?.stripe_payouts_enabled)
