@@ -178,15 +178,23 @@ partially-applied DB). Also ensure a PRIVATE Storage bucket named
    + acceptance at signup/checkout.
 8. Optional: Google/GitHub OAuth providers; brand Supabase auth emails.
 
-### Outstanding — code (next passes)
-- SEO: carry `slug` on Product; async sitemap incl. live DB listings;
-  `noindex` + drop demo listings from sitemap; fix free/demo Offer
-  JSON-LD; ISR `revalidate` on marketplace + product pages.
-- Free listings currently deliver nothing (EmailGate only newsletters)
-  — wire free "purchases" through the same delivery/email path.
-- Rate-limiting on AI-draft / checkout / signup (needs Upstash/KV for
-  real serverless coverage).
-- After RECONCILE SQL is applied: restore richer purchase columns
-  (currency/fee/payout/referrer) + add a unique index on
-  `purchases.stripe_payment_intent_id`.
-- Refund should reverse the Connect transfer + revoke download.
+### Code — DONE this session (pushed, full-build verified)
+- ✅ SEO: `slug` on Product; async sitemap with live DB listings by
+  slug; demo listings `noindex` + out of sitemap; correct
+  canonical/JSON-LD; no invalid free/demo Offer; ISR (product 5 min,
+  sitemap hourly).
+- ✅ Free listings now deliver: £0 purchase recorded + token-gated
+  no-login download page + email; demo free items just get the
+  newsletter signup (no false promise).
+- ✅ DB reconcile SQL applied (prod schema now matches code; unique
+  index on `purchases.stripe_payment_intent_id` added).
+
+### Outstanding — code (next passes, optional / post-decision)
+- Restore richer purchase columns now the schema exists
+  (currency/fee/payout/referrer) so referral attribution + exact
+  payout are tracked again. Low-risk; recommended next.
+- Rate-limiting on AI-draft / checkout / signup — needs Vercel KV /
+  Upstash provisioned (your infra decision) before it can be wired.
+- Refund should reverse the Connect transfer + revoke download —
+  depends on Connect being live; post-launch hardening.
+- Moderation (file scanning / review gate) — awaiting your decision.
