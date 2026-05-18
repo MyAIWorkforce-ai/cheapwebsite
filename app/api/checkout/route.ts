@@ -94,17 +94,23 @@ export async function POST(request: NextRequest) {
   //    via Resend from the webhook, so Stripe's account-branded receipt
   //    never reaches the buyer.
   const stripe = getStripe()
-  const intent = await stripe.paymentIntents.create({
+
+  // Push the Skillzy brand onto the card statement as hard as the API
+  // allows: a full "SKILLZY <product>" descriptor when the account
+  // permits a dynamic one, else a SKILLZY suffix, else the account
+  // default — but never fail checkout over a descriptor.
+  const skillzyDescriptor = `SKILLZY ${product.title}`
+    .toUpperCase()
+    .replace(/[^A-Z0-9 ]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 22)
+
+  const baseParams = {
     amount: unitAmountCents,
     currency: 'usd',
     automatic_payment_methods: { enabled: true },
     description: product.title,
-    // Card statement suffix — appears after the account-level prefix.
-    // Stripe truncates to 22 chars and strips disallowed characters.
-    statement_descriptor_suffix: product.id
-      .toUpperCase()
-      .replace(/[^A-Z0-9 ]/g, '-')
-      .slice(0, 22),
     ...(destinationAccount && {
       application_fee_amount: platformFee,
       transfer_data: { destination: destinationAccount },
@@ -116,7 +122,26 @@ export async function POST(request: NextRequest) {
       referrer_slug: request.cookies.get('skz_ref')?.value ?? '',
       referrer_channel: request.cookies.get('skz_ch')?.value ?? '',
     },
-  })
+  }
+
+  async function createPaymentIntent() {
+    try {
+      return await stripe.paymentIntents.create({
+        ...baseParams,
+        statement_descriptor: skillzyDescriptor,
+      })
+    } catch {
+      try {
+        return await stripe.paymentIntents.create({
+          ...baseParams,
+          statement_descriptor_suffix: 'SKILLZY',
+        })
+      } catch {
+        return await stripe.paymentIntents.create(baseParams)
+      }
+    }
+  }
+  const intent = await createPaymentIntent()
 
   return NextResponse.json({
     mock: false,
