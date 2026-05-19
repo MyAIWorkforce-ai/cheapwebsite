@@ -2,6 +2,7 @@ import type Stripe from 'stripe'
 import { env, hasSupabase, hasResend } from '@/lib/env'
 import { createServiceClient } from '@/lib/supabase/server'
 import { sendPurchaseConfirmation } from '@/lib/email/purchase-confirmation'
+import { sendSaleNotification } from '@/lib/email/sale-notification'
 import { resolveProduct } from '@/lib/listings'
 import { deliveryToken } from '@/lib/delivery-token'
 
@@ -33,6 +34,11 @@ export async function fulfillPaymentIntent(intent: Stripe.PaymentIntent) {
     .trim()
     .toLowerCase()
 
+  const amount = intent.amount_received ?? intent.amount ?? 0
+  const fee = Math.round(amount * 0.2)
+  const payout = amount - fee
+  const currency = intent.currency ?? 'usd'
+
   async function emailBuyer() {
     if (!hasResend || !buyerEmail || !product) return
     try {
@@ -44,6 +50,37 @@ export async function fulfillPaymentIntent(intent: Stripe.PaymentIntent) {
       })
     } catch (err) {
       console.error('Failed to send purchase email', err)
+    }
+  }
+
+  // Seller "you sold X" email. Needs Supabase to look up the listing's
+  // creator and their auth email — silent no-op if either is missing.
+  async function emailSeller() {
+    if (!hasResend || !hasSupabase || !product) return
+    try {
+      const supabase = createServiceClient()
+      const { data: listing } = await supabase
+        .from('listings')
+        .select('creator_id, slug, title')
+        .eq('id', listingId)
+        .single()
+      if (!listing?.creator_id) return
+      const { data: userResp } = await supabase.auth.admin.getUserById(
+        listing.creator_id as string,
+      )
+      const sellerEmail = userResp.user?.email
+      if (!sellerEmail) return
+      await sendSaleNotification({
+        to: sellerEmail,
+        title: (listing.title as string) ?? product.title,
+        slug: (listing.slug as string) ?? listingId,
+        amountCents: amount,
+        payoutCents: payout,
+        currency,
+        orderId: orderIdFromIntent(intent.id),
+      })
+    } catch (err) {
+      console.error('Failed to send seller sale notification', err)
     }
   }
 
@@ -68,15 +105,12 @@ export async function fulfillPaymentIntent(intent: Stripe.PaymentIntent) {
       .maybeSingle()
     if (existing) return
 
-    const amount = intent.amount_received ?? intent.amount ?? 0
-    const fee = Math.round(amount * 0.2)
-    const payout = amount - fee
     const { error: insertError } = await supabase.from('purchases').insert({
       buyer_id: (intent.metadata?.buyer_id as string | undefined) || null,
       buyer_email: buyerEmail,
       listing_id: listingId,
       amount_cents: amount,
-      currency: intent.currency ?? 'usd',
+      currency,
       platform_fee_cents: fee,
       creator_payout_cents: payout,
       stripe_payment_intent_id: intent.id,
@@ -96,4 +130,5 @@ export async function fulfillPaymentIntent(intent: Stripe.PaymentIntent) {
   }
 
   await emailBuyer()
+  await emailSeller()
 }
