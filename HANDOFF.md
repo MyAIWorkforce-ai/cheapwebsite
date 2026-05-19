@@ -378,6 +378,14 @@ live. Steps:
   so after email-confirm the seller lands on /dashboard not back on
   /sell/new. The localStorage draft makes this non-critical (work
   is safe; they just navigate back manually). Nice-to-have follow-up.
+- **Google / GitHub login buttons don't work** (founder-reported
+  2026-05-19). Config task, not a code bug: create a Google OAuth
+  app + a GitHub OAuth app, paste client id/secret into Supabase →
+  Authentication → Providers, add the `${siteUrl}/auth/callback`
+  redirect URL. Email/password + magic-link work without it.
+- **GitHub repo import ("drop product from GitHub") not working**
+  (founder-reported 2026-05-19). Needs investigation — likely tied
+  to the GitHub OAuth above not being configured. Code + config.
 - **Supabase auth emails** are plain Supabase defaults ("Confirm
   Your Signup"). Brand them: Supabase → Auth → Email Templates
   (dashboard task; branded HTML can be supplied).
