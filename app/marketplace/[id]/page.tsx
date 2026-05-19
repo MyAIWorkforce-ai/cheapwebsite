@@ -170,10 +170,6 @@ export default async function ProductDetailPage({
               </span>
               <Stars rating={p.rating} className="text-brand-ink" />
               <span className="text-brand-muted">({p.ratingCount} reviews)</span>
-              <span className="text-brand-muted">·</span>
-              <span className="text-brand-muted">
-                {p.creator.totalSales.toLocaleString()} sales
-              </span>
             </div>
 
             <div className="mt-6">
@@ -454,15 +450,7 @@ export default async function ProductDetailPage({
               </div>
               <p className="mt-4 text-lg max-w-prose">{p.creator.bio}</p>
 
-              <dl className="mt-7 grid grid-cols-3 gap-4 sm:gap-6 max-w-md">
-                <div>
-                  <dt className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
-                    Sales
-                  </dt>
-                  <dd className="font-display text-2xl mt-1">
-                    {p.creator.totalSales.toLocaleString()}
-                  </dd>
-                </div>
+              <dl className="mt-7 grid grid-cols-2 gap-4 sm:gap-6 max-w-md">
                 <div>
                   <dt className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
                     Rating

@@ -80,18 +80,7 @@ export default function CreatorPage({ params }: { params: { handle: string } }) 
             {creator.bio}
           </p>
 
-          <dl className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-px bg-brand-hairline border border-brand-hairline max-w-3xl">
-            <div className="bg-brand-cream-card p-5">
-              <dt className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
-                Sales
-              </dt>
-              <dd
-                className="font-display text-3xl mt-1.5 text-brand-gold"
-                style={{ letterSpacing: '-0.03em' }}
-              >
-                {creator.totalSales.toLocaleString()}
-              </dd>
-            </div>
+          <dl className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline max-w-3xl">
             <div className="bg-brand-cream-card p-5">
               <dt className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
                 Listings
