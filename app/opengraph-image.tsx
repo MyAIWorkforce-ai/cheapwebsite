@@ -42,16 +42,17 @@ export default function OG() {
             display: 'flex',
             flexDirection: 'column',
             fontWeight: 600,
-            fontSize: 96,
+            fontSize: 88,
             letterSpacing: '-0.04em',
             lineHeight: 0.98,
           }}
         >
           <span>Drop it in.</span>
+          <span>Your agent</span>
           <span style={{ display: 'flex' }}>
-            Agent{' '}
+            just got{' '}
             <span style={{ fontStyle: 'italic', color: '#C19E50', marginLeft: 18 }}>
-              supercharged.
+              smarter.
             </span>
           </span>
         </div>
