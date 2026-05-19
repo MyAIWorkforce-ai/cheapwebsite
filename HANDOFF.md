@@ -422,3 +422,38 @@ explicit ask:
   (e.g. first 50 keep 90% / 0% fee 90 days + badge + feature),
   (3) real comped early reviews, (4) lean on creator economics copy.
   Awaiting founder's final direction — ship nothing fabricated.
+
+## Super-admin metrics dashboard — brainstorm (founder-requested 2026-05-19)
+
+Goal: a super-admin view with full metrics on all creators
+("clients") and listings. Build on the existing `/admin` area
+(gate via ADMIN_EMAILS + the existing constant-time admin token).
+
+Recommended MVP (uses data already stored — no new tracking):
+- **Platform pulse:** GMV, platform 20% revenue, total creator
+  payouts, # sales, refunds + refund rate, trend over time.
+- **★ "Creators earning but NOT Stripe-connected" list** — the
+  killer operational metric (their money is stuck on the platform;
+  ties directly to the #1 payout work).
+- **Per-creator earnings/payout table:** listings, units, gross,
+  platform fee, payout owed/paid/pending, Stripe-connected? rating.
+
+Full tiers (phase the rest):
+- Per-listing drill-down: units, gross, fee, payout, refunds,
+  rating/reviews, status, dates.
+- Referral performance by referrer_slug + channel (qr/social/post/
+  profile/print/link) — already captured on purchases.
+- Operational: reported/flagged listings, refund/dispute queue,
+  live activity feed (latest sales/signups/listings).
+- Phase 2 (needs analytics events that may not exist yet): page
+  views, visit→checkout→paid conversion.
+
+Data sources ready: `purchases` (amount/platform_fee/creator_payout/
+status/refunded_at/referrer_slug/referrer_channel/created_at),
+`listings`, `profiles` (stripe_account_id, stripe_payouts_enabled),
+`reviews`.
+
+Open scoping questions for founder:
+1. Who counts as super-admin (their email via the admin gate)?
+2. Which single metric should be top — i.e. the one they'd check
+   first every morning?
