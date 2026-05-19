@@ -64,9 +64,10 @@ export default async function ListingDonePage({
             </em>
           </h1>
           <p className="mt-6 text-xl text-brand-ink max-w-2xl leading-snug">
-            <span className="font-semibold">{title}</span> is in review — a
-            human checks first listings within 24 hours, then it goes live.
-            Returning creators publish instantly.
+            <span className="font-semibold">{title}</span> is{' '}
+            <span className="font-semibold text-brand-gold-dark">live now</span>{' '}
+            — buyers can find it, buy it, and download it immediately. Your
+            link, QR code, and profile below all work straight away.
           </p>
           <p className="mt-4 text-brand-muted max-w-2xl">
             Don&rsquo;t wait for the marketplace to send buyers. You earn the
