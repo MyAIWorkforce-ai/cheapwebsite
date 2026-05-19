@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { hasSupabase } from '@/lib/env'
 import ShareListing from '@/components/ShareListing'
 import ProfileShareKit from '@/components/ProfileShareKit'
+import DoneInit from './DoneInit'
 
 export const metadata = {
   title: 'Listing submitted',
@@ -49,6 +50,7 @@ export default async function ListingDonePage({
 
   return (
     <div className="paper">
+      <DoneInit />
       <section className="px-6 lg:px-10 pt-16 sm:pt-24 pb-12 sm:pb-16 border-b border-brand-hairline">
         <div className="max-w-page mx-auto">
           <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">

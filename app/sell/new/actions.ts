@@ -116,7 +116,10 @@ export async function publishListing(
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) {
-    redirect('/signin?next=/sell/new')
+    // New sellers should land on sign-UP (account creation) first,
+    // with sign-in offered as the secondary path on that page. Their
+    // draft is preserved client-side, so the round trip is safe.
+    redirect('/signup?next=/sell/new')
   }
 
   // 1. Create the listing row.
