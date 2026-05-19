@@ -3,6 +3,7 @@ import { Fraunces, Inter } from 'next/font/google'
 import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+import ChromeGate from '@/components/ChromeGate'
 
 const display = Fraunces({
   subsets: ['latin'],
@@ -79,9 +80,13 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${display.variable} ${sans.variable}`}>
       <body className="font-sans">
-        <Navbar />
+        <ChromeGate>
+          <Navbar />
+        </ChromeGate>
         <main>{children}</main>
-        <Footer />
+        <ChromeGate>
+          <Footer />
+        </ChromeGate>
       </body>
     </html>
   )
