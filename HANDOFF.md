@@ -394,3 +394,13 @@ live. Steps:
 - Lawyer review of legal pages + add registered entity/ABN.
 - Cosmetic: old `cheapwebsite-preview-*.vercel.app` aliases (project
   renamed to `skillzyai`; customers never see these — tidy later).
+
+## Parked copy idea (NOT applied — future consideration)
+
+Founder liked this as a possible clearer "what it is" line (e.g.
+future homepage subhead / about / meta). Do NOT ship without an
+explicit ask:
+
+> Skillzy is a marketplace for ready-made AI agent skills, guides,
+> and full setups. Buy one, drop it into your agent — skip building
+> it yourself.
