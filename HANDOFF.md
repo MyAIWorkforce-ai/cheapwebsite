@@ -348,21 +348,36 @@ live. Steps:
 4. Keep tests at $1 — refunding a split charge does not cleanly
    claw back the connected account's share (post-launch hardening).
 
-### Other open items (prioritised, mostly mine to code next)
+### Built after this session (code, pushed `0ec754f`, build-verified — NEEDS LIVE QA)
+- **`/sell/new` rebuilt**: clean single-column, plain headings,
+  dark navy panel gone. Description / "what buyers get" are now
+  editable textareas the AI pre-fills (server contract unchanged).
+- **Draft never lost**: auto-saved to localStorage, restored on
+  return — survives the sign-up / email-confirm round trip. Files
+  re-dropped; all text kept. Cleared on the done page post-publish.
+- **Sign-up leads**: unauthenticated Publish → `/signup?next=...`
+  (was `/signin`).
+- **Done page** scrolls to top on load (was bottom).
+- ⚠️ All of the above is **build-verified only — not click-tested**
+  (no browser in the build env). Founder must QA on skillzy.ai:
+  build a listing logged-out → sign up → confirm draft restored →
+  publish.
+
+### Still open (prioritised)
 - **Stripe statement descriptor** still shows
   `MY AI WORKFOR* SKILLZY +61419500004` on buyers' bank statements.
   Founder task: Stripe → Settings → Business/Public details →
   statement descriptor `SKILLZY`, remove personal phone
   `+61419500004`.
-- **Seller listing flow loses the draft on sign-up.** Build the
-  agreed (b) flow: sign-**up** leads, build freely, account created
-  at Publish with the draft preserved (AI text kept; re-drop the
-  file). NOT yet built. Workaround for now: sign in BEFORE building.
-- **`/sell/new` redesign**: simple headings + AI-filled editable
-  fields + per-field voice; drop the dark navy panel. NOT built.
 - **Mobile download UX**: file delivers but bounces to Drive /
-  felt broken once. Make it stream first-party via skillzy.ai.
-- **`/sell/new/done` scroll** lands at page bottom — minor.
+  felt broken once. Proper fix = stream first-party via skillzy.ai
+  with attachment headers. **Deliberately NOT done** — rewriting
+  the paid-delivery/authorization path blind on a live money site
+  is unsafe; needs careful work + live testing.
+- `next` param is not yet threaded through signup → auth/callback,
+  so after email-confirm the seller lands on /dashboard not back on
+  /sell/new. The localStorage draft makes this non-critical (work
+  is safe; they just navigate back manually). Nice-to-have follow-up.
 - **Supabase auth emails** are plain Supabase defaults ("Confirm
   Your Signup"). Brand them: Supabase → Auth → Email Templates
   (dashboard task; branded HTML can be supplied).
