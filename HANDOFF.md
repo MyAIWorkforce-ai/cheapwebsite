@@ -300,3 +300,74 @@ Decisions taken (from the founder): listings stay **instant-publish**
 5. Env in Vercel: `ANTHROPIC_API_KEY`, `ADMIN_EMAILS`, `CRON_SECRET`.
 6. Rotate exposed secrets; add DMARC; end-to-end real seller test
    (publish w/ file → buy as guest → download + dashboard + payout).
+
+## Go-live session — 2026-05-19 (live cutover; READ THIS FIRST)
+
+A long live cutover was done with the founder driving the dashboards.
+This section supersedes the open items above where they overlap.
+
+### Proven working with REAL money
+- Live Stripe keys are in Vercel (`STRIPE_SECRET_KEY`,
+  `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`). A real card was charged
+  **A$1.41** for a real listing — buyer → checkout → payment →
+  email → file download all work end-to-end on skillzy.ai.
+- Supabase verified + patched live: schema confirmed; added missing
+  `listings.video_url/video_label`, `purchases.referrer_slug/
+  referrer_channel` + indexes. Storage bucket `skillzy-products`
+  confirmed PRIVATE.
+- `ANTHROPIC_API_KEY` set in Vercel — AI listing-draft works
+  (creator drops a file, AI writes the listing).
+- Stripe Connect platform set up (Marketplace / Express / platform
+  liable) and taken through Stripe's "Go live" (identity, integration
+  choices, keys).
+
+### Shipped this session (code, pushed, build-verified)
+- Fixed false "in review — a human checks within 24 hours" copy on
+  `/sell/new/done` → truthful "live now" (matches instant-publish).
+- `getUser()` now reads handle/name/avatar from the `profiles` row
+  (was OAuth-only) → profile link/QR works for email-signup creators.
+- Earlier in session: `lib/stripe-connect.ts` `syncPayoutStatus()`
+  + `/api/stripe/connect/return` + payouts self-heal (the
+  launch-blocking payout-enable bug); real legal pages; seller
+  content-warranty checkbox; checkout agreement line; Manus added.
+
+### ★ #1 NEXT ACTION — PROVE THE 80% SELLER SPLIT (unproven, critical)
+In the test the seller had **no connected Stripe account**, so 100%
+stayed in the platform (My AI Workforce) account — the 80/20 split
+**has never actually run**. The code for it is built; it is untested
+live. Steps:
+1. Confirm Stripe **activated** the Connect platform: skillzy.ai →
+   Dashboard → Payouts → "Connect Stripe" must start Stripe Express
+   onboarding (not error). If it errors, platform is still pending
+   Stripe approval — that's the blocker.
+2. Complete Express onboarding → Payouts page should read enabled
+   (self-heal sync handles the flag).
+3. Buy that seller's listing (~A$1.41) → in Stripe → Payments,
+   verify ~20% **application fee** + ~80% **transfer** to the
+   connected account.
+4. Keep tests at $1 — refunding a split charge does not cleanly
+   claw back the connected account's share (post-launch hardening).
+
+### Other open items (prioritised, mostly mine to code next)
+- **Stripe statement descriptor** still shows
+  `MY AI WORKFOR* SKILLZY +61419500004` on buyers' bank statements.
+  Founder task: Stripe → Settings → Business/Public details →
+  statement descriptor `SKILLZY`, remove personal phone
+  `+61419500004`.
+- **Seller listing flow loses the draft on sign-up.** Build the
+  agreed (b) flow: sign-**up** leads, build freely, account created
+  at Publish with the draft preserved (AI text kept; re-drop the
+  file). NOT yet built. Workaround for now: sign in BEFORE building.
+- **`/sell/new` redesign**: simple headings + AI-filled editable
+  fields + per-field voice; drop the dark navy panel. NOT built.
+- **Mobile download UX**: file delivers but bounces to Drive /
+  felt broken once. Make it stream first-party via skillzy.ai.
+- **`/sell/new/done` scroll** lands at page bottom — minor.
+- **Supabase auth emails** are plain Supabase defaults ("Confirm
+  Your Signup"). Brand them: Supabase → Auth → Email Templates
+  (dashboard task; branded HTML can be supplied).
+- **Rotate the Anthropic key** that was pasted into chat — founder
+  accepted the risk for now ($10 cap), still should be rotated.
+- Lawyer review of legal pages + add registered entity/ABN.
+- Cosmetic: old `cheapwebsite-preview-*.vercel.app` aliases (project
+  renamed to `skillzyai`; customers never see these — tidy later).
