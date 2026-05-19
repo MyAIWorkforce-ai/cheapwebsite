@@ -27,6 +27,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/contact`,     changeFrequency: 'monthly', priority: 0.4, lastModified },
     { url: `${base}/terms`,       changeFrequency: 'yearly',  priority: 0.2, lastModified },
     { url: `${base}/privacy`,     changeFrequency: 'yearly',  priority: 0.2, lastModified },
+    { url: `${base}/refunds`,     changeFrequency: 'yearly',  priority: 0.2, lastModified },
+    { url: `${base}/dmca`,        changeFrequency: 'yearly',  priority: 0.2, lastModified },
   ]
 
   // Only real, live seller listings — never the demo/showcase catalogue
