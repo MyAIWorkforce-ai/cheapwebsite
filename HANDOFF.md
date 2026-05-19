@@ -497,6 +497,9 @@ Priority order. Items 1–3 are the real blockers; rest is polish/config.
   AOV, refund rate), **Best creators**, **⚠ Earning-but-not-paid**
   (creators with sales but no Stripe — money stuck), Top listings,
   channels. Separate from per-user dashboards.
+- Per-creator drill-down `/admin/creators/[id]` (gated): a
+  creator's totals + per-listing breakdown + "owed but no
+  payout" flag. Linked from the dashboard creator rows.
 
 ### Still open (founder decision — do NOT auto-ship)
 - Demo-listing reviews: fabricated reviews were requested; declined
