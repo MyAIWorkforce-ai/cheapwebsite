@@ -457,3 +457,58 @@ Open scoping questions for founder:
 1. Who counts as super-admin (their email via the admin gate)?
 2. Which single metric should be top — i.e. the one they'd check
    first every morning?
+
+## ★ MORNING OFFICE LIST — start here (2026-05-19 night)
+
+Priority order. Items 1–3 are the real blockers; rest is polish/config.
+
+1. **PROVE THE 80% SPLIT** (still #1, unverified). skillzy.ai →
+   Dashboard → Payouts → Connect Stripe → finish Stripe Express →
+   buy that listing (~$1) → in Stripe → Payments verify ~20%
+   application fee + ~80% transfer to the connected account.
+2. **Make yourself super-admin.** Add `hi@skillzy.ai` to
+   `ADMIN_EMAILS` in Vercel (Production + Preview). Rotate the
+   account password (it was exposed in chat) via skillzy.ai
+   password reset. Then sign in → /admin/dashboard.
+3. **Stripe statement descriptor** → `SKILLZY`, remove personal
+   phone `+61419500004` (buyers see this on their bank statement).
+4. **`GITHUB_TOKEN` in Vercel** — repo import uses the public
+   GitHub API (60 req/hr/IP, exhausted instantly on Vercel).
+   Create a GitHub read-only Personal Access Token, set it as
+   `GITHUB_TOKEN` (Prod+Preview). NOTE: corrects the earlier
+   handoff guess — this is NOT an OAuth issue. (Private repos
+   still need a token with `repo` scope.)
+5. **Google/GitHub LOGIN buttons** — separate from #4. Configure
+   Google + GitHub OAuth apps in Supabase → Auth → Providers.
+6. **Brand the Supabase auth email** (Supabase → Auth → Email
+   Templates) — it's the plain default.
+7. **Rotate the Anthropic key** (exposed in chat earlier).
+8. **QA the rebuilt /sell/new** on skillzy.ai (build logged-out →
+   sign up → confirm draft restored → publish).
+9. **Lawyer review** of the legal pages + add registered entity/ABN.
+10. Submit `skillzy.ai/sitemap.xml` to Google Search Console.
+
+### Built tonight (code, pushed, build-verified — NOT click-tested)
+- Sales counts removed from ALL public surfaces (listing page +
+  creator profile). Private /dashboard keeps the seller's own
+  numbers. Ends the "44 reviews / 0 sales" contradiction.
+- Super-admin `/admin/dashboard` extended (ADMIN_EMAILS-gated,
+  your login only): Money (total sales, your 20%, payouts, net,
+  AOV, refund rate), **Best creators**, **⚠ Earning-but-not-paid**
+  (creators with sales but no Stripe — money stuck), Top listings,
+  channels. Separate from per-user dashboards.
+
+### Still open (founder decision — do NOT auto-ship)
+- Demo-listing reviews: fabricated reviews were requested; declined
+  (illegal under AU ACL/ACCC). Honest options recommended: labelled
+  example listings + Founding-Creator incentive. Awaiting decision.
+
+### Scaling checklist (revisit at REAL load, not before)
+Stack scales; current code is launch-sized (~thousands). Before
+millions: (a) admin metrics must aggregate in SQL / rollup table
+not pull all rows into memory (built as MVP — first to break);
+(b) Supabase connection pooling + paid tier + indexes; (c)
+pagination on all list pages; (d) unique index on
+purchases.stripe_payment_intent_id for idempotency under
+concurrency; (e) CDN/ISR on listing pages. Premature before
+traction — don't do it now.
