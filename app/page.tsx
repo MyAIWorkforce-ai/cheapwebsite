@@ -123,8 +123,8 @@ export default function HomePage() {
 
           <div className="mt-14 sm:mt-20 grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
             <p className="lg:col-span-7 text-xl sm:text-2xl leading-snug max-w-2xl text-brand-ink">
-              Skip the prompt-engineering rabbit hole. Someone’s already
-              built the skill, tested it, and packaged it. Drop it in and go.
+              Pre-built skills, guides, and full agent setups from creators in
+              the field. Drop them into any agent — yours levels up instantly.
             </p>
             <div className="lg:col-span-5 flex flex-col gap-3 lg:items-end">
               <div className="flex items-center gap-6">
