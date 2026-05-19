@@ -404,3 +404,21 @@ explicit ask:
 > Skillzy is a marketplace for ready-made AI agent skills, guides,
 > and full setups. Buy one, drop it into your agent — skip building
 > it yourself.
+
+## Decisions 2026-05-19 (evening) — for tomorrow
+
+- **DECIDED — sales counts are NOT public.** Remove
+  `p.creator.totalSales` from the public listing page
+  (`app/marketplace/[id]/page.tsx`, ~lines 175 & 463). No public
+  sales number anywhere. (Also resolves the "44 reviews / 0 sales"
+  contradiction the founder spotted on demo listings.)
+- **OPEN / do NOT auto-ship — demo-listing reviews.** Founder asked
+  for fabricated reviews (capped ~28, "look as real as possible")
+  to attract creators. Flagged: fabricated reviews are unlawful for
+  an AU-operated site (ACL / ACCC actively prosecutes fake reviews;
+  FTC/UK/EU too) and reverse today's honesty cleanup. Did NOT build
+  it. Recommended legit alternatives instead: (1) clearly-LABELLED
+  example listings (no fake reviews), (2) Founding-Creator incentive
+  (e.g. first 50 keep 90% / 0% fee 90 days + badge + feature),
+  (3) real comped early reviews, (4) lean on creator economics copy.
+  Awaiting founder's final direction — ship nothing fabricated.
