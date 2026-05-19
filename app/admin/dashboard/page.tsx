@@ -321,7 +321,12 @@ export default async function AdminDashboard() {
                       className="py-3 flex items-baseline justify-between gap-4"
                     >
                       <span className="truncate">
-                        {c.name}{' '}
+                        <Link
+                          href={`/admin/creators/${c.id}`}
+                          className="border-b border-brand-ink/30 hover:text-brand-gold hover:border-brand-gold"
+                        >
+                          {c.name}
+                        </Link>{' '}
                         <span className="text-brand-muted">{c.handle}</span>
                       </span>
                       <span className="font-mono text-sm text-red-700 shrink-0">
@@ -352,7 +357,12 @@ export default async function AdminDashboard() {
                         className="py-3 flex items-baseline justify-between gap-4"
                       >
                         <span className="truncate">
-                          {c.name}{' '}
+                          <Link
+                            href={`/admin/creators/${c.id}`}
+                            className="border-b border-brand-ink/30 hover:text-brand-gold hover:border-brand-gold"
+                          >
+                            {c.name}
+                          </Link>{' '}
                           <span className="text-brand-muted">{c.handle}</span>
                           {!c.connected && (
                             <span className="text-red-700"> · no payout</span>
