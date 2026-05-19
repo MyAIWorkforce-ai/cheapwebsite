@@ -515,3 +515,9 @@ pagination on all list pages; (d) unique index on
 purchases.stripe_payment_intent_id for idempotency under
 concurrency; (e) CDN/ISR on listing pages. Premature before
 traction — don't do it now.
+
+## Notes from office session 2026-05-20
+- Homepage needs a visible **Sign in** button (currently only inside
+  the mobile hamburger menu — too hidden). Code task — add a clear
+  Sign in CTA to the top-right of the homepage header so it's
+  visible without opening the menu.
