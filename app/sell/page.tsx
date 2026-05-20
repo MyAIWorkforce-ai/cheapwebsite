@@ -48,6 +48,7 @@ const steps = [
   { n: '03', title: 'Let it describe itself', desc: 'Upload notes, talk, or type. Our AI drafts the full listing — title, blurb, features, setup. Refine until it sounds like you.' },
   { n: '04', title: 'Connect Stripe', desc: 'One click at publish. Payouts go straight to your account. Skillzy never touches the money.' },
   { n: '05', title: 'Get paid', desc: 'Keep 80%. Stripe splits the cash. You re-list, raise prices, or pull anytime.' },
+  { n: '06', title: 'The good email', desc: 'Skillzy emails you the moment something sells. Buyer, bundle, payout — all there.' },
 ]
 
 export default function SellPage() {
