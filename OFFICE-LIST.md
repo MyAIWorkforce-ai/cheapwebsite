@@ -73,16 +73,46 @@ The buttons exist; the providers aren't enabled inside Supabase yet.
 
 ---
 
-## 🟠 4b. Fancy up the Supabase email templates — ✅ TEMPLATES WRITTEN
+## 🟠 4b. Paste the Skillzy-branded auth emails into Supabase
 
-The actual sign-up + magic-link emails Skillzy sends out today come from Supabase's default template — plain, no branding, looks generic and easy to mistake for spam. I've written Skillzy-branded HTML for all four templates.
+The actual sign-up + magic-link emails Skillzy sends out today come from Supabase's default template — plain, no branding, easy to mistake for spam. I've written four Skillzy-branded HTML templates. You paste them in. ~5 min total.
 
-**Paste each one in:**
-1. Supabase Dashboard → **Authentication → Email Templates**
-2. Open the file `supabase/email-templates/README.md` in your repo — it has the full instructions.
-3. For each of the 4 templates: copy the matching `.html` file's contents into the **Message body** box, set the **Subject heading** as listed in the README, click **Save changes**.
+### Step 1 — Open one of the HTML files I created
 
-Test by triggering each flow once (sign up a throwaway, request a magic link, etc.) and confirm the email looks right in Gmail / Apple Mail.
+In your repo on GitHub (mobile or laptop):
+
+1. Browse to the folder **`supabase/email-templates/`**
+2. Click on **`confirm-signup.html`**
+3. Click the **"Raw"** button (top-right of the file view) — this shows just the HTML text
+4. **Select all** (Cmd-A or Ctrl-A) → **Copy** (Cmd-C or Ctrl-C)
+
+### Step 2 — Paste it into Supabase
+
+1. Open supabase.com → your project → **Authentication → Email Templates**
+2. From the **dropdown at the top of the page**, pick **"Confirm signup"**
+3. You'll see two boxes:
+   - **Subject heading** — a one-line text box
+   - **Message body (HTML)** — a big box with HTML in it
+4. In **Subject heading**: clear it, type `Verify your Skillzy account`
+5. In **Message body (HTML)**: clear ALL the existing default content, then **paste** what you copied from GitHub
+6. Click **Save changes**
+
+### Step 3 — Repeat for the other 3
+
+Same pattern. Use this table:
+
+| Supabase dropdown picks | File to copy from GitHub | Subject heading to type |
+|---|---|---|
+| Confirm signup | `supabase/email-templates/confirm-signup.html` | `Verify your Skillzy account` |
+| Magic Link | `supabase/email-templates/magic-link.html` | `Your Skillzy sign-in link` |
+| Reset Password | `supabase/email-templates/reset-password.html` | `Reset your Skillzy password` |
+| Change Email Address | `supabase/email-templates/change-email.html` | `Confirm your new Skillzy email` |
+
+### Step 4 — Test
+
+Sign up with a **throwaway email** on skillzy.ai. The email you receive should look Skillzy-branded (gold button, cream background, "Skillzy" wordmark, big serif headline like *"Almost in. Verify."*) instead of the default plain Supabase one.
+
+If anything looks broken in Gmail or Apple Mail, tell me what you saw and I'll fix it.
 
 ---
 
