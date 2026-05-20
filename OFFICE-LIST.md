@@ -186,9 +186,13 @@ Now wired. Creators who sign in with GitHub can import from public AND private r
 
 ## ✅ What's already fixed in code (no action needed)
 
-- Homepage hamburger menu top-right
+- Homepage hamburger menu top-right (Sign in + Create account)
+- AI draft endpoint rate-limited (per-IP daily cap + global hourly cap — stays open to anonymous so the "drop a file, see your listing" hook works)
+- Private GitHub repo import wired via OAuth
+- Stripe Connect prompt banner on `/dashboard?view=selling`
+- Signup "Check your email" takeover screen
 - Cron auth fails closed if `CRON_SECRET` is ever blank
-- AI draft endpoint now requires sign-in (closes the cost-bomb hole)
+- 4 Skillzy-branded Supabase auth email templates written (ready to paste — see 4b)
 
 ---
 
