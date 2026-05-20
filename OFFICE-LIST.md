@@ -5,6 +5,36 @@
 
 ---
 
+## 🟣 0. Rename the GitHub repo: `cheapwebsite` → `skillzy`
+
+Skillzy and cheapwebsite are separate businesses; the repo name shouldn't keep mixing them. This is the simplest cleanup — rename the existing repo in place, no migration.
+
+### Steps (~30 seconds in GitHub)
+
+1. Open the repo: **github.com/MyAIWorkforce-ai/cheapwebsite**
+2. Click **Settings** (top tab)
+3. Scroll to **Repository name** at the top
+4. Change `cheapwebsite` → `skillzy`
+5. Click **Rename**
+
+### What happens automatically
+
+- ✅ Old URLs (`github.com/MyAIWorkforce-ai/cheapwebsite/...`) auto-redirect to `/skillzy/...` indefinitely — nothing breaks
+- ✅ Vercel detects the rename and updates the GitHub connection on its own
+- ✅ `skillzy.ai` keeps working — the domain is attached to the deployment, not the repo name
+- ✅ All branches, PRs, secrets, collaborators follow the rename
+
+### What you can do after (cosmetic, optional)
+
+1. **Vercel auto-preview alias:** currently `cheapwebsite-preview-rho.vercel.app`. Vercel → Settings → Domains → click `...` on that alias → Edit → rename to e.g. `skillzy-preview.vercel.app`. (Optional — nobody but you sees this.)
+2. **Local clones** (if you have one on your laptop): `git remote set-url origin https://github.com/MyAIWorkforce-ai/skillzy.git`
+
+### Already done in code
+
+I've already updated the `package.json` `"name"` field from `"cheapwebsite"` to `"skillzy"` so the internal project name matches the repo rename. `HANDOFF.md` keeps the historical "cheapwebsite" references — they're correct as a record of where the project lived previously.
+
+---
+
 ## 🔴 1. Fix the broken Stripe webhook (explains "money not showing for creators")
 
 Stripe is currently trying to deliver events to `https://myaiworkforce.ai/api/webhooks/stripe` — wrong URL. 30 failed deliveries since 17 May. Will stop trying on 26 May.
