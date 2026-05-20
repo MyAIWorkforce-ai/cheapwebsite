@@ -5,7 +5,7 @@ import NewListingForm from './NewListingForm'
 export const metadata = {
   title: 'New listing',
   description:
-    'Publish a skill, guide, or agent setup on Skillzy. Five sections, ten minutes.',
+    'Publish a skill, guide, or agent setup on Skillzy. Five short sections — the AI drafts most of it from your file.',
   keywords: [
     'publish AI skill',
     'list AI agent',
@@ -72,7 +72,7 @@ export default async function NewListingPage() {
             </span>
           </h1>
           <p className="mt-7 text-xl text-brand-ink max-w-2xl">
-            Five sections, ten minutes. List it once, sell it forever.
+            Drop your file in — the AI writes the listing. List it once, sell it forever.
           </p>
         </div>
       </section>

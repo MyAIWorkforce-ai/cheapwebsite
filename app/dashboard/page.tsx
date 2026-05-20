@@ -613,7 +613,7 @@ function SellingView({
           <div className="py-16 text-center bg-brand-cream-card border border-brand-hairline">
             <p className="font-display text-3xl">Nothing here yet.</p>
             <p className="mt-2 text-brand-muted">
-              Publish your first listing in about ten minutes.
+              Drop in a file — the AI writes most of the listing for you.
             </p>
             <Link
               href="/sell/new"

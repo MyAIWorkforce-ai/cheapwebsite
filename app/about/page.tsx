@@ -190,9 +190,9 @@ export default function AboutPage() {
               new project. We made what we wished existed.
             </p>
             <p>
-              Every listing is reviewed by a human before it goes live. No
-              malware, no copyright theft, no junk. Returning creators publish
-              instantly.
+              Creators publish instantly. They warrant they own what they
+              upload and that it&rsquo;s clean — no malware, no infringing
+              work. We act fast on reports.
             </p>
             <p className="text-brand-ink">
               You build. We sell. They use.
@@ -219,7 +219,7 @@ export default function AboutPage() {
               <span className="text-brand-gold group-hover:translate-x-1 inline-block transition-transform">→</span>
             </p>
             <p className="mt-3 text-sm text-brand-muted">
-              Every listing human-reviewed before it goes live.
+              Drop-in, by people who actually run them.
             </p>
           </Link>
           <Link

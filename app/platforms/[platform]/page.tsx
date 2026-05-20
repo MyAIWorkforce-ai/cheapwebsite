@@ -25,7 +25,7 @@ export function generateMetadata({
   return pageMetadata({
     title: `${pl.name} Agent Skills, Setups & Templates — Skillzy`,
     description:
-      `Ready-to-run skills and setups for ${pl.name}. Browse ${matches.length}+ listings reviewed by humans.`.slice(
+      `Ready-to-run skills and setups for ${pl.name}. Browse ${matches.length}+ drop-in listings from creators in the field.`.slice(
         0,
         160,
       ),

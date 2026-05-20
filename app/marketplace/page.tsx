@@ -9,7 +9,7 @@ import { pageMetadata } from '@/lib/seo'
 export const metadata = pageMetadata({
   title: 'Browse AI Agent Skills, Setups & Guides — Skillzy',
   description:
-    'Human-reviewed AI agent skills, full setups, and guides. Filter by trade, platform, or type. Works with Claude, n8n, OpenClaw, Make, Zapier.',
+    'Drop-in AI agent skills, full setups, and guides built by creators in the field. Filter by trade, platform, or type. Works with Claude, n8n, OpenClaw, Make, Zapier.',
   path: '/marketplace',
   keywords: [
     'AI agent skills',
@@ -79,8 +79,8 @@ export default async function MarketplacePage({
             <em className="italic text-brand-gold font-medium">Agent supercharged.</em>
           </h1>
           <p className="mt-5 text-brand-muted max-w-prose">
-            Skills, guides, full agent setups. Every listing reviewed by a human.
-            No mystery meat.
+            Skills, guides, full agent setups. Built by creators who actually
+            run them. Drop one in and go.
           </p>
 
           {/* search */}

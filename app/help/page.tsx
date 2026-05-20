@@ -42,10 +42,10 @@ const buyer: QA[] = [
         >
           hi@skillzy.ai
         </a>{' '}
-        with your order number and what went wrong. A human reviews every
-        request. Refunds aren&rsquo;t automatic and aren&rsquo;t time-boxed,
-        but a genuine case where the listing didn&rsquo;t deliver what was
-        promised gets sorted.
+        with your order number and what went wrong. We look at every
+        request in good faith. Refunds aren&rsquo;t automatic and
+        aren&rsquo;t time-boxed, but a genuine case where the listing
+        didn&rsquo;t deliver what was promised gets sorted.
       </>
     ),
   },
@@ -89,12 +89,12 @@ const creator: QA[] = [
     a: 'Unlimited. List once, sell it forever. You set the price; we don’t cap units.',
   },
   {
-    q: 'How long does review take?',
-    a: 'First listing gets a human review within 24 hours (we look for malware, copyright theft, and obvious junk). Returning creators publish instantly.',
+    q: 'How fast does my listing go live?',
+    a: 'Instant. The moment you publish, it’s live at /marketplace/<your-slug> and your share link + QR work straight away. You stay responsible for what you upload — only list work you have the rights to. Reports of malware, infringement, or junk get acted on quickly (see our IP & Takedown policy).',
   },
   {
     q: 'Can I update a listing after it’s live?',
-    a: 'Yes. Edit price, tagline, niche, status — all instant. Major content rewrites trigger another quick human review.',
+    a: 'Yes — every edit (price, tagline, niche, status, files) is instant. No re-review queue.',
   },
   {
     q: 'What’s a SKILL.md, exactly?',
@@ -115,7 +115,7 @@ const creator: QA[] = [
   },
   {
     q: 'What if a buyer disputes or refunds?',
-    a: 'Skillzy doesn’t advertise a refund window. Buyers email us with a reason; a human reviews. If a refund is granted, it reverses through Stripe and your Stripe balance shows the deduction on the next reconciliation. Card-issuer chargebacks are handled by Stripe; we step in if it’s clearly bad-faith.',
+    a: 'Skillzy doesn’t advertise a refund window. Buyers email us with a reason and we look at the case in good faith. If a refund is granted, it reverses through Stripe and your Stripe balance shows the deduction on the next reconciliation. Card-issuer chargebacks are handled by Stripe; we step in if it’s clearly bad-faith.',
   },
   {
     q: 'Can I sell on Skillzy and somewhere else?',

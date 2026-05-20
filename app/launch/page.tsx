@@ -53,7 +53,7 @@ export default function LaunchPage() {
           {[
             { h: 'For operators', b: 'Tradies, agents, clinics, agencies. The non-technical people who need an agent doing real work today, not a weekend of YAML.' },
             { h: 'For creators', b: 'Built something that works? List it once, sell it forever. Keep 80%. Stripe pays you direct. Zero IP lock-in.' },
-            { h: 'Human-reviewed', b: 'Every first listing is read by a person before it goes live. No malware, no scraped junk, no mystery meat.' },
+            { h: 'You own it', b: 'Buy once, yours forever. Re-downloadable, no subscription, no IP lock-in. Creators warrant what they sell; we act fast on bad actors.' },
           ].map((c) => (
             <div key={c.h} className="bg-brand-cream-card p-7 sm:p-8">
               <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">

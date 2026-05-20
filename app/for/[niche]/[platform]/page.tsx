@@ -28,7 +28,7 @@ export function generateMetadata({
   return pageMetadata({
     title: `${pl.name} AI Agents for ${n.name} — Skillzy`,
     description:
-      `${pl.name} skills and setups built for ${n.pluralLong}. Drop-in, human-reviewed, no code.`.slice(
+      `${pl.name} skills and setups built for ${n.pluralLong}. Drop-in, by creators who actually run them, no code.`.slice(
         0,
         160,
       ),
