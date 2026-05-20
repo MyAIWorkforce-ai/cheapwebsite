@@ -48,7 +48,6 @@ const steps = [
   { n: '03', title: 'Let it describe itself', desc: 'Upload notes, talk, or type. Our AI drafts the full listing — title, blurb, features, setup. Refine until it sounds like you.' },
   { n: '04', title: 'Connect Stripe', desc: 'One click at publish. Payouts go straight to your account. Skillzy never touches the money.' },
   { n: '05', title: 'Get paid', desc: 'Keep 80%. Stripe splits the cash. You re-list, raise prices, or pull anytime.' },
-  { n: '06', title: 'The good email', desc: 'Skillzy emails you the moment something sells. Buyer, bundle, payout — all there.' },
 ]
 
 export default function SellPage() {
@@ -124,7 +123,7 @@ export default function SellPage() {
             className="font-display text-5xl sm:text-7xl tracking-tight max-w-3xl"
             style={{ letterSpacing: '-0.03em' }}
           >
-            Six steps. <em className="italic text-brand-gold font-medium">Minutes, not days.</em>
+            Five steps. <em className="italic text-brand-gold font-medium">Minutes, not days.</em>
           </h2>
 
           <ol className="mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">
