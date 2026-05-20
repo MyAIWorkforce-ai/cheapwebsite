@@ -37,12 +37,18 @@ function listingTitle(row: PurchaseRow): string {
 }
 
 export async function GET(req: Request) {
-  if (env.cronSecret) {
-    const auth = req.headers.get('authorization')?.replace(/^Bearer\s+/i, '')
-    const key = new URL(req.url).searchParams.get('key')
-    if (auth !== env.cronSecret && key !== env.cronSecret) {
-      return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
-    }
+  // Fail closed: refuse the request entirely when CRON_SECRET is unset,
+  // rather than running unauthenticated (the previous behaviour).
+  if (!env.cronSecret) {
+    return NextResponse.json(
+      { error: 'CRON_SECRET not configured' },
+      { status: 503 },
+    )
+  }
+  const auth = req.headers.get('authorization')?.replace(/^Bearer\s+/i, '')
+  const key = new URL(req.url).searchParams.get('key')
+  if (auth !== env.cronSecret && key !== env.cronSecret) {
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
   if (!hasSupabase || !hasResend) {
     return NextResponse.json({ skipped: 'env-missing' })

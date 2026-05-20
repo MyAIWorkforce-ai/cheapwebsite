@@ -36,12 +36,17 @@ const PATHS = [
 
 export async function GET(req: Request) {
   const url = new URL(req.url)
-  if (env.cronSecret) {
-    const auth = req.headers.get('authorization')?.replace(/^Bearer\s+/i, '')
-    const key = url.searchParams.get('key')
-    if (auth !== env.cronSecret && key !== env.cronSecret) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+  // Fail closed: refuse the request entirely when CRON_SECRET is unset.
+  if (!env.cronSecret) {
+    return NextResponse.json(
+      { error: 'CRON_SECRET not configured' },
+      { status: 503 },
+    )
+  }
+  const auth = req.headers.get('authorization')?.replace(/^Bearer\s+/i, '')
+  const key = url.searchParams.get('key')
+  if (auth !== env.cronSecret && key !== env.cronSecret) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const results = await Promise.all(

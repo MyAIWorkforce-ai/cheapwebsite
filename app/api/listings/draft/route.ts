@@ -16,7 +16,8 @@
  * the form still feels alive without a key configured.
  */
 import { NextResponse } from 'next/server'
-import { env, hasAnthropic } from '@/lib/env'
+import { env, hasAnthropic, hasSupabase } from '@/lib/env'
+import { createClient } from '@/lib/supabase/server'
 
 export const runtime = 'nodejs'
 
@@ -74,6 +75,19 @@ function demoDraft(brief: string, type: string): DraftResult {
 }
 
 export async function POST(req: Request) {
+  // Require a signed-in user. This endpoint calls the paid Anthropic
+  // API; without an auth gate, anyone can spam it and run up the bill.
+  // /sell/new (the only legitimate caller) already requires sign-in.
+  if (hasSupabase) {
+    const supabase = createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Sign in to use the AI draft.' }, { status: 401 })
+    }
+  }
+
   const { brief, type, pdfBase64, pdfName } = await req
     .json()
     .catch(() => ({}))
