@@ -155,6 +155,8 @@ async function loadBuyer(userId: string): Promise<Purchase[]> {
 async function loadSeller(userId: string): Promise<{
   listings: SellerListing[]
   stats: SellerStats
+  payoutsEnabled: boolean
+  stripeAccountId: string | null
 }> {
   const supabase = createClient()
   const { data: listingsData } = await supabase
@@ -162,6 +164,14 @@ async function loadSeller(userId: string): Promise<{
     .select('id, slug, title, type, version, price_cents, status')
     .eq('creator_id', userId)
     .order('created_at', { ascending: false })
+
+  const { data: profileRow } = await supabase
+    .from('profiles')
+    .select('stripe_account_id, stripe_payouts_enabled')
+    .eq('id', userId)
+    .maybeSingle()
+  const payoutsEnabled = Boolean(profileRow?.stripe_payouts_enabled)
+  const stripeAccountId = (profileRow?.stripe_account_id as string | null) ?? null
 
   const listings = (listingsData ?? []) as SellerListing[]
 
@@ -179,6 +189,8 @@ async function loadSeller(userId: string): Promise<{
         referredPayout: 0,
         byChannel: {},
       },
+      payoutsEnabled,
+      stripeAccountId,
     }
   }
 
@@ -231,6 +243,8 @@ async function loadSeller(userId: string): Promise<{
       referredPayout,
       byChannel,
     },
+    payoutsEnabled,
+    stripeAccountId,
   }
 }
 
@@ -273,7 +287,7 @@ export default async function DashboardPage({
 
   const [purchases, sellerData] = user
     ? await Promise.all([loadBuyer(user.id), loadSeller(user.id)])
-    : [[], { listings: [], stats: { totalEarnings: 0, totalSales: 0, monthSalesByListing: {}, monthRevenueByListing: {}, referredSales: 0, referredPayout: 0, byChannel: {} } }]
+    : [[], { listings: [], stats: { totalEarnings: 0, totalSales: 0, monthSalesByListing: {}, monthRevenueByListing: {}, referredSales: 0, referredPayout: 0, byChannel: {} }, payoutsEnabled: false, stripeAccountId: null }]
 
   const displayName = user?.name ?? user?.email?.split('@')[0] ?? 'there'
 
@@ -361,6 +375,8 @@ export default async function DashboardPage({
           stats={sellerData.stats}
           handle={user?.handle}
           name={displayName}
+          payoutsEnabled={sellerData.payoutsEnabled}
+          stripeAccountId={sellerData.stripeAccountId}
         />
       )}
     </div>
@@ -463,16 +479,54 @@ function SellingView({
   stats,
   handle,
   name,
+  payoutsEnabled,
+  stripeAccountId,
 }: {
   listings: SellerListing[]
   stats: SellerStats
   handle?: string
   name: string
+  payoutsEnabled: boolean
+  stripeAccountId: string | null
 }) {
   const earningsDollars = stats.totalEarnings / 100
+  // Show the banner unless Stripe Connect onboarding is fully done.
+  // Two distinct messages: not started yet vs. started but not yet verified.
+  const needsConnect = !payoutsEnabled
   return (
     <section className="px-6 lg:px-10 py-12 sm:py-16">
       <div className="max-w-page mx-auto">
+        {needsConnect && (
+          <div className="mb-8 border-2 border-brand-gold bg-brand-gold/10 p-5 sm:p-6">
+            <div className="flex items-start justify-between gap-5 flex-wrap">
+              <div className="max-w-2xl">
+                <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
+                  ⚠ Connect Stripe to keep 80% of your sales
+                </p>
+                <p
+                  className="font-display text-2xl sm:text-3xl mt-2 tracking-tight"
+                  style={{ letterSpacing: '-0.02em' }}
+                >
+                  {stripeAccountId
+                    ? 'Finish your Stripe verification.'
+                    : 'Connect Stripe to actually get paid.'}
+                </p>
+                <p className="mt-2 text-sm text-brand-ink leading-relaxed">
+                  {stripeAccountId
+                    ? "You started Stripe onboarding but it isn't verified yet. Until it is, every sale of your listings goes entirely to Skillzy — you get $0."
+                    : "Until you connect Stripe, every sale of your listings goes entirely to Skillzy — you get $0. Takes ~30 seconds: log in to Stripe, confirm a few details, done."}
+                </p>
+              </div>
+              <Link
+                href="/dashboard/payouts"
+                className="shrink-0 inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-6 py-3 text-sm hover:bg-brand-gold-dark transition-colors"
+              >
+                {stripeAccountId ? 'Resume Stripe setup' : 'Connect Stripe now'}
+                <span aria-hidden>→</span>
+              </Link>
+            </div>
+          </div>
+        )}
         <div className="mb-10 sm:mb-14">
           <ProfileShareKit handle={handle} name={name} />
         </div>
