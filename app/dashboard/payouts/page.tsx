@@ -359,7 +359,7 @@ export default async function PayoutsPage({
             </ul>
 
             <p className="mt-6 text-xs text-brand-muted">
-              "Available" is Stripe&rsquo;s settlement estimate. Actual
+              &ldquo;Available&rdquo; is Stripe&rsquo;s settlement estimate. Actual
               payout to your bank depends on the cadence set in your Stripe
               dashboard.
             </p>
