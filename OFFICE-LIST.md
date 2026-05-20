@@ -104,14 +104,11 @@ In Vercel → your project → **Settings → Domains**:
 
 ---
 
-## 🟢 7. Future feature ask — private GitHub repo import
+## ✅ 7. Private GitHub repo import — SHIPPED (a5d0cf7)
 
-Today's GitHub import only works for **public** repos. Wiring private repos requires:
+Now wired. Creators who sign in with GitHub can import from public AND private repos.
 
-- (a) Using the signed-in user's GitHub OAuth session token (from Supabase) instead of the platform `GITHUB_TOKEN` PAT, OR
-- (b) Asking the creator to install a GitHub App on their account so Skillzy gets per-repo access.
-
-Option (a) is the lighter build (~1 evening of code). Tell me when you want this and I'll spec + ship.
+**Heads up:** anyone who signed in with GitHub BEFORE this change needs to sign out and sign in again to grant the new `repo` scope.
 
 ---
 
