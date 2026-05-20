@@ -124,7 +124,7 @@ export default function SellPage() {
             className="font-display text-5xl sm:text-7xl tracking-tight max-w-3xl"
             style={{ letterSpacing: '-0.03em' }}
           >
-            Five steps. <em className="italic text-brand-gold font-medium">Minutes, not days.</em>
+            Six steps. <em className="italic text-brand-gold font-medium">Minutes, not days.</em>
           </h2>
 
           <ol className="mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">
