@@ -46,6 +46,38 @@ const initial: SignInState = {}
 export default function SignUpForm({ demoMode }: { demoMode: boolean }) {
   const [state, action] = useFormState(signUpWithPassword, initial)
 
+  // Account created — Supabase has emailed the confirmation link.
+  // Take over the panel with an unmissable "check your email" message
+  // so the next step is obvious. They can't continue inside the app
+  // until they click the link in that email.
+  if (state.info) {
+    return (
+      <div className="mt-10 border border-brand-gold bg-brand-cream-card p-7 text-center">
+        <div
+          className="font-display text-3xl tracking-tight"
+          style={{ letterSpacing: '-0.02em' }}
+        >
+          Check your email
+        </div>
+        <p className="mt-3 text-sm text-brand-ink leading-relaxed">
+          We sent you a confirmation link. Open it and click to verify
+          your account — then you’ll be bounced straight back here to
+          finish what you were doing.
+        </p>
+        <p className="mt-4 text-xs text-brand-muted leading-relaxed">
+          Can’t find it? Check your spam folder, or reload this page to
+          try again with a different email.
+        </p>
+        <Link
+          href="/signup"
+          className="inline-block mt-5 text-sm border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
+        >
+          Use a different email
+        </Link>
+      </div>
+    )
+  }
+
   return (
     <>
       {demoMode && (

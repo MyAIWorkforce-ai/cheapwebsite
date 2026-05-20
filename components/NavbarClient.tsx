@@ -46,7 +46,10 @@ export default function NavbarClient({ user }: { user: SessionUser | null }) {
                 </form>
               </>
             ) : (
-              <Link href="/signin" onClick={() => setOpen(false)} className="px-4 py-2.5 text-sm text-brand-ink hover:bg-brand-gold/15">Sign in</Link>
+              <>
+                <Link href="/signin" onClick={() => setOpen(false)} className="px-4 py-2.5 text-sm text-brand-ink hover:bg-brand-gold/15">Sign in</Link>
+                <Link href="/signup" onClick={() => setOpen(false)} className="px-4 py-2.5 text-sm text-brand-ink hover:bg-brand-gold/15">Create account</Link>
+              </>
             )}
           </div>
         )}
