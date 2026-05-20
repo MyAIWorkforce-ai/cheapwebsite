@@ -16,10 +16,62 @@
  * the form still feels alive without a key configured.
  */
 import { NextResponse } from 'next/server'
-import { env, hasAnthropic, hasSupabase } from '@/lib/env'
-import { createClient } from '@/lib/supabase/server'
+import { env, hasAnthropic } from '@/lib/env'
 
 export const runtime = 'nodejs'
+
+// Rate limit guards. The endpoint stays open to anonymous visitors so
+// "drop a file, see your listing in seconds" still works as the hook,
+// but we bound the cost surface area:
+//   - per-IP daily cap: stops one machine running up the bill
+//   - global hourly cap: stops a botnet running up the bill catastrophically
+//
+// State is kept in-process per Vercel function instance. Functions warm
+// for a few minutes then cold-start, so this is a soft per-instance
+// limit — fine for casual abuse, not bulletproof. Add Vercel KV /
+// Upstash if you need a hard global counter.
+const PER_IP_DAILY = 10
+const GLOBAL_HOURLY = 50
+
+type Counter = { count: number; resetAt: number }
+const perIp: Map<string, Counter> = (globalThis as { __skillzyPerIp?: Map<string, Counter> }).__skillzyPerIp ?? new Map()
+;(globalThis as { __skillzyPerIp?: Map<string, Counter> }).__skillzyPerIp = perIp
+const globalCounter: Counter = (globalThis as { __skillzyGlobal?: Counter }).__skillzyGlobal ?? { count: 0, resetAt: Date.now() + 3600_000 }
+;(globalThis as { __skillzyGlobal?: Counter }).__skillzyGlobal = globalCounter
+
+function rateLimitCheck(ip: string): { ok: true } | { ok: false; reason: string } {
+  const now = Date.now()
+  // Global hourly bucket
+  if (now > globalCounter.resetAt) {
+    globalCounter.count = 0
+    globalCounter.resetAt = now + 3600_000
+  }
+  if (globalCounter.count >= GLOBAL_HOURLY) {
+    return { ok: false, reason: 'AI drafts are busy right now. Try again in a few minutes.' }
+  }
+  // Per-IP daily bucket
+  let entry = perIp.get(ip)
+  if (!entry || now > entry.resetAt) {
+    entry = { count: 0, resetAt: now + 86_400_000 }
+    perIp.set(ip, entry)
+  }
+  if (entry.count >= PER_IP_DAILY) {
+    return {
+      ok: false,
+      reason:
+        'You’ve used today’s AI drafts. Sign in to keep going, or come back tomorrow.',
+    }
+  }
+  entry.count++
+  globalCounter.count++
+  return { ok: true }
+}
+
+function callerIp(req: Request): string {
+  const fwd = req.headers.get('x-forwarded-for')
+  if (fwd) return fwd.split(',')[0]?.trim() || 'unknown'
+  return req.headers.get('x-real-ip')?.trim() || 'unknown'
+}
 
 const SYSTEM = `You write Skillzy product listings. Skillzy is a marketplace for AI agent skills, guides, and ready-to-go agent setups, dropped into a buyer's agent.
 
@@ -75,17 +127,12 @@ function demoDraft(brief: string, type: string): DraftResult {
 }
 
 export async function POST(req: Request) {
-  // Require a signed-in user. This endpoint calls the paid Anthropic
-  // API; without an auth gate, anyone can spam it and run up the bill.
-  // /sell/new (the only legitimate caller) already requires sign-in.
-  if (hasSupabase) {
-    const supabase = createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) {
-      return NextResponse.json({ error: 'Sign in to use the AI draft.' }, { status: 401 })
-    }
+  // Anonymous use is allowed by design — the drop-a-file-and-watch-it-
+  // draft moment is the conversion hook. The rate limiter caps the
+  // damage if a bot decides to abuse it.
+  const limit = rateLimitCheck(callerIp(req))
+  if (!limit.ok) {
+    return NextResponse.json({ error: limit.reason }, { status: 429 })
   }
 
   const { brief, type, pdfBase64, pdfName } = await req
