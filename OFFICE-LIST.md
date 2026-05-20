@@ -129,12 +129,41 @@ Right now `EMAIL_FROM=hi@skillzy.ai` but Resend hasn't verified you own `skillzy
 
 ---
 
-## 🟡 5. Google Search Console (SEO)
+## 🟡 5. SEO indexing — get Skillzy into Google + Bing
 
-1. search.google.com/search-console → **Add Property** → `https://skillzy.ai`
-2. Verify via DNS TXT record (recommended) or HTML tag
-3. After verified, go to **Sitemaps** → submit `https://skillzy.ai/sitemap.xml`
-4. (Optional) Add `https://www.skillzy.ai` as a separate property
+Code-side SEO is solid (sitemap, robots, JSON-LD on listings, canonicals, weekly health-check cron). What's left is operational: tell search engines you exist.
+
+### 5a. Google Search Console (most important)
+
+1. Go to **search.google.com/search-console** → **Add Property** → enter `https://skillzy.ai` (use the "URL prefix" type)
+2. Verify ownership via DNS TXT record (recommended) or HTML tag — Google will give you instructions
+3. After verified, left sidebar → **Sitemaps** → submit `https://skillzy.ai/sitemap.xml`
+4. (Optional) Add `https://www.skillzy.ai` as a second property the same way — useful for tracking redirected traffic
+5. Use **URL Inspection** (top search bar) on a few key pages and click **Request indexing** to nudge them: `/`, `/marketplace`, `/sell`, a couple of high-priority `/for/<niche>` pages
+6. Indexing takes anywhere from a few hours to ~2 weeks. Check the **Coverage** report after ~3 days to confirm pages are getting indexed
+
+### 5b. Bing Webmaster Tools (covers Bing + DuckDuckGo + ChatGPT search)
+
+1. Go to **bing.com/webmasters** → sign in → **Add a site** → `https://skillzy.ai`
+2. Easiest: import from Google Search Console (Bing offers this on signup — one click)
+3. Submit the sitemap manually if it didn't auto-pull
+4. Use **URL Submission** to nudge a handful of pages — Bing lets you submit up to 10,000 URLs/day
+
+### 5c. (Optional) IndexNow — fastest indexing for Bing/Yandex
+
+IndexNow lets you ping search engines instantly when a new listing publishes. Already-half-built into Bing Webmaster Tools — they'll show a setup hint. If you want this wired into Skillzy's publish action so new listings get indexed within seconds, tell me and I'll ship the integration (~30 min of code).
+
+### 5d. Verify www.skillzy.ai 301-redirects to apex
+
+The sitemap comment notes: *"www.skillzy.ai must 301 → apex at the Vercel domain layer."* If www isn't already redirecting to the bare domain, both versions can show up in search results competing with each other (the "duplicate content" trap).
+
+1. Vercel → project → **Settings → Domains**
+2. Make sure `www.skillzy.ai` is set to **Redirect to** `skillzy.ai` (with 308 or 301), not "Connect to Production"
+3. Test: open `https://www.skillzy.ai` in incognito → URL bar should rewrite to `https://skillzy.ai`
+
+### 5e. Open Graph / social cards
+
+Already wired: `app/opengraph-image.tsx` generates a Skillzy-branded OG image dynamically. Test it once: paste `https://skillzy.ai` into **opengraph.xyz** or **cards-dev.twitter.com/validator** and confirm the preview looks right.
 
 ---
 
