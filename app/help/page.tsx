@@ -1,11 +1,13 @@
 import Link from 'next/link'
+import { pageMetadata } from '@/lib/seo'
 
-export const metadata = {
-  title: 'Help',
+export const metadata = pageMetadata({
+  title: 'Help & FAQ — Skillzy',
   description:
-    'Answers for buyers and creators on Skillzy — how purchases work, how refunds happen, how creator payouts work, what a SKILL.md is, and more.',
+    'Answers for buyers and creators — how purchases work, how refunds work, how creator payouts work, what a SKILL.md is, and more.',
+  path: '/help',
   keywords: ['Skillzy help', 'FAQ', 'support', 'how Skillzy works'],
-}
+})
 
 type QA = { q: string; a: React.ReactNode }
 
@@ -33,15 +35,17 @@ const buyer: QA[] = [
     q: 'What if the listing doesn’t work?',
     a: (
       <>
-        Open your dashboard, find the order, and request a refund. The platform takes the
-        request seriously — creators have to address issues or refund. Email{' '}
+        Email{' '}
         <a
           href="mailto:hi@skillzy.ai"
           className="border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
         >
           hi@skillzy.ai
         </a>{' '}
-        if a creator goes quiet.
+        with your order number and what went wrong. We look at every
+        request in good faith. Refunds aren&rsquo;t automatic and
+        aren&rsquo;t time-boxed, but a genuine case where the listing
+        didn&rsquo;t deliver what was promised gets sorted.
       </>
     ),
   },
@@ -85,12 +89,12 @@ const creator: QA[] = [
     a: 'Unlimited. List once, sell it forever. You set the price; we don’t cap units.',
   },
   {
-    q: 'How long does review take?',
-    a: 'First listing gets a human review within 24 hours (we look for malware, copyright theft, and obvious junk). Returning creators publish instantly.',
+    q: 'How fast does my listing go live?',
+    a: 'Instant. The moment you publish, it’s live at /marketplace/<your-slug> and your share link + QR work straight away. You stay responsible for what you upload — only list work you have the rights to. Reports of malware, infringement, or junk get acted on quickly (see our IP & Takedown policy).',
   },
   {
     q: 'Can I update a listing after it’s live?',
-    a: 'Yes. Edit price, tagline, niche, status — all instant. Major content rewrites trigger another quick human review.',
+    a: 'Yes — every edit (price, tagline, niche, status, files) is instant. No re-review queue.',
   },
   {
     q: 'What’s a SKILL.md, exactly?',
@@ -111,7 +115,7 @@ const creator: QA[] = [
   },
   {
     q: 'What if a buyer disputes or refunds?',
-    a: 'Refunds reverse through Stripe automatically. Your Stripe balance shows the deduction on the next reconciliation. If a buyer chargebacks, Stripe handles it; we step in if it’s clearly bad-faith.',
+    a: 'Skillzy doesn’t advertise a refund window. Buyers email us with a reason and we look at the case in good faith. If a refund is granted, it reverses through Stripe and your Stripe balance shows the deduction on the next reconciliation. Card-issuer chargebacks are handled by Stripe; we step in if it’s clearly bad-faith.',
   },
   {
     q: 'Can I sell on Skillzy and somewhere else?',

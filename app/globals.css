@@ -73,3 +73,17 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .animate-marquee { animation: none; }
 }
+
+/* Print isolation for the creator poster: hide everything except
+   .print-poster so Cmd/Ctrl-P yields a clean flyer/PDF. */
+@media print {
+  body * { visibility: hidden; }
+  .print-poster, .print-poster * { visibility: visible; }
+  .print-poster {
+    position: absolute;
+    inset: 0;
+    padding: 0;
+    background: #fff;
+  }
+  .no-print { display: none !important; }
+}

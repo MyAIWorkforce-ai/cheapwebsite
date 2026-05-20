@@ -1,3 +1,5 @@
+import { seedProducts } from './catalog-seed'
+
 export type ProductType = 'Skill' | 'Guide' | 'Agent Setup'
 
 export type Review = {
@@ -24,10 +26,14 @@ export type Creator = {
 
 export type Product = {
   id: string
+  // Public URL slug. Falls back to `id` for seed/demo listings.
+  slug?: string
   type: ProductType
   title: string
   tagline: string
   niche?: string
+  featured?: boolean
+  free?: boolean
   creator: Creator
   platformList: string[]
   rating: number
@@ -39,6 +45,8 @@ export type Product = {
   whatYouGet: string[]
   howItWorks: Step[]
   skillMdPreview?: string
+  videoUrl?: string
+  videoLabel?: string
   useCases?: UseCase[]
   reviews: Review[]
   faqs: Faq[]
@@ -139,7 +147,7 @@ const creators: Record<string, Creator> = {
   },
 }
 
-export const products: Product[] = [
+const baseProducts: Product[] = [
   // ===== AGENT SETUPS =====
   {
     id: 'real-estate-agent-setup',
@@ -147,6 +155,7 @@ export const products: Product[] = [
     title: 'Real Estate, end to end.',
     tagline: 'Lead capture, listings, follow-ups, market reports. Drop it in, get an agent that runs the desk.',
     niche: 'Real Estate',
+    featured: true,
     creator: creators.harlow,
     platformList: ['Claude', 'OpenClaw', 'n8n', 'Make'],
     rating: 4.9,
@@ -283,7 +292,8 @@ Output: a clean queue for the bookkeeper, sorted by confidence.
     type: 'Agent Setup',
     title: 'On-site Tradie Ops.',
     tagline: 'Quote it, schedule it, invoice it. From the back of the ute.',
-    niche: 'Builders',
+    niche: 'Tradies',
+    featured: true,
     creator: creators.sitebench,
     platformList: ['Claude', 'Make', 'Zapier'],
     rating: 4.9,
@@ -604,7 +614,6 @@ Send before send_at. Skip weekends unless told otherwise.
     faqs: [
       { q: 'Do I need anything else?', a: 'Just an agent that runs scheduled tasks.' },
       { q: 'Will it pick up Slack?', a: 'Yes, if you give it Slack access via your agent.' },
-      { q: 'Refunds?', a: '14 days, no fuss.' },
     ],
     relatedIds: ['review-responder', 'invoice-generator', 'agent-prompt-patterns'],
   },
@@ -667,7 +676,6 @@ Send: as an attachment, with a one-line covering email.
     faqs: [
       { q: 'Can it sync with Xero?', a: 'It can email the PDF to your Xero inbox. Sync via the connector in the related Agent Setups.' },
       { q: 'Multi-currency?', a: 'Yes. Set per-invoice or per-customer.' },
-      { q: 'Refunds?', a: '14 days.' },
     ],
     relatedIds: ['daily-summary-email', 'bookkeeper-agent-setup', 'website-scraper'],
   },
@@ -834,7 +842,6 @@ Never: defensive language, exclamation marks > 1, "we strive to."
     faqs: [
       { q: 'Total beginner OK?', a: 'If you can install an app and read a paragraph, you’re fine.' },
       { q: 'Updates?', a: 'Free updates for the life of this edition.' },
-      { q: 'Refunds?', a: '14 days.' },
     ],
     relatedIds: ['first-skill-md', 'agent-prompt-patterns', 'real-estate-agent-setup'],
   },
@@ -873,7 +880,6 @@ Never: defensive language, exclamation marks > 1, "we strive to."
     faqs: [
       { q: 'Will this help me sell on Skillzy?', a: 'Yes. We literally use it ourselves.' },
       { q: 'Skill type coverage?', a: 'Skill, Guide, Setup are all touched on; deep on Skill.' },
-      { q: 'Refunds?', a: '14 days.' },
     ],
     relatedIds: ['agent-prompt-patterns', 'wire-claude-and-n8n', 'daily-summary-email'],
   },
@@ -912,11 +918,13 @@ Never: defensive language, exclamation marks > 1, "we strive to."
     faqs: [
       { q: 'Model-specific?', a: 'No. The patterns work across Claude, GPT, Hermes, Mistral.' },
       { q: 'Updates?', a: 'Edition updates are free if you bought a prior edition.' },
-      { q: 'Refunds?', a: '14 days.' },
     ],
     relatedIds: ['first-skill-md', 'wire-claude-and-n8n', 'ecom-support-agent-setup'],
   },
 ]
+
+// Hand-authored hero listings + the generated seed batch (lib/catalog-seed.ts).
+export const products: Product[] = [...baseProducts, ...seedProducts]
 
 export function getProduct(id: string): Product | undefined {
   return products.find((p) => p.id === id)
@@ -948,6 +956,41 @@ export function allCreatorHandles(): string[] {
   return Array.from(set)
 }
 
+// Master niche list. Powers the marketplace filter row + the "Pick
+// your hustle" chip grid on the homepage, so every niche stays
+// visible even before a listing exists in it. Order roughly groups
+// related trades together.
+export const NICHES = [
+  'Real Estate',
+  'Property Mgmt',
+  'Tradies',
+  'Builders',
+  'Plumbers',
+  'Electricians',
+  'Accountants',
+  'Bookkeepers',
+  'Lawyers',
+  'Consultants',
+  'Coaches',
+  'E-commerce',
+  'Hospitality',
+  'Restaurants',
+  'Cafes',
+  'Healthcare',
+  'Dentists',
+  'Vets',
+  'Therapists',
+  'Education',
+  'Tutors',
+  'Fitness',
+  'Salons',
+  'Marketing',
+  'Agencies',
+  'Recruiters',
+  'Photographers',
+  'Designers',
+] as const
+
 export type CardProduct = {
   id: string
   type: ProductType
@@ -956,6 +999,8 @@ export type CardProduct = {
   platform?: string
   rating: number
   ratingCount: number
+  featured?: boolean
+  free?: boolean
   price: string
 }
 
@@ -969,5 +1014,7 @@ export function toCardProduct(p: Product): CardProduct {
     rating: p.rating,
     ratingCount: p.ratingCount,
     price: p.price,
+    featured: p.featured,
+    free: p.free,
   }
 }

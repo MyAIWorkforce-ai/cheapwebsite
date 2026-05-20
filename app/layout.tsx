@@ -3,6 +3,9 @@ import { Fraunces, Inter } from 'next/font/google'
 import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+import StructuredData from '@/components/StructuredData'
+import NewsletterSlideIn from '@/components/NewsletterSlideIn'
+import { organizationLd, websiteLd } from '@/lib/jsonld'
 
 const display = Fraunces({
   subsets: ['latin'],
@@ -18,47 +21,17 @@ const sans = Inter({
   display: 'swap',
 })
 
+// Site-wide defaults only. Each route sets its OWN title, description,
+// and self-referencing canonical via lib/seo.ts → pageMetadata().
+// No catch-all canonical here — that was the duplicate-content bug.
 export const metadata: Metadata = {
   metadataBase: new URL('https://skillzy.ai'),
-  title: {
-    default: 'Skillzy — Drop it in. Agent supercharged.',
-    template: '%s — Skillzy',
-  },
+  title: 'Skillzy — AI agent skills, setups & guides. Drop-in, not DIY.',
   description:
-    'A marketplace for skills, guides, and ready-to-go agent setups. Built by creators. Plug them into any agent — yours levels up instantly.',
-  keywords: [
-    'AI agent marketplace',
-    'agent skills',
-    'agent setups',
-    'Claude skills',
-    'OpenClaw',
-    'n8n',
-    'AI prompts',
-    'SKILL.md',
-    'sell AI skills',
-    'creator marketplace',
-  ],
+    'Pre-built AI agent skills, full setups, and guides for Claude, n8n, OpenClaw, ChatGPT and more. Built for tradies, real estate, bookkeepers, and 20+ trades.',
   authors: [{ name: 'Skillzy' }],
   creator: 'Skillzy',
   publisher: 'Skillzy',
-  alternates: {
-    canonical: '/',
-  },
-  openGraph: {
-    title: 'Skillzy — Drop it in. Agent supercharged.',
-    description:
-      'A marketplace for skills, guides, and ready-to-go agent setups. Built by creators.',
-    url: 'https://skillzy.ai',
-    siteName: 'Skillzy',
-    type: 'website',
-    locale: 'en_US',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Skillzy — Drop it in. Agent supercharged.',
-    description:
-      'A marketplace for skills, guides, and ready-to-go agent setups.',
-  },
   robots: {
     index: true,
     follow: true,
@@ -79,9 +52,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${display.variable} ${sans.variable}`}>
       <body className="font-sans">
+        <StructuredData data={[organizationLd(), websiteLd()]} />
         <Navbar />
         <main>{children}</main>
         <Footer />
+        <NewsletterSlideIn />
       </body>
     </html>
   )

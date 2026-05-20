@@ -7,6 +7,9 @@ import {
   toCardProduct,
 } from '@/lib/catalog'
 import ProductCard from '@/components/ProductCard'
+import StructuredData from '@/components/StructuredData'
+import { pageMetadata } from '@/lib/seo'
+import { breadcrumbLd } from '@/lib/jsonld'
 
 export function generateStaticParams() {
   return allCreatorHandles().map((handle) => ({ handle }))
@@ -14,17 +17,15 @@ export function generateStaticParams() {
 
 export function generateMetadata({ params }: { params: { handle: string } }) {
   const creator = getCreatorByHandle(params.handle)
-  if (!creator) return { title: 'Creator not found' }
-  return {
-    title: creator.name,
-    description: creator.bio,
+  if (!creator) return { title: 'Creator not found — Skillzy' }
+  const handle = creator.handle.replace(/^@/, '')
+  return pageMetadata({
+    title: `${creator.name} — Creator on Skillzy`,
+    description: creator.bio.slice(0, 160),
+    path: `/creator/${handle}`,
     keywords: [creator.name, creator.handle, 'Skillzy creator', 'AI agent creator'],
-    openGraph: {
-      title: `${creator.name} on Skillzy`,
-      description: creator.bio,
-      type: 'profile',
-    },
-  }
+    ogType: 'profile',
+  })
 }
 
 export default function CreatorPage({ params }: { params: { handle: string } }) {
@@ -39,8 +40,16 @@ export default function CreatorPage({ params }: { params: { handle: string } }) 
       items.reduce((acc, p) => acc + p.ratingCount, 0),
     )
 
+  const handle = creator.handle.replace(/^@/, '')
   return (
     <div className="paper">
+      <StructuredData
+        data={breadcrumbLd([
+          { name: 'Home', path: '/' },
+          { name: 'Creators', path: '/marketplace' },
+          { name: creator.name, path: `/creator/${handle}` },
+        ])}
+      />
       {/* breadcrumb */}
       <div className="max-w-page mx-auto px-6 lg:px-10 pt-8 sm:pt-10">
         <nav
@@ -71,18 +80,7 @@ export default function CreatorPage({ params }: { params: { handle: string } }) 
             {creator.bio}
           </p>
 
-          <dl className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-px bg-brand-hairline border border-brand-hairline max-w-3xl">
-            <div className="bg-brand-cream-card p-5">
-              <dt className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
-                Sales
-              </dt>
-              <dd
-                className="font-display text-3xl mt-1.5 text-brand-gold"
-                style={{ letterSpacing: '-0.03em' }}
-              >
-                {creator.totalSales.toLocaleString()}
-              </dd>
-            </div>
+          <dl className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline max-w-3xl">
             <div className="bg-brand-cream-card p-5">
               <dt className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
                 Listings
@@ -132,36 +130,25 @@ export default function CreatorPage({ params }: { params: { handle: string } }) 
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">
-            {items.map((p, i) => (
+            {items.map((p) => (
               <ProductCard
                 key={p.id}
                 product={toCardProduct(p)}
-                variant={i % 5 === 2 ? 'emerald' : 'cream'}
+                variant={p.featured ? 'emerald' : 'cream'}
               />
             ))}
           </div>
 
           <div className="mt-10 flex flex-wrap items-center gap-4">
-            <a
-              href={`mailto:${normalizeHandleEmail(creator.handle)}`}
-              className="text-sm border-b border-brand-ink pb-0.5 hover:text-brand-gold hover:border-brand-gold transition-colors"
-            >
-              Contact {creator.name} →
-            </a>
             <Link
               href="/marketplace"
-              className="text-sm text-brand-muted hover:text-brand-ink transition-colors"
+              className="text-sm border-b border-brand-ink pb-0.5 hover:text-brand-gold hover:border-brand-gold transition-colors"
             >
-              Back to the catalogue
+              Back to the catalogue →
             </Link>
           </div>
         </div>
       </section>
     </div>
   )
-}
-
-function normalizeHandleEmail(handle: string) {
-  const h = handle.replace(/^@/, '').toLowerCase()
-  return `${h}@creator.skillzy.ai`
 }

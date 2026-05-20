@@ -4,6 +4,7 @@ import { getUser } from '@/lib/auth'
 import { createClient } from '@/lib/supabase/server'
 import { hasSupabase } from '@/lib/env'
 import { getProduct } from '@/lib/catalog'
+import ShareListing from '@/components/ShareListing'
 import EditForm, { type EditDefaults } from './EditForm'
 
 export const metadata = {
@@ -36,7 +37,7 @@ async function loadDefaults(
     const { data } = await supabase
       .from('listings')
       .select('id, title, tagline, price_cents, niche, platform_list, status')
-      .eq('id', id)
+      .eq('slug', id)
       .eq('creator_id', userId)
       .single()
 
@@ -99,13 +100,21 @@ export default async function EditListingPage({
             Tweak. <em className="italic text-brand-gold font-medium">Save.</em>
           </h1>
           <p className="mt-5 text-brand-muted">
-            Changes to live listings publish instantly. Big rewrites kick off
-            another quick human review.
+            Changes to live listings publish instantly.
           </p>
         </div>
 
         <div className="mt-12 max-w-2xl">
           <EditForm defaults={defaults} />
+        </div>
+
+        <div id="share" className="mt-12 max-w-2xl scroll-mt-20">
+          <ShareListing
+            slug={params.id}
+            refHandle={user?.handle}
+            title={defaults.title}
+            tagline={defaults.tagline}
+          />
         </div>
       </section>
     </div>

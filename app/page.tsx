@@ -1,7 +1,24 @@
 import Link from 'next/link'
 import Logo from '@/components/Logo'
 import ProductCard from '@/components/ProductCard'
-import { products, toCardProduct } from '@/lib/catalog'
+import { products, toCardProduct, NICHES } from '@/lib/catalog'
+import { getAllPosts, readingMinutes } from '@/lib/blog'
+import { pageMetadata } from '@/lib/seo'
+
+export const metadata = pageMetadata({
+  title: 'Skillzy — AI agent skills, setups & guides. Drop-in, not DIY.',
+  description:
+    'Pre-built AI agent skills, full setups, and guides for Claude, n8n, OpenClaw, ChatGPT and more. Built for tradies, real estate, bookkeepers, and 20+ trades.',
+  path: '/',
+  keywords: [
+    'AI agent skills',
+    'AI agent setups',
+    'AI agent marketplace',
+    'Claude skills',
+    'n8n agents',
+    'SKILL.md',
+  ],
+})
 
 const agentSetups = products
   .filter((p) => p.type === 'Agent Setup')
@@ -18,20 +35,10 @@ const guides = products
   .slice(0, 3)
   .map(toCardProduct)
 
-const niches = [
-  'Real Estate',
-  'Builders',
-  'Accountants',
-  'E-commerce',
-  'Coaches',
-  'Lawyers',
-  'Marketing',
-  'Hospitality',
-  'Healthcare',
-  'Recruiters',
-  'Schools',
-  'Anything else',
-]
+// Pulled from the master list in lib/catalog so every place that
+// shows niches (filter row, hustle grid) stays in sync. "Anything
+// else" is a CTA tile, not a real niche, so it's appended here only.
+const niches = [...NICHES, 'Anything else']
 
 function Squiggle({ className = '' }: { className?: string }) {
   // hand-drawn-feel underline
@@ -81,6 +88,7 @@ function Sticker({
 }
 
 export default function HomePage() {
+  const latestPosts = getAllPosts().slice(0, 3)
   return (
     <div className="paper overflow-x-clip">
       {/* identity strip — no nav */}
@@ -118,21 +126,40 @@ export default function HomePage() {
               Pre-built skills, guides, and full agent setups from creators in
               the field. Drop them into any agent — yours levels up instantly.
             </p>
-            <div className="lg:col-span-5 flex items-center gap-6 lg:justify-end">
+            <div className="lg:col-span-5 flex flex-col gap-3 lg:items-end">
+              <div className="flex items-center gap-6">
+                <Link
+                  href="/marketplace"
+                  className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
+                >
+                  Browse skills
+                  <span aria-hidden>→</span>
+                </Link>
+                <Link
+                  href="/sell"
+                  className="text-sm text-brand-ink hover:text-brand-gold transition-colors border-b border-brand-ink hover:border-brand-gold pb-0.5"
+                >
+                  Or sell yours
+                </Link>
+              </div>
               <Link
-                href="/marketplace"
-                className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
+                href="/how-it-works"
+                className="text-xs text-brand-muted hover:text-brand-gold transition-colors"
               >
-                Browse skills
-                <span aria-hidden>→</span>
-              </Link>
-              <Link
-                href="/sell"
-                className="text-sm text-brand-ink hover:text-brand-gold transition-colors border-b border-brand-ink hover:border-brand-gold pb-0.5"
-              >
-                Or sell yours
+                How does this work? →
               </Link>
             </div>
+          </div>
+
+          {/* trust strip — honest signals, no fabricated metrics */}
+          <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+            <span>✦ Built &amp; tested by humans, not auto-generated</span>
+            <span className="hidden sm:inline text-brand-hairline">·</span>
+            <span>Works on any agent — no platform lock-in</span>
+            <span className="hidden sm:inline text-brand-hairline">·</span>
+            <span>Stripe pays direct</span>
+            <span className="hidden sm:inline text-brand-hairline">·</span>
+            <span>Re-download forever</span>
           </div>
 
           {/* search */}
@@ -186,9 +213,9 @@ export default function HomePage() {
               Works with
             </p>
             <p className="font-display text-lg sm:text-xl leading-relaxed text-brand-ink">
-              Claude · OpenClaw · Hermes ·
+              Claude · OpenClaw · Manus · Hermes ·
               ChatGPT · Gemini · Grok · Ollama · Mistral · DeepSeek · n8n ·
-              Make · Zapier
+              Make · Zapier · and more
             </p>
           </div>
         </div>
@@ -244,8 +271,12 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">
-            {agentSetups.map((p, i) => (
-              <ProductCard key={p.id} product={p} variant={i === 1 ? 'emerald' : 'cream'} />
+            {agentSetups.map((p) => (
+              <ProductCard
+                key={p.id}
+                product={p}
+                variant={p.featured ? 'emerald' : 'cream'}
+              />
             ))}
           </div>
         </div>
@@ -331,7 +362,7 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-px bg-brand-hairline border border-brand-hairline">
             <div className="lg:col-span-7">
-              <ProductCard product={guides[0]} variant="emerald" />
+              <ProductCard product={guides[0]} variant={guides[0].featured ? 'emerald' : 'cream'} />
             </div>
             <div className="lg:col-span-5 grid grid-cols-1 gap-px bg-brand-hairline">
               <ProductCard product={guides[1]} />
@@ -358,12 +389,16 @@ export default function HomePage() {
             {niches.map((n, i) => {
               const rotations = ['-1deg', '0.6deg', '-0.4deg', '1.2deg', '-1.4deg', '0.3deg']
               const rot = rotations[i % rotations.length]
+              const isCatchAll = n === 'Anything else'
+              const href = isCatchAll
+                ? '/marketplace'
+                : `/for/${n.toLowerCase().replace(/\s+/g, '-')}`
               return (
                 <Link
                   key={n}
-                  href={`/marketplace?niche=${encodeURIComponent(n.toLowerCase().replace(/\s+/g, '-'))}`}
+                  href={href}
                   style={{ transform: `rotate(${rot})` }}
-                  className="inline-flex items-center bg-brand-cream-card border border-brand-ink px-5 py-2.5 text-base hover:bg-brand-navy hover:text-brand-cream hover:border-brand-navy transition-colors"
+                  className="inline-flex items-center bg-brand-cream-card border border-brand-ink px-4 py-2 text-sm sm:text-base hover:bg-brand-navy hover:text-brand-cream hover:border-brand-navy transition-colors"
                 >
                   {n}
                 </Link>
@@ -401,8 +436,10 @@ export default function HomePage() {
           </h2>
 
           <p className="mt-10 text-xl sm:text-2xl leading-snug max-w-3xl text-brand-cream/90">
-            The old marketplaces took 70% and locked your IP behind their
-            walls. Skillzy gives you 80%, keeps your name on the work, and
+            The labs are bundling auto-generated skills into their own
+            walled stores. Ours are different: built, used, and battle-tested
+            by the humans who do the work — and yours to take to any agent.
+            Skillzy gives creators 80%, keeps their name on the work, and
             lets every listing earn forever.{' '}
             <span className="text-brand-cream">You build. We sell. They use.</span>
           </p>
@@ -470,6 +507,50 @@ export default function HomePage() {
                   </span>
                 ))}
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Latest Field Notes — fresh content + internal links from the
+          most-crawled page */}
+      <section className="px-6 lg:px-10 py-20 sm:py-28 border-t border-brand-hairline">
+        <div className="max-w-page mx-auto">
+          <div className="flex items-end justify-between gap-6 flex-wrap mb-10 sm:mb-12">
+            <h2
+              className="font-display text-5xl sm:text-7xl tracking-tight"
+              style={{ letterSpacing: '-0.03em' }}
+            >
+              From the{' '}
+              <em className="italic text-brand-gold font-medium">Field Notes.</em>
+            </h2>
+            <Link
+              href="/blog"
+              className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted hover:text-brand-gold transition-colors"
+            >
+              All Field Notes →
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">
+            {latestPosts.map((post) => (
+              <Link
+                key={post.slug}
+                href={`/blog/${post.slug}`}
+                className="group bg-brand-cream-card p-7 sm:p-8 hover:bg-white transition-colors"
+              >
+                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+                  {readingMinutes(post)} min read
+                </span>
+                <h3
+                  className="font-display text-2xl mt-3 tracking-tight group-hover:text-brand-gold transition-colors"
+                  style={{ letterSpacing: '-0.02em' }}
+                >
+                  {post.title}
+                </h3>
+                <p className="mt-3 text-sm text-brand-muted leading-relaxed">
+                  {post.excerpt}
+                </p>
+              </Link>
             ))}
           </div>
         </div>

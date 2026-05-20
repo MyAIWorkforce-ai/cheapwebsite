@@ -1,15 +1,11 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getProduct, products } from '@/lib/catalog'
+import { resolveProduct, isSeedProductId } from '@/lib/listings'
 import { getUser } from '@/lib/auth'
 import CheckoutForm from './CheckoutForm'
 
-export function generateStaticParams() {
-  return products.map((p) => ({ id: p.id }))
-}
-
-export function generateMetadata({ params }: { params: { id: string } }) {
-  const p = getProduct(params.id)
+export async function generateMetadata({ params }: { params: { id: string } }) {
+  const p = await resolveProduct(params.id)
   if (!p) return { title: 'Checkout', robots: { index: false, follow: false } }
   return {
     title: `Checkout · ${p.title}`,
@@ -19,8 +15,12 @@ export function generateMetadata({ params }: { params: { id: string } }) {
 }
 
 export default async function CheckoutPage({ params }: { params: { id: string } }) {
-  const p = getProduct(params.id)
+  const p = await resolveProduct(params.id)
   if (!p) notFound()
+  // Demo/sample listings render the full, real-looking checkout. The
+  // "Pay" click is intercepted client-side (no charge): it pings us
+  // the demand signal and shows the buyer "no longer available".
+  const isDemo = isSeedProductId(params.id)
   const user = await getUser()
 
   const priceNumber = Number(p.price.replace(/[^0-9.]/g, ''))
@@ -63,6 +63,7 @@ export default async function CheckoutPage({ params }: { params: { id: string } 
               listingId={p.id}
               price={p.price}
               defaultEmail={user?.email}
+              demo={isDemo}
             />
 
             {/* SUMMARY */}
@@ -121,7 +122,7 @@ export default async function CheckoutPage({ params }: { params: { id: string } 
                   </li>
                   <li className="flex items-start gap-2">
                     <span aria-hidden className="text-brand-gold">✓</span>
-                    Scanned and human-reviewed
+                    Creator-warranted: own work, malware-free
                   </li>
                 </ul>
               </div>

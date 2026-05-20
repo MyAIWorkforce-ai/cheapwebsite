@@ -1,18 +1,31 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getProduct, getRelated, products, toCardProduct } from '@/lib/catalog'
+import { getRelated, products, toCardProduct } from '@/lib/catalog'
+import { resolveProduct, isSeedProductId } from '@/lib/listings'
 import ProductCard from '@/components/ProductCard'
+import GuaranteeBadge from '@/components/GuaranteeBadge'
+import EmailGate from '@/components/EmailGate'
+import StructuredData from '@/components/StructuredData'
+import { pageMetadata } from '@/lib/seo'
+import { productLd, breadcrumbLd, faqLd } from '@/lib/jsonld'
+import { videoEmbedUrl } from '@/lib/video'
+import { getPostsForListing, readingMinutes } from '@/lib/blog'
 
 export function generateStaticParams() {
   return products.map((p) => ({ id: p.id }))
 }
 
-export function generateMetadata({ params }: { params: { id: string } }) {
-  const p = getProduct(params.id)
-  if (!p) return { title: 'Not found' }
-  return {
-    title: `${p.title} — ${p.type}`,
-    description: p.tagline,
+export async function generateMetadata({ params }: { params: { id: string } }) {
+  const p = await resolveProduct(params.id)
+  if (!p) return { title: 'Not found — Skillzy' }
+  const ratingBit =
+    p.ratingCount > 0 ? ` ${p.rating}★ (${p.ratingCount} reviews).` : ''
+  return pageMetadata({
+    title: `${p.title} — AI ${p.type} — Skillzy`,
+    description: `${p.tagline} By ${p.creator.name}.${ratingBit}`.slice(0, 160),
+    path: `/marketplace/${p.slug ?? p.id}`,
+    // Demo/showcase listings aren't for sale — keep them out of the index.
+    noindex: isSeedProductId(p.id),
     keywords: [
       p.type,
       p.niche,
@@ -20,18 +33,12 @@ export function generateMetadata({ params }: { params: { id: string } }) {
       p.creator.name,
       'Skillzy',
     ].filter(Boolean) as string[],
-    openGraph: {
-      title: `${p.title} — ${p.type} on Skillzy`,
-      description: p.tagline,
-      type: 'website',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: `${p.title} — ${p.type}`,
-      description: p.tagline,
-    },
-  }
+  })
 }
+
+// ISR: DB-backed product pages render on-demand then cache for 5 min
+// (real listings change rarely; keeps TTFB/crawl healthy).
+export const revalidate = 300
 
 function Stars({ rating, className = '' }: { rating: number; className?: string }) {
   return (
@@ -59,14 +66,15 @@ function Stars({ rating, className = '' }: { rating: number; className?: string 
   )
 }
 
-export default function ProductDetailPage({
+export default async function ProductDetailPage({
   params,
 }: {
   params: { id: string }
 }) {
-  const p = getProduct(params.id)
+  const p = await resolveProduct(params.id)
   if (!p) notFound()
 
+  const isDemo = isSeedProductId(p.id)
   const isSetup = p.type === 'Agent Setup'
   const isGuide = p.type === 'Guide'
 
@@ -81,8 +89,28 @@ export default function ProductDetailPage({
   const filterLabel =
     p.type === 'Agent Setup' ? 'Agent Setups' : p.type === 'Skill' ? 'Skills' : 'Guides'
 
+  const videoEmbed = p.videoUrl ? videoEmbedUrl(p.videoUrl) : null
+  const featuredIn = getPostsForListing(p.id).slice(0, 3)
+  // Creator names their own video; we keep the house two-tone heading by
+  // emphasising the last word. Falls back to "Watch it work".
+  const videoHeading = (p.videoLabel?.trim() || 'Watch it work').split(/\s+/)
+  const videoHeadLast = videoHeading[videoHeading.length - 1]
+  const videoHeadRest = videoHeading.slice(0, -1).join(' ')
+
   return (
     <div className="paper">
+      <StructuredData
+        data={[
+          // No Product/Offer schema for non-purchasable demo listings.
+          ...(isDemo ? [] : [productLd(p)]),
+          breadcrumbLd([
+            { name: 'Home', path: '/' },
+            { name: 'Marketplace', path: '/marketplace' },
+            { name: p.title, path: `/marketplace/${p.slug ?? p.id}` },
+          ]),
+          ...(p.faqs && p.faqs.length > 0 ? [faqLd(p.faqs)] : []),
+        ]}
+      />
       {/* breadcrumb */}
       <div className="max-w-page mx-auto px-6 lg:px-10 pt-8 sm:pt-10">
         <nav aria-label="Breadcrumb" className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
@@ -142,21 +170,23 @@ export default function ProductDetailPage({
               </span>
               <Stars rating={p.rating} className="text-brand-ink" />
               <span className="text-brand-muted">({p.ratingCount} reviews)</span>
-              <span className="text-brand-muted">·</span>
-              <span className="text-brand-muted">
-                {p.creator.totalSales.toLocaleString()} sales
-              </span>
             </div>
 
-            <div className="mt-6 flex flex-wrap gap-2">
-              {p.platformList.map((platform) => (
-                <span
-                  key={platform}
-                  className="font-mono text-[11px] uppercase tracking-[0.18em] border border-brand-hairline px-2.5 py-1.5 text-brand-ink"
-                >
-                  {platform}
-                </span>
-              ))}
+            <div className="mt-6">
+              <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted mb-2">
+                Compatible with
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {p.platformList.map((platform) => (
+                  <Link
+                    key={platform}
+                    href={`/platforms/${platform.toLowerCase()}`}
+                    className="font-mono text-[11px] uppercase tracking-[0.18em] border border-brand-hairline px-2.5 py-1.5 text-brand-ink hover:border-brand-ink hover:bg-brand-navy hover:text-brand-cream transition-colors"
+                  >
+                    {platform}
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -173,16 +203,22 @@ export default function ProductDetailPage({
                 {p.price}
               </p>
               <p className="text-sm text-brand-muted mt-2">
-                One-time. {isSetup ? 'Re-installable forever.' : 'Re-download forever.'}
+                {p.free
+                  ? 'Free. Yours forever. Re-download any time.'
+                  : `One-time. ${isSetup ? 'Re-installable forever.' : 'Re-download forever.'}`}
               </p>
 
-              <Link
-                href={`/checkout/${p.id}`}
-                className="mt-7 w-full inline-flex items-center justify-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
-              >
-                {headlineCta}
-                <span aria-hidden>→</span>
-              </Link>
+              {p.free ? (
+                <EmailGate listingId={p.id} ctaLabel={headlineCta} />
+              ) : (
+                <Link
+                  href={`/checkout/${p.id}`}
+                  className="mt-7 w-full inline-flex items-center justify-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
+                >
+                  {headlineCta}
+                  <span aria-hidden>→</span>
+                </Link>
+              )}
 
               <ul className="mt-6 space-y-2.5 text-sm text-brand-ink">
                 <li className="flex items-start gap-2">
@@ -195,7 +231,7 @@ export default function ProductDetailPage({
                 </li>
                 <li className="flex items-start gap-2">
                   <span aria-hidden className="text-brand-gold">✓</span>
-                  Scanned + reviewed by Skillzy
+                  Creator-warranted: own work, no malware, no infringement
                 </li>
               </ul>
 
@@ -203,6 +239,20 @@ export default function ProductDetailPage({
                 Secure checkout via Stripe. Creators keep 80% of every sale.
               </p>
             </div>
+
+            <div className="mt-5">
+              <GuaranteeBadge />
+            </div>
+
+            <p className="mt-5 text-xs text-brand-muted">
+              New to this?{' '}
+              <a
+                href="/how-it-works"
+                className="border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold"
+              >
+                How it works →
+              </a>
+            </p>
           </aside>
         </div>
       </section>
@@ -226,6 +276,39 @@ export default function ProductDetailPage({
           </div>
         </div>
       </section>
+
+      {/* WALKTHROUGH VIDEO — creator-linked, never hosted by us */}
+      {videoEmbed && (
+        <section className="px-6 lg:px-10 py-16 sm:py-24 border-t border-brand-hairline bg-brand-navy-deep text-brand-cream">
+          <div className="max-w-page mx-auto">
+            <div className="flex items-end justify-between gap-6 flex-wrap mb-8 sm:mb-10">
+              <h2
+                className="font-display text-4xl sm:text-6xl tracking-tight"
+                style={{ letterSpacing: '-0.03em' }}
+              >
+                {videoHeadRest && <>{videoHeadRest}{' '}</>}
+                <em className="italic text-brand-gold-soft font-medium">
+                  {videoHeadLast}
+                </em>
+              </h2>
+              <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-cream/70">
+                {p.creator.name}’s walkthrough
+              </span>
+            </div>
+            <div className="relative aspect-video border border-brand-cream/15 bg-black">
+              <iframe
+                src={videoEmbed}
+                title={`${p.title} — walkthrough by ${p.creator.name}`}
+                loading="lazy"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                allowFullScreen
+                className="absolute inset-0 h-full w-full"
+              />
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* WHAT'S INSIDE */}
       <section className="px-6 lg:px-10 py-16 sm:py-24 border-t border-brand-hairline">
@@ -367,15 +450,7 @@ export default function ProductDetailPage({
               </div>
               <p className="mt-4 text-lg max-w-prose">{p.creator.bio}</p>
 
-              <dl className="mt-7 grid grid-cols-3 gap-4 sm:gap-6 max-w-md">
-                <div>
-                  <dt className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
-                    Sales
-                  </dt>
-                  <dd className="font-display text-2xl mt-1">
-                    {p.creator.totalSales.toLocaleString()}
-                  </dd>
-                </div>
+              <dl className="mt-7 grid grid-cols-2 gap-4 sm:gap-6 max-w-md">
                 <div>
                   <dt className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
                     Rating
@@ -471,14 +546,61 @@ export default function ProductDetailPage({
             Report this listing
           </a>
           <Link
-            href={`/checkout/${p.id}`}
+            href={p.free ? '#top' : `/checkout/${p.id}`}
             className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-3.5 text-[15px] hover:bg-brand-gold-dark transition-colors"
           >
-            {headlineCta} — {p.price}
+            {headlineCta} — {p.free ? 'Free' : p.price}
             <span aria-hidden>→</span>
           </Link>
         </div>
       </section>
+
+      {/* FIELD NOTES that feature this listing — closes the cluster */}
+      {featuredIn.length > 0 && (
+        <section className="px-6 lg:px-10 py-16 sm:py-24 border-t border-brand-hairline">
+          <div className="max-w-page mx-auto">
+            <div className="flex items-end justify-between gap-6 flex-wrap mb-8 sm:mb-10">
+              <h2
+                className="font-display text-4xl sm:text-6xl tracking-tight"
+                style={{ letterSpacing: '-0.03em' }}
+              >
+                Seen in{' '}
+                <em className="italic text-brand-gold font-medium">
+                  Field Notes.
+                </em>
+              </h2>
+              <Link
+                href="/blog"
+                className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted hover:text-brand-gold transition-colors"
+              >
+                All Field Notes →
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">
+              {featuredIn.map((post) => (
+                <Link
+                  key={post.slug}
+                  href={`/blog/${post.slug}`}
+                  className="group bg-brand-cream-card p-6 sm:p-7 hover:bg-white transition-colors"
+                >
+                  <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+                    {readingMinutes(post)} min read
+                  </span>
+                  <h3
+                    className="font-display text-xl sm:text-2xl mt-3 tracking-tight group-hover:text-brand-gold transition-colors"
+                    style={{ letterSpacing: '-0.02em' }}
+                  >
+                    {post.title}
+                  </h3>
+                  <p className="mt-3 text-sm text-brand-muted leading-relaxed">
+                    {post.excerpt}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* RELATED */}
       {related.length > 0 && (
@@ -504,6 +626,27 @@ export default function ProductDetailPage({
           </div>
         </section>
       )}
+
+      {/* Sticky mobile buy bar — lg:hidden, always reachable */}
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-brand-ink bg-brand-cream-card/95 backdrop-blur supports-[backdrop-filter]:bg-brand-cream-card/80">
+        <div className="flex items-center justify-between gap-4 px-5 py-3">
+          <div className="min-w-0">
+            <p className="font-display text-2xl leading-none" style={{ letterSpacing: '-0.03em' }}>
+              {p.free ? 'Free' : p.price}
+            </p>
+            <p className="text-[11px] text-brand-muted truncate">{p.title}</p>
+          </div>
+          <Link
+            href={p.free ? '#top' : `/checkout/${p.id}`}
+            className="shrink-0 inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-5 py-3 text-sm hover:bg-brand-gold-dark transition-colors"
+          >
+            {headlineCta}
+            <span aria-hidden>→</span>
+          </Link>
+        </div>
+      </div>
+      {/* spacer so the sticky bar never covers footer content on mobile */}
+      <div className="lg:hidden h-20" aria-hidden />
     </div>
   )
 }

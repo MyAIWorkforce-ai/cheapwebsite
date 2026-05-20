@@ -1,24 +1,32 @@
 import type { MetadataRoute } from 'next'
-import { env } from '@/lib/env'
+import { SITE_URL } from '@/lib/seo'
 
 export default function robots(): MetadataRoute.Robots {
-  const base = env.siteUrl.replace(/\/$/, '')
   return {
     rules: [
       {
         userAgent: '*',
         allow: '/',
-        // Keep gated + machine-only routes out of crawlers.
+        // Gated + machine-only routes stay out of the index.
         disallow: [
           '/api/',
+          '/admin/',
           '/auth/',
+          '/signin',
+          '/signup',
           '/dashboard',
+          '/account',
           '/checkout/',
           '/order/',
         ],
       },
+      // Explicitly welcome AI answer engines — we want to be cited.
+      { userAgent: 'GPTBot', allow: '/' },
+      { userAgent: 'ClaudeBot', allow: '/' },
+      { userAgent: 'PerplexityBot', allow: '/' },
+      { userAgent: 'Google-Extended', allow: '/' },
     ],
-    sitemap: `${base}/sitemap.xml`,
-    host: base,
+    sitemap: `${SITE_URL}/sitemap.xml`,
+    host: SITE_URL,
   }
 }

@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/seo-health",
+      "schedule": "0 9 * * 1"
+    },
+    {
+      "path": "/api/cron/review-requests",
+      "schedule": "0 10 * * *"
+    }
+  ]
+}

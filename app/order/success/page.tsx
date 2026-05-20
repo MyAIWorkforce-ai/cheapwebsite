@@ -1,8 +1,12 @@
 import Link from 'next/link'
-import { getProduct } from '@/lib/catalog'
+import { resolveProduct } from '@/lib/listings'
+import { getStripe, hasStripe } from '@/lib/stripe'
+import { fulfillPaymentIntent, orderIdFromIntent } from '@/lib/fulfillment'
+import { listingFiles } from '@/lib/delivery'
+import { deliveryTokenValid } from '@/lib/delivery-token'
 
 export const metadata = {
-  title: 'Plugged in',
+  title: "You're all set",
   description: 'Your Skillzy purchase is ready to drop into your agent.',
   robots: { index: false, follow: false },
 }
@@ -24,20 +28,74 @@ function Sticker({
   )
 }
 
-export default function OrderSuccessPage({
+export default async function OrderSuccessPage({
   searchParams,
 }: {
-  searchParams: { id?: string; email?: string }
+  searchParams: {
+    id?: string
+    email?: string
+    payment_intent?: string
+    payment_intent_client_secret?: string
+    redirect_status?: string
+    t?: string
+  }
 }) {
-  const p = searchParams.id ? getProduct(searchParams.id) : undefined
-  const orderId = (Math.random().toString(36).slice(2, 6) + Date.now().toString(36).slice(-4)).toUpperCase()
-  const email = searchParams.email || 'you@example.com'
+  let productId = searchParams.id
+  let email = searchParams.email
+  let orderId =
+    Math.random().toString(36).slice(2, 6) +
+    Date.now().toString(36).slice(-4)
+
+  // Files are only revealed when the visitor proves they own this
+  // purchase — either the PaymentIntent client_secret (Stripe appends
+  // it to the post-payment redirect) or the signed delivery token (in
+  // the confirmation email). A bare/guessed ?payment_intent= shows the
+  // page but NO files and triggers NO fulfilment/email.
+  let verified = false
+  let paidButLocked = false
+  const piId = searchParams.payment_intent
+  if (hasStripe && piId) {
+    try {
+      const stripe = getStripe()
+      const intent = await stripe.paymentIntents.retrieve(piId)
+      if (intent.status === 'succeeded') {
+        const authorized =
+          (!!intent.client_secret &&
+            searchParams.payment_intent_client_secret ===
+              intent.client_secret) ||
+          deliveryTokenValid(piId, searchParams.t)
+        productId =
+          (intent.metadata?.listing_id as string | undefined) || productId
+        orderId = orderIdFromIntent(intent.id)
+        if (authorized) {
+          verified = true
+          await fulfillPaymentIntent(intent)
+          email =
+            intent.receipt_email ||
+            (intent.metadata?.buyer_email as string | undefined) ||
+            email
+        } else {
+          paidButLocked = true
+        }
+      }
+    } catch (err) {
+      console.error('Order-success fulfilment failed', err)
+    }
+  }
+
+  const p = productId ? await resolveProduct(productId) : undefined
+
+  // Only serve files once the payment is verified — the succeeded
+  // PaymentIntent is the buyer's proof of purchase (no login needed).
+  const files = verified && productId ? await listingFiles(productId) : []
+  orderId = orderId.toUpperCase()
+  email = email || 'you@example.com'
 
   return (
     <div className="paper">
       <section className="px-6 lg:px-10 pt-16 sm:pt-24 pb-20 sm:pb-28">
         <div className="max-w-page mx-auto">
-          <Sticker rotate="-2.5deg">Plugged in ✿ Done.</Sticker>
+          <Sticker rotate="-2.5deg">You’re all set.</Sticker>
 
           <h1
             className="font-display mt-7 text-[3.5rem] sm:text-[6.5rem] lg:text-[8rem] leading-[0.9] tracking-tight"
@@ -82,37 +140,63 @@ export default function OrderSuccessPage({
                 <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted mb-4">
                   Download now
                 </p>
-                <ul className="space-y-3">
-                  <li className="flex items-center justify-between gap-4 border-b border-brand-hairline pb-3">
-                    <span className="font-mono text-sm">
-                      {p.id}.bundle.zip
-                    </span>
+                {paidButLocked ? (
+                  <p className="text-sm text-brand-muted leading-relaxed">
+                    For your security, open the{' '}
+                    <span className="font-semibold text-brand-ink">
+                      download link in your confirmation email
+                    </span>{' '}
+                    to get your files — this page only reveals them through
+                    that secure link. Can’t find the email? Write to{' '}
                     <a
-                      href="#"
-                      className="font-mono text-[11px] uppercase tracking-[0.18em] border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
+                      href="mailto:hi@skillzy.ai"
+                      className="border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold"
                     >
-                      ↓ Download
+                      hi@skillzy.ai
                     </a>
-                  </li>
-                  <li className="flex items-center justify-between gap-4 border-b border-brand-hairline pb-3">
-                    <span className="font-mono text-sm">setup-guide.pdf</span>
+                    .
+                  </p>
+                ) : files.length > 0 ? (
+                  <ul className="space-y-3">
+                    {files.map((f, i) => (
+                      <li
+                        key={f.name}
+                        className={`flex items-center justify-between gap-4 ${
+                          i < files.length - 1
+                            ? 'border-b border-brand-hairline pb-3'
+                            : ''
+                        }`}
+                      >
+                        <span className="font-mono text-sm break-all">
+                          {f.name}
+                        </span>
+                        <a
+                          href={f.url}
+                          className="font-mono text-[11px] uppercase tracking-[0.18em] border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5 whitespace-nowrap"
+                        >
+                          ↓ Download
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-brand-muted leading-relaxed">
+                    Your files are being prepared. We’ve emailed{' '}
+                    <span className="font-semibold text-brand-ink">
+                      {email}
+                    </span>{' '}
+                    — your download link works from that email and from your
+                    dashboard, and stays available for re-download. If nothing
+                    arrives within a few minutes, write to{' '}
                     <a
-                      href="#"
-                      className="font-mono text-[11px] uppercase tracking-[0.18em] border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
+                      href="mailto:hi@skillzy.ai"
+                      className="border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold"
                     >
-                      ↓ Download
+                      hi@skillzy.ai
                     </a>
-                  </li>
-                  <li className="flex items-center justify-between gap-4">
-                    <span className="font-mono text-sm">receipt.pdf</span>
-                    <a
-                      href="#"
-                      className="font-mono text-[11px] uppercase tracking-[0.18em] border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
-                    >
-                      ↓ Download
-                    </a>
-                  </li>
-                </ul>
+                    .
+                  </p>
+                )}
               </div>
             </div>
           )}

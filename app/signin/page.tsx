@@ -9,7 +9,11 @@ export const metadata = {
   robots: { index: false, follow: true },
 }
 
-export default async function SignInPage() {
+export default async function SignInPage({
+  searchParams,
+}: {
+  searchParams: { error?: string }
+}) {
   const user = await getUser()
   if (user) redirect('/dashboard')
 
@@ -29,7 +33,7 @@ export default async function SignInPage() {
           Buy once, re-download any time. Sell on your own schedule.
         </p>
 
-        <SignInForm demoMode={!hasSupabase} />
+        <SignInForm demoMode={!hasSupabase} oauthError={searchParams.error} />
       </div>
     </div>
   )

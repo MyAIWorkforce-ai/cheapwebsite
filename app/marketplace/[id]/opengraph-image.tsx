@@ -1,12 +1,12 @@
 import { ImageResponse } from 'next/og'
-import { getProduct } from '@/lib/catalog'
+import { resolveProduct } from '@/lib/listings'
 
 export const alt = 'Skillzy listing'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
-export default function ProductOG({ params }: { params: { id: string } }) {
-  const p = getProduct(params.id)
+export default async function ProductOG({ params }: { params: { id: string } }) {
+  const p = await resolveProduct(params.id)
 
   if (!p) {
     return new ImageResponse(

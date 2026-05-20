@@ -1,13 +1,18 @@
 import Link from 'next/link'
 import ProductCard from '@/components/ProductCard'
-import { products, toCardProduct, type ProductType } from '@/lib/catalog'
+import { products, toCardProduct, NICHES, type ProductType } from '@/lib/catalog'
+import { liveDbProducts } from '@/lib/listings'
+import { pageMetadata } from '@/lib/seo'
 
-export const metadata = {
-  title: 'The catalogue',
+// Canonical strips query strings → /marketplace?type=skill etc. all
+// canonicalise to https://skillzy.ai/marketplace (per SEO scope 1.1).
+export const metadata = pageMetadata({
+  title: 'Browse AI Agent Skills, Setups & Guides — Skillzy',
   description:
-    'Drop in. Agent supercharged. Browse skills, guides, and ready-to-go agent setups for Claude, OpenClaw, Hermes, n8n and more. Every listing reviewed by a human.',
+    'Drop-in AI agent skills, full setups, and guides built by creators in the field. Filter by trade, platform, or type. Works with Claude, n8n, OpenClaw, Make, Zapier.',
+  path: '/marketplace',
   keywords: [
-    'agent skills',
+    'AI agent skills',
     'AI agent marketplace',
     'Claude skills',
     'n8n agents',
@@ -15,16 +20,16 @@ export const metadata = {
     'SKILL.md',
     'AI agent setups',
   ],
-}
+})
 
 const filters: { label: string; type?: ProductType; key: string }[] = [
-  { label: 'All', key: 'all' },
   { label: 'Agent Setups', type: 'Agent Setup', key: 'agent-setup' },
   { label: 'Skills', type: 'Skill', key: 'skill' },
   { label: 'Guides', type: 'Guide', key: 'guide' },
+  { label: 'All', key: 'all' },
 ]
 
-export default function MarketplacePage({
+export default async function MarketplacePage({
   searchParams,
 }: {
   searchParams: { type?: string; q?: string; niche?: string; platform?: string }
@@ -34,7 +39,10 @@ export default function MarketplacePage({
   const niche = searchParams.niche?.toLowerCase().trim()
   const platform = searchParams.platform?.toLowerCase().trim()
 
-  const filtered = products.filter((p) => {
+  // Real seller listings (newest first) ahead of the demo showcase.
+  const allProducts = [...(await liveDbProducts()), ...products]
+
+  const filtered = allProducts.filter((p) => {
     const f = filters.find((x) => x.key === activeKey)
     if (f?.type && p.type !== f.type) return false
     if (query) {
@@ -51,8 +59,10 @@ export default function MarketplacePage({
     return true
   })
 
-  const platforms = Array.from(new Set(products.flatMap((p) => p.platformList))).sort()
-  const niches = Array.from(new Set(products.map((p) => p.niche).filter(Boolean))) as string[]
+  const platforms = Array.from(new Set(allProducts.flatMap((p) => p.platformList))).sort()
+  // Master niche list (defined in lib/catalog.ts) — shows every niche
+  // in the filter even before listings exist in it.
+  const niches = [...NICHES] as string[]
 
   return (
     <div className="paper">
@@ -69,8 +79,8 @@ export default function MarketplacePage({
             <em className="italic text-brand-gold font-medium">Agent supercharged.</em>
           </h1>
           <p className="mt-5 text-brand-muted max-w-prose">
-            Skills, guides, full agent setups. Every listing reviewed by a human.
-            No mystery meat.
+            Skills, guides, full agent setups. Built by creators who actually
+            run them. Drop one in and go.
           </p>
 
           {/* search */}
@@ -120,8 +130,8 @@ export default function MarketplacePage({
             const active = f.key === activeKey
             const count =
               f.key === 'all'
-                ? products.length
-                : products.filter((p) => p.type === f.type).length
+                ? allProducts.length
+                : allProducts.filter((p) => p.type === f.type).length
             return (
               <Link
                 key={f.key}
@@ -263,11 +273,11 @@ export default function MarketplacePage({
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">
-            {filtered.map((p, i) => (
+            {filtered.map((p) => (
               <ProductCard
                 key={p.id}
                 product={toCardProduct(p)}
-                variant={i % 5 === 2 ? 'emerald' : 'cream'}
+                variant={p.featured ? 'emerald' : 'cream'}
               />
             ))}
           </div>

@@ -1,9 +1,11 @@
 import Link from 'next/link'
+import { pageMetadata } from '@/lib/seo'
 
-export const metadata = {
-  title: 'Built it? Sell it.',
+export const metadata = pageMetadata({
+  title: 'Sell AI Agent Skills — Keep 80% — Skillzy',
   description:
-    'Publish a skill, guide, or full agent setup. List once, sell it forever. Keep 80% of every sale. Stripe pays you direct.',
+    'List once. Earn forever. Skillzy gives creators 80% of every sale, instant Stripe payouts, and zero IP lock-in.',
+  path: '/sell',
   keywords: [
     'sell AI skills',
     'sell AI agents',
@@ -13,7 +15,7 @@ export const metadata = {
     'agent maker income',
     'Stripe payouts',
   ],
-}
+})
 
 function Sticker({
   children,
@@ -43,10 +45,9 @@ function Sticker({
 const steps = [
   { n: '01', title: 'Sign up', desc: 'Email or one-click GitHub login. No profile to fill in.' },
   { n: '02', title: 'List it', desc: 'Skill, guide, or full agent setup. Drop in your files.' },
-  { n: '03', title: 'Let it describe itself', desc: 'Upload notes, talk, or type. Our AI drafts the full listing — title, blurb, features, setup. Refine by voice until it sounds like you.' },
-  { n: '04', title: 'Submit for review', desc: 'Auto-scan plus a human review on your first listing. Usually under 24 hours.' },
-  { n: '05', title: 'Connect Stripe', desc: 'One click at publish. Payouts go straight to your account. Skillzy never touches the money.' },
-  { n: '06', title: 'Get paid', desc: 'Keep 80%. Stripe splits the cash. You re-list, raise prices, or pull anytime.' },
+  { n: '03', title: 'Let it describe itself', desc: 'Upload notes, talk, or type. Our AI drafts the full listing — title, blurb, features, setup. Refine until it sounds like you.' },
+  { n: '04', title: 'Connect Stripe', desc: 'One click at publish. Payouts go straight to your account. Skillzy never touches the money.' },
+  { n: '05', title: 'Get paid', desc: 'Keep 80%. Stripe splits the cash. You re-list, raise prices, or pull anytime.' },
 ]
 
 export default function SellPage() {
@@ -99,7 +100,7 @@ export default function SellPage() {
           {[
             { n: '∞', label: 'Resales', desc: 'List once. Sell it forever.' },
             { n: '80%', label: 'You keep', desc: 'On every sale. Always.' },
-            { n: '10 min', label: 'To publish', desc: 'Average time from sign-up to live.' },
+            { n: 'Minutes', label: 'To publish', desc: 'From sign-up to live. Faster if you already have an account.' },
           ].map((s) => (
             <div key={s.label} className="bg-brand-cream-card p-8 sm:p-10">
               <p
@@ -122,7 +123,7 @@ export default function SellPage() {
             className="font-display text-5xl sm:text-7xl tracking-tight max-w-3xl"
             style={{ letterSpacing: '-0.03em' }}
           >
-            Six steps. <em className="italic text-brand-gold font-medium">Ten minutes.</em>
+            Five steps. <em className="italic text-brand-gold font-medium">Minutes, not days.</em>
           </h2>
 
           <ol className="mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">
