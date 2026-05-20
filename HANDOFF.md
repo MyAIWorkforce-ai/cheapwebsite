@@ -521,3 +521,41 @@ traction — don't do it now.
   the mobile hamburger menu — too hidden). Code task — add a clear
   Sign in CTA to the top-right of the homepage header so it's
   visible without opening the menu.
+
+## Review-request emails — BUILT, needs activation (2026-05-20)
+
+Code is shipped (commit `713e636`); 3 founder steps to switch it on.
+
+### What was built
+- Day-3 review-request email + day-7 follow-up if still unrated.
+- Email has 5 star buttons; clicking one records the rating instantly
+  via a tokenised `/r/<purchaseId>?t=…&s=N` link. Page lets buyer add
+  an optional comment.
+- Daily cron (`/api/cron/review-requests`, 10:00 UTC, configured in
+  `vercel.json`) finds paid purchases at 2–4 / 7–9 days old and fires
+  the appropriate email, idempotently.
+- HMAC token (`lib/review-token.ts`), email template
+  (`lib/email/review-request.tsx`), public review page
+  (`/r/[purchaseId]`), submit API (`/api/reviews/submit`), schema
+  migration (`db/REVIEW_REQUESTS.sql`).
+
+### Founder activation steps (in order)
+1. **Apply the schema migration:** paste `db/REVIEW_REQUESTS.sql`
+   into Supabase SQL Editor → Run. Adds tracking columns + lets
+   guests review (RLS-bypassing service-role insert behind the
+   token). Idempotent.
+2. **Set `CRON_SECRET`** in Vercel Settings → Environment Variables
+   (Production + Preview). Generate any strong random string
+   (e.g. `openssl rand -hex 32` output). Save.
+3. **Redeploy** (any push to the branch triggers it) — Vercel reads
+   the new `vercel.json` and registers the cron. Verify under
+   Vercel → Settings → Cron Jobs: should list
+   `/api/cron/review-requests` daily at `0 10 * * *`.
+
+Until 1+2+3 are done: the cron either 401s (no secret) or no-ops
+(no tracking columns). No emails go out and nothing breaks; it just
+sleeps.
+
+### Test after activation
+Hit `https://skillzy.ai/api/cron/review-requests?key=<CRON_SECRET>`
+in a browser. Should return `{ ok: true, day3Sent: N, day7Sent: N }`.
