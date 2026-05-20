@@ -70,22 +70,16 @@ export default function GitHubImport({
         return
       }
 
-      // Pull each importable file's raw content into a real File.
+      // The API already returns each file's text content inline (so
+      // private repos work too — the browser can't auth to
+      // raw.githubusercontent.com). Just wrap each in a File.
       const files: File[] = []
       for (const f of (json.files ?? []) as {
         name: string
-        rawUrl: string
+        content: string
       }[]) {
-        try {
-          const r = await fetch(f.rawUrl)
-          if (!r.ok) continue
-          const text = await r.text()
-          files.push(
-            new File([text], f.name, { type: 'text/plain' }),
-          )
-        } catch {
-          /* skip a file that won't fetch */
-        }
+        if (!f.content) continue
+        files.push(new File([f.content], f.name, { type: 'text/plain' }))
       }
 
       const brief = [

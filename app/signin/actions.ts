@@ -130,7 +130,13 @@ export async function signInWithGitHub() {
   const supabase = createClient()
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'github',
-    options: { redirectTo: `${env.siteUrl}/auth/callback` },
+    options: {
+      redirectTo: `${env.siteUrl}/auth/callback`,
+      // Request the `repo` scope so creators can import from their
+      // private repos via /sell/new. Public profile + email are the
+      // default minimum.
+      scopes: 'read:user user:email repo',
+    },
   })
   if (error || !data?.url) {
     redirect(`/signin?error=${encodeURIComponent(error?.message ?? 'OAuth failed')}`)
