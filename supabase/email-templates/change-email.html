@@ -1,0 +1,61 @@
+<!--
+  Skillzy — Supabase Auth email template: CHANGE EMAIL ADDRESS
+  Paste into Supabase Dashboard → Authentication → Email Templates → Change Email Address
+  Subject:  Confirm your new Skillzy email
+-->
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Confirm your new Skillzy email</title>
+  </head>
+  <body style="margin:0;padding:32px 16px;background:#E8ECF0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#0F1729;">
+    <span style="display:none;visibility:hidden;opacity:0;color:transparent;height:0;width:0;font-size:1px;line-height:1px;">Confirm the swap so we can move your account over.</span>
+
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="max-width:560px;width:100%;margin:0 auto;">
+      <tr>
+        <td style="background:#F2F4F8;border:1px solid #CCD2DD;padding:36px 32px;">
+
+          <div style="font-family:'Fraunces','Times New Roman',Georgia,serif;font-size:22px;letter-spacing:-0.5px;color:#0F1729;">
+            Skillzy
+          </div>
+
+          <div style="font-family:'Fraunces','Times New Roman',Georgia,serif;font-size:44px;line-height:1.05;letter-spacing:-1.5px;color:#0F1729;margin-top:28px;">
+            New email? <em style="color:#C19E50;font-style:italic;">Confirm it.</em>
+          </div>
+
+          <p style="margin:20px 0 0;font-size:16px;line-height:1.55;color:#0F1729;">
+            We need to make sure this email is really yours before we swap it onto your Skillzy account. Click below to confirm the change.
+          </p>
+
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-top:28px;">
+            <tr>
+              <td style="background:#C19E50;">
+                <a href="{{ .ConfirmationURL }}"
+                   style="display:inline-block;padding:14px 28px;font-size:15px;font-weight:600;color:#0F1729;text-decoration:none;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+                  Confirm new email &nbsp;→
+                </a>
+              </td>
+            </tr>
+          </table>
+
+          <p style="margin:24px 0 0;font-size:13px;line-height:1.6;color:#5F6B7E;">
+            Or copy this link into your browser:<br />
+            <a href="{{ .ConfirmationURL }}" style="color:#5F6B7E;word-break:break-all;">{{ .ConfirmationURL }}</a>
+          </p>
+
+          <p style="margin-top:32px;padding-top:16px;border-top:1px solid #CCD2DD;font-size:12px;line-height:1.6;color:#5F6B7E;">
+            Didn't ask for an email change? Ignore this — nothing changes until the link is clicked. If you keep seeing these, write to <a href="mailto:hi@skillzy.ai" style="color:#5F6B7E;">hi@skillzy.ai</a>.
+          </p>
+
+          <p style="margin-top:8px;font-size:12px;color:#5F6B7E;">
+            Skillzy — a marketplace for agent skills.<br />
+            <a href="https://skillzy.ai" style="color:#5F6B7E;">skillzy.ai</a>
+          </p>
+
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

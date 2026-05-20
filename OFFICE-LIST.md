@@ -73,19 +73,16 @@ The buttons exist; the providers aren't enabled inside Supabase yet.
 
 ---
 
-## 🟠 4b. Fancy up the Supabase email templates
+## 🟠 4b. Fancy up the Supabase email templates — ✅ TEMPLATES WRITTEN
 
-The actual sign-up + magic-link emails Skillzy sends out today come from Supabase's default template — plain, no branding, looks generic and easy to mistake for spam. (Code-side I've already made the in-app "Check your email" page look proper Skillzy-branded; the email itself is the gap.)
+The actual sign-up + magic-link emails Skillzy sends out today come from Supabase's default template — plain, no branding, looks generic and easy to mistake for spam. I've written Skillzy-branded HTML for all four templates.
 
-**Supabase Dashboard → Authentication → Email Templates** → there are 4 templates you can customize:
-- **Confirm signup** — the email new accounts get
-- **Magic link** — the one-time sign-in link
-- **Reset password**
-- **Change email**
+**Paste each one in:**
+1. Supabase Dashboard → **Authentication → Email Templates**
+2. Open the file `supabase/email-templates/README.md` in your repo — it has the full instructions.
+3. For each of the 4 templates: copy the matching `.html` file's contents into the **Message body** box, set the **Subject heading** as listed in the README, click **Save changes**.
 
-For each: edit the HTML. Use the Skillzy palette (gold `#C19E50`, ink `#0F1729`, cream background `#F2F4F8`) and the Fraunces display font. Subject lines could say e.g. *"Verify your Skillzy account"* / *"Your Skillzy sign-in link"* instead of the defaults.
-
-If you want, I can write the four template HTML files and you paste them straight in — say the word.
+Test by triggering each flow once (sign up a throwaway, request a magic link, etc.) and confirm the email looks right in Gmail / Apple Mail.
 
 ---
 
