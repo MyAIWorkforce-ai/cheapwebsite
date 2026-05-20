@@ -11,14 +11,47 @@ export default function NavbarClient({ user }: { user: SessionUser | null }) {
   const [open, setOpen] = useState(false)
   const [q, setQ] = useState('')
   const router = useRouter()
-
-  if (pathname === '/') return null
+  const isHome = pathname === '/'
 
   function onSearch(e: FormEvent) {
     e.preventDefault()
     const value = q.trim()
     router.push(value ? `/marketplace?q=${encodeURIComponent(value)}` : '/marketplace')
     setOpen(false)
+  }
+
+  if (isHome) {
+    return (
+      <div className="absolute top-3 right-4 sm:top-5 sm:right-6 z-50">
+        <button
+          type="button"
+          aria-label="Menu"
+          aria-expanded={open}
+          onClick={() => setOpen((v) => !v)}
+          className="p-2 text-brand-ink/70 hover:text-brand-ink transition-colors"
+        >
+          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+            {open ? <path d="M6 18L18 6M6 6l12 12" /> : <path d="M3 7h18M3 17h18" />}
+          </svg>
+        </button>
+        {open && (
+          <div className="absolute right-0 mt-1 w-48 bg-brand-cream border border-brand-hairline shadow-lg flex flex-col py-1">
+            <Link href="/marketplace" onClick={() => setOpen(false)} className="px-4 py-2.5 text-sm text-brand-ink hover:bg-brand-gold/15">Marketplace</Link>
+            <Link href="/sell" onClick={() => setOpen(false)} className="px-4 py-2.5 text-sm text-brand-ink hover:bg-brand-gold/15">Sell</Link>
+            {user ? (
+              <>
+                <Link href="/dashboard" onClick={() => setOpen(false)} className="px-4 py-2.5 text-sm text-brand-ink hover:bg-brand-gold/15">Dashboard</Link>
+                <form action="/auth/signout" method="POST">
+                  <button type="submit" className="w-full text-left px-4 py-2.5 text-sm text-brand-muted hover:bg-brand-gold/15">Sign out</button>
+                </form>
+              </>
+            ) : (
+              <Link href="/signin" onClick={() => setOpen(false)} className="px-4 py-2.5 text-sm text-brand-ink hover:bg-brand-gold/15">Sign in</Link>
+            )}
+          </div>
+        )}
+      </div>
+    )
   }
 
   return (
