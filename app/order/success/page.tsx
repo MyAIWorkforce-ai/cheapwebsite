@@ -1,5 +1,8 @@
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
 import { getProduct } from '@/lib/catalog'
+import { createServiceClient } from '@/lib/supabase/server'
+import { hasSupabase, hasStripe } from '@/lib/env'
 
 export const metadata = {
   title: 'Plugged in',
@@ -24,14 +27,55 @@ function Sticker({
   )
 }
 
-export default function OrderSuccessPage({
+type Resolved = {
+  product: ReturnType<typeof getProduct>
+  email: string
+  orderId: string
+}
+
+async function resolvePurchase(
+  sessionId: string | undefined,
+  fallbackSlug: string | undefined,
+): Promise<Resolved | null> {
+  // Demo mode (no Stripe + no Supabase): allow a fallback slug lookup so
+  // the prototype still demos. No PII is shown.
+  if (!hasStripe && !hasSupabase && fallbackSlug) {
+    const product = getProduct(fallbackSlug)
+    if (!product) return null
+    return { product, email: '', orderId: 'DEMO' }
+  }
+
+  if (!sessionId || !hasSupabase) return null
+
+  const supabase = createServiceClient()
+  const { data, error } = await supabase
+    .from('purchases')
+    .select('buyer_email, listing_id, status, listings:listing_id (slug)')
+    .eq('stripe_checkout_session_id', sessionId)
+    .maybeSingle()
+  if (error || !data || data.status !== 'paid') return null
+
+  const slug = (data.listings as { slug?: string } | null)?.slug
+  if (!slug) return null
+  const product = getProduct(slug)
+  if (!product) return null
+
+  return {
+    product,
+    email: (data.buyer_email as string) ?? '',
+    orderId: sessionId.replace('cs_', '').slice(0, 12).toUpperCase(),
+  }
+}
+
+export default async function OrderSuccessPage({
   searchParams,
 }: {
-  searchParams: { id?: string; email?: string }
+  searchParams: { id?: string; session_id?: string }
 }) {
-  const p = searchParams.id ? getProduct(searchParams.id) : undefined
-  const orderId = (Math.random().toString(36).slice(2, 6) + Date.now().toString(36).slice(-4)).toUpperCase()
-  const email = searchParams.email || 'you@example.com'
+  const resolved = await resolvePurchase(searchParams.session_id, searchParams.id)
+  if (!resolved) notFound()
+
+  const { product: p, email, orderId } = resolved
 
   return (
     <div className="paper">
@@ -48,9 +92,15 @@ export default function OrderSuccessPage({
           </h1>
 
           <p className="mt-8 text-xl text-brand-ink max-w-2xl">
-            Your bundle is on its way to{' '}
-            <span className="font-semibold">{email}</span>. It’ll also live on
-            your dashboard, re-downloadable forever.
+            {email ? (
+              <>
+                Your bundle is on its way to{' '}
+                <span className="font-semibold">{email}</span>. It’ll also live
+                on your dashboard, re-downloadable forever.
+              </>
+            ) : (
+              <>Your bundle lives on your dashboard, re-downloadable forever.</>
+            )}
           </p>
 
           {p && (
@@ -77,43 +127,6 @@ export default function OrderSuccessPage({
                   {p.price}
                 </span>
               </div>
-
-              <div className="mt-7 pt-6 border-t border-brand-hairline">
-                <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted mb-4">
-                  Download now
-                </p>
-                <ul className="space-y-3">
-                  <li className="flex items-center justify-between gap-4 border-b border-brand-hairline pb-3">
-                    <span className="font-mono text-sm">
-                      {p.id}.bundle.zip
-                    </span>
-                    <a
-                      href="#"
-                      className="font-mono text-[11px] uppercase tracking-[0.18em] border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
-                    >
-                      ↓ Download
-                    </a>
-                  </li>
-                  <li className="flex items-center justify-between gap-4 border-b border-brand-hairline pb-3">
-                    <span className="font-mono text-sm">setup-guide.pdf</span>
-                    <a
-                      href="#"
-                      className="font-mono text-[11px] uppercase tracking-[0.18em] border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
-                    >
-                      ↓ Download
-                    </a>
-                  </li>
-                  <li className="flex items-center justify-between gap-4">
-                    <span className="font-mono text-sm">receipt.pdf</span>
-                    <a
-                      href="#"
-                      className="font-mono text-[11px] uppercase tracking-[0.18em] border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
-                    >
-                      ↓ Download
-                    </a>
-                  </li>
-                </ul>
-              </div>
             </div>
           )}
 
@@ -129,17 +142,19 @@ export default function OrderSuccessPage({
                 №{orderId}
               </p>
             </div>
-            <div className="bg-brand-cream-card p-6">
-              <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
-                Sent to
-              </span>
-              <p
-                className="font-display text-lg mt-2 break-all"
-                style={{ letterSpacing: '-0.02em' }}
-              >
-                {email}
-              </p>
-            </div>
+            {email && (
+              <div className="bg-brand-cream-card p-6">
+                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
+                  Sent to
+                </span>
+                <p
+                  className="font-display text-lg mt-2 break-all"
+                  style={{ letterSpacing: '-0.02em' }}
+                >
+                  {email}
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="mt-12 flex flex-wrap gap-3 sm:gap-4 items-center">

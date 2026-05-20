@@ -48,7 +48,8 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // 4. Identify the buyer if signed in.
+  // 4. Identify the buyer if signed in. If signed in, ignore any email
+  //    sent in the request body — always trust the session.
   let buyerEmail = email
   let buyerId: string | undefined
   if (hasSupabase) {
@@ -58,12 +59,16 @@ export async function POST(request: NextRequest) {
         data: { user },
       } = await supabase.auth.getUser()
       if (user?.email) {
-        buyerEmail = buyerEmail ?? user.email
+        buyerEmail = user.email
         buyerId = user.id
       }
     } catch {
       /* no-op */
     }
+  }
+
+  if (!buyerEmail || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(buyerEmail)) {
+    return NextResponse.json({ error: 'A valid email is required.' }, { status: 400 })
   }
 
   const amount = Number(product.price.replace(/[^0-9.]/g, ''))

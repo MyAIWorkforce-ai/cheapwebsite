@@ -278,6 +278,23 @@ create trigger listings_updated_at
   for each row execute function public.touch_updated_at();
 
 -- =========
+-- subscribers (newsletter)
+-- =========
+create table if not exists public.subscribers (
+  id uuid primary key default gen_random_uuid(),
+  email citext unique not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.subscribers enable row level security;
+
+-- Insert-only for the anon role via the form action.
+drop policy if exists "subscribers_anyone_insert" on public.subscribers;
+create policy "subscribers_anyone_insert"
+  on public.subscribers for insert
+  with check (true);
+
+-- =========
 -- storage bucket for bundle files
 -- =========
 -- Run separately, or via the dashboard:

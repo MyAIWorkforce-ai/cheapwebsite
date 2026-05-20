@@ -31,64 +31,92 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  switch (event.type) {
-    case 'checkout.session.completed': {
-      const session = event.data.object as Stripe.Checkout.Session
-      await handleCheckoutCompleted(session)
-      break
+  try {
+    switch (event.type) {
+      case 'checkout.session.completed': {
+        const session = event.data.object as Stripe.Checkout.Session
+        await handleCheckoutCompleted(session)
+        break
+      }
+      case 'account.updated': {
+        const account = event.data.object as Stripe.Account
+        await handleAccountUpdated(account)
+        break
+      }
+      case 'charge.refunded': {
+        const charge = event.data.object as Stripe.Charge
+        await handleChargeRefunded(charge)
+        break
+      }
+      default:
+        break
     }
-    case 'account.updated': {
-      const account = event.data.object as Stripe.Account
-      await handleAccountUpdated(account)
-      break
-    }
-    case 'charge.refunded': {
-      const charge = event.data.object as Stripe.Charge
-      await handleChargeRefunded(charge)
-      break
-    }
-    default:
-      // Ignore other events for now.
-      break
+  } catch (err) {
+    // Return non-2xx so Stripe retries the webhook. Critical: never silently
+    // drop a checkout.session.completed — that means a paid customer with no
+    // purchase record on our side.
+    console.error(`Webhook handler failed for ${event.type}:`, {
+      event_id: event.id,
+      object_id: (event.data.object as { id?: string })?.id,
+      error: (err as Error).message,
+    })
+    return NextResponse.json(
+      { error: 'Handler failed; Stripe will retry.' },
+      { status: 500 },
+    )
   }
 
   return NextResponse.json({ received: true })
 }
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
-  const listingId = (session.metadata?.listing_id as string | undefined) ?? null
-  if (!listingId) return
+  const listingSlug = (session.metadata?.listing_id as string | undefined) ?? null
+  if (!listingSlug) return
 
-  const product = getProduct(listingId)
+  const product = getProduct(listingSlug)
   const buyerEmail =
     session.customer_details?.email ||
     (session.metadata?.buyer_email as string | undefined) ||
     ''
 
-  // Record the purchase.
+  // Record the purchase. If this fails we MUST surface the error so Stripe
+  // retries — a paid customer with no purchase record is the worst outcome.
   if (hasSupabase) {
-    try {
-      const supabase = createServiceClient()
-      const amount = session.amount_total ?? 0
-      const fee = Math.round(amount * 0.2)
-      const payout = amount - fee
-      await supabase.from('purchases').upsert(
-        {
-          buyer_id: (session.metadata?.buyer_id as string | undefined) || null,
-          buyer_email: buyerEmail,
-          listing_id: listingId,
-          amount_cents: amount,
-          currency: session.currency ?? 'usd',
-          platform_fee_cents: fee,
-          creator_payout_cents: payout,
-          stripe_checkout_session_id: session.id,
-          stripe_payment_intent_id: (session.payment_intent as string) ?? null,
-          status: 'paid',
-        },
-        { onConflict: 'stripe_checkout_session_id' },
+    const supabase = createServiceClient()
+
+    // listings.id is a UUID, but checkout puts the slug in metadata. Look
+    // up the row by slug to get the foreign key.
+    const { data: listing, error: listingError } = await supabase
+      .from('listings')
+      .select('id')
+      .eq('slug', listingSlug)
+      .single()
+    if (listingError || !listing) {
+      throw new Error(
+        `Listing not found for slug ${listingSlug}: ${listingError?.message ?? 'no row'}`,
       )
-    } catch (err) {
-      console.error('Failed to record purchase', err)
+    }
+
+    const amount = session.amount_total ?? 0
+    const fee = Math.round(amount * 0.2)
+    const payout = amount - fee
+    const { error } = await supabase.from('purchases').upsert(
+      {
+        buyer_id: (session.metadata?.buyer_id as string | undefined) || null,
+        buyer_email: buyerEmail,
+        listing_id: listing.id,
+        amount_cents: amount,
+        currency: session.currency ?? 'usd',
+        platform_fee_cents: fee,
+        creator_payout_cents: payout,
+        stripe_checkout_session_id: session.id,
+        stripe_payment_intent_id: (session.payment_intent as string) ?? null,
+        status: 'paid',
+      },
+      { onConflict: 'stripe_checkout_session_id' },
+    )
+    if (error) {
+      throw new Error(`Failed to record purchase: ${error.message}`)
     }
   }
 
