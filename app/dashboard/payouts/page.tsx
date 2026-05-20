@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { getUser } from '@/lib/auth'
 import { createClient } from '@/lib/supabase/server'
 import { hasSupabase, hasStripe } from '@/lib/env'
+import { getStripe } from '@/lib/stripe'
 import ConnectButton from './ConnectButton'
 import { syncPayoutStatus } from '@/lib/stripe-connect'
 
@@ -16,6 +17,18 @@ type ProfileRow = {
   stripe_payouts_enabled: boolean
 }
 
+type Sale = {
+  id: string
+  created_at: string
+  listing_title: string
+  amount_cents: number
+  payout_cents: number
+  currency: string
+}
+
+const PENDING_DAYS = 7
+const DAY_MS = 24 * 60 * 60 * 1000
+
 async function getPayoutProfile(userId: string): Promise<ProfileRow | null> {
   if (!hasSupabase) return null
   try {
@@ -29,6 +42,58 @@ async function getPayoutProfile(userId: string): Promise<ProfileRow | null> {
   } catch {
     return null
   }
+}
+
+async function getConnectedAccountEmail(
+  stripeAccountId: string,
+): Promise<string | null> {
+  if (!hasStripe) return null
+  try {
+    const account = await getStripe().accounts.retrieve(stripeAccountId)
+    return account.email ?? null
+  } catch {
+    return null
+  }
+}
+
+async function getRecentSales(userId: string): Promise<Sale[]> {
+  if (!hasSupabase) return []
+  try {
+    const sb = createClient()
+    const { data: listings } = await sb
+      .from('listings')
+      .select('id, title')
+      .eq('creator_id', userId)
+    const rows = listings ?? []
+    if (rows.length === 0) return []
+    const titleById = new Map(
+      rows.map((l) => [l.id as string, l.title as string]),
+    )
+    const ids = rows.map((l) => l.id as string)
+    const { data: purchases } = await sb
+      .from('purchases')
+      .select(
+        'id, created_at, listing_id, amount_cents, creator_payout_cents, currency, status',
+      )
+      .in('listing_id', ids)
+      .eq('status', 'paid')
+      .order('created_at', { ascending: false })
+      .limit(20)
+    return (purchases ?? []).map((p) => ({
+      id: p.id as string,
+      created_at: p.created_at as string,
+      listing_title: titleById.get(p.listing_id as string) ?? 'Listing',
+      amount_cents: (p.amount_cents as number) ?? 0,
+      payout_cents: (p.creator_payout_cents as number) ?? 0,
+      currency: ((p.currency as string) ?? 'usd').toUpperCase(),
+    }))
+  } catch {
+    return []
+  }
+}
+
+function money(c: number, cur: string) {
+  return `${cur} ${(c / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
 export default async function PayoutsPage({
@@ -47,6 +112,15 @@ export default async function PayoutsPage({
 
   const connected = Boolean(profile?.stripe_account_id)
   const payoutsEnabled = Boolean(profile?.stripe_payouts_enabled)
+
+  // Surface which Stripe account is actually linked + recent sales so
+  // the seller can see pending payouts without bouncing into Stripe.
+  const connectedEmail =
+    connected && profile?.stripe_account_id
+      ? await getConnectedAccountEmail(profile.stripe_account_id)
+      : null
+  const sales = user ? await getRecentSales(user.id) : []
+  const now = Date.now()
   const status: 'not_connected' | 'pending' | 'enabled' = payoutsEnabled
     ? 'enabled'
     : connected
@@ -128,6 +202,20 @@ export default async function PayoutsPage({
               </p>
               <p className="mt-3 text-sm text-brand-muted">{statusCopy.desc}</p>
 
+              {connected && profile?.stripe_account_id && (
+                <div className="mt-5 pt-4 border-t border-brand-hairline">
+                  <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+                    Connected to
+                  </span>
+                  <p className="mt-1.5 text-sm">
+                    {connectedEmail ?? '—'}
+                  </p>
+                  <p className="mt-0.5 font-mono text-[11px] text-brand-muted break-all">
+                    {profile.stripe_account_id}
+                  </p>
+                </div>
+              )}
+
               <div className="mt-7">
                 {status === 'enabled' ? (
                   <Link
@@ -207,6 +295,77 @@ export default async function PayoutsPage({
           </div>
         </div>
       </section>
+
+      {/* Recent sales — pending payout */}
+      {sales.length > 0 && (
+        <section className="px-6 lg:px-10 py-12 sm:py-16 border-t border-brand-hairline">
+          <div className="max-w-page mx-auto">
+            <h2
+              className="font-display text-3xl sm:text-4xl tracking-tight"
+              style={{ letterSpacing: '-0.025em' }}
+            >
+              Recent sales
+            </h2>
+            <p className="mt-3 text-sm text-brand-muted max-w-prose">
+              Every paid sale on your listings. Stripe holds funds for
+              roughly {PENDING_DAYS} days before they become available — the
+              tag below shows where each one is in that clock.
+            </p>
+
+            <ul className="mt-8 divide-y divide-brand-hairline border-y border-brand-hairline">
+              {sales.map((s) => {
+                const ageDays = (now - new Date(s.created_at).getTime()) / DAY_MS
+                const pending = ageDays < PENDING_DAYS
+                const availableDate = new Date(
+                  new Date(s.created_at).getTime() + PENDING_DAYS * DAY_MS,
+                ).toLocaleDateString()
+                return (
+                  <li
+                    key={s.id}
+                    className="py-4 flex flex-wrap items-baseline justify-between gap-3"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate font-display text-lg" style={{ letterSpacing: '-0.018em' }}>
+                        {s.listing_title}
+                      </p>
+                      <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.16em] text-brand-muted">
+                        {new Date(s.created_at).toLocaleDateString()} ·{' '}
+                        {money(s.amount_cents, s.currency)} sale
+                        {pending ? (
+                          <>
+                            {' '}
+                            ·{' '}
+                            <span className="text-brand-gold-dark">
+                              pending — available ~{availableDate}
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            {' '}
+                            · <span className="text-brand-muted">settled</span>
+                          </>
+                        )}
+                      </p>
+                    </div>
+                    <p
+                      className="font-display text-xl text-brand-gold shrink-0"
+                      style={{ letterSpacing: '-0.02em' }}
+                    >
+                      +{money(s.payout_cents, s.currency)}
+                    </p>
+                  </li>
+                )
+              })}
+            </ul>
+
+            <p className="mt-6 text-xs text-brand-muted">
+              "Available" is Stripe&rsquo;s settlement estimate. Actual
+              payout to your bank depends on the cadence set in your Stripe
+              dashboard.
+            </p>
+          </div>
+        </section>
+      )}
     </div>
   )
 }
