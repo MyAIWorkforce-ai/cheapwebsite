@@ -191,6 +191,45 @@ Code is wired (`lib/rate-limit.ts`). **Currently falls back to in-memory** becau
 
 ---
 
+## 🟠 10. Google sign-in shows ugly Supabase URL — ⏳ **NEEDS BRANDING**
+
+When users click "Continue with Google", the consent screen reads *"to continue to **pbcfhpemrrxpshxfhhad.supabase.co**"* — looks unprofessional. The URL is the Supabase project ref; Google reads it from the OAuth redirect URI. Two fixes:
+
+### Quick win — Brand the Google consent screen (~15 min, free)
+
+Adds a Skillzy logo + name on the same screen. The URL stays ugly but users see Skillzy branding above it.
+
+1. **console.cloud.google.com → APIs & Services → OAuth consent screen** (the `skillzy-497006` project)
+2. Click **Edit App**
+3. Fill in:
+   - **App name:** `Skillzy`
+   - **User support email:** `hi@skillzy.ai`
+   - **App logo:** upload a 120×120 PNG (the Skillzy favicon works, or render `/icon` to PNG)
+   - **Application home page:** `https://skillzy.ai`
+   - **Privacy policy:** `https://skillzy.ai/privacy`
+   - **Terms of service:** `https://skillzy.ai/terms`
+   - **Authorized domains:** `skillzy.ai`
+   - **Developer contact:** your email
+4. Save
+
+After: Google's screen shows "**Sign in to Skillzy**" with a logo instead of just "Sign in".
+
+### Real fix — Supabase custom auth domain (~Pro plan, ~$25/mo)
+
+Replaces the ugly subdomain with `auth.skillzy.ai`. Users see "to continue to **auth.skillzy.ai**".
+
+1. Upgrade Supabase project to Pro
+2. Supabase Dashboard → **Settings → Custom Domains** → add `auth.skillzy.ai`
+3. Supabase shows a CNAME → add it at GoDaddy (name: `auth`, value: their CNAME target)
+4. Wait for verification (~10 min)
+5. Update **Google OAuth redirect URI** → `https://auth.skillzy.ai/auth/v1/callback`
+6. Update **GitHub OAuth callback** → same
+7. Site URL stays `https://skillzy.ai`
+
+**Not blocking soft launch** — 50 testers will tolerate the ugly URL. First serious paying customer will notice though.
+
+---
+
 ## ⏳ Summary of outstanding items
 
 1. **#0** — Rename GitHub repo `cheapwebsite` → `skillzy` (2 min, no urgency)
@@ -200,7 +239,9 @@ Code is wired (`lib/rate-limit.ts`). **Currently falls back to in-memory** becau
 5. **#6b** — Migrate `skillzyai` from Hobby → Pro plan (only if hitting limits)
 6. **#8** — Sign up for Sentry, paste DSN into Vercel env (~5 min, recommended before any marketing)
 7. **#9** — Sign up for Upstash, paste URL+token into Vercel env (~5 min, recommended before any marketing)
-8. **#5c** — IndexNow integration (optional)
-9. **#5e** — OG card visual test via opengraph.xyz (optional)
+8. **#10 quick win** — Brand the Google OAuth consent screen so users see "Sign in to Skillzy" with logo (~15 min, free)
+9. **#10 real fix** — Supabase Pro + custom auth domain `auth.skillzy.ai` (paid, defer)
+10. **#5c** — IndexNow integration (optional)
+11. **#5e** — OG card visual test via opengraph.xyz (optional)
 
 **Everything else: shipped. Site is live, payments work, auth works, emails verified, SEO submitted. Error tracking + hard rate limit ready to activate.**

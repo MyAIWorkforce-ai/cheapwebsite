@@ -3,7 +3,45 @@
 import { useFormState, useFormStatus } from 'react-dom'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import GitHubImport from '@/components/GitHubImport'
+import MultiSelectPopup from '@/components/MultiSelectPopup'
 import { publishListing, type PublishState } from './actions'
+
+// Canonical lists for the niche + platform picker popups. Kept in sync
+// loosely with lib/content but inlined here so this client component
+// stays free of server-only imports.
+const NICHE_OPTIONS = [
+  'Real Estate',
+  'Builders',
+  'Electricians',
+  'Plumbers',
+  'Tradies',
+  'Accountants',
+  'Bookkeepers',
+  'E-commerce',
+  'Coaches',
+  'Lawyers',
+  'Marketing',
+  'Agencies',
+  'Hospitality',
+  'Healthcare',
+  'Recruiters',
+  'Schools',
+]
+const PLATFORM_OPTIONS = [
+  'Claude',
+  'OpenClaw',
+  'Manus',
+  'ChatGPT',
+  'Hermes',
+  'Gemini',
+  'Grok',
+  'Ollama',
+  'Mistral',
+  'DeepSeek',
+  'n8n',
+  'Make',
+  'Zapier',
+]
 
 // Minimal local types for the Web Speech API (not in lib.dom by default).
 type SpeechRecResultLike = { isFinal: boolean; 0: { transcript: string } }
@@ -107,7 +145,7 @@ function Field({
 }
 
 const inputCls =
-  'mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg placeholder:text-brand-muted/50'
+  'mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg text-brand-ink placeholder:text-brand-muted/50'
 
 type DraftResponse = {
   title?: string
@@ -392,36 +430,47 @@ export default function NewListingForm({ githubUser }: { githubUser?: string }) 
           <section>
             <Heading step="01" title="What is it?" />
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">
-              {types.map((t) => (
-                <label
-                  key={t.key}
-                  className="relative bg-brand-cream-card p-5 cursor-pointer hover:bg-white transition-colors"
-                >
-                  {t.recommended && (
-                    <span className="absolute top-2.5 right-2.5 font-mono text-[9px] uppercase tracking-[0.16em] bg-brand-navy text-brand-cream px-1.5 py-0.5">
-                      Best
-                    </span>
-                  )}
-                  <input
-                    type="radio"
-                    name="type_choice"
-                    value={t.key}
-                    checked={type === t.key}
-                    onChange={() => setType(t.key as typeof type)}
-                    className="sr-only peer"
-                  />
-                  <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-brand-muted">
-                    {t.price}
-                  </span>
-                  <h3
-                    className="font-display text-xl sm:text-2xl mt-1.5 tracking-tight peer-checked:text-brand-gold"
-                    style={{ letterSpacing: '-0.02em' }}
+              {types.map((t) => {
+                const isSelected = type === t.key
+                return (
+                  <label
+                    key={t.key}
+                    className={
+                      'relative bg-brand-cream-card p-5 cursor-pointer hover:bg-white transition-colors ' +
+                      (isSelected
+                        ? 'ring-4 ring-brand-gold ring-inset bg-brand-gold/10'
+                        : '')
+                    }
                   >
-                    {t.title}
-                  </h3>
-                  <p className="mt-1 text-xs text-brand-muted">{t.desc}</p>
-                </label>
-              ))}
+                    {t.recommended && (
+                      <span className="absolute top-2.5 right-2.5 font-mono text-[9px] uppercase tracking-[0.16em] bg-brand-navy text-brand-cream px-1.5 py-0.5">
+                        Best
+                      </span>
+                    )}
+                    <input
+                      type="radio"
+                      name="type_choice"
+                      value={t.key}
+                      checked={isSelected}
+                      onChange={() => setType(t.key as typeof type)}
+                      className="sr-only peer"
+                    />
+                    <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-brand-muted">
+                      {t.price}
+                    </span>
+                    <h3
+                      className={
+                        'font-display text-xl sm:text-2xl mt-1.5 tracking-tight ' +
+                        (isSelected ? 'text-brand-gold' : '')
+                      }
+                      style={{ letterSpacing: '-0.02em' }}
+                    >
+                      {t.title}
+                    </h3>
+                    <p className="mt-1 text-xs text-brand-muted">{t.desc}</p>
+                  </label>
+                )
+              })}
             </div>
           </section>
 
@@ -501,15 +550,27 @@ export default function NewListingForm({ githubUser }: { githubUser?: string }) 
                 </button>
               ) : (
                 <div className="border border-brand-hairline p-4">
-                  <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
-                    Tell the AI what you built
-                  </span>
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+                      Tell the AI what you built
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setShowNote(false)}
+                      aria-label="Minimise"
+                      className="p-1 -m-1 text-brand-muted hover:text-brand-ink transition-colors"
+                    >
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                        <path d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
                   <textarea
                     value={brief}
                     onChange={(e) => setBrief(e.target.value)}
                     rows={3}
                     placeholder="e.g. Real-estate skill — captures leads, drafts listings, follows up."
-                    className="mt-2 w-full bg-transparent border border-brand-hairline focus:border-brand-gold outline-none p-3 text-sm placeholder:text-brand-muted/50"
+                    className="mt-2 w-full bg-transparent border border-brand-hairline focus:border-brand-gold outline-none p-3 text-sm text-brand-ink placeholder:text-brand-muted/50"
                   />
                   <div className="mt-3 flex flex-wrap items-center gap-3">
                     <button
@@ -560,7 +621,7 @@ export default function NewListingForm({ githubUser }: { githubUser?: string }) 
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Real Estate, end to end."
-                  className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 font-display text-2xl placeholder:text-brand-muted/50"
+                  className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 font-display text-2xl text-brand-ink placeholder:text-brand-muted/50"
                   style={{ letterSpacing: '-0.018em' }}
                 />
               </Field>
@@ -598,24 +659,26 @@ export default function NewListingForm({ githubUser }: { githubUser?: string }) 
               </Field>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <Field label="Niche">
-                  <input
-                    type="text"
-                    name="niche"
+                <Field label="Niche" hint="Tap to tick one or more. Add your own at the bottom.">
+                  {/* Hidden input preserves the existing form-data wire so
+                      the publish action keeps seeing 'niche' on submit. */}
+                  <input type="hidden" name="niche" value={niche} />
+                  <MultiSelectPopup
+                    label="Pick the niches this skill fits"
+                    options={NICHE_OPTIONS}
                     value={niche}
-                    onChange={(e) => setNiche(e.target.value)}
-                    placeholder="Real Estate, Builders…"
-                    className={inputCls}
+                    onChange={setNiche}
+                    placeholder="Tap to choose niches"
                   />
                 </Field>
-                <Field label="Works with">
-                  <input
-                    type="text"
-                    name="platforms"
+                <Field label="Works with" hint="Tap to tick all the agents/platforms it plugs into.">
+                  <input type="hidden" name="platforms" value={platforms} />
+                  <MultiSelectPopup
+                    label="Pick the platforms this works with"
+                    options={PLATFORM_OPTIONS}
                     value={platforms}
-                    onChange={(e) => setPlatforms(e.target.value)}
-                    placeholder="Claude, OpenClaw, n8n"
-                    className={inputCls}
+                    onChange={setPlatforms}
+                    placeholder="Tap to choose platforms"
                   />
                 </Field>
               </div>
