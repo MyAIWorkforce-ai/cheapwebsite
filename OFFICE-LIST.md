@@ -1,233 +1,162 @@
 # Skillzy — Office list (manual tasks)
 
-> Things only YOU can do. Code-side fixes are already pushed.
-> Work top-to-bottom; the 🔴 items have real money / customer impact.
+> **Status update — Thu 21 May 2026.** Most items shipped. Outstanding work flagged ⏳ at the bottom.
 
 ---
 
-## 🟣 0. Rename the GitHub repo: `cheapwebsite` → `skillzy`
+## 🟣 0. Rename the GitHub repo: `cheapwebsite` → `skillzy` — ⏳ **NOT DONE**
 
-Skillzy and cheapwebsite are separate businesses; the repo name shouldn't keep mixing them. This is the simplest cleanup — rename the existing repo in place, no migration.
+Left for later. 2-min job, no urgency. Steps:
 
-### Steps (~30 seconds in GitHub)
+1. Open repo: **github.com/MyAIWorkforce-ai/cheapwebsite**
+2. **Settings** (top tab) → scroll to **Repository name**
+3. Change `cheapwebsite` → `skillzy`
+4. Click **Rename**
 
-1. Open the repo: **github.com/MyAIWorkforce-ai/cheapwebsite**
-2. Click **Settings** (top tab)
-3. Scroll to **Repository name** at the top
-4. Change `cheapwebsite` → `skillzy`
-5. Click **Rename**
-
-### What happens automatically
-
-- ✅ Old URLs (`github.com/MyAIWorkforce-ai/cheapwebsite/...`) auto-redirect to `/skillzy/...` indefinitely — nothing breaks
-- ✅ Vercel detects the rename and updates the GitHub connection on its own
-- ✅ `skillzy.ai` keeps working — the domain is attached to the deployment, not the repo name
-- ✅ All branches, PRs, secrets, collaborators follow the rename
-
-### What you can do after (cosmetic, optional)
-
-1. **Vercel auto-preview alias:** currently `cheapwebsite-preview-rho.vercel.app`. Vercel → Settings → Domains → click `...` on that alias → Edit → rename to e.g. `skillzy-preview.vercel.app`. (Optional — nobody but you sees this.)
-2. **Local clones** (if you have one on your laptop): `git remote set-url origin https://github.com/MyAIWorkforce-ai/skillzy.git`
-
-### Already done in code
-
-I've already updated the `package.json` `"name"` field from `"cheapwebsite"` to `"skillzy"` so the internal project name matches the repo rename. `HANDOFF.md` keeps the historical "cheapwebsite" references — they're correct as a record of where the project lived previously.
+**Note:** Vercel auto-updates the GitHub link on rename — no redeploy needed. Old `github.com/MyAIWorkforce-ai/cheapwebsite/...` URLs auto-redirect indefinitely.
 
 ---
 
-## 🔴 1. Fix the broken Stripe webhook (explains "money not showing for creators")
+## 🔴 1. Stripe webhook — ✅ **DONE**
 
-Stripe is currently trying to deliver events to `https://myaiworkforce.ai/api/webhooks/stripe` — wrong URL. 30 failed deliveries since 17 May. Will stop trying on 26 May.
+- All 4 events subscribed on `skillzy.ai/api/webhooks/stripe`: `payment_intent.succeeded`, `account.updated`, `charge.refunded`, `checkout.session.completed`.
+- Was missing `payment_intent.succeeded` — added.
+- Signing secret unchanged → no env var update needed.
 
-**Impact:** every `account.updated` event is being lost, so creators who finish Stripe Connect onboarding never get their `stripe_payouts_enabled` flag flipped → their sales sit in your platform balance instead of going to them.
+**Important correction to original brief:** The "broken webhook" referenced (30 failed deliveries to `myaiworkforce.ai/api/webhooks/stripe`) was for a **separate business**, not Skillzy. Skillzy's endpoint had 0% error rate the whole time. **No backfill SQL needed** — no creators were affected.
 
-**Steps:**
-1. Stripe Dashboard → **Developers → Webhooks**
-2. Click the broken endpoint → **Edit** → change URL to `https://skillzy.ai/api/webhooks/stripe`
-3. Make sure these events are subscribed: `payment_intent.succeeded`, `account.updated`, `charge.refunded`, `checkout.session.completed`
-4. **Copy the new Signing secret** (`whsec_…`)
-5. Vercel → Env Vars → edit `STRIPE_WEBHOOK_SECRET` → paste new value → Save
-6. Trigger a fresh deploy (push any commit or click Redeploy)
+---
 
-**Then backfill the affected creator(s):**
+## 🔴 2. Supabase migration — ✅ **DONE (subscribers); ⚠ may need more)**
+
+- Ran `db/migrations/001-subscribers.sql` (21 lines — creates `citext` extension + `public.subscribers` table + RLS policy for anonymous insert from footer newsletter form).
+- Copied from GitHub raw view, pasted into Supabase SQL Editor, ran successfully.
+
+**⚠ Possibly still outstanding — quick check:** The audit also flagged missing columns on `purchases`: `referrer_slug`, `referrer_channel`, `review_email_sent_at`, `review_followup_sent_at`. Those live in:
+
+- `db/migrations/003-referrals.sql`
+- `db/migrations/004-referral-channel.sql`
+- `db/REVIEW_REQUESTS.sql`
+
+If these were already run during the earlier session (the other Claude added referrer tracking + day-3/7 review cron, so they probably were), you're fine. **If unsure, the cleanest one-shot is to paste `db/RECONCILE_PRODUCTION.sql` into Supabase SQL Editor and Run — it's idempotent and reconciles all of them in one go.** Takes ~10 sec.
+
+**Sanity check command (paste in Supabase SQL Editor, no risk):**
 
 ```sql
--- Run in Supabase SQL Editor (one row per affected creator)
-update profiles
-set stripe_payouts_enabled = true
-where handle = '<their-handle>';
+select column_name
+from information_schema.columns
+where table_schema = 'public'
+  and table_name = 'purchases'
+  and column_name in (
+    'referrer_slug', 'referrer_channel',
+    'review_email_sent_at', 'review_followup_sent_at'
+  );
 ```
 
-Also check Stripe Payments → filter by Transfers → if any past sales should have transferred to a creator but didn't, you may owe them a manual transfer.
+If you see all 4 column names listed, you're done. If you see fewer, run RECONCILE_PRODUCTION.
 
 ---
 
-## 🔴 2. Run the Supabase migration
+## 🟠 3. Sign in with GitHub + Google — ✅ **DONE**
 
-Until you do this, day-3 / day-7 review emails are silently failing and newsletter signups go nowhere (missing columns + missing `subscribers` table).
+**GitHub OAuth App:** Created at github.com/settings/developers.
+- App name: Skillzy
+- Homepage: `https://skillzy.ai`
+- Callback: `https://pbcfhpemrrxpshxfhhad.supabase.co/auth/v1/callback`
+- Client ID + Client Secret pasted into Supabase. Enabled + saved.
 
-1. Supabase Dashboard → **SQL Editor → New query**
-2. In the GitHub web UI, open `db/RECONCILE_PRODUCTION.sql` and copy the entire file
-3. Paste into Supabase SQL Editor → click **Run**
-4. Expect lots of `NOTICE` lines, no errors
+**Google OAuth:** Created **new** Google Cloud project `skillzy` (project ID `skillzy-497006`) under `myaiworkforce.ai` org.
+- OAuth consent screen: External, published to production (basic scopes only, no verification required).
+- Web client "Skillzy Web" with JS origin `https://skillzy.ai` + redirect URI = Supabase callback above.
+- Both Client ID + Secret pasted into Supabase Google provider.
 
-It's idempotent — safe to re-run anytime.
-
----
-
-## 🟠 3. Sign in with GitHub + Google (Gmail)
-
-The buttons exist; the providers aren't enabled inside Supabase yet.
-
-**GitHub OAuth App** (github.com/settings/developers → New OAuth App):
-- Application name: `Skillzy`
-- Homepage URL: `https://skillzy.ai`
-- Authorization callback URL: `https://<your-supabase-project-ref>.supabase.co/auth/v1/callback`
-  *(Find the project ref in Supabase URL or Settings → API → Project URL)*
-- Click Register → copy **Client ID** + generate **Client Secret**
-
-**Google OAuth credentials** (console.cloud.google.com → APIs & Services → Credentials → + Create credentials → OAuth client ID → Web application):
-- Authorized JavaScript origins: `https://skillzy.ai`
-- Authorized redirect URIs: `https://<your-supabase-project-ref>.supabase.co/auth/v1/callback`
-- Copy Client ID + Client Secret
-
-**Supabase Dashboard → Authentication → Providers:**
-- GitHub → toggle ON → paste Client ID + Secret → Save
-- Google → toggle ON → paste Client ID + Secret → Save
-
-**Supabase Dashboard → Authentication → URL Configuration:**
+**Supabase URL Configuration:**
 - Site URL: `https://skillzy.ai`
-- Redirect URLs (add both):
-  - `https://skillzy.ai/auth/callback`
-  - `https://www.skillzy.ai/auth/callback`
+- Redirect URLs: both apex and `www` `/auth/callback` set.
+
+**Gotcha noted:** Had to clear leftover "resend" placeholder text in both GitHub and Google provider fields in Supabase before saving — otherwise the save was rejected.
 
 ---
 
-## 🟠 4b. Paste the Skillzy-branded auth emails into Supabase
+## 🟠 4. Resend domain verification — ✅ **DONE**
 
-The actual sign-up + magic-link emails Skillzy sends out today come from Supabase's default template — plain, no branding, easy to mistake for spam. I've written four Skillzy-branded HTML templates. You paste them in. ~5 min total.
-
-### Step 1 — Open one of the HTML files I created
-
-In your repo on GitHub (mobile or laptop):
-
-1. Browse to the folder **`supabase/email-templates/`**
-2. Click on **`confirm-signup.html`**
-3. Click the **"Raw"** button (top-right of the file view) — this shows just the HTML text
-4. **Select all** (Cmd-A or Ctrl-A) → **Copy** (Cmd-C or Ctrl-C)
-
-### Step 2 — Paste it into Supabase
-
-1. Open supabase.com → your project → **Authentication → Email Templates**
-2. From the **dropdown at the top of the page**, pick **"Confirm signup"**
-3. You'll see two boxes:
-   - **Subject heading** — a one-line text box
-   - **Message body (HTML)** — a big box with HTML in it
-4. In **Subject heading**: clear it, type `Verify your Skillzy account`
-5. In **Message body (HTML)**: clear ALL the existing default content, then **paste** what you copied from GitHub
-6. Click **Save changes**
-
-### Step 3 — Repeat for the other 3
-
-Same pattern. Use this table:
-
-| Supabase dropdown picks | File to copy from GitHub | Subject heading to type |
-|---|---|---|
-| Confirm signup | `supabase/email-templates/confirm-signup.html` | `Verify your Skillzy account` |
-| Magic Link | `supabase/email-templates/magic-link.html` | `Your Skillzy sign-in link` |
-| Reset Password | `supabase/email-templates/reset-password.html` | `Reset your Skillzy password` |
-| Change Email Address | `supabase/email-templates/change-email.html` | `Confirm your new Skillzy email` |
-
-### Step 4 — Test
-
-Sign up with a **throwaway email** on skillzy.ai. The email you receive should look Skillzy-branded (gold button, cream background, "Skillzy" wordmark, big serif headline like *"Almost in. Verify."*) instead of the default plain Supabase one.
-
-If anything looks broken in Gmail or Apple Mail, tell me what you saw and I'll fix it.
+`skillzy.ai` was already verified May 18 via GoDaddy DNS records before this session started. Ready to send.
 
 ---
 
-## 🟠 4. Resend domain verification (your test emails are going to spam)
+## 🟠 4b. Skillzy-branded auth email templates — ⏳ **DEFERRED — will do in code**
 
-Right now `EMAIL_FROM=hi@skillzy.ai` but Resend hasn't verified you own `skillzy.ai`, so mail providers (Gmail, Outlook) flag your emails as suspicious and send them to spam.
-
-**Steps:**
-1. Resend Dashboard → **Domains** → Add Domain → `skillzy.ai`
-2. Resend gives you DNS records to add (SPF TXT, DKIM CNAMEs, optional DMARC)
-3. Add those records at your DNS host (wherever skillzy.ai is registered — Cloudflare? GoDaddy?)
-4. Back in Resend → click **Verify** until all records show ✓
-5. After verification, your buyer/seller/review emails will land in inboxes, not spam
+**Not done via Supabase paste.** Reason: 4 templates were drafted in chat (cream/gold Skillzy style — files at `supabase/email-templates/*.html` in the repo), but Toby decided to redo them in code so they match the broader website theme rather than the standalone template draft. Templates currently live as drafts only — Supabase is still using its default templates for now.
 
 ---
 
-## 🟡 5. SEO indexing — get Skillzy into Google + Bing
+## 🟡 5. SEO indexing — ✅ **MOSTLY DONE**
 
-Code-side SEO is solid (sitemap, robots, JSON-LD on listings, canonicals, weekly health-check cron). What's left is operational: tell search engines you exist.
+### 5a. Google Search Console — ✅ DONE
+- `https://skillzy.ai` verified via **Domain name provider** method (TXT record at GoDaddy DNS).
+- Sitemap `/sitemap.xml` submitted.
+- **Note:** First crawl returned "Couldn't fetch" status — sitemap itself confirmed working at `https://skillzy.ai/sitemap.xml` (contains `/`, `/marketplace`, `/sell`, `/about`, `/how-it-works`, `/blog`, `/dispatch`, `/help`). Expected to self-resolve on next crawl.
 
-### 5a. Google Search Console (most important)
+### 5b. Bing Webmaster Tools — ✅ DONE
+- Imported from Google Search Console (one-click).
 
-1. Go to **search.google.com/search-console** → **Add Property** → enter `https://skillzy.ai` (use the "URL prefix" type)
-2. Verify ownership via DNS TXT record (recommended) or HTML tag — Google will give you instructions
-3. After verified, left sidebar → **Sitemaps** → submit `https://skillzy.ai/sitemap.xml`
-4. (Optional) Add `https://www.skillzy.ai` as a second property the same way — useful for tracking redirected traffic
-5. Use **URL Inspection** (top search bar) on a few key pages and click **Request indexing** to nudge them: `/`, `/marketplace`, `/sell`, a couple of high-priority `/for/<niche>` pages
-6. Indexing takes anywhere from a few hours to ~2 weeks. Check the **Coverage** report after ~3 days to confirm pages are getting indexed
+### 5c. IndexNow — ⏳ NOT DONE (optional, can revisit)
 
-### 5b. Bing Webmaster Tools (covers Bing + DuckDuckGo + ChatGPT search)
+### 5d. www → apex redirect — ✅ DONE
+- `www.skillzy.ai` redirects to `skillzy.ai` via **307** (308 wasn't offered in Vercel dropdown). Confirmed working in incognito.
 
-1. Go to **bing.com/webmasters** → sign in → **Add a site** → `https://skillzy.ai`
-2. Easiest: import from Google Search Console (Bing offers this on signup — one click)
-3. Submit the sitemap manually if it didn't auto-pull
-4. Use **URL Submission** to nudge a handful of pages — Bing lets you submit up to 10,000 URLs/day
-
-### 5c. (Optional) IndexNow — fastest indexing for Bing/Yandex
-
-IndexNow lets you ping search engines instantly when a new listing publishes. Already-half-built into Bing Webmaster Tools — they'll show a setup hint. If you want this wired into Skillzy's publish action so new listings get indexed within seconds, tell me and I'll ship the integration (~30 min of code).
-
-### 5d. Verify www.skillzy.ai 301-redirects to apex
-
-The sitemap comment notes: *"www.skillzy.ai must 301 → apex at the Vercel domain layer."* If www isn't already redirecting to the bare domain, both versions can show up in search results competing with each other (the "duplicate content" trap).
-
-1. Vercel → project → **Settings → Domains**
-2. Make sure `www.skillzy.ai` is set to **Redirect to** `skillzy.ai` (with 308 or 301), not "Connect to Production"
-3. Test: open `https://www.skillzy.ai` in incognito → URL bar should rewrite to `https://skillzy.ai`
-
-### 5e. Open Graph / social cards
-
-Already wired: `app/opengraph-image.tsx` generates a Skillzy-branded OG image dynamically. Test it once: paste `https://skillzy.ai` into **opengraph.xyz** or **cards-dev.twitter.com/validator** and confirm the preview looks right.
+### 5e. Open Graph / social cards — ⏳ NOT TESTED (deferred)
 
 ---
 
-## 🟡 6. Vercel domain housekeeping
+## 🟡 6. Vercel domain housekeeping — ⏳ **PARTIAL**
 
-In Vercel → your project → **Settings → Domains**:
+**Done:**
+- Deleted obsolete `skillzy` project (skillzy-ashen.vercel.app, purple "Give your agent skills" build) from **My AI Workforce** Pro account.
+- Verified `skillzy-navy` and `skillzy` (beige) projects in Hobby account hold only their default `.vercel.app` domains — not interfering with `skillzy.ai`.
+- Production deployment confirmed live at `skillzy.ai`, serving correct homepage ("Drop it in. Your agent just got smarter.") from `skillzyai` project in Hobby account.
 
-- `www.skillzy.ai` — currently "Verification Needed". Click Refresh / add the DNS record Vercel asks for. (Optional but tidy — apex `skillzy.ai` already works.)
-- `skillzy.ai` — "DNS Change Recommended". Click Refresh / apply the suggested DNS update.
+**Outstanding (cosmetic, deferred):**
+- `www.skillzy.ai` still shows "Verification Needed" warning. Redirect to apex via 307 works fine — site is live, this is a cosmetic Vercel warning only.
+- To clear fully: add TXT record to GoDaddy DNS:
+  - Name: `_vercel`
+  - Value: `vc-domain-verify=www.skillzy.ai,15f0208a6f09f86848e9`
+- 308 redirect (preferred for SEO over 307) not offered in current Vercel dropdown.
+
+### 6b. Migrate `skillzyai` from Hobby → My AI Workforce Pro plan — ⏳ **DEFERRED**
+
+30–45 min job. Vercel has no "move project" button — would require recreating in Pro account, reconnecting GitHub repo, copying all env vars (Stripe webhook secret, Supabase keys, etc.), then removing from Hobby. Risk of brief downtime. **Defer unless hitting Hobby plan limits.**
 
 ---
 
 ## ✅ 7. Private GitHub repo import — SHIPPED (a5d0cf7)
 
-Now wired. Creators who sign in with GitHub can import from public AND private repos.
-
-**Heads up:** anyone who signed in with GitHub BEFORE this change needs to sign out and sign in again to grant the new `repo` scope.
+No action needed. Heads up: users who signed in with GitHub before that commit need to sign out + back in to grant the new `repo` scope.
 
 ---
 
-## ✅ What's already fixed in code (no action needed)
+## 📌 Key account references (for future sessions)
 
-- Homepage hamburger menu top-right (Sign in + Create account)
-- AI draft endpoint rate-limited (per-IP daily cap + global hourly cap — stays open to anonymous so the "drop a file, see your listing" hook works)
-- Private GitHub repo import wired via OAuth
-- Stripe Connect prompt banner on `/dashboard?view=selling`
-- Signup "Check your email" takeover screen
-- Cron auth fails closed if `CRON_SECRET` is ever blank
-- 4 Skillzy-branded Supabase auth email templates written (ready to paste — see 4b)
+- **Repo:** `github.com/MyAIWorkforce-ai/cheapwebsite` (rename to `skillzy` still pending — see item #0)
+- **Supabase project ref:** `pbcfhpemrrxpshxfhhad` (Singapore region, ap-southeast-1)
+- **Supabase auth callback:** `https://pbcfhpemrrxpshxfhhad.supabase.co/auth/v1/callback`
+- **Vercel accounts:**
+  - "Toby Banks' projects" (Hobby) → contains current working `skillzyai` project
+  - "My AI Workforce" (Pro) → currently empty of Skillzy projects (old one deleted)
+- **DNS host:** GoDaddy
+- **Resend:** `skillzy.ai` verified May 18, region us-east-1
+- **Google Cloud project:** `skillzy-497006`
 
 ---
 
-## 🤔 Anything else worth flagging
+## ⏳ Summary of outstanding items
 
-- After fixing the Stripe webhook, watch the next few real sales: confirm purchases appear in `dashboard`, the buyer gets an email, the seller gets an email, and `stripe_payouts_enabled` flips for newly-onboarded creators.
-- File upload security: today bundles are size-checked but not content-type-checked. A malicious creator could upload an `.exe` renamed to `.pdf`. Low risk while you know every creator personally; flag if you go public.
-- Old failed deliveries on the broken webhook: Stripe lets you "Resend" individual past events from the dashboard — useful for backfilling lost `account.updated` events after you fix the URL.
+1. **#0** — Rename GitHub repo `cheapwebsite` → `skillzy` (2 min, no urgency)
+2. **#2 sanity check** — confirm `purchases` table has the 4 referrer/review columns; run RECONCILE_PRODUCTION if not
+3. **#4b** — Build branded Supabase auth email templates in code (to match site theme)
+4. **#6** — Clear `www.skillzy.ai` verification warning by adding TXT record to GoDaddy (cosmetic only)
+5. **#6b** — Migrate `skillzyai` from Hobby → Pro plan (only if hitting limits)
+6. **#5c** — IndexNow integration (optional)
+7. **#5e** — OG card visual test via opengraph.xyz (optional)
+
+**Everything else: shipped. Site is live, payments work, auth works, emails verified, SEO submitted.**
