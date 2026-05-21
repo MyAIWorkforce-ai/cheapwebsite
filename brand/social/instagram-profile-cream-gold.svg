@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1080" width="1080" height="1080">
+  <title>Skillzy — Instagram profile pic (cream background, gold wordmark — matches the live website look)</title>
+  <!-- Cream background — same as the page background at skillzy.ai. -->
+  <rect width="1080" height="1080" fill="#F2F4F8"/>
+  <!-- "Skillzy" in gold, sized to fit comfortably inside the circle
+       Instagram crops to. Same letter-spacing and weight as the live
+       site wordmark for visual consistency. -->
+  <text
+    x="540"
+    y="610"
+    text-anchor="middle"
+    font-family="'Fraunces', 'Times New Roman', Georgia, serif"
+    font-size="180"
+    font-weight="500"
+    fill="#C19E50"
+    letter-spacing="-0.025em"
+  >Skillzy</text>
+</svg>
