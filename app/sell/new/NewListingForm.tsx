@@ -448,10 +448,10 @@ export default function NewListingForm({ githubUser }: { githubUser?: string }) 
                   <label
                     key={t.key}
                     className={
-                      'relative bg-brand-cream-card p-5 cursor-pointer hover:bg-white transition-colors ' +
+                      'relative p-5 cursor-pointer transition-colors ' +
                       (isSelected
-                        ? 'ring-4 ring-brand-gold ring-inset bg-brand-gold/10'
-                        : '')
+                        ? 'bg-white ring-4 ring-brand-gold ring-inset'
+                        : 'bg-brand-cream-card hover:bg-white')
                     }
                   >
                     {t.recommended && (
