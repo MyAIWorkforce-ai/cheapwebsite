@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 
 /**
  * MultiSelectPopup
@@ -9,6 +10,11 @@ import { useState, useEffect, useRef } from 'react'
  * options. Selected options show a gold border. Custom entries are
  * allowed via a small text field at the bottom (for niches/platforms
  * the catalog doesn't know yet).
+ *
+ * The modal renders via a React Portal into document.body so it sits
+ * outside any wrapping <label> in the parent form. Without the portal,
+ * the parent <label> would intercept clicks inside the modal and re-
+ * trigger the trigger button — making the modal appear to not close.
  *
  * Value model: a comma-separated string, so the existing form action
  * that splits on commas keeps working unchanged.
@@ -30,7 +36,13 @@ export default function MultiSelectPopup({
 }) {
   const [open, setOpen] = useState(false)
   const [custom, setCustom] = useState('')
-  const dialogRef = useRef<HTMLDivElement | null>(null)
+  const [mounted, setMounted] = useState(false)
+
+  // Portal target only exists in the browser. Wait for mount before
+  // rendering the modal so SSR doesn't trip.
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Parse the current comma-separated value into a Set for quick lookups.
   const selected = new Set(
@@ -87,137 +99,168 @@ export default function MultiSelectPopup({
 
   const displayValue = value || ''
 
-  return (
-    <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg text-left text-brand-ink hover:border-brand-gold transition-colors"
-      >
-        {displayValue ? (
-          <span className="text-brand-ink">{displayValue}</span>
-        ) : (
-          <span className="text-brand-muted/50">{placeholder}</span>
-        )}
-      </button>
+  // The trigger button stays inline (inside the parent <label>). Use
+  // type="button" so it never accidentally submits the form when the
+  // parent is a <form>.
+  const trigger = (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.preventDefault()
+        setOpen(true)
+      }}
+      className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg text-left text-brand-ink hover:border-brand-gold transition-colors"
+    >
+      {displayValue ? (
+        <span className="text-brand-ink">{displayValue}</span>
+      ) : (
+        <span className="text-brand-muted/50">{placeholder}</span>
+      )}
+    </button>
+  )
 
-      {open && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-ink/40"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setOpen(false)
-          }}
-        >
+  // The modal goes through a Portal so it's appended to <body>, not
+  // nested in the parent <label>. That breaks the label-click chain
+  // that was previously re-triggering the trigger button on every
+  // close attempt.
+  const modal =
+    open && mounted
+      ? createPortal(
           <div
-            ref={dialogRef}
-            role="dialog"
-            aria-modal="true"
-            aria-label={label}
-            className="w-full max-w-lg max-h-[85vh] overflow-y-auto bg-brand-cream border border-brand-ink p-6 sm:p-7"
+            className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-brand-ink/40"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setOpen(false)
+            }}
           >
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
-                  Pick one or more
-                </p>
-                <h2
-                  className="font-display text-2xl mt-1 tracking-tight"
-                  style={{ letterSpacing: '-0.02em' }}
-                >
-                  {label}
-                </h2>
-              </div>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setOpen(false)
-                }}
-                aria-label="Close"
-                // Bigger hit target for mobile (44×44 min), with a visible
-                // chip background so the X is unmistakable.
-                className="shrink-0 w-11 h-11 -mt-1 -mr-1 inline-flex items-center justify-center bg-brand-cream-card border border-brand-hairline text-brand-ink hover:bg-white hover:border-brand-ink transition-colors"
-              >
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                  <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" />
-                </svg>
-              </button>
-            </div>
-
-            <div className="mt-5 flex flex-wrap gap-2">
-              {allChips.map((opt) => {
-                const isSelected = Array.from(selected).some(
-                  (s) => s.toLowerCase() === opt.toLowerCase(),
-                )
-                return (
-                  <button
-                    key={opt}
-                    type="button"
-                    onClick={() => toggle(opt)}
-                    className={
-                      'px-3.5 py-2 text-sm border transition-colors ' +
-                      (isSelected
-                        ? 'border-2 border-brand-gold bg-brand-gold/15 text-brand-ink font-semibold'
-                        : 'border-brand-hairline text-brand-ink hover:border-brand-ink')
-                    }
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label={label}
+              className="w-full max-w-lg max-h-[85vh] overflow-y-auto bg-brand-cream border border-brand-ink p-6 sm:p-7"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
+                    Pick one or more
+                  </p>
+                  <h2
+                    className="font-display text-2xl mt-1 tracking-tight"
+                    style={{ letterSpacing: '-0.02em' }}
                   >
-                    {isSelected && <span aria-hidden className="mr-1.5">✓</span>}
-                    {opt}
-                  </button>
-                )
-              })}
-            </div>
+                    {label}
+                  </h2>
+                </div>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    setOpen(false)
+                  }}
+                  aria-label="Close"
+                  className="shrink-0 w-11 h-11 -mt-1 -mr-1 inline-flex items-center justify-center bg-brand-cream-card border border-brand-hairline text-brand-ink hover:bg-white hover:border-brand-ink transition-colors"
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                    <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" />
+                  </svg>
+                </button>
+              </div>
 
-            {allowCustom && (
-              <div className="mt-6 pt-5 border-t border-brand-hairline">
-                <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
-                  Add your own
-                </p>
-                <div className="mt-2 flex items-stretch gap-2">
-                  <input
-                    type="text"
-                    value={custom}
-                    onChange={(e) => setCustom(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
+              <div className="mt-5 flex flex-wrap gap-2">
+                {allChips.map((opt) => {
+                  const isSelected = Array.from(selected).some(
+                    (s) => s.toLowerCase() === opt.toLowerCase(),
+                  )
+                  return (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        toggle(opt)
+                      }}
+                      className={
+                        'px-3.5 py-2 text-sm border transition-colors ' +
+                        (isSelected
+                          ? 'border-2 border-brand-gold bg-brand-gold/15 text-brand-ink font-semibold'
+                          : 'border-brand-hairline text-brand-ink hover:border-brand-ink')
+                      }
+                    >
+                      {isSelected && <span aria-hidden className="mr-1.5">✓</span>}
+                      {opt}
+                    </button>
+                  )
+                })}
+              </div>
+
+              {allowCustom && (
+                <div className="mt-6 pt-5 border-t border-brand-hairline">
+                  <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+                    Add your own
+                  </p>
+                  <div className="mt-2 flex items-stretch gap-2">
+                    <input
+                      type="text"
+                      value={custom}
+                      onChange={(e) => setCustom(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          addCustom()
+                        }
+                      }}
+                      placeholder="Something not in the list"
+                      className="flex-1 bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-sm text-brand-ink placeholder:text-brand-muted/50"
+                    />
+                    <button
+                      type="button"
+                      onClick={(e) => {
                         e.preventDefault()
                         addCustom()
-                      }
-                    }}
-                    placeholder="Something not in the list"
-                    className="flex-1 bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-sm text-brand-ink placeholder:text-brand-muted/50"
-                  />
-                  <button
-                    type="button"
-                    onClick={addCustom}
-                    disabled={!custom.trim()}
-                    className="shrink-0 px-4 py-2 text-sm bg-brand-cream-card border border-brand-hairline hover:border-brand-ink transition-colors disabled:opacity-50"
-                  >
-                    Add
-                  </button>
+                      }}
+                      disabled={!custom.trim()}
+                      className="shrink-0 px-4 py-2 text-sm bg-brand-cream-card border border-brand-hairline hover:border-brand-ink transition-colors disabled:opacity-50"
+                    >
+                      Add
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            <div className="mt-6 flex items-center justify-between gap-4">
-              <button
-                type="button"
-                onClick={() => onChange('')}
-                className="text-xs text-brand-muted hover:text-brand-ink underline underline-offset-4"
-              >
-                Clear all
-              </button>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="bg-brand-gold text-brand-ink font-semibold px-6 py-2.5 text-sm hover:bg-brand-gold-dark transition-colors"
-              >
-                Done
-              </button>
+              <div className="mt-6 flex items-center justify-between gap-4">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    onChange('')
+                  }}
+                  className="text-xs text-brand-muted hover:text-brand-ink underline underline-offset-4"
+                >
+                  Clear all
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    setOpen(false)
+                  }}
+                  className="bg-brand-gold text-brand-ink font-semibold px-6 py-2.5 text-sm hover:bg-brand-gold-dark transition-colors"
+                >
+                  Done
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )
+      : null
+
+  return (
+    <>
+      {trigger}
+      {modal}
     </>
   )
 }
