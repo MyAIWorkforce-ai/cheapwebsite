@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1080" width="1080" height="1080">
+  <title>Skillzy — Instagram profile pic (ink/navy background, gold wordmark, sized for circular crop)</title>
+  <!-- Solid ink background — fills the full square so the circular
+       crop has no edge artefacts on any client. -->
+  <rect width="1080" height="1080" fill="#0F1729"/>
+  <!-- Wordmark sized to sit comfortably inside the inscribed circle.
+       At font-size 180 the "Skillzy" word is ~700px wide, leaving
+       safe-zone padding on left + right. Vertically centred. -->
+  <text
+    x="540"
+    y="610"
+    text-anchor="middle"
+    font-family="'Fraunces', 'Times New Roman', Georgia, serif"
+    font-size="180"
+    font-weight="500"
+    fill="#C19E50"
+    letter-spacing="-0.025em"
+  >Skillzy</text>
+</svg>
