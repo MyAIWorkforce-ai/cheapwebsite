@@ -149,6 +149,48 @@ No action needed. Heads up: users who signed in with GitHub before that commit n
 
 ---
 
+## 🟢 8. Sentry error tracking — ⏳ **CODE SHIPPED, ACCOUNT SIGN-UP NEEDED**
+
+Code is wired (sentry.client/server/edge.config.ts + instrumentation.ts + next.config.js wrapper). **Currently does nothing** because no DSN is set — Sentry init is a no-op without it, so the site keeps working fine.
+
+### Steps to turn it on (~5 min):
+
+1. Go to **sentry.io** → sign up (free)
+2. Create a new project → choose **Next.js** as the platform
+3. Sentry shows you a **DSN** that looks like `https://xxxxx@yyyyy.ingest.sentry.io/zzzz` — copy it
+4. Vercel → Settings → Environment Variables → add **two** (same value):
+   - `NEXT_PUBLIC_SENTRY_DSN` = the DSN (this one is exposed to browser, OK because DSNs aren't secret)
+   - `SENTRY_DSN` = the DSN (server-side)
+   - Scope: Production + Preview
+5. (Optional, for nicer stack traces) In Sentry → Settings → Auth Tokens → create one with `project:write` + `org:read`. Add 3 more env vars in Vercel:
+   - `SENTRY_AUTH_TOKEN` = the token
+   - `SENTRY_ORG` = your Sentry org slug
+   - `SENTRY_PROJECT` = your Sentry project slug
+6. Redeploy. Errors now flow to Sentry.
+
+**Test it:** after deploy, hit a fake URL like `https://skillzy.ai/__force-error?test=1` — any handled crash will appear in Sentry within ~30 sec.
+
+---
+
+## 🟢 9. Upstash Redis — hard rate limit on AI drafts — ⏳ **CODE SHIPPED, ACCOUNT SIGN-UP NEEDED**
+
+Code is wired (`lib/rate-limit.ts`). **Currently falls back to in-memory** because no Upstash credentials are set. The in-memory limit works (10/IP/day, 50/global/hour) but counters reset on every Vercel cold-start so a determined bot can effectively bypass it.
+
+### Steps to turn it on (~5 min):
+
+1. Go to **console.upstash.com** → sign up (free, GitHub login works)
+2. **Create database** → Redis → name it `skillzy-rate-limit` → pick the region closest to your Vercel deployment (Singapore for ap-southeast-1)
+3. Open the database → scroll to **REST API** section
+4. Copy two values:
+   - **UPSTASH_REDIS_REST_URL** (looks like `https://xxxxx.upstash.io`)
+   - **UPSTASH_REDIS_REST_TOKEN** (long string)
+5. Vercel → Settings → Environment Variables → add both with those exact names, scope Production + Preview, Sensitive ON for the token
+6. Redeploy. Rate limit counters now persist across cold-starts.
+
+**No backfill or migration needed** — the code seamlessly switches backends when the env vars appear.
+
+---
+
 ## ⏳ Summary of outstanding items
 
 1. **#0** — Rename GitHub repo `cheapwebsite` → `skillzy` (2 min, no urgency)
@@ -156,7 +198,9 @@ No action needed. Heads up: users who signed in with GitHub before that commit n
 3. **#4b** — Build branded Supabase auth email templates in code (to match site theme)
 4. **#6** — Clear `www.skillzy.ai` verification warning by adding TXT record to GoDaddy (cosmetic only)
 5. **#6b** — Migrate `skillzyai` from Hobby → Pro plan (only if hitting limits)
-6. **#5c** — IndexNow integration (optional)
-7. **#5e** — OG card visual test via opengraph.xyz (optional)
+6. **#8** — Sign up for Sentry, paste DSN into Vercel env (~5 min, recommended before any marketing)
+7. **#9** — Sign up for Upstash, paste URL+token into Vercel env (~5 min, recommended before any marketing)
+8. **#5c** — IndexNow integration (optional)
+9. **#5e** — OG card visual test via opengraph.xyz (optional)
 
-**Everything else: shipped. Site is live, payments work, auth works, emails verified, SEO submitted.**
+**Everything else: shipped. Site is live, payments work, auth works, emails verified, SEO submitted. Error tracking + hard rate limit ready to activate.**
