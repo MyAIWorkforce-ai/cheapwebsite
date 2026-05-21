@@ -995,6 +995,7 @@ export type CardProduct = {
   id: string
   type: ProductType
   title: string
+  tagline?: string
   creator: string
   platform?: string
   rating: number
@@ -1009,6 +1010,7 @@ export function toCardProduct(p: Product): CardProduct {
     id: p.id,
     type: p.type,
     title: p.title,
+    tagline: p.tagline,
     creator: p.creator.name,
     platform: p.platformList.join(' · '),
     rating: p.rating,

@@ -310,26 +310,45 @@ export default function HomePage() {
               <li key={s.id}>
                 <Link
                   href={`/marketplace/${s.id}`}
-                  className="group grid grid-cols-12 gap-4 py-6 sm:py-7 items-baseline hover:bg-brand-cream-card transition-colors px-2 -mx-2"
+                  className="group grid grid-cols-12 gap-x-4 gap-y-2 py-7 sm:py-8 items-baseline hover:bg-brand-cream-card transition-colors px-2 -mx-2"
                 >
-                  <span className="col-span-1 font-mono text-xs text-brand-muted">
+                  <span className="col-span-2 sm:col-span-1 font-mono text-xs text-brand-muted pt-2">
                     {String(i + 1).padStart(2, '0')}
                   </span>
-                  <h3
-                    className="font-display col-span-12 sm:col-span-6 text-2xl sm:text-3xl tracking-tight group-hover:text-brand-gold transition-colors"
-                    style={{ letterSpacing: '-0.02em' }}
-                  >
-                    {s.title}
-                  </h3>
-                  <span className="hidden sm:block sm:col-span-3 text-sm text-brand-muted">
-                    {s.creator}
-                  </span>
-                  <span className="hidden sm:block sm:col-span-1 font-mono text-[11px] uppercase tracking-widest text-brand-muted">
-                    {s.platform}
-                  </span>
-                  <span className="col-span-12 sm:col-span-1 sm:text-right font-display text-xl">
-                    {s.price}
-                  </span>
+                  <div className="col-span-10 sm:col-span-7 min-w-0">
+                    <h3
+                      className="font-display text-2xl sm:text-3xl tracking-tight group-hover:text-brand-gold transition-colors leading-tight"
+                      style={{ letterSpacing: '-0.02em' }}
+                    >
+                      {s.title}
+                    </h3>
+                    {s.tagline && (
+                      <p className="mt-1.5 text-sm text-brand-muted leading-snug max-w-md">
+                        {s.tagline}
+                      </p>
+                    )}
+                    <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <span className="text-xs text-brand-muted">
+                        by <span className="text-brand-ink/80">{s.creator}</span>
+                      </span>
+                      {s.platform && (
+                        <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-brand-muted border border-brand-hairline px-1.5 py-0.5">
+                          {s.platform.split(' · ')[0]}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="col-span-12 sm:col-span-4 sm:text-right flex sm:block items-baseline justify-between gap-3 mt-2 sm:mt-0">
+                    <span
+                      className="font-display text-2xl sm:text-3xl text-brand-gold"
+                      style={{ letterSpacing: '-0.025em' }}
+                    >
+                      {s.price}
+                    </span>
+                    <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-brand-muted group-hover:text-brand-gold transition-colors sm:block sm:mt-2">
+                      View →
+                    </span>
+                  </div>
                 </Link>
               </li>
             ))}
