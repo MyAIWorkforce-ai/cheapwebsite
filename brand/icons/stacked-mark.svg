@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <title>Skillzy — stacked mark (S above Skillzy wordmark) — for square containers</title>
+  <rect width="512" height="512" fill="#F2F4F8"/>
+  <text x="256" y="280" text-anchor="middle" font-family="'Fraunces', 'Times New Roman', Georgia, serif" font-size="220" font-weight="600" fill="#C19E50" letter-spacing="-0.04em">S</text>
+  <text x="256" y="395" text-anchor="middle" font-family="'Fraunces', 'Times New Roman', Georgia, serif" font-size="72" font-weight="500" fill="#0F1729" letter-spacing="-0.025em">Skillzy</text>
+</svg>

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <title>Skillzy — Open Graph card (1200×630, used by Twitter / LinkedIn / Facebook link previews)</title>
+  <rect width="1200" height="630" fill="#F2F4F8"/>
+  <!-- subtle paper grid -->
+  <pattern id="dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+    <circle cx="2" cy="2" r="1.2" fill="#CCD2DD"/>
+  </pattern>
+  <rect width="1200" height="630" fill="url(#dots)" opacity="0.6"/>
+  <!-- big wordmark -->
+  <text x="80" y="240" font-family="'Fraunces', 'Times New Roman', Georgia, serif" font-size="120" font-weight="500" fill="#0F1729" letter-spacing="-0.03em">Skillzy</text>
+  <!-- tagline -->
+  <text x="80" y="350" font-family="'Fraunces', 'Times New Roman', Georgia, serif" font-size="64" font-weight="400" font-style="italic" fill="#C19E50" letter-spacing="-0.025em">Your agent just got smarter.</text>
+  <!-- sub -->
+  <text x="80" y="430" font-family="-apple-system, 'Segoe UI', Roboto, sans-serif" font-size="28" fill="#5F6B7E">A marketplace for agent skills, guides, and ready-to-go setups.</text>
+  <!-- url -->
+  <text x="80" y="560" font-family="monospace" font-size="22" fill="#5F6B7E" letter-spacing="0.1em">skillzy.ai</text>
+  <!-- gold accent bar -->
+  <rect x="0" y="0" width="1200" height="8" fill="#C19E50"/>
+</svg>

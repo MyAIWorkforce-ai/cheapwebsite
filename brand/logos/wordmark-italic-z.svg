@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" width="400" height="100">
+  <title>Skillzy — wordmark with italic "zy" tail (alt)</title>
+  <rect width="400" height="100" fill="#F2F4F8"/>
+  <text x="40" y="72" font-family="'Fraunces', 'Times New Roman', Georgia, serif" font-size="64" font-weight="500" fill="#0F1729" letter-spacing="-0.025em">Skill</text>
+  <text x="207" y="72" font-family="'Fraunces', 'Times New Roman', Georgia, serif" font-size="64" font-weight="500" font-style="italic" fill="#C19E50" letter-spacing="-0.025em">zy</text>
+</svg>
