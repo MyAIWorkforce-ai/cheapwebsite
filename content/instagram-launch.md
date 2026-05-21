@@ -12,9 +12,35 @@ Body font: clean sans (Inter / SF Pro).
 
 ---
 
+## 🎬 The anchor video — record this first
+
+Before you make any of the 10 reels below, record the **75-second
+website explainer** in `content/explainer-website-walkthrough.md`.
+It's the master walkthrough — every other reel either references
+it, complements it, or is cut from it.
+
+Three ready-to-ship cuts from that one recording:
+
+- **75s hero version** — full explainer. Use as IG Reel + pin to
+  profile, embed on `/sell` page on the website.
+- **30s teaser** — cut to Beats 1 + 5 + 7 + 10. Use for general
+  feed Reels and Stories.
+- **15s loop** — just the AI-drafts-the-listing moment (Beat 5),
+  silent, looping. Use as Instagram Story or website hover-loop.
+
+The 10 reels below are supplementary, NOT replacements for the
+anchor. They each work as standalone 30s posts that drive viewers
+**back to the anchor** in your pinned feed or bio link.
+
+---
+
 ## REELS — 10 × 30-to-60 second vertical videos
 
-### Reel 1 — "30 seconds. Listing live."
+### Reel 1 — "30 seconds. Listing live." 🟢 *Cut from the anchor explainer*
+
+> **Shortcut:** if you've already recorded the 75-sec anchor video,
+> just trim it to Beats 1 + 5 + 7 + 10 for this reel — same content,
+> no re-shoot. Caption + hashtags below still apply.
 
 **Hook (0-2s):** Screen close-up. A `.md` file is dragged into a clean Skillzy upload box.
 **Beat 2 (2-15s):** Skillzy form auto-fills: title appears, then tagline, then bullet list, then price ($19). Each field types itself out.
@@ -310,8 +336,24 @@ Headline: **From repo to revenue. One click.**
 
 ## How to use this pack
 
+**Order of operations** — most efficient way to ship the whole campaign:
+
+1. **First:** record the 75-sec anchor explainer
+   (`content/explainer-website-walkthrough.md`). One sit-down, ten
+   short clips of skillzy.ai. Voice it once. You now have your hero
+   video + the source clips for several reels.
+2. **Second:** cut three sizes from that recording — 75s hero, 30s
+   teaser, 15s loop. That's three of your ten reels covered without
+   any new recording.
+3. **Third:** produce the remaining reels (2-10 below) — these are
+   either short animated cards or new clips. Treat them as variety
+   that drives viewers back to the anchor.
+4. **Fourth:** build the 10 static posts in Canva for the morning
+   slots and breathing room between reels.
+
 For the **10 Reels**:
-1. Open your Higgsfield-connected Claude
+1. Open your Higgsfield-connected Claude (or stitch the clips in
+   iMovie / CapCut / Descript)
 2. Paste one reel brief at a time (Hook + Beats + On-screen captions)
 3. Tell Claude: "Make this as a 30-second vertical video, Skillzy brand palette gold/ink/cream, serif display type. Voiceover optional."
 4. Once rendered, post with the matching caption + hashtags below it.
