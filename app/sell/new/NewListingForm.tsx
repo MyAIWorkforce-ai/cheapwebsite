@@ -7,25 +7,37 @@ import MultiSelectPopup from '@/components/MultiSelectPopup'
 import { publishListing, type PublishState } from './actions'
 
 // Canonical lists for the niche + platform picker popups. Kept in sync
-// loosely with lib/content but inlined here so this client component
-// stays free of server-only imports.
+// with lib/content but inlined here so this client component stays free
+// of server-only imports.
 const NICHE_OPTIONS = [
   'Real Estate',
-  'Builders',
-  'Electricians',
-  'Plumbers',
+  'Property Mgmt',
   'Tradies',
+  'Builders',
+  'Plumbers',
+  'Electricians',
   'Accountants',
   'Bookkeepers',
-  'E-commerce',
-  'Coaches',
   'Lawyers',
+  'Consultants',
+  'Coaches',
+  'E-commerce',
+  'Hospitality',
+  'Restaurants',
+  'Cafes',
+  'Healthcare',
+  'Dentists',
+  'Vets',
+  'Therapists',
+  'Education',
+  'Tutors',
+  'Fitness',
+  'Salons',
   'Marketing',
   'Agencies',
-  'Hospitality',
-  'Healthcare',
   'Recruiters',
-  'Schools',
+  'Photographers',
+  'Designers',
 ]
 const PLATFORM_OPTIONS = [
   'Claude',

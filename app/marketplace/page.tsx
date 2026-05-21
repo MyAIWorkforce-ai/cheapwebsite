@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import ProductCard from '@/components/ProductCard'
+import MarketplaceFilters from '@/components/MarketplaceFilters'
 import { products, toCardProduct, NICHES, type ProductType } from '@/lib/catalog'
 import { liveDbProducts } from '@/lib/listings'
 import { pageMetadata } from '@/lib/seo'
@@ -108,7 +109,7 @@ export default async function MarketplacePage({
                 type="search"
                 name="q"
                 defaultValue={searchParams.q ?? ''}
-                placeholder="invoices, real estate, daily summary…"
+                placeholder="Search a skill, guide, niche, platform…"
                 className="flex-1 bg-transparent outline-none font-display text-xl text-brand-ink placeholder:text-brand-muted/70 placeholder:italic"
                 autoComplete="off"
               />
@@ -152,107 +153,15 @@ export default async function MarketplacePage({
           })}
         </div>
 
-        {/* niche + platform — quiet inline rows */}
-        <div className="mb-10 space-y-3">
-          <div className="flex items-baseline flex-wrap gap-x-1 gap-y-1.5 text-sm">
-            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted mr-2">
-              Niche
-            </span>
-            {niches.map((n, i) => {
-              const slug = n.toLowerCase().replace(/\s+/g, '-')
-              const active = niche === slug || niche === n.toLowerCase()
-              const params = new URLSearchParams()
-              if (activeKey !== 'all') params.set('type', activeKey)
-              params.set('niche', slug)
-              return (
-                <span key={n} className="inline-flex items-baseline">
-                  {i > 0 && (
-                    <span className="text-brand-hairline px-0.5" aria-hidden>
-                      ·
-                    </span>
-                  )}
-                  <Link
-                    href={`/marketplace?${params.toString()}`}
-                    className={
-                      'px-1.5 transition-colors ' +
-                      (active
-                        ? 'text-brand-gold font-semibold'
-                        : 'text-brand-muted hover:text-brand-ink')
-                    }
-                  >
-                    {n}
-                  </Link>
-                </span>
-              )
-            })}
-            <span className="inline-flex items-baseline">
-              <span className="text-brand-hairline px-0.5" aria-hidden>
-                ·
-              </span>
-              <Link
-                href={`/marketplace${activeKey !== 'all' ? `?type=${activeKey}` : ''}`}
-                className={
-                  'px-1.5 transition-colors ' +
-                  (!niche
-                    ? 'text-brand-gold font-semibold'
-                    : 'text-brand-muted hover:text-brand-ink')
-                }
-              >
-                All
-              </Link>
-            </span>
-          </div>
-
-          <div className="flex items-baseline flex-wrap gap-x-1 gap-y-1.5 text-sm">
-            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted mr-2">
-              Platform
-            </span>
-            {platforms.map((pl, i) => {
-              const slug = pl.toLowerCase()
-              const active = platform === slug
-              const params = new URLSearchParams()
-              if (activeKey !== 'all') params.set('type', activeKey)
-              if (niche) params.set('niche', niche)
-              params.set('platform', slug)
-              return (
-                <span key={pl} className="inline-flex items-baseline">
-                  {i > 0 && (
-                    <span className="text-brand-hairline px-0.5" aria-hidden>
-                      ·
-                    </span>
-                  )}
-                  <Link
-                    href={`/marketplace?${params.toString()}`}
-                    className={
-                      'px-1.5 transition-colors ' +
-                      (active
-                        ? 'text-brand-gold font-semibold'
-                        : 'text-brand-muted hover:text-brand-ink')
-                    }
-                  >
-                    {pl}
-                  </Link>
-                </span>
-              )
-            })}
-            <span className="inline-flex items-baseline">
-              <span className="text-brand-hairline px-0.5" aria-hidden>
-                ·
-              </span>
-              <Link
-                href={`/marketplace${activeKey !== 'all' ? `?type=${activeKey}` : ''}${niche ? `${activeKey !== 'all' ? '&' : '?'}niche=${niche}` : ''}`}
-                className={
-                  'px-1.5 transition-colors ' +
-                  (!platform
-                    ? 'text-brand-gold font-semibold'
-                    : 'text-brand-muted hover:text-brand-ink')
-                }
-              >
-                All
-              </Link>
-            </span>
-          </div>
-        </div>
+        {/* niche + platform — native dropdowns (iOS picker on mobile) */}
+        <MarketplaceFilters
+          niches={niches}
+          platforms={platforms}
+          niche={niche}
+          platform={platform}
+          type={activeKey}
+          q={searchParams.q}
+        />
 
         {query && (
           <p className="mb-8 text-sm text-brand-muted">

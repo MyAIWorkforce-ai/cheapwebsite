@@ -193,7 +193,7 @@ export default function HomePage() {
                 id="hero-search"
                 type="search"
                 name="q"
-                placeholder="invoices, real estate, daily summary…"
+                placeholder="Search a skill, guide, niche, platform…"
                 className="flex-1 bg-transparent outline-none font-display text-2xl sm:text-3xl text-brand-ink placeholder:text-brand-muted/70 placeholder:italic"
                 style={{ letterSpacing: '-0.015em' }}
                 autoComplete="off"

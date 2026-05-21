@@ -129,12 +129,17 @@ export default function MultiSelectPopup({
               </div>
               <button
                 type="button"
-                onClick={() => setOpen(false)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setOpen(false)
+                }}
                 aria-label="Close"
-                className="p-1 -m-1 text-brand-muted hover:text-brand-ink"
+                // Bigger hit target for mobile (44×44 min), with a visible
+                // chip background so the X is unmistakable.
+                className="shrink-0 w-11 h-11 -mt-1 -mr-1 inline-flex items-center justify-center bg-brand-cream-card border border-brand-hairline text-brand-ink hover:bg-white hover:border-brand-ink transition-colors"
               >
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
-                  <path d="M6 18L18 6M6 6l12 12" />
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                  <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" />
                 </svg>
               </button>
             </div>
