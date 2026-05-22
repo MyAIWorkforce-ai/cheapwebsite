@@ -230,6 +230,30 @@ Replaces the ugly subdomain with `auth.skillzy.ai`. Users see "to continue to **
 
 ---
 
+## 🟢 11. DMARC reports landing in your inbox — ⏳ **OPTIONAL CLEANUP**
+
+You're getting daily "Report Domain: skillzy.ai" emails from Microsoft / Google. **This is good** — it means your DMARC email-security record is working (same thing that helps Resend emails reach inboxes, not spam). The emails are just the daily "here's who sent email as skillzy.ai" report. The `.gz` attachment is raw XML.
+
+Nothing is wrong. But the reports clutter `hi@skillzy.ai`. Two-stage plan:
+
+### Now (1 min) — filter + archive
+
+In Gmail: create a filter → subject contains `Report Domain: skillzy.ai` → Skip Inbox + Apply label "DMARC". Keeps the inbox clean, keeps the reports if you ever want them.
+
+### Later (5 min, recommended once live) — Postmark DMARC dashboard (free)
+
+Turns the unreadable XML into a clean dashboard so you can confirm nobody is spoofing your domain:
+
+1. Go to **dmarc.postmarkapp.com** → sign up (free, no card)
+2. They give you a reporting email address (e.g. `<id>@inbound.postmarkapp.com`)
+3. GoDaddy DNS → find the **`_dmarc.skillzy.ai` TXT record** → change the `rua=mailto:hi@skillzy.ai` part to `rua=mailto:<the-postmark-address>`
+4. ⚠️ Don't delete the whole DMARC record — only swap the `rua` address. Deleting DMARC would hurt deliverability.
+5. Reports now flow to Postmark; you get a weekly readable summary email instead of daily XML.
+
+**Why not now:** pre-launch, the inbox filter is enough. Set up Postmark once real email volume is flowing and you want spoofing protection visibility.
+
+---
+
 ## ⏳ Summary of outstanding items
 
 1. **#0** — Rename GitHub repo `cheapwebsite` → `skillzy` (2 min, no urgency)
@@ -241,7 +265,8 @@ Replaces the ugly subdomain with `auth.skillzy.ai`. Users see "to continue to **
 7. **#9** — Sign up for Upstash, paste URL+token into Vercel env (~5 min, recommended before any marketing)
 8. **#10 quick win** — Brand the Google OAuth consent screen so users see "Sign in to Skillzy" with logo (~15 min, free)
 9. **#10 real fix** — Supabase Pro + custom auth domain `auth.skillzy.ai` (paid, defer)
-10. **#5c** — IndexNow integration (optional)
-11. **#5e** — OG card visual test via opengraph.xyz (optional)
+10. **#11** — DMARC reports: filter+archive now, Postmark dashboard later (optional)
+11. **#5c** — IndexNow integration (optional)
+12. **#5e** — OG card visual test via opengraph.xyz (optional)
 
 **Everything else: shipped. Site is live, payments work, auth works, emails verified, SEO submitted. Error tracking + hard rate limit ready to activate.**
