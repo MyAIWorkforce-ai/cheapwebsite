@@ -12,10 +12,14 @@ export const metadata = {
 export default async function SignInPage({
   searchParams,
 }: {
-  searchParams: { error?: string; sent?: string }
+  searchParams: { error?: string; sent?: string; next?: string }
 }) {
+  const next =
+    searchParams.next && searchParams.next.startsWith('/')
+      ? searchParams.next
+      : undefined
   const user = await getUser()
-  if (user) redirect('/dashboard')
+  if (user) redirect(next ?? '/dashboard')
 
   return (
     <div className="paper px-6 lg:px-10 py-20 sm:py-28">
@@ -37,6 +41,7 @@ export default async function SignInPage({
           demoMode={!hasSupabase}
           oauthError={searchParams.error}
           sentEmail={searchParams.sent}
+          next={next}
         />
       </div>
     </div>

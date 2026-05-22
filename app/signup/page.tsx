@@ -10,9 +10,17 @@ export const metadata = {
   keywords: ['Skillzy sign up', 'create account', 'AI agent marketplace account'],
 }
 
-export default async function SignUpPage() {
+export default async function SignUpPage({
+  searchParams,
+}: {
+  searchParams: { next?: string }
+}) {
+  const next =
+    searchParams.next && searchParams.next.startsWith('/')
+      ? searchParams.next
+      : undefined
   const user = await getUser()
-  if (user) redirect('/dashboard')
+  if (user) redirect(next ?? '/dashboard')
 
   return (
     <div className="paper px-6 lg:px-10 py-20 sm:py-28">
@@ -30,7 +38,7 @@ export default async function SignUpPage() {
           One account works for buying, selling, and re-downloading.
         </p>
 
-        <SignUpForm demoMode={!hasSupabase} />
+        <SignUpForm demoMode={!hasSupabase} next={next} />
       </div>
     </div>
   )

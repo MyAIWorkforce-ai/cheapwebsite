@@ -24,19 +24,25 @@ export async function signInWithEmail(
   if (!hasSupabase) return demoState()
 
   const email = String(formData.get('email') ?? '').trim()
+  const next = String(formData.get('next') ?? '').trim()
   if (!email) return { error: 'Email is required.' }
 
+  const safeNext = next && next.startsWith('/') ? next : ''
   const supabase = createClient()
   const { error } = await supabase.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: `${env.siteUrl}/auth/callback` },
+    options: {
+      emailRedirectTo: `${env.siteUrl}/auth/callback${safeNext ? `?next=${encodeURIComponent(safeNext)}` : ''}`,
+    },
   })
 
   if (error) return { error: error.message }
   // Redirect to a URL that carries the "sent" state. This survives a
   // full page reload (the mobile no-JS / pre-hydration submit case),
   // so the "Check your email" panel always shows and never vanishes.
-  redirect(`/signin?sent=${encodeURIComponent(email)}`)
+  redirect(
+    `/signin?sent=${encodeURIComponent(email)}${safeNext ? `&next=${encodeURIComponent(safeNext)}` : ''}`,
+  )
 }
 
 // Password sign-in.
@@ -48,6 +54,7 @@ export async function signInWithPassword(
 
   const email = String(formData.get('email') ?? '').trim()
   const password = String(formData.get('password') ?? '')
+  const next = String(formData.get('next') ?? '').trim()
   if (!email || !password) return { error: 'Email and password required.' }
 
   const supabase = createClient()
@@ -60,7 +67,7 @@ export async function signInWithPassword(
     await claimOrphanPurchases({ id: data.user.id, email: data.user.email })
   }
 
-  redirect('/dashboard')
+  redirect(next && next.startsWith('/') ? next : '/dashboard')
 }
 
 // Password sign-up (new account).
@@ -73,11 +80,12 @@ export async function signUpWithPassword(
   const email = String(formData.get('email') ?? '').trim()
   const password = String(formData.get('password') ?? '')
   const name = String(formData.get('name') ?? '').trim()
+  const next = String(formData.get('next') ?? '').trim()
   if (!email || !password) return { error: 'Email and password required.' }
   if (password.length < 8) return { error: 'Password needs at least 8 characters.' }
 
   const supabase = createClient()
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -87,6 +95,18 @@ export async function signUpWithPassword(
   })
 
   if (error) return { error: error.message }
+
+  // If email confirmation is OFF in Supabase, signUp returns a live
+  // session — sign them straight in and continue, no dead-end "check
+  // your inbox" step. (Recommended: keep confirmation off so listing
+  // a skill is fast — see OFFICE-LIST.)
+  if (data.session && data.user?.email && data.user.id) {
+    const { claimOrphanPurchases } = await import('@/lib/auth')
+    await claimOrphanPurchases({ id: data.user.id, email: data.user.email })
+    redirect(next && next.startsWith('/') ? next : '/dashboard')
+  }
+
+  // Otherwise Supabase still requires email confirmation.
   return {
     info: 'Account created. Check your inbox to confirm your email and sign in.',
   }
@@ -127,14 +147,24 @@ export async function updatePassword(
   redirect('/dashboard?password=updated')
 }
 
+// Where to bounce back to after OAuth — carry an optional `next` so a
+// creator who signed up mid-listing returns to /sell/new (their draft
+// is preserved client-side). OAuth always creates a live session, so
+// there's never an email-confirmation dead-end on this path.
+function oauthCallback(formData?: FormData): string {
+  const next = formData ? String(formData.get('next') ?? '').trim() : ''
+  const safe = next && next.startsWith('/') ? next : ''
+  return `${env.siteUrl}/auth/callback${safe ? `?next=${encodeURIComponent(safe)}` : ''}`
+}
+
 // OAuth: GitHub.
-export async function signInWithGitHub() {
+export async function signInWithGitHub(formData?: FormData) {
   if (!hasSupabase) redirect('/signin?error=demo')
   const supabase = createClient()
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'github',
     options: {
-      redirectTo: `${env.siteUrl}/auth/callback`,
+      redirectTo: oauthCallback(formData),
       // Request the `repo` scope so creators can import from their
       // private repos via /sell/new. Public profile + email are the
       // default minimum.
@@ -148,12 +178,12 @@ export async function signInWithGitHub() {
 }
 
 // OAuth: Google.
-export async function signInWithGoogle() {
+export async function signInWithGoogle(formData?: FormData) {
   if (!hasSupabase) redirect('/signin?error=demo')
   const supabase = createClient()
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: `${env.siteUrl}/auth/callback` },
+    options: { redirectTo: oauthCallback(formData) },
   })
   if (error || !data?.url) {
     redirect(`/signin?error=${encodeURIComponent(error?.message ?? 'OAuth failed')}`)

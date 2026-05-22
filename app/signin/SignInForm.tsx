@@ -26,13 +26,16 @@ function Submit({ label }: { label: string }) {
 
 function ProviderButton({
   action,
+  next,
   children,
 }: {
-  action: () => Promise<void>
+  action: (formData: FormData) => Promise<void>
+  next?: string
   children: React.ReactNode
 }) {
   return (
     <form action={action}>
+      {next && <input type="hidden" name="next" value={next} />}
       <button
         type="submit"
         className="w-full flex items-center justify-center gap-3 border border-brand-hairline bg-brand-cream-card py-3.5 text-sm hover:border-brand-ink transition-colors"
@@ -49,10 +52,12 @@ export default function SignInForm({
   demoMode,
   oauthError,
   sentEmail,
+  next,
 }: {
   demoMode: boolean
   oauthError?: string
   sentEmail?: string
+  next?: string
 }) {
   const [mode, setMode] = useState<'link' | 'password'>('link')
   const [email, setEmail] = useState('')
@@ -120,7 +125,7 @@ export default function SignInForm({
       )}
 
       <div className="mt-10 flex flex-col gap-3">
-        <ProviderButton action={signInWithGoogle}>
+        <ProviderButton action={signInWithGoogle} next={next}>
           <svg className="w-4 h-4" viewBox="0 0 24 24" aria-hidden>
             <path
               fill="#EA4335"
@@ -129,7 +134,7 @@ export default function SignInForm({
           </svg>
           Continue with Google
         </ProviderButton>
-        <ProviderButton action={signInWithGitHub}>
+        <ProviderButton action={signInWithGitHub} next={next}>
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
             <path d="M12 .5C5.73.5.66 5.58.66 11.86c0 5.02 3.25 9.27 7.76 10.78.57.11.78-.25.78-.55v-2.13c-3.16.69-3.83-1.36-3.83-1.36-.52-1.31-1.26-1.66-1.26-1.66-1.03-.71.08-.69.08-.69 1.14.08 1.74 1.18 1.74 1.18 1.01 1.74 2.66 1.24 3.31.95.1-.74.4-1.24.72-1.53-2.52-.29-5.17-1.27-5.17-5.64 0-1.25.44-2.27 1.17-3.07-.12-.29-.51-1.45.11-3.03 0 0 .96-.31 3.16 1.17a10.9 10.9 0 0 1 5.76 0c2.2-1.48 3.15-1.17 3.15-1.17.63 1.58.24 2.74.12 3.03.73.8 1.16 1.82 1.16 3.07 0 4.39-2.66 5.34-5.2 5.62.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.78.55a11.36 11.36 0 0 0 7.76-10.78C23.34 5.58 18.27.5 12 .5Z" />
           </svg>
@@ -172,6 +177,7 @@ export default function SignInForm({
 
       {mode === 'link' ? (
         <form action={linkAction} className="flex flex-col gap-5">
+          {next && <input type="hidden" name="next" value={next} />}
           <label className="block">
             <span className="label-cap text-brand-muted">Email</span>
             <input
@@ -193,6 +199,7 @@ export default function SignInForm({
         </form>
       ) : (
         <form action={pwAction} className="flex flex-col gap-5">
+          {next && <input type="hidden" name="next" value={next} />}
           <label className="block">
             <span className="label-cap text-brand-muted">Email</span>
             <input
@@ -233,7 +240,7 @@ export default function SignInForm({
       <p className="mt-8 text-sm text-brand-muted">
         New here?{' '}
         <Link
-          href="/signup"
+          href={next ? `/signup?next=${encodeURIComponent(next)}` : '/signup'}
           className="text-brand-ink border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
         >
           Create an account

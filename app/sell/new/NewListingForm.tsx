@@ -171,6 +171,16 @@ type DraftResponse = {
 export default function NewListingForm({ githubUser }: { githubUser?: string }) {
   const [state, action] = useFormState(publishListing, initial)
 
+  // After Publish returns a message (error or info), the message renders
+  // at the very bottom by the button — scroll it into view so the
+  // creator isn't left staring at the footer wondering what happened.
+  const msgRef = useRef<HTMLDivElement | null>(null)
+  useEffect(() => {
+    if (state.error || state.info) {
+      msgRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [state.error, state.info])
+
   const [type, setType] = useState<'skill' | 'guide' | 'agent_setup'>('agent_setup')
   const [title, setTitle] = useState('')
   const [tagline, setTagline] = useState('')
@@ -809,10 +819,12 @@ export default function NewListingForm({ githubUser }: { githubUser?: string }) 
 
             <Submit />
 
-            {state.error && <p className="mt-4 text-sm text-red-700">{state.error}</p>}
-            {state.info && (
-              <p className="mt-4 text-sm text-brand-gold-dark">{state.info}</p>
-            )}
+            <div ref={msgRef}>
+              {state.error && <p className="mt-4 text-sm text-red-700">{state.error}</p>}
+              {state.info && (
+                <p className="mt-4 text-sm text-brand-gold-dark">{state.info}</p>
+              )}
+            </div>
           </section>
         </div>
       </form>

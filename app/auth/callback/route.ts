@@ -7,7 +7,12 @@ import { hasSupabase } from '@/lib/env'
 export async function GET(request: NextRequest) {
   const url = new URL(request.url)
   const code = url.searchParams.get('code')
-  const next = url.searchParams.get('next') ?? '/dashboard'
+  // Only allow same-site relative paths as `next` (guards against an
+  // open-redirect via a crafted ?next=https://evil.com).
+  const rawNext = url.searchParams.get('next')
+  const next = rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//')
+    ? rawNext
+    : '/dashboard'
 
   if (hasSupabase && code) {
     const supabase = createClient()
