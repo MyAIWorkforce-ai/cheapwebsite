@@ -17,6 +17,29 @@ Left for later. 2-min job, no urgency. Steps:
 
 ---
 
+## 🔴 1a. Enable Standard Connect + add STRIPE_CONNECT_CLIENT_ID — ⏳ **REQUIRED for creator payouts**
+
+Skillzy now uses **Standard Connect** so creators link their OWN Stripe account and see the 80% in their normal dashboard (instead of the old Express account they couldn't see). The code is shipped, but it needs one Stripe setting + one env var or "Connect Stripe" shows a "not finished setting up" error.
+
+**Steps (~5 min):**
+
+1. Platform Stripe (My AI Workforce) → **Settings → Connect** (or Connect → Settings)
+2. Make sure **Standard** accounts are enabled (not just Express)
+3. Find the **OAuth settings** section → copy the **client ID** — it starts with `ca_…` (this is the *live* or *test* client id; match it to whichever keys you're running)
+4. In the same OAuth settings, add this **redirect URI**:
+   `https://skillzy.ai/api/stripe/connect/return`
+5. Vercel → Settings → Environment Variables → add:
+   - Name: `STRIPE_CONNECT_CLIENT_ID`
+   - Value: the `ca_…` client id
+   - Scope: Production + Preview
+6. Redeploy
+
+**Then re-test:** creator goes to `/dashboard/payouts` → Connect → now redirected to Stripe to **authorise their existing account** → approves → their real account is linked → next sale pays 80% into THAT account, visible in their normal Stripe dashboard.
+
+**Cleanup:** the old Express accounts (`acct_1TYwbHLqf9s1uN0C`, `acct_1TZizSPoydexDX18`) still hold the earlier test transfers. You can pay those out / ignore them — they were test sales.
+
+---
+
 ## 🔴 1. Stripe webhook — ✅ **DONE**
 
 - All 4 events subscribed on `skillzy.ai/api/webhooks/stripe`: `payment_intent.succeeded`, `account.updated`, `charge.refunded`, `checkout.session.completed`.
