@@ -1,6 +1,7 @@
 'use client'
 
 import { useFormState, useFormStatus } from 'react-dom'
+import { useState, useEffect } from 'react'
 import {
   updateProfile,
   updateEmail,
@@ -101,12 +102,50 @@ export function EmailForm({ defaultEmail }: { defaultEmail: string }) {
   )
 }
 
+const PW_SET_KEY = 'skz_pw_set'
+
 export function PasswordForm() {
   const [state, action] = useFormState(updateAccountPassword, initial)
+  // Track whether a password has been set so the UI can say "connected"
+  // and flip the button to "Change password". Persisted in
+  // sessionStorage so it survives a reload. (Supabase doesn't expose a
+  // reliable has-password flag, so we track the moment the user sets one
+  // here — and once set, the label stays "Change password" thereafter.)
+  const [hasPassword, setHasPassword] = useState(false)
+
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem(PW_SET_KEY) === '1') setHasPassword(true)
+    } catch {
+      /* no-op */
+    }
+  }, [])
+
+  useEffect(() => {
+    if (state.info) {
+      setHasPassword(true)
+      try {
+        sessionStorage.setItem(PW_SET_KEY, '1')
+      } catch {
+        /* no-op */
+      }
+    }
+  }, [state.info])
+
   return (
     <form action={action} className="space-y-5">
+      {hasPassword && (
+        <div className="flex items-center gap-2 border border-brand-gold bg-brand-gold/10 px-4 py-3">
+          <span aria-hidden className="text-brand-gold-dark">✓</span>
+          <span className="text-sm text-brand-ink">
+            Password connected. You can sign in with email and password.
+          </span>
+        </div>
+      )}
       <label className="block">
-        <span className="label-cap text-brand-muted">New password</span>
+        <span className="label-cap text-brand-muted">
+          {hasPassword ? 'New password' : 'Set a password'}
+        </span>
         <input
           type="password"
           name="password"
@@ -118,7 +157,7 @@ export function PasswordForm() {
         />
       </label>
       <Field state={state} />
-      <Submit label="Update password" />
+      <Submit label={hasPassword ? 'Change password' : 'Set password'} />
     </form>
   )
 }
