@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { hasSupabase, hasStripe } from '@/lib/env'
 import { getStripe } from '@/lib/stripe'
 import ConnectButton from './ConnectButton'
+import DisconnectButton from './DisconnectButton'
 import { syncPayoutStatus } from '@/lib/stripe-connect'
 
 export const metadata = {
@@ -213,6 +214,9 @@ export default async function PayoutsPage({
                   <p className="mt-0.5 font-mono text-[11px] text-brand-muted break-all">
                     {profile.stripe_account_id}
                   </p>
+                  <div className="mt-4">
+                    <DisconnectButton />
+                  </div>
                 </div>
               )}
 
