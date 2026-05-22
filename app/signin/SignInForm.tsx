@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useFormState, useFormStatus } from 'react-dom'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   signInWithEmail,
   signInWithPassword,
@@ -45,14 +45,14 @@ function ProviderButton({
 
 const initial: SignInState = {}
 
-const SENT_KEY = 'skz_magic_sent'
-
 export default function SignInForm({
   demoMode,
   oauthError,
+  sentEmail,
 }: {
   demoMode: boolean
   oauthError?: string
+  sentEmail?: string
 }) {
   const [mode, setMode] = useState<'link' | 'password'>('link')
   const [email, setEmail] = useState('')
@@ -60,62 +60,17 @@ export default function SignInForm({
   const [pwState, pwAction] = useFormState(signInWithPassword, initial)
   const state = mode === 'link' ? linkState : pwState
 
-  // Persist the "we sent your link" confirmation in sessionStorage.
-  // Why: on mobile, a tap can fire before the page JS hydrates, so the
-  // form does a NATIVE submit → full page reload → useFormState resets
-  // to empty → the "Check your email" panel vanishes. Stashing the
-  // confirmation in sessionStorage means it survives that reload and
-  // the panel stays put until the user explicitly dismisses it.
-  const [sentTo, setSentTo] = useState<string | null>(null)
-  const [sentMsg, setSentMsg] = useState<string | null>(null)
-
-  // Restore a prior "sent" state on mount (covers the reload case).
-  useEffect(() => {
-    try {
-      const raw = sessionStorage.getItem(SENT_KEY)
-      if (raw) {
-        const parsed = JSON.parse(raw) as { email?: string; msg?: string }
-        setSentTo(parsed.email ?? '')
-        setSentMsg(parsed.msg ?? 'Check your inbox. We sent a one-time sign-in link.')
-      }
-    } catch {
-      /* no-op */
-    }
-  }, [])
-
-  // When either action returns an info message, lock it in + persist it.
-  useEffect(() => {
-    const info = linkState.info ?? pwState.info
-    if (info) {
-      setSentTo(email)
-      setSentMsg(info)
-      try {
-        sessionStorage.setItem(SENT_KEY, JSON.stringify({ email, msg: info }))
-      } catch {
-        /* no-op */
-      }
-    }
-  }, [linkState.info, pwState.info, email])
-
-  function resetSent() {
-    setSentTo(null)
-    setSentMsg(null)
-    try {
-      sessionStorage.removeItem(SENT_KEY)
-    } catch {
-      /* no-op */
-    }
-  }
-
-  // Email sent (magic link or sign-up confirmation): take over the
-  // whole panel with an unmissable confirmation, so it's obvious the
-  // next step is "go to your inbox" — not a tiny line under a form.
-  // Show it if EITHER the live action returned info OR we have a
-  // persisted "sent" state from before a reload.
-  const showSent = Boolean(state.info || sentMsg)
-  if (showSent) {
-    const shownEmail = email || sentTo || ''
-    const shownMsg = state.info || sentMsg
+  // The magic-link action redirects to /signin?sent=<email> on success,
+  // so the "Check your email" panel is driven by the URL — it survives
+  // any reload, including the mobile pre-hydration native form submit
+  // that was making it vanish. The password action can also surface an
+  // info message (e.g. confirm-your-email), so honour that too.
+  const sentMsg =
+    sentEmail !== undefined
+      ? 'Check your inbox. We sent a one-time sign-in link.'
+      : state.info
+  if (sentMsg) {
+    const shownEmail = sentEmail || email || ''
     return (
       <div className="mt-10 border border-brand-gold bg-brand-cream-card p-7 text-center">
         <div
@@ -125,7 +80,7 @@ export default function SignInForm({
           Check your email
         </div>
         <p className="mt-3 text-sm text-brand-ink leading-relaxed">
-          {shownMsg}
+          {sentMsg}
           {shownEmail && (
             <>
               {' '}
@@ -138,13 +93,12 @@ export default function SignInForm({
           Open the email and click the link to finish signing in. Can’t
           find it? Check spam, or use a different email below.
         </p>
-        <button
-          type="button"
-          onClick={resetSent}
+        <Link
+          href="/signin"
           className="inline-block mt-5 text-sm border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
         >
           Use a different email
-        </button>
+        </Link>
       </div>
     )
   }

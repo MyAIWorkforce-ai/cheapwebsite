@@ -12,7 +12,7 @@ export const metadata = {
 export default async function SignInPage({
   searchParams,
 }: {
-  searchParams: { error?: string }
+  searchParams: { error?: string; sent?: string }
 }) {
   const user = await getUser()
   if (user) redirect('/dashboard')
@@ -33,7 +33,11 @@ export default async function SignInPage({
           Buy once, re-download any time. Sell on your own schedule.
         </p>
 
-        <SignInForm demoMode={!hasSupabase} oauthError={searchParams.error} />
+        <SignInForm
+          demoMode={!hasSupabase}
+          oauthError={searchParams.error}
+          sentEmail={searchParams.sent}
+        />
       </div>
     </div>
   )

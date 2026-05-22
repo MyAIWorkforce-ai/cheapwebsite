@@ -33,7 +33,10 @@ export async function signInWithEmail(
   })
 
   if (error) return { error: error.message }
-  return { info: 'Check your inbox. We sent a one-time sign-in link.' }
+  // Redirect to a URL that carries the "sent" state. This survives a
+  // full page reload (the mobile no-JS / pre-hydration submit case),
+  // so the "Check your email" panel always shows and never vanishes.
+  redirect(`/signin?sent=${encodeURIComponent(email)}`)
 }
 
 // Password sign-in.
