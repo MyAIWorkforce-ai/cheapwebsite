@@ -100,7 +100,7 @@ function money(c: number, cur: string) {
 export default async function PayoutsPage({
   searchParams,
 }: {
-  searchParams: { onboarded?: string }
+  searchParams: { onboarded?: string; connect?: string }
 }) {
   const user = await getUser()
 
@@ -183,7 +183,23 @@ export default async function PayoutsPage({
       {searchParams.onboarded === '1' && status === 'enabled' && (
         <div className="bg-brand-cream-card border-b border-brand-hairline">
           <div className="max-w-page mx-auto px-6 lg:px-10 py-3 text-sm text-brand-gold-dark">
-            Stripe onboarding complete. You&rsquo;re ready to sell.
+            Stripe connected. Your sales now pay 80% straight into your own
+            Stripe account.
+          </div>
+        </div>
+      )}
+      {searchParams.connect === 'cancelled' && (
+        <div className="bg-brand-cream-card border-b border-brand-hairline">
+          <div className="max-w-page mx-auto px-6 lg:px-10 py-3 text-sm text-brand-muted">
+            Stripe connection cancelled. Tap Connect again when you&rsquo;re ready.
+          </div>
+        </div>
+      )}
+      {searchParams.connect === 'error' && (
+        <div className="bg-red-50 border-b border-red-200">
+          <div className="max-w-page mx-auto px-6 lg:px-10 py-3 text-sm text-red-700">
+            Couldn&rsquo;t finish connecting Stripe. Please try again, or write
+            to hi@skillzy.ai if it keeps happening.
           </div>
         </div>
       )}
@@ -223,12 +239,12 @@ export default async function PayoutsPage({
               <div className="mt-7">
                 {status === 'enabled' ? (
                   <Link
-                    href="https://dashboard.stripe.com/express"
+                    href="https://dashboard.stripe.com/payments"
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center gap-2 text-sm border-b border-brand-ink pb-0.5 hover:text-brand-gold hover:border-brand-gold transition-colors"
                   >
-                    Open Stripe dashboard →
+                    Open your Stripe dashboard →
                   </Link>
                 ) : !hasStripe ? (
                   <p className="text-xs text-brand-muted">
@@ -254,19 +270,19 @@ export default async function PayoutsPage({
               {[
                 {
                   title: 'Click Connect',
-                  desc: 'We send you to Stripe&rsquo;s onboarding screen with a few prefilled details.',
+                  desc: 'We send you to Stripe to link your own existing Stripe account. No new account, no separate dashboard.',
                 },
                 {
-                  title: 'Stripe verifies you',
-                  desc: 'Usually instant. Sometimes Stripe asks for an ID photo or a tax number.',
+                  title: 'Authorise Skillzy',
+                  desc: 'One screen on Stripe — approve Skillzy to send your sales to your account. Don&rsquo;t have Stripe yet? You can create one in the same flow.',
                 },
                 {
                   title: 'Sell',
-                  desc: 'Every checkout uses your Connect account. Stripe takes its fee, Skillzy takes 20%, you keep 80%.',
+                  desc: 'Every sale pays 80% straight into your own Stripe account. Skillzy keeps 20%. The money shows in your normal Stripe dashboard.',
                 },
                 {
                   title: 'Payouts',
-                  desc: 'Money lands in your bank on Stripe&rsquo;s schedule. You can change the cadence inside Stripe.',
+                  desc: 'Stripe pays you out to your bank on your usual schedule — same as any other Stripe income.',
                 },
               ].map((step, i) => (
                 <li key={i} className="py-5 sm:py-6">

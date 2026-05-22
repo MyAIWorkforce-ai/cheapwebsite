@@ -1,13 +1,36 @@
 import { NextResponse } from 'next/server'
-import { getStripe, hasStripe } from '@/lib/stripe'
+import { hasStripe } from '@/lib/stripe'
 import { env, hasSupabase } from '@/lib/env'
-import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
+import { signConnectState } from '@/lib/connect-state'
 
+/**
+ * Standard Connect via OAuth. Sends the creator to Stripe to authorise
+ * their OWN existing Stripe account (not a new Express account). After
+ * they approve, Stripe redirects to /api/stripe/connect/return with a
+ * code we exchange for their account id. Sales then pay 80% straight
+ * into the account they already use — visible in their normal Stripe
+ * dashboard.
+ *
+ * Requires STRIPE_CONNECT_CLIENT_ID (ca_…) from the platform Stripe
+ * Connect settings, and the return URL registered there as a redirect.
+ */
 export async function POST() {
   if (!hasStripe || !hasSupabase) {
     return NextResponse.json(
       { error: 'Stripe Connect requires Stripe + Supabase keys' },
       { status: 400 },
+    )
+  }
+
+  const clientId = process.env.STRIPE_CONNECT_CLIENT_ID
+  if (!clientId) {
+    return NextResponse.json(
+      {
+        error:
+          'Stripe Connect isn’t finished setting up. (Missing STRIPE_CONNECT_CLIENT_ID — see OFFICE-LIST.)',
+      },
+      { status: 503 },
     )
   }
 
@@ -19,55 +42,16 @@ export async function POST() {
     return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
   }
 
-  const stripe = getStripe()
-  const service = createServiceClient()
+  const params = new URLSearchParams({
+    response_type: 'code',
+    client_id: clientId,
+    scope: 'read_write',
+    redirect_uri: `${env.siteUrl}/api/stripe/connect/return`,
+    state: signConnectState(user.id),
+    'stripe_user[email]': user.email ?? '',
+  })
 
-  try {
-    const { data: profile } = await service
-      .from('profiles')
-      .select('stripe_account_id')
-      .eq('id', user.id)
-      .single()
-
-    let accountId = profile?.stripe_account_id as string | null
-
-    if (!accountId) {
-      const account = await stripe.accounts.create({
-        type: 'express',
-        email: user.email,
-        capabilities: {
-          transfers: { requested: true },
-          card_payments: { requested: true },
-        },
-        business_type: 'individual',
-        metadata: { skillzy_user_id: user.id },
-      })
-      accountId = account.id
-      await service
-        .from('profiles')
-        .update({ stripe_account_id: accountId })
-        .eq('id', user.id)
-    }
-
-    const accountLink = await stripe.accountLinks.create({
-      account: accountId,
-      refresh_url: `${env.siteUrl}/api/stripe/connect/refresh`,
-      return_url: `${env.siteUrl}/api/stripe/connect/return`,
-      type: 'account_onboarding',
-    })
-
-    return NextResponse.json({ url: accountLink.url })
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Stripe Connect error'
-    console.error('Stripe Connect onboarding failed', err)
-    return NextResponse.json(
-      {
-        error:
-          'Couldn’t start Stripe payout onboarding. This usually means Stripe Connect isn’t enabled on the platform account yet. (' +
-          message +
-          ')',
-      },
-      { status: 502 },
-    )
-  }
+  return NextResponse.json({
+    url: `https://connect.stripe.com/oauth/authorize?${params.toString()}`,
+  })
 }
