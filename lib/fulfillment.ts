@@ -35,9 +35,33 @@ export async function fulfillPaymentIntent(intent: Stripe.PaymentIntent) {
     .toLowerCase()
 
   const amount = intent.amount_received ?? intent.amount ?? 0
-  const fee = Math.round(amount * 0.2)
-  const payout = amount - fee
   const currency = intent.currency ?? 'usd'
+
+  // Did the money actually route to a creator? A destination charge
+  // sets transfer_data.destination at PaymentIntent creation time. If
+  // it's absent, the whole amount stayed on the platform — the creator
+  // got nothing — so we must record that honestly rather than claiming
+  // an 80% payout that never happened.
+  const destination =
+    typeof intent.transfer_data?.destination === 'string'
+      ? intent.transfer_data.destination
+      : (intent.transfer_data?.destination?.id ?? null)
+  const routedToCreator = Boolean(destination)
+  const fee = routedToCreator ? Math.round(amount * 0.2) : amount
+  const payout = routedToCreator ? amount - Math.round(amount * 0.2) : 0
+
+  if (!routedToCreator) {
+    console.error(
+      'Sale recorded but NOT routed to a creator — full amount stayed on the platform.',
+      {
+        payment_intent: intent.id,
+        listing_id: listingId,
+        amount_cents: amount,
+        reason:
+          'transfer_data.destination was not set at checkout (creator had no connected/payouts-enabled Stripe account when the buyer paid).',
+      },
+    )
+  }
 
   async function emailBuyer() {
     if (!hasResend || !buyerEmail || !product) return
