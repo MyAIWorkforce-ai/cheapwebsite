@@ -153,3 +153,63 @@ export async function liveDbProducts(): Promise<Product[]> {
     return []
   }
 }
+
+export type DbCreator = {
+  name: string
+  handle: string // with leading @
+  bio: string
+  joined: string
+}
+
+/**
+ * Resolve a real (DB-backed) creator profile + their live listings by
+ * handle. Used by the public /creator/[handle] page so a real seller's
+ * share link works, not just the demo catalogue creators.
+ */
+export async function dbCreatorByHandle(
+  handle: string,
+): Promise<{ creator: DbCreator; products: Product[] } | null> {
+  if (!hasSupabase) return null
+  const clean = handle.replace(/^@/, '').trim()
+  if (!clean) return null
+  try {
+    const admin = createServiceClient()
+    // Find the profile first (handle is citext-unique).
+    const { data: profile } = await admin
+      .from('profiles')
+      .select('id, name, handle, bio, created_at')
+      .eq('handle', clean)
+      .maybeSingle()
+    if (!profile) return null
+
+    const { data: listingRows } = await admin
+      .from('listings')
+      .select(LISTING_COLS)
+      .eq('creator_id', profile.id as string)
+      .eq('status', 'live')
+      .order('created_at', { ascending: false })
+      .limit(200)
+
+    const products = (listingRows ?? []).map((r) =>
+      mapRow(r as unknown as ListingRow),
+    )
+    if (products.length === 0) return null
+
+    return {
+      creator: {
+        name: (profile.name as string) ?? 'Skillzy creator',
+        handle: `@${clean}`,
+        bio: (profile.bio as string) ?? '',
+        joined: profile.created_at
+          ? new Date(profile.created_at as string).toLocaleDateString('en-AU', {
+              month: 'short',
+              year: 'numeric',
+            })
+          : '',
+      },
+      products,
+    }
+  } catch {
+    return null
+  }
+}

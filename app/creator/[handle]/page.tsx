@@ -5,34 +5,82 @@ import {
   getCreatorByHandle,
   getProductsByCreatorHandle,
   toCardProduct,
+  type Product,
 } from '@/lib/catalog'
+import { dbCreatorByHandle } from '@/lib/listings'
 import ProductCard from '@/components/ProductCard'
 import StructuredData from '@/components/StructuredData'
 import { pageMetadata } from '@/lib/seo'
 import { breadcrumbLd } from '@/lib/jsonld'
 
+// Demo-catalogue creators are pre-rendered; real DB creators are
+// resolved on demand (dynamicParams stays true by default).
 export function generateStaticParams() {
   return allCreatorHandles().map((handle) => ({ handle }))
 }
 
-export function generateMetadata({ params }: { params: { handle: string } }) {
-  const creator = getCreatorByHandle(params.handle)
+type ResolvedCreator = {
+  name: string
+  handle: string // with leading @
+  bio: string
+  joined: string
+  items: Product[]
+}
+
+// Try the demo catalogue first, then fall back to a real DB creator.
+async function resolveCreator(
+  handleParam: string,
+): Promise<ResolvedCreator | null> {
+  const seedCreator = getCreatorByHandle(handleParam)
+  const seedItems = getProductsByCreatorHandle(handleParam)
+  if (seedCreator && seedItems.length > 0) {
+    return {
+      name: seedCreator.name,
+      handle: seedCreator.handle,
+      bio: seedCreator.bio,
+      joined: seedCreator.joined,
+      items: seedItems,
+    }
+  }
+  const db = await dbCreatorByHandle(handleParam)
+  if (db) {
+    return {
+      name: db.creator.name,
+      handle: db.creator.handle,
+      bio: db.creator.bio,
+      joined: db.creator.joined,
+      items: db.products,
+    }
+  }
+  return null
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { handle: string }
+}) {
+  const creator = await resolveCreator(params.handle)
   if (!creator) return { title: 'Creator not found — Skillzy' }
   const handle = creator.handle.replace(/^@/, '')
   return pageMetadata({
     title: `${creator.name} — Creator on Skillzy`,
-    description: creator.bio.slice(0, 160),
+    description: (creator.bio || `${creator.name} sells on Skillzy.`).slice(0, 160),
     path: `/creator/${handle}`,
     keywords: [creator.name, creator.handle, 'Skillzy creator', 'AI agent creator'],
     ogType: 'profile',
   })
 }
 
-export default function CreatorPage({ params }: { params: { handle: string } }) {
-  const creator = getCreatorByHandle(params.handle)
-  const items = getProductsByCreatorHandle(params.handle)
-  if (!creator || items.length === 0) notFound()
+export default async function CreatorPage({
+  params,
+}: {
+  params: { handle: string }
+}) {
+  const creator = await resolveCreator(params.handle)
+  if (!creator) notFound()
 
+  const items = creator.items
   const avgRating =
     items.reduce((acc, p) => acc + p.rating * p.ratingCount, 0) /
     Math.max(
