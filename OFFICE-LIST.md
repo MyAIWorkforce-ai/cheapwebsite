@@ -40,6 +40,23 @@ Skillzy now uses **Standard Connect** so creators link their OWN Stripe account 
 
 ---
 
+## 🔴 1b. Turn OFF email confirmation in Supabase — ⏳ **REQUIRED for fast listing**
+
+Right now signing up with email+password sends a "confirm your email" link before the account works. If that email is slow or never arrives, the creator is stuck mid-listing — exactly the dead-end you hit. The code now signs people in instantly IF Supabase isn't forcing confirmation. So:
+
+1. Supabase Dashboard → **Authentication → Providers → Email**
+2. Turn **OFF** "Confirm email" (a.k.a. "Enable email confirmations")
+3. Save
+
+After this:
+- Email+password signup → instant session → bounced straight back to `/sell/new` to finish publishing
+- Google/GitHub signup → already instant (OAuth never needs confirmation)
+- No more "check your inbox" dead-end on signup
+
+**Trade-off:** anyone can sign up with an email they don't own. For a marketplace that's fine (Stripe verifies real identity for payouts; buyers verify via payment). If you later want confirmation back for buyers but not the listing flow, tell me and I'll add a lighter post-signup verification.
+
+---
+
 ## 🔴 1. Stripe webhook — ✅ **DONE**
 
 - All 4 events subscribed on `skillzy.ai/api/webhooks/stripe`: `payment_intent.succeeded`, `account.updated`, `charge.refunded`, `checkout.session.completed`.
