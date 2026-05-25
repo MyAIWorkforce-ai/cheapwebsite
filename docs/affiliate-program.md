@@ -26,14 +26,17 @@ Example, $20 sale:
 So we trade a slice of margin for growth. Creators are unaffected, so
 adoption isn't hurt.
 
-### Rates + terms (proposed — ❓ confirm)
-- **Affiliate rate:** ❓ 5% of each sale (≈ a quarter of our 20%)
-- **Duration:** ❓ 12 months from the referred creator's signup (vs
-  lifetime). 12 months is the sustainable default.
-- **Who can be an affiliate:** ❓ open signup with a light review, or
-  invite-only to start.
+### Rates + terms (LOCKED unless noted)
+- **Affiliate rate:** **5%** of each sale (≈ a quarter of our 20%)
+- **Duration:** **12 months** from the referred creator's signup.
+  **Kept in the fine print / terms — NOT advertised.** Marketing
+  headline is just "Earn 5% on every creator you refer"; the 12-month
+  cap lives in the affiliate terms, disclosed but not promoted.
+- **Eligibility:** every Skillzy account is an affiliate by default
+  (auto link, no separate signup).
 - **Payout:** affiliates connect Stripe (same Standard Connect flow as
-  creators); paid on a schedule once they pass a **$50 minimum**.
+  creators); paid on a schedule once they pass a **$50 minimum**. ❓
+  confirm threshold.
 
 ---
 
