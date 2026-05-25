@@ -1,8 +1,10 @@
 import Link from 'next/link'
 import ProfileShareKit from '@/components/ProfileShareKit'
+import AffiliatePanel from '@/components/AffiliatePanel'
 import { getUser, claimOrphanPurchases } from '@/lib/auth'
 import { createClient } from '@/lib/supabase/server'
 import { hasSupabase } from '@/lib/env'
+import { affiliateSummary } from '@/lib/affiliate'
 
 export const metadata = {
   title: 'Dashboard',
@@ -253,7 +255,7 @@ export default async function DashboardPage({
 }: {
   searchParams: { view?: string }
 }) {
-  const view = (searchParams.view ?? 'buying') as 'buying' | 'selling'
+  const view = (searchParams.view ?? 'buying') as 'buying' | 'selling' | 'affiliate'
 
   // Auth-gated for real users; demo mode renders empty state.
   const user = await getUser()
@@ -288,6 +290,10 @@ export default async function DashboardPage({
   const [purchases, sellerData] = user
     ? await Promise.all([loadBuyer(user.id), loadSeller(user.id)])
     : [[], { listings: [], stats: { totalEarnings: 0, totalSales: 0, monthSalesByListing: {}, monthRevenueByListing: {}, referredSales: 0, referredPayout: 0, byChannel: {} }, payoutsEnabled: false, stripeAccountId: null }]
+
+  const affiliate = user
+    ? await affiliateSummary(user.id)
+    : { referredCount: 0, pendingCents: 0, paidCents: 0 }
 
   const displayName = user?.name ?? user?.email?.split('@')[0] ?? 'there'
 
@@ -364,11 +370,39 @@ export default async function DashboardPage({
               {sellerData.listings.length}
             </span>
           </Link>
+          <Link
+            href="/dashboard?view=affiliate"
+            className={
+              'text-sm pb-3 border-b -mb-[1px] transition-colors ' +
+              (view === 'affiliate'
+                ? 'border-brand-gold text-brand-gold font-semibold'
+                : 'border-transparent text-brand-muted hover:text-brand-ink')
+            }
+          >
+            Refer &amp; earn
+            {affiliate.referredCount > 0 && (
+              <span className="ml-2 font-mono text-[11px] uppercase tracking-[0.18em]">
+                {affiliate.referredCount}
+              </span>
+            )}
+          </Link>
         </div>
       </div>
 
       {view === 'buying' ? (
         <BuyingView purchases={purchases} />
+      ) : view === 'affiliate' ? (
+        <section className="px-6 lg:px-10 py-12 sm:py-16">
+          <div className="max-w-page mx-auto">
+            <AffiliatePanel
+              handle={user?.handle}
+              referredCount={affiliate.referredCount}
+              pendingCents={affiliate.pendingCents}
+              paidCents={affiliate.paidCents}
+              payoutsEnabled={sellerData.payoutsEnabled}
+            />
+          </div>
+        </section>
       ) : (
         <SellingView
           listings={sellerData.listings}

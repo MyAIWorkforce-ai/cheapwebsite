@@ -43,6 +43,17 @@ export async function middleware(request: NextRequest) {
     })
   }
 
+  // Affiliate attribution (?aff=<handle>) — 30-day cookie. Read at
+  // sign-up to tag the new creator as referred by this affiliate.
+  const aff = url.searchParams.get('aff')
+  if (aff) {
+    res.cookies.set('skz_aff', aff.slice(0, 64), {
+      maxAge: 60 * 60 * 24 * 30,
+      path: '/',
+      sameSite: 'lax',
+    })
+  }
+
   return res
 }
 

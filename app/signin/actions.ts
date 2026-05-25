@@ -103,6 +103,8 @@ export async function signUpWithPassword(
   if (data.session && data.user?.email && data.user.id) {
     const { claimOrphanPurchases } = await import('@/lib/auth')
     await claimOrphanPurchases({ id: data.user.id, email: data.user.email })
+    const { attributeReferral } = await import('@/lib/affiliate')
+    await attributeReferral(data.user.id)
     redirect(next && next.startsWith('/') ? next : '/dashboard')
   }
 

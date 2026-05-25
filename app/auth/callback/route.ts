@@ -28,6 +28,10 @@ export async function GET(request: NextRequest) {
         id: session.user.id,
         email: session.user.email,
       })
+      // Tag this account if they arrived via an affiliate link. No-op
+      // if no cookie, already referred, or self-referral.
+      const { attributeReferral } = await import('@/lib/affiliate')
+      await attributeReferral(session.user.id)
     }
 
     // GitHub OAuth: stash the provider access token in app_metadata so

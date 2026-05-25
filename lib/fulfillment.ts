@@ -129,24 +129,49 @@ export async function fulfillPaymentIntent(intent: Stripe.PaymentIntent) {
       .maybeSingle()
     if (existing) return
 
-    const { error: insertError } = await supabase.from('purchases').insert({
-      buyer_id: (intent.metadata?.buyer_id as string | undefined) || null,
-      buyer_email: buyerEmail,
-      listing_id: listingId,
-      amount_cents: amount,
-      currency,
-      platform_fee_cents: fee,
-      creator_payout_cents: payout,
-      stripe_payment_intent_id: intent.id,
-      referrer_slug:
-        (intent.metadata?.referrer_slug as string | undefined) || null,
-      referrer_channel:
-        (intent.metadata?.referrer_channel as string | undefined) || null,
-      status: 'paid',
-    })
-    if (insertError) {
+    const { data: inserted, error: insertError } = await supabase
+      .from('purchases')
+      .insert({
+        buyer_id: (intent.metadata?.buyer_id as string | undefined) || null,
+        buyer_email: buyerEmail,
+        listing_id: listingId,
+        amount_cents: amount,
+        currency,
+        platform_fee_cents: fee,
+        creator_payout_cents: payout,
+        stripe_payment_intent_id: intent.id,
+        referrer_slug:
+          (intent.metadata?.referrer_slug as string | undefined) || null,
+        referrer_channel:
+          (intent.metadata?.referrer_channel as string | undefined) || null,
+        status: 'paid',
+      })
+      .select('id')
+      .single()
+    if (insertError || !inserted) {
       console.error('Failed to record purchase', insertError)
       return
+    }
+
+    // Book an affiliate earning if the selling creator was referred.
+    // Best-effort + fully guarded — never blocks the sale.
+    try {
+      const { data: listing } = await supabase
+        .from('listings')
+        .select('creator_id')
+        .eq('id', listingId)
+        .maybeSingle()
+      if (listing?.creator_id) {
+        const { recordAffiliateEarning } = await import('@/lib/affiliate')
+        await recordAffiliateEarning({
+          creatorId: listing.creator_id as string,
+          purchaseId: inserted.id as string,
+          saleAmountCents: amount,
+          currency,
+        })
+      }
+    } catch {
+      /* affiliate accounting is best-effort */
     }
   } catch (err) {
     console.error('Failed to record purchase', err)
