@@ -34,6 +34,21 @@ async function loadListing(slug: string, userId?: string) {
   }
 }
 
+async function payoutsReady(userId?: string): Promise<boolean> {
+  if (!hasSupabase || !userId) return false
+  try {
+    const supabase = createClient()
+    const { data } = await supabase
+      .from('profiles')
+      .select('stripe_payouts_enabled')
+      .eq('id', userId)
+      .maybeSingle()
+    return Boolean(data?.stripe_payouts_enabled)
+  } catch {
+    return false
+  }
+}
+
 export default async function ListingDonePage({
   searchParams,
 }: {
@@ -42,6 +57,7 @@ export default async function ListingDonePage({
   const slug = searchParams.slug ?? ''
   const user = await getUser()
   const row = slug ? await loadListing(slug, user?.id) : null
+  const canBePaid = await payoutsReady(user?.id)
 
   const title = row?.title ?? (slug ? humanise(slug) : 'Your listing')
   const tagline =
@@ -79,6 +95,43 @@ export default async function ListingDonePage({
           </p>
         </div>
       </section>
+
+      {/* Get-paid prompt — only if they haven't connected Stripe yet.
+          This is the one thing standing between a sale and money in
+          their account, so it sits above the share kit. */}
+      {!canBePaid && (
+        <section className="px-6 lg:px-10 py-10 sm:py-12 border-b border-brand-hairline bg-brand-gold/10">
+          <div className="max-w-page mx-auto max-w-3xl">
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
+              ⚠ One step left to get paid
+            </span>
+            <h2
+              className="font-display mt-3 text-3xl sm:text-4xl tracking-tight"
+              style={{ letterSpacing: '-0.025em' }}
+            >
+              Connect Stripe so your sales reach your bank.
+            </h2>
+            <p className="mt-3 text-brand-ink leading-relaxed">
+              Your listing is live and buyable right now — but until you
+              connect Stripe, any sale can&rsquo;t pay out to you. It&rsquo;s
+              about 30 seconds: link your existing Stripe account (or make one
+              in the same flow), confirm a couple of details, done. You keep
+              80% of every sale, paid straight into your own account.
+            </p>
+            <Link
+              href="/dashboard/payouts"
+              className="mt-6 inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
+            >
+              Connect Stripe now
+              <span aria-hidden>→</span>
+            </Link>
+            <p className="mt-3 text-xs text-brand-muted">
+              Takes ~30 seconds. You can do it now or any time from your
+              dashboard — but a sale before you connect will sit waiting.
+            </p>
+          </div>
+        </section>
+      )}
 
       {/* The kit, at peak motivation */}
       <section className="px-6 lg:px-10 py-12 sm:py-16 border-b border-brand-hairline">
