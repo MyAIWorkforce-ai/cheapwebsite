@@ -61,6 +61,12 @@ and column_name in ('referrer_slug','referrer_channel','review_email_sent_at','r
 ```
 - [ ] If all 4 show → done. If fewer → paste + run `db/RECONCILE_PRODUCTION.sql`
 
+### 2.2b Run the affiliate migration (activates Refer & earn)
+- [ ] Supabase → SQL Editor → paste + run **`db/migrations/007-affiliate.sql`**
+- [ ] This adds `profiles.referred_by/referred_at` + the
+  `affiliate_earnings` table. Until it runs, the "Refer & earn" tab
+  shows zeros and no referrals are tracked. Idempotent — safe to run.
+
 ### 2.3 (Optional, 15 min) Brand the Google sign-in screen
 - [ ] Google Cloud Console (`skillzy-497006`) → OAuth consent screen → set App name "Skillzy", logo, support email, privacy/terms URLs. Makes the Google login read "Sign in to Skillzy".
 
