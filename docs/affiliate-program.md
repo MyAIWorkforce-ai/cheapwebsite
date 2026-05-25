@@ -101,9 +101,22 @@ abuse cheaply.
 
 ## Affiliate-facing pages
 
-- **Affiliate signup / dashboard:** their link, clicks, creators
-  referred, earnings (pending vs paid), connect-Stripe-to-get-paid
-- Reuse the Standard Connect OAuth flow we just built
+**Affiliates must have a Skillzy account — the affiliate function is a
+TAB inside the existing dashboard, not a separate signup.** (Toby's
+call — and it's a strong fraud reducer: every affiliate is a real,
+known account, so there are no throwaway affiliate-only accounts to
+build referral rings with, and "can't refer yourself" is a trivial
+user_id check.)
+
+- **Dashboard → Affiliate tab:** their link, clicks, creators referred,
+  earnings (pending vs paid)
+- **To withdraw affiliate commission they must connect Stripe** (the
+  same Standard Connect flow). This feeds the strongest guard — no
+  commission when the affiliate's Stripe == the referred creator's
+  Stripe. Combined, an attacker would need 2 full accounts + 2 Stripe
+  accounts + 2 banks + 2 identities to skim 5% — economically pointless.
+- Open to **any account holder** — creators AND influencers (an
+  influencer with no product can still refer creators).
 
 ## Admin controls (extend the existing /admin dashboard)
 
