@@ -77,7 +77,7 @@ export default async function NewListingPage() {
         </div>
       </section>
 
-      <NewListingForm githubUser={user?.handle} />
+      <NewListingForm githubUser={user?.handle} isSignedIn={Boolean(user)} />
     </div>
   )
 }

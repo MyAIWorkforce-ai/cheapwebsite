@@ -54,15 +54,15 @@ export default async function ListingDonePage({
       <section className="px-6 lg:px-10 pt-16 sm:pt-24 pb-12 sm:pb-16 border-b border-brand-hairline">
         <div className="max-w-page mx-auto">
           <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
-            ✿ Submitted
+            ✿ Live
           </span>
           <h1
             className="font-display mt-5 text-5xl sm:text-7xl tracking-tight leading-[0.95]"
             style={{ letterSpacing: '-0.03em' }}
           >
-            You&rsquo;re listed.{' '}
+            Done. Your listing is{' '}
             <em className="italic text-brand-gold font-medium">
-              Now go sell it.
+              live.
             </em>
           </h1>
           <p className="mt-6 text-xl text-brand-ink max-w-2xl leading-snug">

@@ -101,15 +101,17 @@ type Draft = {
   videoUrl: string
   videoLabel: string
   brief: string
+  acceptTerms: boolean
 }
 
 const initial: PublishState = {}
 
-function Submit() {
+function Submit({ onPublishClick }: { onPublishClick?: () => void }) {
   const { pending } = useFormStatus()
   return (
     <button
       type="submit"
+      onClick={onPublishClick}
       disabled={pending}
       className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors disabled:opacity-60"
     >
@@ -168,8 +170,17 @@ type DraftResponse = {
   whatYouGet?: string[]
 }
 
-export default function NewListingForm({ githubUser }: { githubUser?: string }) {
+const PENDING_PUBLISH_KEY = 'skz_pending_publish'
+
+export default function NewListingForm({
+  githubUser,
+  isSignedIn = false,
+}: {
+  githubUser?: string
+  isSignedIn?: boolean
+}) {
   const [state, action] = useFormState(publishListing, initial)
+  const formRef = useRef<HTMLFormElement | null>(null)
 
   // After Publish returns a message (error or info), the message renders
   // at the very bottom by the button — scroll it into view so the
@@ -196,6 +207,7 @@ export default function NewListingForm({ githubUser }: { githubUser?: string }) 
   const [videoUrl, setVideoUrl] = useState('')
   const [videoLabel, setVideoLabel] = useState('')
   const [brief, setBrief] = useState('')
+  const [acceptTerms, setAcceptTerms] = useState(false)
 
   const [drafting, setDrafting] = useState(false)
   const [extracting, setExtracting] = useState(false)
@@ -235,11 +247,38 @@ export default function NewListingForm({ githubUser }: { githubUser?: string }) 
       if (d.videoUrl) setVideoUrl(d.videoUrl)
       if (d.videoLabel) setVideoLabel(d.videoLabel)
       if (d.brief) setBrief(d.brief)
+      if (d.acceptTerms) setAcceptTerms(true)
       if (d.title || d.tagline || d.descText) setRestored(true)
     } catch {
       /* ignore corrupt draft */
     }
   }, [])
+
+  // Auto-publish after sign-up: if the creator hit Publish while logged
+  // out, we set a flag + redirected them to sign up. Now they're back,
+  // signed in, with their draft restored — finish the publish for them
+  // so it's one seamless flow (no second Publish tap). Guarded so it
+  // only fires once, only when signed in, and only when the draft +
+  // terms acceptance actually came back.
+  const autoFired = useRef(false)
+  useEffect(() => {
+    if (autoFired.current) return
+    if (!isSignedIn || !restored) return
+    try {
+      if (localStorage.getItem(PENDING_PUBLISH_KEY) !== '1') return
+    } catch {
+      return
+    }
+    autoFired.current = true
+    try {
+      localStorage.removeItem(PENDING_PUBLISH_KEY)
+    } catch {
+      /* no-op */
+    }
+    // Let React paint the restored values into the inputs first.
+    const t = setTimeout(() => formRef.current?.requestSubmit(), 150)
+    return () => clearTimeout(t)
+  }, [isSignedIn, restored])
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -256,6 +295,7 @@ export default function NewListingForm({ githubUser }: { githubUser?: string }) 
           videoUrl,
           videoLabel,
           brief,
+          acceptTerms,
         }
         const empty =
           !title && !tagline && !descText && !whatText && !brief
@@ -278,6 +318,7 @@ export default function NewListingForm({ githubUser }: { githubUser?: string }) 
     videoUrl,
     videoLabel,
     brief,
+    acceptTerms,
   ])
 
   function readAsBase64(file: File): Promise<string> {
@@ -433,7 +474,7 @@ export default function NewListingForm({ githubUser }: { githubUser?: string }) 
         }}
       />
 
-      <form action={action}>
+      <form action={action} ref={formRef}>
         <input type="hidden" name="description" value={JSON.stringify(toArray(descText))} />
         <input type="hidden" name="what_you_get" value={JSON.stringify(toArray(whatText))} />
         <input type="hidden" name="type" value={type} />
@@ -799,6 +840,8 @@ export default function NewListingForm({ githubUser }: { githubUser?: string }) 
                 type="checkbox"
                 name="accept_terms"
                 required
+                checked={acceptTerms}
+                onChange={(e) => setAcceptTerms(e.target.checked)}
                 className="mt-1 accent-brand-gold w-4 h-4 shrink-0"
               />
               <span>
@@ -817,7 +860,20 @@ export default function NewListingForm({ githubUser }: { githubUser?: string }) 
               </span>
             </label>
 
-            <Submit />
+            <Submit
+              onPublishClick={() => {
+                // Mark intent so that, if the creator isn't signed in and
+                // gets bounced to sign-up, we auto-finish the publish when
+                // they return. Harmless when already signed in.
+                if (!isSignedIn) {
+                  try {
+                    localStorage.setItem(PENDING_PUBLISH_KEY, '1')
+                  } catch {
+                    /* no-op */
+                  }
+                }
+              }}
+            />
 
             <div ref={msgRef}>
               {state.error && <p className="mt-4 text-sm text-red-700">{state.error}</p>}
