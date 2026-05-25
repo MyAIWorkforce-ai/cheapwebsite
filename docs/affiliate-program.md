@@ -102,11 +102,13 @@ abuse cheaply.
 ## Affiliate-facing pages
 
 **Affiliates must have a Skillzy account — the affiliate function is a
-TAB inside the existing dashboard, not a separate signup.** (Toby's
-call — and it's a strong fraud reducer: every affiliate is a real,
-known account, so there are no throwaway affiliate-only accounts to
-build referral rings with, and "can't refer yourself" is a trivial
-user_id check.)
+TAB inside the existing dashboard, not a separate signup.** Every
+account is an affiliate **by default**: the link is auto-provisioned
+the moment anyone signs up (creator or influencer), and using it is
+optional. There is NO separate "create affiliate account" step or
+application — so it adds zero friction beyond the 1-tap signup everyone
+does anyway, while still keeping every affiliate a real, known account
+(no throwaway affiliate-only accounts, trivial self-referral block).
 
 - **Dashboard → Affiliate tab:** their link, clicks, creators referred,
   earnings (pending vs paid)
