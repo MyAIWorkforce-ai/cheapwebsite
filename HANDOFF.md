@@ -653,3 +653,15 @@ The real-money test surfaced a few things; founder decisions made:
 Creator gets a clean **80% of gross**; the platform's 20% absorbs ALL
 Stripe fees (and any tax). Fine at normal prices, loses pennies on
 near-free sales — hence the $9 floor.
+
+### Stripe customer-email settings — 2026-05-26
+Settings → Business → Customer emails:
+- **Successful payments = OFF** — the app already sends its own
+  Skillzy-branded receipt via Resend (`app/api/webhooks/stripe/route.ts`
+  on `payment_intent.succeeded`). Stripe's own receipt would be a
+  duplicate + off-brand.
+- **Refunds = ON** — the app's `charge.refunded` handler only updates DB
+  status (no email), so Stripe's refund email is the only notification a
+  refunded buyer gets. Kept on as a safety net.
+- Debit/mandate toggles (BECS/ACH/etc.) left as default — not used by
+  card checkout.
