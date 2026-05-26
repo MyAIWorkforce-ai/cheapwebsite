@@ -33,6 +33,9 @@ export async function sendListingShareKit({
   const link = `${site}/marketplace/${slug}?c=email${ref}`
   const qr = `${site}/marketplace/${slug}/qr?c=email${ref}`
   const dashboard = `${site}/dashboard?view=selling`
+  // On-site share screen — has real one-tap Copy buttons (email itself
+  // can't run the clipboard JS, so we send creators here to copy).
+  const kit = `${site}/sell/new/done?slug=${encodeURIComponent(slug)}`
 
   const shortPromo = `Just listed "${title}" on Skillzy — ${tagline} Drop it into your agent: ${link}`
 
@@ -62,6 +65,11 @@ export async function sendListingShareKit({
         <p style="font-size:14px;line-height:1.5;margin:0;">${shortPromo}</p>
       </div>
 
+      <p style="margin:16px 0 0;">
+        <a href="${kit}" style="background:#0F1729;color:#fff;font-weight:bold;text-decoration:none;padding:12px 22px;display:inline-block;">Open your share kit — one-tap copy →</a>
+      </p>
+      <p style="font-size:12px;color:#5F6B7E;margin:8px 0 0;">Email can&rsquo;t copy text for you — tap above to open your kit on Skillzy, where one tap copies your link or the ready-made post.</p>
+
       <p style="font-size:14px;color:#5F6B7E;margin:24px 0 0;">
         <strong>Post it in the first 24 hours:</strong> Instagram bio + a story with the QR · LinkedIn · X · Facebook trade groups · your email signature · WhatsApp to past clients · printed on a card or the van. The creators who sell most are the ones who posted everywhere in week one.
       </p>
@@ -85,6 +93,8 @@ Your QR:   ${qr}
 
 Copy & paste:
 ${shortPromo}
+
+One-tap copy buttons (link + ready-made post): ${kit}
 
 Post it everywhere in week one — IG bio + story QR, LinkedIn, X, FB groups, email signature, WhatsApp, printed on the van.
 
