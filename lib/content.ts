@@ -486,6 +486,7 @@ const P = (
 export const PLATFORM_CONTENT: PlatformContent[] = [
   P('Claude', 'claude', 'llm', 'Anthropic’s Claude — the most common home for Skillzy skills. Strong at long instructions, tools, and structured output.', 'Claude handles SKILL.md-style instructions natively and is the platform most listings are authored against. If you only learn one, learn this.', '2 minutes'),
   P('OpenClaw', 'openclaw', 'llm', 'An open agent runtime popular with operators who want local control and a skills folder.', 'OpenClaw’s skills folder maps directly to the SKILL.md format — drop-in is genuinely drop-in.', '5 minutes'),
+  P('Manus', 'manus', 'llm', 'An autonomous AI agent that plans and runs multi-step tasks end to end.', 'Manus executes whole workflows on its own — drop-in skills give it the domain know-how to run a real line of work, not just chat.', '10 minutes'),
   P('Hermes', 'hermes', 'llm', 'A capable open model family used where self-hosting matters.', 'Hermes covers the privacy-sensitive cases — same skills, your infrastructure.', '15 minutes'),
   P('ChatGPT', 'chatgpt', 'llm', 'OpenAI’s ChatGPT, including custom GPTs and the assistants API.', 'A huge install base. Many Skillzy skills ship a ChatGPT-shaped variant so non-technical buyers can use what they already have.', '3 minutes'),
   P('Gemini', 'gemini', 'llm', 'Google’s Gemini models and Workspace integration.', 'Gemini is where a lot of Workspace-native businesses already are — skills meet them there.', '5 minutes'),

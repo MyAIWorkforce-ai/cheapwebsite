@@ -960,6 +960,25 @@ export function allCreatorHandles(): string[] {
 // your hustle" chip grid on the homepage, so every niche stays
 // visible even before a listing exists in it. Order roughly groups
 // related trades together.
+// Master platform list — every agent platform Skillzy supports, shown in
+// the marketplace filter even before any listing uses it. Mirrors the
+// "Works with" line on the homepage. Creators can still add their own.
+export const PLATFORMS = [
+  'ChatGPT',
+  'Claude',
+  'DeepSeek',
+  'Gemini',
+  'Grok',
+  'Hermes',
+  'Make',
+  'Manus',
+  'Mistral',
+  'n8n',
+  'Ollama',
+  'OpenClaw',
+  'Zapier',
+]
+
 export const NICHES = [
   'Real Estate',
   'Property Mgmt',

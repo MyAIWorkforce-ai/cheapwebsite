@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import ProductCard from '@/components/ProductCard'
 import MarketplaceFilters from '@/components/MarketplaceFilters'
-import { products, toCardProduct, NICHES, type ProductType } from '@/lib/catalog'
+import { products, toCardProduct, NICHES, PLATFORMS, type ProductType } from '@/lib/catalog'
 import { liveDbProducts } from '@/lib/listings'
 import { pageMetadata } from '@/lib/seo'
 
@@ -60,7 +60,15 @@ export default async function MarketplacePage({
     return true
   })
 
-  const platforms = Array.from(new Set(allProducts.flatMap((p) => p.platformList))).sort()
+  // Master platform list (lib/catalog.ts) so every supported platform
+  // shows in the filter even with no listings yet, merged with any custom
+  // platforms creators added on their listings (case-insensitive dedupe).
+  const platformMap = new Map<string, string>()
+  for (const p of [...PLATFORMS, ...allProducts.flatMap((x) => x.platformList)]) {
+    const key = p.toLowerCase()
+    if (!platformMap.has(key)) platformMap.set(key, p)
+  }
+  const platforms = Array.from(platformMap.values()).sort()
   // Master niche list (defined in lib/catalog.ts) — shows every niche
   // in the filter even before listings exist in it.
   const niches = [...NICHES] as string[]
