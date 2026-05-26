@@ -767,3 +767,29 @@ Authentication → Users (raw signup list).
    `…supabase.co` domain showing on the Google sheet.
 4. **Confirm the latest Vercel deploy built green** (several pushes this
    session; most typecheck-verified, a couple of early cosmetic ones not).
+
+### Auth UI — password-first (changed 2026-05-26)
+Founder decision: **email + password is now the primary login**, with
+Google + GitHub next, and the **magic link demoted to a secondary opt-in**
+("Prefer a one-time email link instead?"). Reason: magic-link emails were
+taking **minutes** to arrive, which made first-login feel broken.
+
+- All methods were already wired in `app/signin/actions.ts`
+  (`signInWithPassword`, `signUpWithPassword`, `signInWithOtp`,
+  `signInWithOAuth` for Google + GitHub, `resetPasswordForEmail`).
+- `app/signin/SignInForm.tsx` now defaults to the **password** form, shows
+  OAuth below it, and offers the magic link as a toggle underneath.
+- `app/signup/SignUpForm.tsx` now leads with the **email + password**
+  create-account form, OAuth below.
+- Password reset flow already exists: `/auth/reset` → `/auth/update-password`.
+
+**Founder follow-ups for password auth:**
+- In **Supabase → Authentication → Providers → Email**, make sure
+  **Email + Password is enabled**. If **"Confirm email" is OFF** (it was
+  per the launch notes), password sign-up logs the user straight in (no
+  confirmation email) — good. If you turn confirmation ON later, sign-up
+  will require the (slow) email step again.
+- **Magic-link slowness** is a delivery-latency issue (Supabase →
+  Resend → inbox), not a code bug. Password-first sidesteps it for most
+  users. If you want to speed up the link itself later, check Supabase
+  Auth SMTP/rate-limit settings and Resend deliverability.
