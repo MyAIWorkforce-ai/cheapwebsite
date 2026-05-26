@@ -4,6 +4,13 @@ import { updateSession } from '@/lib/supabase/middleware'
 export async function middleware(request: NextRequest) {
   const url = request.nextUrl
 
+  // "All platforms" is the default catalogue view, not a real platform
+  // slug, so /platforms/all has no page. Send it to the full marketplace
+  // instead of 404ing.
+  if (url.pathname === '/platforms/all') {
+    return NextResponse.redirect(new URL('/marketplace', request.url), 301)
+  }
+
   // 301 the legacy query-string filter URLs to the canonical
   // programmatic landing pages (SEO scope 2.5).
   if (url.pathname === '/marketplace') {

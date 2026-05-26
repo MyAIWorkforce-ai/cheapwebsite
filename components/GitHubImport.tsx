@@ -149,7 +149,13 @@ export default function GitHubImport({
                 disabled={loading}
                 className="shrink-0 bg-brand-gold text-brand-ink font-semibold px-5 py-2.5 text-sm hover:bg-brand-gold-dark transition-colors disabled:opacity-60"
               >
-                {loading ? 'Loading…' : 'Find my repos'}
+                {loading ? (
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="inline-block animate-spin">✿</span> Loading…
+                  </span>
+                ) : (
+                  'Find my repos'
+                )}
               </button>
             </div>
 
@@ -188,7 +194,13 @@ export default function GitHubImport({
                       disabled={importing !== null}
                       className="shrink-0 font-mono text-[11px] uppercase tracking-[0.18em] border-b border-brand-ink pb-0.5 hover:text-brand-gold hover:border-brand-gold transition-colors disabled:opacity-50"
                     >
-                      {importing === r.name ? 'Importing…' : 'Import →'}
+                      {importing === r.name ? (
+                        <span className="inline-flex items-center gap-1.5">
+                          <span className="inline-block animate-spin">✿</span> Importing…
+                        </span>
+                      ) : (
+                        'Import →'
+                      )}
                     </button>
                   </li>
                 ))}
