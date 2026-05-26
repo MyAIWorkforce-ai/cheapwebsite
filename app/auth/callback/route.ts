@@ -34,6 +34,38 @@ export async function GET(request: NextRequest) {
       await attributeReferral(session.user.id)
     }
 
+    // First time we've seen this account → ping the Skillzy team once.
+    // Uses an admin-only app_metadata flag (the user can't set it), so it
+    // fires exactly once per signup. Never blocks login.
+    if (session?.user?.id && !session.user.app_metadata?.admin_notified) {
+      try {
+        const admin = createServiceClient()
+        const { sendNewUserNotification } = await import(
+          '@/lib/email/admin-notification'
+        )
+        await sendNewUserNotification({
+          email: session.user.email ?? null,
+          name:
+            (session.user.user_metadata?.name as string | undefined) ?? null,
+          handle:
+            (session.user.user_metadata?.user_name as string | undefined) ??
+            (session.user.user_metadata?.preferred_username as
+              | string
+              | undefined) ??
+            null,
+        })
+        const nextMeta = { ...session.user.app_metadata, admin_notified: true }
+        await admin.auth.admin.updateUserById(session.user.id, {
+          app_metadata: nextMeta,
+        })
+        // Keep the in-memory copy in sync so the GitHub block below merges
+        // onto it instead of clobbering the flag we just set.
+        session.user.app_metadata = nextMeta
+      } catch (err) {
+        console.error('admin new-user email failed', err)
+      }
+    }
+
     // GitHub OAuth: stash the provider access token in app_metadata so
     // the /api/github/* routes can pull a creator's private repos. The
     // provider_token is ONLY present in the session right after the

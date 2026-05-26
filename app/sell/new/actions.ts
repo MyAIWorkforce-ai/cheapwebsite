@@ -195,5 +195,25 @@ export async function publishListing(
     }
   }
 
+  // Notify the Skillzy team that a new listing went live (never block).
+  try {
+    const { sendNewListingNotification } = await import(
+      '@/lib/email/admin-notification'
+    )
+    await sendNewListingNotification({
+      title,
+      slug,
+      type,
+      priceCents: Math.round(price * 100),
+      creatorEmail: user!.email ?? null,
+      creatorHandle:
+        (user!.user_metadata?.user_name as string | undefined) ||
+        (user!.user_metadata?.preferred_username as string | undefined) ||
+        null,
+    })
+  } catch (err) {
+    console.error('admin new-listing email failed', err)
+  }
+
   redirect(`/sell/new/done?slug=${encodeURIComponent(slug)}`)
 }
