@@ -559,3 +559,61 @@ sleeps.
 ### Test after activation
 Hit `https://skillzy.ai/api/cron/review-requests?key=<CRON_SECRET>`
 in a browser. Should return `{ ok: true, day3Sent: N, day7Sent: N }`.
+
+---
+
+## Stripe cutover to separate Skillzy account — 2026-05-26 (live)
+
+Split Skillzy onto its own Stripe account (`acct_1Tb7o2RV0ws5a7zS`,
+"Skillzy AI"), separate from My AI Workforce. Both accounts live under
+the same `hi@skillzy.ai` Stripe login — use the **top-left account
+switcher**; it defaults to My AI Workforce.
+
+### Done (Vercel project `skillzyai`, env scoped Production + Preview)
+- `STRIPE_SECRET_KEY` = Skillzy `sk_live_…NG4b`
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` = Skillzy `pk_live_51Tb7o2RV…`
+- `STRIPE_WEBHOOK_SECRET` = `whsec_…` (endpoint "Skillzy Live" →
+  `https://skillzy.ai/api/webhooks/stripe`, 4 events)
+- `STRIPE_CONNECT_CLIENT_ID` = **`ca_UaJ871vInQjGSz18qY4KH0oYs6tScEZN`**
+  (Skillzy's OAuth client ID)
+
+### ★ The big gotcha — STRIPE_CONNECT_CLIENT_ID
+The deployed connect flow is **Standard Connect via OAuth**
+(`app/api/stripe/connect/start/route.ts` builds
+`connect.stripe.com/oauth/authorize?client_id=…&redirect_uri=…/api/stripe/connect/return`).
+Creator-connect kept showing **"My AI Workforce"** for ages because
+`STRIPE_CONNECT_CLIENT_ID` still held the OLD My AI Workforce
+`ca_UXgVVDDFcVx14W1YVq5JY1daRtPLaWfb` — even though the secret key was
+already Skillzy's. The platform name on the OAuth screen comes from the
+`ca_`, NOT the secret key. Fixed by swapping to Skillzy's `ca_UaJ…`.
+(Diagnostic tip: the `ca_` is visible in the OAuth authorize URL.)
+
+### Skillzy Connect OAuth settings (Settings → Connect → Onboarding options → OAuth)
+- Live client ID `ca_UaJ871vInQjGSz18qY4KH0oYs6tScEZN`
+- **Enable OAuth** = ON
+- Redirect URI = `https://skillzy.ai/api/stripe/connect/return`
+- Countries tab: all 42 supported countries selected (note: that tab
+  only applies to Express Dashboard onboarding; our flow is Standard
+  OAuth, so it's a nice-to-have, not the gate). Stripe cross-border
+  payout limits still apply for global creators.
+
+### Signup was broken — "Database error saving new user" (FIXED)
+ALL new signups (password + Google + GitHub) failed: the
+`on_auth_user_created → handle_new_user()` trigger errored inserting
+into `profiles` (handle UNIQUE collision — trigger only had
+`on conflict (id)`). Replaced with a hardened `handle_new_user` in
+Supabase SQL Editor: dedupes the handle (loops to a free one) and wraps
+in `exception when others then return new` so profile creation can never
+block auth signup again. Signup now works. (Also turned OFF Supabase
+confirm-email, but the real cause was the trigger.)
+
+### Still to verify (founder)
+- Complete creator Connect with own bank details → shows "Live"
+- Real-money buy test: confirm fee reads **"Skillzy"** and split is
+  80% creator / 20% Skillzy in the creator's own Stripe
+- Confirm the buyer gets the Skillzy email receipt
+
+### Doc-accuracy note
+An earlier edit this session wrongly relabelled Connect as
+"Express / no OAuth" (read from a stale branch). Corrected — it IS
+OAuth + `STRIPE_CONNECT_CLIENT_ID`. LAUNCH-MORNING 1.3/1.5 now match.
