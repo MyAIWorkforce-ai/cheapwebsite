@@ -465,15 +465,6 @@ export default function NewListingForm({
 
   return (
     <>
-      <GitHubImport
-        defaultUsername={githubUser}
-        onImport={(imported, importedBrief) => {
-          setFiles(imported)
-          setBrief(importedBrief)
-          void draft(importedBrief)
-        }}
-      />
-
       <form action={action} ref={formRef}>
         <input type="hidden" name="description" value={JSON.stringify(toArray(descText))} />
         <input type="hidden" name="what_you_get" value={JSON.stringify(toArray(whatText))} />
@@ -602,6 +593,22 @@ export default function NewListingForm({
                 </button>
               </div>
             )}
+
+            {/* Alternative input: pull source straight from a GitHub repo. */}
+            <div className="mt-6 pt-6 border-t border-brand-hairline">
+              <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted mb-3">
+                Or import from GitHub
+              </p>
+              <GitHubImport
+                embedded
+                defaultUsername={githubUser}
+                onImport={(imported, importedBrief) => {
+                  setFiles(imported)
+                  setBrief(importedBrief)
+                  void draft(importedBrief)
+                }}
+              />
+            </div>
 
             <div className="mt-4">
               {!showNote ? (

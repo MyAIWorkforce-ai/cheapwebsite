@@ -19,9 +19,14 @@ type Repo = {
 export default function GitHubImport({
   defaultUsername,
   onImport,
+  embedded = false,
 }: {
   defaultUsername?: string
   onImport: (files: File[], brief: string) => void
+  // When embedded inside the form (next to the file-drop), render without
+  // the standalone full-width section wrapper so it inherits the form's
+  // column width and spacing.
+  embedded?: boolean
 }) {
   const [open, setOpen] = useState(false)
   const [username, setUsername] = useState(defaultUsername ?? '')
@@ -100,9 +105,8 @@ export default function GitHubImport({
     }
   }
 
-  return (
-    <section className="px-6 lg:px-10 pt-10 sm:pt-12">
-      <div className="max-w-page mx-auto">
+  const content = (
+    <>
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
@@ -208,7 +212,14 @@ export default function GitHubImport({
             )}
           </div>
         )}
-      </div>
+    </>
+  )
+
+  if (embedded) return content
+
+  return (
+    <section className="px-6 lg:px-10 pt-10 sm:pt-12">
+      <div className="max-w-page mx-auto">{content}</div>
     </section>
   )
 }
