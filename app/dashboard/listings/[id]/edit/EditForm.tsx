@@ -69,7 +69,7 @@ export default function EditForm({ defaults }: { defaults: EditDefaults }) {
             type="number"
             name="price"
             required
-            min="1"
+            min="9"
             step="1"
             defaultValue={defaults.price}
             className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 font-display text-2xl"
