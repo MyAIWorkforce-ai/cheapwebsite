@@ -806,6 +806,11 @@ export default function NewListingForm({
                 USD
               </span>
             </div>
+            {price > 0 && price < 9 && (
+              <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.16em] text-red-600">
+                Minimum price is $9 USD
+              </p>
+            )}
             <div className="mt-6 grid grid-cols-2 gap-px bg-brand-hairline border border-brand-hairline max-w-md">
               <div className="bg-brand-cream-card p-4">
                 <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-brand-muted">

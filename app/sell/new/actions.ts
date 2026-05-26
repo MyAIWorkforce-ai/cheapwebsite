@@ -80,7 +80,8 @@ export async function publishListing(
 
   if (!title) return { error: 'Title is required.' }
   if (!tagline) return { error: 'Tagline is required.' }
-  if (!Number.isFinite(price) || price <= 0) return { error: 'Set a price.' }
+  if (!Number.isFinite(price) || price < 9)
+    return { error: 'Minimum price is $9 (USD).' }
   // Instant publish, no pre-screen — the seller's explicit warranty is
   // the gate. Enforced server-side so it can't be bypassed.
   if (formData.get('accept_terms') !== 'on') {

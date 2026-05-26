@@ -30,7 +30,8 @@ export async function updateListing(
     | 'removed'
 
   if (!title) return { error: 'Title is required.' }
-  if (!Number.isFinite(price) || price <= 0) return { error: 'Set a price.' }
+  if (!Number.isFinite(price) || price < 9)
+    return { error: 'Minimum price is $9 (USD).' }
 
   if (!hasSupabase) {
     return { info: 'Demo mode — change not saved.' }
