@@ -142,6 +142,16 @@ export default function SellPage() {
               </li>
             ))}
           </ol>
+
+          <div className="mt-12 sm:mt-14">
+            <Link
+              href="/sell/new"
+              className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
+            >
+              Start selling
+              <span aria-hidden>→</span>
+            </Link>
+          </div>
         </div>
       </section>
 
