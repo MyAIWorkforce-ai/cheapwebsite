@@ -73,12 +73,12 @@ type SpeechRecLike = {
 type SpeechRecCtor = new () => SpeechRecLike
 
 const types = [
-  { key: 'skill', title: 'Skill', price: '$9 – $29', desc: 'One job, done sharp.' },
-  { key: 'guide', title: 'Guide', price: '$9 – $24', desc: 'A how-to people read.' },
+  { key: 'skill', title: 'Skill', price: '$9 – $109+', desc: 'One job, done sharp.' },
+  { key: 'guide', title: 'Guide', price: '$9 – $59+', desc: 'A how-to people read.' },
   {
     key: 'agent_setup',
     title: 'Agent Setup',
-    price: '$49 – $499+',
+    price: '$49 – $999+',
     desc: 'The whole agent. Best margins.',
     recommended: true,
   },

@@ -89,19 +89,19 @@ export default function AboutPage() {
             {[
               {
                 eyebrow: 'Skills',
-                price: '$9 — $29',
+                price: '$9 — $109+',
                 title: 'One thing. Done sharp.',
                 body: 'A single SKILL.md and supporting prompts. Drop it in your agent’s skills folder and that capability is live.',
               },
               {
                 eyebrow: 'Guides',
-                price: '$9 — $24',
+                price: '$9 — $59+',
                 title: 'How-tos people read.',
                 body: 'Short, no-filler reads from people who already shipped what you’re trying to build.',
               },
               {
                 eyebrow: 'Agent Setups',
-                price: '$49 — $499+',
+                price: '$49 — $999+',
                 title: 'The whole agent. In a box.',
                 body: 'Every prompt, config, connector, and template for a complete line of work. The headliner.',
               },

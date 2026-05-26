@@ -173,7 +173,7 @@ export default function SellPage() {
             <p className="lg:col-span-7 text-lg leading-relaxed text-brand-cream/90 max-w-2xl">
               A complete agent for a single line of work — every skill, prompt,
               integration, and setup guide bundled into one purchase. $49 to
-              $499+. The hardest thing to clone, the highest margin you can
+              $999+. The hardest thing to clone, the highest margin you can
               charge.
             </p>
             <div className="lg:col-span-5 lg:flex lg:justify-end">
