@@ -106,6 +106,17 @@ export async function POST(request: NextRequest) {
     .trim()
     .slice(0, 22)
 
+  // Suffix appended AFTER the account's own descriptor ("SKILLZY AI").
+  // Use the product name only — NOT "SKILLZY" — so statements read
+  // "SKILLZY AI* <PRODUCT>" instead of the doubled "SKILLZY AI* SKILLZY".
+  const descriptorSuffix =
+    product.title
+      .toUpperCase()
+      .replace(/[^A-Z0-9 ]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 10) || 'SKILL'
+
   const baseParams = {
     amount: unitAmountCents,
     currency: 'usd',
@@ -134,7 +145,7 @@ export async function POST(request: NextRequest) {
       try {
         return await stripe.paymentIntents.create({
           ...baseParams,
-          statement_descriptor_suffix: 'SKILLZY',
+          statement_descriptor_suffix: descriptorSuffix,
         })
       } catch {
         return await stripe.paymentIntents.create(baseParams)
