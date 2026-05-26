@@ -628,3 +628,28 @@ Skillzy (`acct_1Tb7o…`). Payment **Succeeded**. Breakdown:
 Fee label reads "Skillzy AI application fee" (not My AI Workforce).
 Connect OAuth + fee split + payout all confirmed working end-to-end on
 the new Skillzy account. Payments are live-ready.
+
+### Pricing / tax / descriptor decisions — 2026-05-26 (post split-test)
+The real-money test surfaced a few things; founder decisions made:
+- **Minimum listing price $9 USD** — DONE in code (commit, server-side in
+  `app/sell/new/actions.ts` + `app/dashboard/listings/[id]/edit/actions.ts`,
+  rejects `price < 9`; inline hint on the new-listing form). Reason: on a
+  $1.40 sale, Stripe's fixed per-txn fee exceeded the 20% cut and the
+  platform went −$0.07. $9 floor keeps every sale profitable.
+- **Currency stays USD** (`currency:'usd'` in checkout) — founder wants
+  global pricing. Trade-off: AU business settling AUD pays a small
+  currency-conversion fee per sale. Accepted.
+- **Tax: deferred.** The code adds NO tax. The ~$0.35 "tax" on the test
+  charge comes from **Stripe Tax** being enabled on the account. Founder
+  decision: turn Stripe Tax OFF for now (Settings → Tax) and sort proper
+  GST/global tax later with an accountant. If re-enabled, tax should be
+  added ON TOP for the buyer, never deducted from the creator's 80%.
+- **Statement descriptor doubling** ("SKILLZY AI* SKILLZY") — FIXED in
+  code (suffix now the product name → "SKILLZY AI* <PRODUCT>").
+- **Phone number on statements** — PENDING founder action: Stripe →
+  Settings → Business → Public details → clear the support phone number.
+
+### Fee model reminder
+Creator gets a clean **80% of gross**; the platform's 20% absorbs ALL
+Stripe fees (and any tax). Fine at normal prices, loses pennies on
+near-free sales — hence the $9 floor.
