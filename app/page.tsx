@@ -91,6 +91,10 @@ export default function HomePage() {
   const latestPosts = getAllPosts().slice(0, 3)
   return (
     <div className="paper overflow-x-clip">
+      {/* TEMP deploy marker — remove after confirming */}
+      <div className="bg-black text-white text-center font-mono text-sm py-2 px-4">
+        toby deploy check — 2026-05-26 · this is the build that serves skillzy.ai
+      </div>
       {/* identity strip — no nav */}
       <div className="max-w-page mx-auto px-6 lg:px-10 pt-7 sm:pt-9 flex items-center justify-between">
         <Logo size="md" />
