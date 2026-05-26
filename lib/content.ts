@@ -50,7 +50,7 @@ const baseFaq = (niche: string): { q: string; a: string }[] => [
   ),
   Q(
     'Is the work reviewed before I buy it?',
-    'Yes. Every first listing from a creator is reviewed by a human before it goes live. We screen for malware, copyright theft, and junk.',
+    'Listings publish instantly — there is no review queue. Every creator must confirm they own the rights and that the files are safe and malware-free before it goes live, and we remove anything reported that breaks the rules. Ratings and reviews from real buyers surface quality over time.',
   ),
   Q(
     'What if it does not work for my business?',

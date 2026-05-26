@@ -7,7 +7,7 @@ import ProfileShareKit from '@/components/ProfileShareKit'
 import DoneInit from './DoneInit'
 
 export const metadata = {
-  title: 'Listing submitted',
+  title: 'Listing live',
   robots: { index: false, follow: false },
 }
 

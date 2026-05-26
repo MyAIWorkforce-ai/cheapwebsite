@@ -44,10 +44,10 @@ export async function sendListingShareKit({
 
   const html = `<!doctype html><html><body style="margin:0;background:#E8ECF0;font-family:Georgia,'Times New Roman',serif;color:#0F1729;">
     <div style="max-width:560px;margin:0 auto;padding:40px 28px;">
-      <p style="font-family:monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#C19E50;margin:0;">Submitted</p>
+      <p style="font-family:monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#C19E50;margin:0;">Live</p>
       <h1 style="font-size:34px;line-height:1.1;letter-spacing:-0.02em;margin:14px 0 0;">You're listed. Now go sell it.</h1>
       <p style="font-size:16px;color:#5F6B7E;margin:18px 0 0;">
-        <strong>${title}</strong> is in review — a human checks first listings within 24 hours, then it goes live. You earn the same 80% whether Skillzy sends the buyer or you do, so send them. Everything below has your referral baked in.
+        <strong>${title}</strong> is live now — buyers can find it, buy it, and download it immediately. You earn the same 80% whether Skillzy sends the buyer or you do, so send them. Everything below has your referral baked in.
       </p>
 
       <div style="margin:28px 0;padding:18px;background:#fff;border:1px solid #CCD2DD;">
@@ -86,7 +86,7 @@ export async function sendListingShareKit({
 
   const text = `You're listed. Now go sell it.
 
-"${title}" is in review (live within ~24h). You earn 80% whether Skillzy sends the buyer or you do — so send them.
+"${title}" is live now — buyers can find it, buy it, and download it immediately. You earn 80% whether Skillzy sends the buyer or you do — so send them.
 
 Your link: ${link}
 Your QR:   ${qr}
