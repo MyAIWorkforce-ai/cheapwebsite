@@ -98,12 +98,20 @@ export default function NavbarClient({ user }: { user: SessionUser | null }) {
               </form>
             </>
           ) : (
-            <Link
-              href="/signin"
-              className="bg-brand-gold text-brand-ink font-semibold text-sm px-5 py-2 hover:bg-brand-gold-dark transition-colors"
-            >
-              Sign in
-            </Link>
+            <>
+              <Link
+                href="/signin"
+                className="text-sm text-brand-ink hover:text-brand-gold transition-colors"
+              >
+                Sign in
+              </Link>
+              <Link
+                href="/signup"
+                className="bg-brand-gold text-brand-ink font-semibold text-sm px-5 py-2 hover:bg-brand-gold-dark transition-colors"
+              >
+                Create account
+              </Link>
+            </>
           )}
         </div>
 
@@ -143,9 +151,14 @@ export default function NavbarClient({ user }: { user: SessionUser | null }) {
                 </form>
               </>
             ) : (
-              <Link href="/signin" onClick={() => setOpen(false)} className="py-2 font-semibold">
-                Sign in
-              </Link>
+              <>
+                <Link href="/signin" onClick={() => setOpen(false)} className="py-2">
+                  Sign in
+                </Link>
+                <Link href="/signup" onClick={() => setOpen(false)} className="py-2 font-semibold">
+                  Create account
+                </Link>
+              </>
             )}
           </div>
         </div>
