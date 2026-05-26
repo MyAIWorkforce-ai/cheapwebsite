@@ -12,6 +12,13 @@ type Repo = {
   stars: number
 }
 
+type RepoFile = {
+  name: string
+  path: string
+  size: number
+  content: string
+}
+
 // One-click "bring your GitHub skill into Skillzy". Lists a creator's
 // public repos, then pulls a chosen repo's README + text files,
 // turns them into real File objects + a brief, and hands them up to
@@ -35,6 +42,16 @@ export default function GitHubImport({
   const [importing, setImporting] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [done, setDone] = useState<string | null>(null)
+  // File picker: after choosing a repo we fetch its files and let the
+  // creator pick which to include — one file for a single skill, or
+  // several to bundle (e.g. an Agent Setup).
+  const [picker, setPicker] = useState<{
+    repo: string
+    description: string
+    readme: string
+    files: RepoFile[]
+  } | null>(null)
+  const [selected, setSelected] = useState<Set<string>>(new Set())
 
   async function fetchRepos() {
     if (!username.trim()) {
@@ -61,7 +78,10 @@ export default function GitHubImport({
     }
   }
 
-  async function importRepo(owner: string, repo: string) {
+  // Step 1: fetch the repo's importable files, then open the picker.
+  // The API returns each file's text content inline (so private repos
+  // work too — the browser can't auth to raw.githubusercontent.com).
+  async function loadRepo(owner: string, repo: string) {
     setImporting(repo)
     setError(null)
     setDone(null)
@@ -74,35 +94,68 @@ export default function GitHubImport({
         setError(json.error ?? `Failed (${res.status})`)
         return
       }
-
-      // The API already returns each file's text content inline (so
-      // private repos work too — the browser can't auth to
-      // raw.githubusercontent.com). Just wrap each in a File.
-      const files: File[] = []
-      for (const f of (json.files ?? []) as {
-        name: string
-        content: string
-      }[]) {
-        if (!f.content) continue
-        files.push(new File([f.content], f.name, { type: 'text/plain' }))
+      const files = ((json.files ?? []) as RepoFile[]).filter((f) => f.content)
+      if (files.length === 0) {
+        setError(
+          'No importable files (.md, .json, .yaml, .txt) found in that repo.',
+        )
+        return
       }
-
-      const brief = [
-        json.description ? `Repo: ${json.description}` : '',
-        json.readme ? `README:\n${json.readme}` : '',
-      ]
-        .filter(Boolean)
-        .join('\n\n')
-
-      onImport(files, brief)
-      setDone(
-        `Imported ${files.length} file${files.length === 1 ? '' : 's'} from ${repo}. Scroll down — fields are pre-filled. Hit "Draft with AI" to polish, set a price, submit.`,
-      )
+      setPicker({
+        repo,
+        description: json.description ?? '',
+        readme: json.readme ?? '',
+        files,
+      })
+      // Default to everything selected (preserves the old one-click feel).
+      setSelected(new Set(files.map((f) => f.path)))
     } catch (err) {
       setError((err as Error).message)
     } finally {
       setImporting(null)
     }
+  }
+
+  function toggle(path: string) {
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (next.has(path)) next.delete(path)
+      else next.add(path)
+      return next
+    })
+  }
+
+  // Step 2: assemble the chosen files into the listing. Brief includes
+  // the selected files' content (truncated) so the AI draft reflects
+  // exactly what was picked — vital when one skill is chosen from a
+  // multi-skill repo.
+  function confirmImport() {
+    if (!picker) return
+    const chosen = picker.files.filter((f) => selected.has(f.path))
+    if (chosen.length === 0) return
+
+    const files = chosen.map(
+      (f) => new File([f.content], f.name, { type: 'text/plain' }),
+    )
+
+    const filesText = chosen
+      .map((f) => `--- ${f.name} ---\n${f.content}`)
+      .join('\n\n')
+      .slice(0, 12000)
+    const brief = [
+      picker.description ? `Repo: ${picker.description}` : '',
+      picker.readme ? `README:\n${picker.readme}` : '',
+      filesText ? `FILES:\n${filesText}` : '',
+    ]
+      .filter(Boolean)
+      .join('\n\n')
+
+    onImport(files, brief)
+    const repo = picker.repo
+    setPicker(null)
+    setDone(
+      `Added ${files.length} file${files.length === 1 ? '' : 's'} from ${repo}. Scroll down — fields are pre-filled. Hit "Draft with AI" to polish, set a price, submit.`,
+    )
   }
 
   const content = (
@@ -174,7 +227,7 @@ export default function GitHubImport({
               </p>
             )}
 
-            {repos && repos.length > 0 && (
+            {!picker && repos && repos.length > 0 && (
               <ul className="mt-6 divide-y divide-brand-hairline border-y border-brand-hairline max-h-[420px] overflow-auto">
                 {repos.map((r) => (
                   <li
@@ -194,21 +247,105 @@ export default function GitHubImport({
                     </div>
                     <button
                       type="button"
-                      onClick={() => importRepo(username.trim(), r.name)}
+                      onClick={() => loadRepo(username.trim(), r.name)}
                       disabled={importing !== null}
                       className="shrink-0 font-mono text-[11px] uppercase tracking-[0.18em] border-b border-brand-ink pb-0.5 hover:text-brand-gold hover:border-brand-gold transition-colors disabled:opacity-50"
                     >
                       {importing === r.name ? (
                         <span className="inline-flex items-center gap-1.5">
-                          <span className="inline-block animate-spin">✿</span> Importing…
+                          <span className="inline-block animate-spin">✿</span> Loading…
                         </span>
                       ) : (
-                        'Import →'
+                        'Choose →'
                       )}
                     </button>
                   </li>
                 ))}
               </ul>
+            )}
+
+            {picker && (
+              <div className="mt-6 border border-brand-ink bg-white">
+                <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-brand-hairline">
+                  <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted truncate">
+                    Choose files from {picker.repo}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPicker(null)
+                      setError(null)
+                    }}
+                    className="shrink-0 font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted hover:text-brand-ink transition-colors"
+                  >
+                    ← Back
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-4 px-4 py-2 border-b border-brand-hairline">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSelected(new Set(picker.files.map((f) => f.path)))
+                    }
+                    className="font-mono text-[11px] uppercase tracking-[0.16em] text-brand-muted hover:text-brand-gold transition-colors"
+                  >
+                    Select all
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelected(new Set())}
+                    className="font-mono text-[11px] uppercase tracking-[0.16em] text-brand-muted hover:text-brand-gold transition-colors"
+                  >
+                    Clear
+                  </button>
+                  <span className="ml-auto text-[11px] text-brand-muted">
+                    {selected.size} of {picker.files.length} selected
+                  </span>
+                </div>
+
+                <ul className="max-h-[300px] overflow-auto divide-y divide-brand-hairline">
+                  {picker.files.map((f) => (
+                    <li key={f.path}>
+                      <label className="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-brand-cream-card">
+                        <input
+                          type="checkbox"
+                          checked={selected.has(f.path)}
+                          onChange={() => toggle(f.path)}
+                          className="accent-brand-gold w-4 h-4 shrink-0"
+                        />
+                        <span className="min-w-0 flex-1">
+                          <span className="font-mono text-sm block truncate">
+                            {f.name}
+                          </span>
+                          {f.path !== f.name && (
+                            <span className="text-[11px] text-brand-muted block truncate">
+                              {f.path}
+                            </span>
+                          )}
+                        </span>
+                        <span className="shrink-0 text-[11px] text-brand-muted">
+                          {(f.size / 1024).toFixed(0)} KB
+                        </span>
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="flex items-center justify-between gap-3 px-4 py-3 border-t border-brand-hairline">
+                  <p className="text-[11px] text-brand-muted">
+                    Pick one for a single skill, or several to bundle.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={confirmImport}
+                    disabled={selected.size === 0}
+                    className="shrink-0 bg-brand-gold text-brand-ink font-semibold px-5 py-2.5 text-sm hover:bg-brand-gold-dark transition-colors disabled:opacity-50"
+                  >
+                    Import {selected.size} selected →
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         )}
