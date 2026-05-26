@@ -665,3 +665,105 @@ Settings → Business → Customer emails:
   refunded buyer gets. Kept on as a safety net.
 - Debit/mandate toggles (BECS/ACH/etc.) left as default — not used by
   card checkout.
+
+## Launch-day session — 2026-05-26 (web)
+
+### Shipped this session (all on `claude/build-skillzy-website-MIbCF`, live)
+- **Spinners**: the `✿` glyph now spins while the AI reads an uploaded
+  file and while a GitHub repo is fetched/imported (so the wait reads as
+  active).
+- **`/platforms/all`** now 301-redirects to `/marketplace` (was a 404 —
+  "all" is the default view, not a real platform slug).
+- **GitHub import** moved into step 02 next to the file-drop, and gained
+  a **file picker**: after choosing a repo you tick which files to include
+  — one file = a single skill, several = a bundle. Selected file content
+  feeds the AI draft. Verified working end-to-end.
+- **Price ranges** updated site-wide: Skill $9–$109+, Guide $9–$59+,
+  Agent Setup $49–$999+.
+- **Edit form** price min aligned to $9 (was HTML `min=1`; server already
+  enforced $9).
+- **Dispatch newsletter slide-in PAUSED** — unmounted from `app/layout.tsx`
+  until ~50 creators. Component kept; re-add `<NewsletterSlideIn />` to
+  revive.
+- **Demo review counts capped** — showcase listings had hundreds of
+  reviews (implausible for a new marketplace). Any count >64 brought into
+  a varied 12–64 range (`lib/catalog.ts`, `lib/catalog-seed.ts`). Star
+  ratings unchanged.
+- **Founder email alerts** (to `hi@skillzy.ai`, best-effort, never block
+  the user flow):
+  - **New signup** — fires once per account (admin-only `app_metadata`
+    flag) in `app/auth/callback/route.ts`.
+  - **New listing** — on publish, in `app/sell/new/actions.ts`.
+  - **Sample buy-attempt** — when someone tries to buy a non-buyable demo,
+    names which one (demand signal), in `app/api/checkout/route.ts`.
+  - All live in `lib/email/admin-notification.ts`.
+- **Listing email** got an "Open your share kit — one-tap copy" button
+  (email can't run clipboard JS; the on-site `/sell/new/done` share screen
+  already has working Copy buttons).
+
+### Tax clarification (supersedes the older "Stripe Tax" note above)
+There is **no Stripe Tax product enabled** and **Managed Payments is OFF**.
+The code adds no tax. The ~$0.35 seen earlier is almost certainly the
+standard Stripe **processing fee** (2.9% + 30¢), not tax — it comes out of
+the platform's 20%, not the buyer or the creator's 80%. Nothing to turn
+off. (Verify on any test charge: Transactions → the sale → itemised as a
+**fee**, not tax.)
+
+### Super-admin monitoring — get it up to scratch
+The admin dashboard is **already built** at **`/admin/dashboard`**
+(`app/admin/dashboard/page.tsx`): gross/payout/Skillzy-cut/refunds/net,
+paid + refund counts, refund rate, avg order, listings (live/pending),
+creators (connected vs not), subscribers, new listings (7d), top listings,
+top creators, unconnected earners, and referral-channel breakdown.
+
+**To unlock it (founder action, no code):** set **`ADMIN_EMAILS`** in
+Vercel (Production + Preview) to your email, then sign in with that email
+→ visit `/admin/dashboard`. Until set, the page says "Not for you."
+After the account wipe, sign up fresh with the email you put in
+`ADMIN_EMAILS`. Optional `NOTIFY_EMAIL` reroutes the founder alerts away
+from `hi@skillzy.ai` if desired. Both now documented in `.env.example`.
+
+So day-one monitoring = `/admin/dashboard` (the numbers) + the three
+email alerts (signup / listing / sample buy-attempt) + Supabase →
+Authentication → Users (raw signup list).
+
+### Launch test checklist (run after the account wipe + a green deploy)
+- [ ] **Wipe done** — DB cleared of test accounts/listings (SQL below).
+- [ ] **Deploy green** on Vercel for `claude/build-skillzy-website-MIbCF`.
+- [ ] **Fresh signup** — sign up with your admin email; magic link arrives
+      from `hi@skillzy.ai`, logs in, lands on dashboard.
+- [ ] **New-signup alert** arrived at `hi@skillzy.ai`.
+- [ ] **Admin dashboard** loads at `/admin/dashboard` (ADMIN_EMAILS set).
+- [ ] **List a skill (Test A)** — publish a listing end-to-end; it appears
+      in the marketplace.
+- [ ] **New-listing alert** arrived at `hi@skillzy.ai`.
+- [ ] **GitHub import** — connect, choose a repo, tick one file → drafts a
+      single skill; tick several → bundles.
+- [ ] **Share-kit email** — listing email has the "Open your share kit"
+      button; it opens the on-site Copy buttons.
+- [ ] **Sample buy-attempt** — try to buy a demo (e.g. Harlow "Real Estate,
+      end to end"): shows "not for sale" AND emails `hi@skillzy.ai`.
+- [ ] **Smoke test (Test C)** — homepage, marketplace filters, magic-link,
+      a creator page all render.
+- [ ] **Buy + creator paid (Test B)** — already passed in a prior session.
+
+### Remaining founder actions before opening the doors
+1. **Run the account wipe** (Supabase SQL Editor, prod project
+   `pbcfhpemrrxpshxfhhad`):
+   ```sql
+   begin;
+   delete from public.reviews;
+   delete from public.affiliate_earnings;
+   delete from public.purchases;
+   delete from public.files;
+   delete from public.listings;
+   delete from auth.users;   -- ALL accounts (cascades to profiles)
+   commit;
+   ```
+2. **Set `ADMIN_EMAILS`** in Vercel to your email, then sign up fresh.
+3. **Brand the Google sign-in** — Google Cloud → OAuth consent screen →
+   App name "Skillzy AI" (+ logo, support email, authorized domain
+   `skillzy.ai`); set publishing status to In production. Stops the raw
+   `…supabase.co` domain showing on the Google sheet.
+4. **Confirm the latest Vercel deploy built green** (several pushes this
+   session; most typecheck-verified, a couple of early cosmetic ones not).
