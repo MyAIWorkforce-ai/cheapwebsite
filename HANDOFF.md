@@ -617,3 +617,14 @@ confirm-email, but the real cause was the trigger.)
 An earlier edit this session wrongly relabelled Connect as
 "Express / no OAuth" (read from a stale branch). Corrected — it IS
 OAuth + `STRIPE_CONNECT_CLIENT_ID`. LAUNCH-MORNING 1.3/1.5 now match.
+
+### ✅ Real-money split test PASSED — 2026-05-26 12:52
+Live test purchase of **A$1.40** through a separate creator account
+(`VirtualAssistant.co`, `acct_1Rq3L75q6tcpq7Ki`), platform =
+Skillzy (`acct_1Tb7o…`). Payment **Succeeded**. Breakdown:
+- Payment amount: A$1.40
+- **Skillzy AI application fee: A$0.28 (20%)** ✓
+- Net to creator: A$1.12 (80%) ✓ into the creator's OWN account.
+Fee label reads "Skillzy AI application fee" (not My AI Workforce).
+Connect OAuth + fee split + payout all confirmed working end-to-end on
+the new Skillzy account. Payments are live-ready.
