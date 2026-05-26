@@ -21,12 +21,19 @@ You're separating Skillzy from My AI Workforce so the fee reads
 - [ ] Decide LIVE vs TEST. For a real launch use **LIVE** (toggle top-right). For a dry run first, use TEST and switch later.
 - [ ] Copy **Secret key** (`sk_live_…`) and **Publishable key** (`pk_live_…`)
 
-### 1.3 Enable Connect (Standard)
-- [ ] Left sidebar → **Connect** → **Get started / Enable** (choose Platform/marketplace)
-- [ ] Go to `dashboard.stripe.com/settings/connect/onboarding-options` → **OAuth** tab
-- [ ] Toggle **Enable OAuth** ON
-- [ ] Copy the **Client ID** (`ca_…`)
-- [ ] Add **Redirect URI**: `https://skillzy.ai/api/stripe/connect/return` → Save
+### 1.3 Enable Connect (Express — NO OAuth)
+The code uses **Express accounts + Stripe-hosted Account Links**
+(`app/api/stripe/connect/start/route.ts` → `accounts.create({ type:
+'express' })` + `accountLinks.create`). There is **no OAuth**, no
+`ca_…` Client ID, and no `/connect/return` redirect URI — ignore any
+older note that says otherwise.
+- [ ] Left sidebar → **Connect** → **Continue setup** → choose **marketplace**
+- [ ] Stripe makes you set up the platform in the **sandbox** first
+  ("Switch to sandbox"), then use the **Go live** step (Verify identity
+  → Confirm integration choices → Get API keys) to activate live Connect
+- [ ] On "Confirm your integration choices" the Express defaults are
+  correct: buyers purchase from you, sellers paid individually,
+  onboarding hosted by Stripe, Express Dashboard, platform liable
 
 ### 1.4 Register the webhook
 - [ ] **Developers → Webhooks → Add endpoint**
@@ -35,15 +42,19 @@ You're separating Skillzy from My AI Workforce so the fee reads
 - [ ] Save → copy the **Signing secret** (`whsec_…`)
 
 ### 1.5 Swap the env vars in Vercel
-Vercel → project → Settings → Environment Variables. Update these **four** (edit existing, paste new values from the Skillzy account):
+Vercel project `skillzyai` → Settings → Environment Variables. Update these **three** (edit existing, paste new values from the Skillzy account). There is **no** `STRIPE_CONNECT_CLIENT_ID` — the code doesn't use one.
 - [ ] `STRIPE_SECRET_KEY` = `sk_live_…`
 - [ ] `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` = `pk_live_…`
-- [ ] `STRIPE_CONNECT_CLIENT_ID` = `ca_…`
 - [ ] `STRIPE_WEBHOOK_SECRET` = `whsec_…`
 - [ ] All scoped **Production + Preview**; secret key + webhook secret = Sensitive ON
 
 ### 1.6 Redeploy
-- [ ] Vercel → Deployments → top → ⋯ → **Redeploy** (or tell Claude to push a commit)
+`skillzy.ai` is served by the **`claude/build-skillzy-website-MIbCF`**
+branch as a **Preview** deploy (NOT Production/`main`). The publishable
+key is build-time inlined, so it needs a fresh build of THAT branch.
+- [ ] Push a commit to `claude/build-skillzy-website-MIbCF` (tell Claude), **or**
+- [ ] Vercel → Deployments → latest `claude/build-skillzy-website-MIbCF` build → ⋯ → **Redeploy** → untick "Use existing Build Cache"
+- [ ] Do NOT use the Production "Redeploy" toast — that rebuilds `main`, which isn't the live buyer site
 
 ---
 
@@ -118,7 +129,7 @@ Once the soft-launch batch is smooth and plans are upgraded → **market to the 
 
 ## If anything fails a test
 Screenshot it and send to Claude. Most likely culprits:
-- "Connect Stripe" errors → the new account's OAuth toggle or redirect URI didn't save
+- "Connect Stripe" errors → live Connect (Express) not activated on the new account; finish the **Go live** step in the Connect setup guide
 - Signup still says "check inbox" → email confirmation didn't turn off (2.1)
 - Fee still says "My AI Workforce" → you're testing on the old keys; confirm the new `sk_live_…` is in Vercel and you redeployed
 
