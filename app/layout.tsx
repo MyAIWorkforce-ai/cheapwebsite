@@ -4,7 +4,6 @@ import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import StructuredData from '@/components/StructuredData'
-import NewsletterSlideIn from '@/components/NewsletterSlideIn'
 import { organizationLd, websiteLd } from '@/lib/jsonld'
 
 const display = Fraunces({
@@ -56,7 +55,8 @@ export default function RootLayout({
         <Navbar />
         <main>{children}</main>
         <Footer />
-        <NewsletterSlideIn />
+        {/* The Dispatch slide-in is paused until we have ~50 creators.
+            Component kept in repo — re-add <NewsletterSlideIn /> here to revive. */}
       </body>
     </html>
   )
