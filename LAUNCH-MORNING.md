@@ -21,19 +21,21 @@ You're separating Skillzy from My AI Workforce so the fee reads
 - [ ] Decide LIVE vs TEST. For a real launch use **LIVE** (toggle top-right). For a dry run first, use TEST and switch later.
 - [ ] Copy **Secret key** (`sk_live_…`) and **Publishable key** (`pk_live_…`)
 
-### 1.3 Enable Connect (Express — NO OAuth)
-The code uses **Express accounts + Stripe-hosted Account Links**
-(`app/api/stripe/connect/start/route.ts` → `accounts.create({ type:
-'express' })` + `accountLinks.create`). There is **no OAuth**, no
-`ca_…` Client ID, and no `/connect/return` redirect URI — ignore any
-older note that says otherwise.
-- [ ] Left sidebar → **Connect** → **Continue setup** → choose **marketplace**
-- [ ] Stripe makes you set up the platform in the **sandbox** first
-  ("Switch to sandbox"), then use the **Go live** step (Verify identity
-  → Confirm integration choices → Get API keys) to activate live Connect
-- [ ] On "Confirm your integration choices" the Express defaults are
-  correct: buyers purchase from you, sellers paid individually,
-  onboarding hosted by Stripe, Express Dashboard, platform liable
+### 1.3 Enable Connect + OAuth (this is the one that bites)
+The DEPLOYED code uses **Standard Connect via OAuth**
+(`app/api/stripe/connect/start/route.ts` builds
+`connect.stripe.com/oauth/authorize?client_id=…&redirect_uri=…/api/stripe/connect/return`).
+It reads **`STRIPE_CONNECT_CLIENT_ID`** (a `ca_…`). If that env var
+holds the OLD My AI Workforce `ca_`, every creator-connect screen says
+"My AI Workforce" even when the secret key is correct.
+- [ ] Switch to the **Skillzy AI** account (top-left account switcher) —
+  one login can hold both accounts; it defaults to My AI Workforce
+- [ ] Go to `dashboard.stripe.com/settings/connect/onboarding-options` →
+  **OAuth** tab
+- [ ] Toggle **Enable OAuth** ON
+- [ ] **Redirects → Add URI:** `https://skillzy.ai/api/stripe/connect/return` → Save
+- [ ] Copy the **Live client ID** (`ca_…`) — this is Skillzy's, different
+  from the My AI Workforce one
 
 ### 1.4 Register the webhook
 - [ ] **Developers → Webhooks → Add endpoint**
@@ -42,10 +44,11 @@ older note that says otherwise.
 - [ ] Save → copy the **Signing secret** (`whsec_…`)
 
 ### 1.5 Swap the env vars in Vercel
-Vercel project `skillzyai` → Settings → Environment Variables. Update these **three** (edit existing, paste new values from the Skillzy account). There is **no** `STRIPE_CONNECT_CLIENT_ID` — the code doesn't use one.
+Vercel project `skillzyai` → Settings → Environment Variables. Update these **four** (edit existing, paste new values from the Skillzy account):
 - [ ] `STRIPE_SECRET_KEY` = `sk_live_…`
 - [ ] `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` = `pk_live_…`
 - [ ] `STRIPE_WEBHOOK_SECRET` = `whsec_…`
+- [ ] `STRIPE_CONNECT_CLIENT_ID` = `ca_…` (the Skillzy OAuth client ID from 1.3 — the easy one to miss; if it's still the My AI Workforce `ca_`, connect says "My AI Workforce")
 - [ ] All scoped **Production + Preview**; secret key + webhook secret = Sensitive ON
 
 ### 1.6 Redeploy
@@ -129,7 +132,8 @@ Once the soft-launch batch is smooth and plans are upgraded → **market to the 
 
 ## If anything fails a test
 Screenshot it and send to Claude. Most likely culprits:
-- "Connect Stripe" errors → live Connect (Express) not activated on the new account; finish the **Go live** step in the Connect setup guide
+- Connect screen says "My AI Workforce" → `STRIPE_CONNECT_CLIENT_ID` in Vercel is still the old My AI Workforce `ca_`; swap it to Skillzy's `ca_` (1.3) + redeploy the branch
+- "Connect Stripe" errors → OAuth not enabled or redirect URI not saved on the Skillzy account (1.3)
 - Signup still says "check inbox" → email confirmation didn't turn off (2.1)
 - Fee still says "My AI Workforce" → you're testing on the old keys; confirm the new `sk_live_…` is in Vercel and you redeployed
 
