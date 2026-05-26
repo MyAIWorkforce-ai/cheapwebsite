@@ -27,6 +27,20 @@ export async function POST(request: NextRequest) {
 
   // 1. Demo/showcase listings are not for sale (no files to deliver).
   if (isSeedProductId(id)) {
+    // Tell the team which demo someone tried to buy — a demand signal.
+    try {
+      const { getProduct } = await import('@/lib/catalog')
+      const { sendDemoBuyAttemptNotification } = await import(
+        '@/lib/email/admin-notification'
+      )
+      await sendDemoBuyAttemptNotification({
+        title: getProduct(id)?.title ?? id,
+        id,
+        email: email ?? null,
+      })
+    } catch (err) {
+      console.error('demo buy-attempt email failed', err)
+    }
     return NextResponse.json(
       { error: 'This is a sample listing and isn’t for sale yet.' },
       { status: 403 },

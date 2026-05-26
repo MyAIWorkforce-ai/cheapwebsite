@@ -145,3 +145,52 @@ export async function sendNewListingNotification({
     return { ok: false as const, error: (err as Error).message }
   }
 }
+
+export async function sendDemoBuyAttemptNotification({
+  title,
+  id,
+  email,
+}: {
+  title: string
+  id: string
+  email?: string | null
+}) {
+  if (!hasResend) return { skipped: true as const }
+  const resend = getResend()
+
+  const rows = [
+    ['Listing', title],
+    ['Listing ID', id],
+    ['Tried by', email],
+  ]
+    .filter(([, v]) => Boolean(v))
+    .map(
+      ([k, v]) =>
+        `<tr><td style="padding:6px 0;color:#5F6B7E;">${k}</td><td style="padding:6px 0;text-align:right;">${v}</td></tr>`,
+    )
+    .join('')
+
+  const html = shell(
+    'Demand signal',
+    'Someone tried to buy a sample listing.',
+    `<div style="margin:24px 0;padding:18px;background:#fff;border:1px solid #CCD2DD;">
+      <table style="width:100%;border-collapse:collapse;font-size:15px;">${rows}</table>
+    </div>
+    <p style="font-size:14px;color:#5F6B7E;margin:0;">This is a non-buyable demo — worth prioritising a real version, or recruiting a creator to fill it.</p>`,
+  )
+
+  const text = `Someone tried to buy the sample listing "${title}" (${id})${email ? ` — ${email}` : ''}. Non-buyable demo — a demand signal worth acting on.`
+
+  try {
+    const res = await resend.emails.send({
+      from: `Skillzy <${env.resend.fromEmail}>`,
+      to: notifyTo(),
+      subject: `Buy attempt on sample: ${title}`,
+      html,
+      text,
+    })
+    return { ok: true as const, id: res.data?.id ?? null }
+  } catch (err) {
+    return { ok: false as const, error: (err as Error).message }
+  }
+}
