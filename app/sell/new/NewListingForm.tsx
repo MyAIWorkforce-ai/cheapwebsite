@@ -562,10 +562,14 @@ export default function NewListingForm({
                 className="sr-only"
               />
               {busy && (
-                <p className="mt-4 text-xs text-brand-gold flex items-center justify-center gap-1.5">
-                  <span className="inline-block animate-spin">✿</span>
-                  Reading it and writing your listing…
-                </p>
+                <div className="mt-6 flex flex-col items-center justify-center gap-3 py-4 text-center">
+                  <span className="inline-block animate-spin text-4xl sm:text-5xl text-brand-gold leading-none">
+                    ✿
+                  </span>
+                  <p className="font-display text-xl sm:text-2xl text-brand-gold tracking-tight">
+                    Reading it and writing your listing…
+                  </p>
+                </div>
               )}
             </label>
 
