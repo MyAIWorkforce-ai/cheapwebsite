@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { getUser } from '@/lib/auth'
 import { createServiceClient } from '@/lib/supabase/server'
 import { hasSupabase, isAdminEmail } from '@/lib/env'
+import AdminListingActions from './AdminListingActions'
+import DeleteAccountButton from './DeleteAccountButton'
 
 export const metadata = {
   title: 'Admin · creator',
@@ -250,20 +252,39 @@ export default async function AdminCreatorPage({
                         {money(l.grossCents)}
                       </span>
                     </div>
-                    <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.16em] text-brand-muted">
-                      {l.status} · {money(l.priceCents)} · {l.units} sold ·{' '}
-                      {money(l.payoutCents)} payout
-                      {l.refunds > 0 && (
-                        <span className="text-red-700">
-                          {' '}
-                          · {l.refunds} refunded
-                        </span>
-                      )}
-                    </p>
+                    <div className="mt-1 flex items-center justify-between gap-4">
+                      <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-brand-muted">
+                        {l.status} · {money(l.priceCents)} · {l.units} sold ·{' '}
+                        {money(l.payoutCents)} payout
+                        {l.refunds > 0 && (
+                          <span className="text-red-700"> · {l.refunds} refunded</span>
+                        )}
+                      </p>
+                      <AdminListingActions
+                        id={l.id}
+                        creatorId={params.id}
+                        status={l.status}
+                      />
+                    </div>
                   </li>
                 ))}
               </ul>
             )}
+          </div>
+
+          <div className="border-t border-brand-hairline pt-8">
+            <h2
+              className="font-display text-2xl tracking-tight mb-1"
+              style={{ letterSpacing: '-0.02em' }}
+            >
+              Danger zone
+            </h2>
+            <p className="text-sm text-brand-muted mb-4 max-w-prose">
+              Permanently delete this account. This can&rsquo;t be undone — and
+              it fails safely if the creator has sales (remove their listings
+              above instead, which keeps records intact).
+            </p>
+            <DeleteAccountButton userId={params.id} />
           </div>
         </section>
       )}
