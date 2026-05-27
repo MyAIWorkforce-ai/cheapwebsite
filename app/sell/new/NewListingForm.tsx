@@ -335,9 +335,9 @@ export default function NewListingForm({
   }
 
   const draft = useCallback(
-    async (briefOverride?: string, pdf?: { data: string; name: string }) => {
+    async (briefOverride?: string, pdfs?: { data: string; name: string }[]) => {
       const text = (briefOverride ?? brief).trim()
-      if (!text && !pdf) {
+      if (!text && (!pdfs || pdfs.length === 0)) {
         setDraftError('Drop a file or add a note so the AI has something to work with.')
         return
       }
@@ -347,12 +347,7 @@ export default function NewListingForm({
         const res = await fetch('/api/listings/draft', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({
-            brief: text,
-            type,
-            pdfBase64: pdf?.data,
-            pdfName: pdf?.name,
-          }),
+          body: JSON.stringify({ brief: text, type, pdfs }),
         })
         const json: DraftResponse & { error?: string } = await res.json()
         if (!res.ok) {
@@ -400,18 +395,29 @@ export default function NewListingForm({
       const merged = texts.filter(Boolean).join('\n\n')
       setBrief(merged)
 
-      const pdfFile = fileArray.find((f) => /\.pdf$/i.test(f.name))
-      let pdfPayload: { data: string; name: string } | undefined
-      if (pdfFile) {
-        if (pdfFile.size > PDF_AUTOREAD_MAX) {
-          setDraftError(
-            `${pdfFile.name} uploads fine, but it’s too big to auto-read. Add a short note below and tap “Write it with AI”.`,
-          )
-        } else {
-          pdfPayload = { data: await readAsBase64(pdfFile), name: pdfFile.name }
-        }
+      // Read EVERY attached PDF (not just the first) so the AI drafts
+      // from all of them. Oversized ones are flagged and skipped.
+      const pdfFiles = fileArray.filter((f) => /\.pdf$/i.test(f.name))
+      const tooBig = pdfFiles.filter((f) => f.size > PDF_AUTOREAD_MAX)
+      if (tooBig.length > 0) {
+        setDraftError(
+          `${tooBig.map((f) => f.name).join(', ')} ${
+            tooBig.length > 1 ? 'are' : 'is'
+          } too big to auto-read — add a short note and tap “Write it with AI”, or remove ${
+            tooBig.length > 1 ? 'them' : 'it'
+          }.`,
+        )
       }
-      if (merged || pdfPayload) await draft(merged, pdfPayload)
+      const readablePdfs = pdfFiles
+        .filter((f) => f.size <= PDF_AUTOREAD_MAX)
+        .slice(0, 8)
+      const pdfs = await Promise.all(
+        readablePdfs.map(async (f) => ({
+          data: await readAsBase64(f),
+          name: f.name,
+        })),
+      )
+      if (merged || pdfs.length > 0) await draft(merged, pdfs)
     } catch (err) {
       setDraftError((err as Error).message)
     } finally {

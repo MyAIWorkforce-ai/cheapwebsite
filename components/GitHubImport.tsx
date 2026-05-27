@@ -141,7 +141,7 @@ export default function GitHubImport({
     const filesText = chosen
       .map((f) => `--- ${f.name} ---\n${f.content}`)
       .join('\n\n')
-      .slice(0, 12000)
+      .slice(0, 60000)
     const brief = [
       picker.description ? `Repo: ${picker.description}` : '',
       picker.readme ? `README:\n${picker.readme}` : '',

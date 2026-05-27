@@ -117,15 +117,37 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: ipCheck.reason }, { status: 429 })
   }
 
-  const { brief, type, pdfBase64, pdfName } = await req
+  const { brief, type, pdfs, pdfBase64, pdfName } = await req
     .json()
     .catch(() => ({}))
   const briefStr = String(brief ?? '').trim()
   const typeStr = String(type ?? 'skill') as 'skill' | 'guide' | 'agent_setup'
-  const pdf = typeof pdfBase64 === 'string' ? pdfBase64.trim() : ''
-  const pdfLabel = String(pdfName ?? 'the attached document').trim()
 
-  if (!briefStr && !pdf) {
+  // Normalise PDFs to a list. Accept the new `pdfs` array (multiple docs)
+  // or the legacy single pdfBase64/pdfName. Capped to bound request size.
+  const pdfList: { data: string; name: string }[] = Array.isArray(pdfs)
+    ? pdfs
+        .filter(
+          (p: unknown): p is { data: string; name?: string } =>
+            !!p &&
+            typeof (p as { data?: unknown }).data === 'string' &&
+            (p as { data: string }).data.trim().length > 0,
+        )
+        .map((p) => ({
+          data: p.data.trim(),
+          name: String(p.name ?? 'document.pdf').trim(),
+        }))
+        .slice(0, 8)
+    : typeof pdfBase64 === 'string' && pdfBase64.trim()
+      ? [
+          {
+            data: pdfBase64.trim(),
+            name: String(pdfName ?? 'the attached document').trim(),
+          },
+        ]
+      : []
+
+  if (!briefStr && pdfList.length === 0) {
     return NextResponse.json(
       { error: 'Add a brief or drop a file first.' },
       { status: 400 },
@@ -134,28 +156,38 @@ export async function POST(req: Request) {
 
   if (!hasAnthropic) {
     // Seed the stub from whatever we have so the form still fills in.
-    return NextResponse.json(demoDraft(briefStr || pdfLabel, typeStr))
+    return NextResponse.json(
+      demoDraft(briefStr || pdfList[0]?.name || 'the attached document', typeStr),
+    )
   }
 
-  const instruction = pdf
-    ? `Product type: ${typeStr}\n\nThe creator dropped a document ("${pdfLabel}"). Read it in full and write the listing from what it actually describes.${
-        briefStr ? `\n\nThey also added: ${briefStr}` : ''
-      }\n\nWrite the listing.`
-    : `Product type: ${typeStr}\n\nCreator brief:\n${briefStr}\n\nWrite the listing.`
+  const instruction =
+    pdfList.length > 0
+      ? `Product type: ${typeStr}\n\nThe creator attached ${pdfList.length} document${
+          pdfList.length > 1 ? 's' : ''
+        } (${pdfList
+          .map((p) => `"${p.name}"`)
+          .join(
+            ', ',
+          )}). Read ALL of them in full and write a single listing that accurately covers everything they describe together.${
+          briefStr ? `\n\nThey also added: ${briefStr}` : ''
+        }\n\nWrite the listing.`
+      : `Product type: ${typeStr}\n\nCreator brief:\n${briefStr}\n\nWrite the listing.`
 
-  const userContent = pdf
-    ? [
-        {
-          type: 'document',
-          source: {
-            type: 'base64',
-            media_type: 'application/pdf',
-            data: pdf,
-          },
-        },
-        { type: 'text', text: instruction },
-      ]
-    : instruction
+  const userContent =
+    pdfList.length > 0
+      ? [
+          ...pdfList.map((p) => ({
+            type: 'document',
+            source: {
+              type: 'base64',
+              media_type: 'application/pdf',
+              data: p.data,
+            },
+          })),
+          { type: 'text', text: instruction },
+        ]
+      : instruction
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -192,7 +224,7 @@ export async function POST(req: Request) {
     const outTok = Number(u.output_tokens ?? 0)
     const usdEst = (inTok / 1e6) * 1 + (outTok / 1e6) * 5
     console.log(
-      `[listing-draft] model=${env.anthropic.model} source=${pdf ? 'pdf' : 'text'} ` +
+      `[listing-draft] model=${env.anthropic.model} source=${pdfList.length ? `${pdfList.length}pdf` : 'text'} ` +
         `type=${typeStr} in=${inTok} out=${outTok} ~$${usdEst.toFixed(4)}`,
     )
 
