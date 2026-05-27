@@ -112,6 +112,7 @@ export function PasswordForm() {
   // reliable has-password flag, so we track the moment the user sets one
   // here — and once set, the label stays "Change password" thereafter.)
   const [hasPassword, setHasPassword] = useState(false)
+  const [pw, setPw] = useState('')
 
   useEffect(() => {
     try {
@@ -124,6 +125,7 @@ export function PasswordForm() {
   useEffect(() => {
     if (state.info) {
       setHasPassword(true)
+      setPw('') // clear the field so it's obvious the save took
       try {
         sessionStorage.setItem(PW_SET_KEY, '1')
       } catch {
@@ -134,17 +136,25 @@ export function PasswordForm() {
 
   return (
     <form action={action} className="space-y-5">
-      {hasPassword && (
+      {state.info ? (
+        <div className="flex items-center gap-3 border border-brand-gold bg-brand-gold/10 px-4 py-4">
+          <span aria-hidden className="text-brand-gold-dark text-2xl leading-none">✓</span>
+          <span className="text-base text-brand-ink font-semibold">
+            Done — your password is set. You can now sign in with email and
+            password.
+          </span>
+        </div>
+      ) : hasPassword ? (
         <div className="flex items-center gap-2 border border-brand-gold bg-brand-gold/10 px-4 py-3">
           <span aria-hidden className="text-brand-gold-dark">✓</span>
           <span className="text-sm text-brand-ink">
             Password connected. You can sign in with email and password.
           </span>
         </div>
-      )}
+      ) : null}
       <label className="block">
         <span className="label-cap text-brand-muted">
-          {hasPassword ? 'New password' : 'Set a password'}
+          {hasPassword ? 'Change password' : 'Set a password'}
         </span>
         <input
           type="password"
@@ -152,11 +162,13 @@ export function PasswordForm() {
           required
           minLength={8}
           autoComplete="new-password"
+          value={pw}
+          onChange={(e) => setPw(e.target.value)}
           placeholder="At least 8 characters"
           className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 placeholder:text-brand-muted/60"
         />
       </label>
-      <Field state={state} />
+      {state.error && <p className="text-sm text-red-700">{state.error}</p>}
       <Submit label={hasPassword ? 'Change password' : 'Set password'} />
     </form>
   )
