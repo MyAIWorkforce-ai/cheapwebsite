@@ -194,3 +194,73 @@ export async function sendDemoBuyAttemptNotification({
     return { ok: false as const, error: (err as Error).message }
   }
 }
+
+export async function sendNewSaleNotification({
+  title,
+  amountCents,
+  skillzyCents,
+  payoutCents,
+  currency = 'usd',
+  buyerEmail,
+  orderId,
+  routedToCreator,
+}: {
+  title: string
+  amountCents: number
+  skillzyCents: number
+  payoutCents: number
+  currency?: string
+  buyerEmail?: string | null
+  orderId: string
+  routedToCreator: boolean
+}) {
+  if (!hasResend) return { skipped: true as const }
+  const resend = getResend()
+  const cur = (currency || 'usd').toUpperCase()
+  const m = (c: number) =>
+    `${cur} ${(c / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+
+  const rows = [
+    ['Listing', title],
+    ['Sale total', m(amountCents)],
+    ['Skillzy 20%', m(skillzyCents)],
+    ['Creator payout', routedToCreator ? m(payoutCents) : '— not routed'],
+    ['Buyer', buyerEmail],
+    ['Order', orderId],
+  ]
+    .filter(([, v]) => Boolean(v))
+    .map(
+      ([k, v]) =>
+        `<tr><td style="padding:6px 0;color:#5F6B7E;">${k}</td><td style="padding:6px 0;text-align:right;">${v}</td></tr>`,
+    )
+    .join('')
+
+  const html = shell(
+    'Cha-ching',
+    'You made a sale.',
+    `<div style="margin:24px 0;padding:18px;background:#fff;border:1px solid #CCD2DD;">
+      <table style="width:100%;border-collapse:collapse;font-size:15px;">${rows}</table>
+    </div>${
+      routedToCreator
+        ? ''
+        : '<p style="font-size:14px;color:#B91C1C;margin:0;">⚠ This sale did NOT route to a creator — the full amount stayed on the platform.</p>'
+    }`,
+  )
+
+  const text = `New sale: ${title} — ${m(amountCents)} (Skillzy ${m(skillzyCents)}, creator ${
+    routedToCreator ? m(payoutCents) : 'not routed'
+  }). Buyer: ${buyerEmail ?? '—'}. Order ${orderId}.`
+
+  try {
+    const res = await resend.emails.send({
+      from: `Skillzy <${env.resend.fromEmail}>`,
+      to: notifyTo(),
+      subject: `Sale: ${title} — ${m(amountCents)}`,
+      html,
+      text,
+    })
+    return { ok: true as const, id: res.data?.id ?? null }
+  } catch (err) {
+    return { ok: false as const, error: (err as Error).message }
+  }
+}

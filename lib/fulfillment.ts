@@ -108,6 +108,29 @@ export async function fulfillPaymentIntent(intent: Stripe.PaymentIntent) {
     }
   }
 
+  // Founder "new sale" alert to hi@skillzy.ai — fired once per recorded
+  // sale (gated by the same fresh-insert guard as the other emails).
+  async function emailFounder() {
+    if (!hasResend) return
+    try {
+      const { sendNewSaleNotification } = await import(
+        '@/lib/email/admin-notification'
+      )
+      await sendNewSaleNotification({
+        title: product?.title ?? listingId ?? 'Listing',
+        amountCents: amount,
+        skillzyCents: fee,
+        payoutCents: payout,
+        currency,
+        buyerEmail: buyerEmail || null,
+        orderId: orderIdFromIntent(intent.id),
+        routedToCreator,
+      })
+    } catch (err) {
+      console.error('Failed to send founder sale notification', err)
+    }
+  }
+
   // No DB to dedupe against — best-effort single send.
   if (!hasSupabase) {
     await emailBuyer()
@@ -180,4 +203,5 @@ export async function fulfillPaymentIntent(intent: Stripe.PaymentIntent) {
 
   await emailBuyer()
   await emailSeller()
+  await emailFounder()
 }
