@@ -882,3 +882,23 @@ Hard-won during the admin-access debug — read before touching env vars:
   login — sign in as that account, and `/admin/dashboard` unlocks because
   the email is in `ADMIN_EMAILS`. (`toby@myaiworkforce.ai` was just a test
   account.)
+
+## Supabase Data API default change — future migrations only
+
+Supabase emailed (May 2026): new tables in the `public` schema will no
+longer be auto-exposed to the Data API (PostgREST / GraphQL / supabase-js).
+
+- **Not a launch issue, not urgent.** This is an **existing** project, so
+  the old behavior holds until **October 30, 2026**. All current tables
+  (profiles, listings, purchases, files, reviews, affiliate_earnings,
+  subscribers) keep working unchanged.
+- **Only affects NEW tables created from now on.** The app talks to the DB
+  via supabase-js, so a new `public` table without a grant would be
+  invisible to the app.
+- **So every future migration that creates a table must add an explicit
+  grant** (plus its RLS policies), e.g.:
+  ```sql
+  grant select, insert, update, delete on public.<new_table> to anon, authenticated;
+  -- then enable RLS + add policies as usual
+  ```
+  (Tighten the verbs per table — e.g. read-only tables only need `select`.)
