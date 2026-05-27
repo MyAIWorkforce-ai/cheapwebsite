@@ -217,6 +217,17 @@ export default function HomePage() {
               ChatGPT · Gemini · Grok · Ollama · Mistral · DeepSeek · n8n ·
               Make · Zapier · and more
             </p>
+            <p className="mt-4 text-sm text-brand-muted">
+              No agent yet?{' '}
+              <a
+                href="https://myaiworkforce.ai"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-brand-ink border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5 transition-colors"
+              >
+                We&rsquo;ll build you one →
+              </a>
+            </p>
           </div>
         </div>
       </section>

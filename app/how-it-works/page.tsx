@@ -72,6 +72,19 @@ export default function HowItWorksPage() {
                   <p className="mt-4 text-lg text-brand-muted leading-relaxed max-w-prose">
                     {s.body}
                   </p>
+                  {s.n === '03' && (
+                    <p className="mt-4 text-sm text-brand-muted">
+                      No agent yet?{' '}
+                      <a
+                        href="https://myaiworkforce.ai"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-brand-ink border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5 transition-colors"
+                      >
+                        My AI Workforce builds you one →
+                      </a>
+                    </p>
+                  )}
                 </div>
                 <div className="lg:col-span-4">
                   <div className="bg-brand-cream-card border border-brand-hairline p-5 text-sm text-brand-muted">

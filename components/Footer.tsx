@@ -45,6 +45,7 @@ export default function Footer() {
               <li><Link href="/dispatch" className="hover:text-brand-gold transition-colors">Latest</Link></li>
               <li><Link href="/sell" className="hover:text-brand-gold transition-colors">Sell</Link></li>
               <li><Link href="/affiliates" className="hover:text-brand-gold transition-colors">Refer &amp; earn</Link></li>
+              <li><a href="https://myaiworkforce.ai" target="_blank" rel="noopener noreferrer" className="hover:text-brand-gold transition-colors">Build my agent</a></li>
               <li><Link href="/help" className="hover:text-brand-gold transition-colors">Help</Link></li>
               <li><Link href="/contact" className="hover:text-brand-gold transition-colors">Contact</Link></li>
             </ul>
