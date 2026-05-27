@@ -374,14 +374,18 @@ export default function NewListingForm({
     [brief, type],
   )
 
-  async function onFilesPicked(picked: FileList | null) {
-    if (!picked || picked.length === 0) return
-    const arr = Array.from(picked)
-    setFiles(arr)
+  // Read the FULL current file set, rebuild the brief, and (re)draft the
+  // listing from all of them — so the draft always reflects exactly
+  // what's attached, whether a file was just added or removed.
+  async function redraft(fileArray: File[]) {
     setDraftError(null)
+    if (fileArray.length === 0) {
+      setBrief('')
+      return
+    }
     setExtracting(true)
     try {
-      const reads = arr
+      const reads = fileArray
         .filter((f) => TEXT_EXT.test(f.name) && f.size < 200_000)
         .map(
           (f) =>
@@ -394,9 +398,9 @@ export default function NewListingForm({
         )
       const texts = reads.length > 0 ? await Promise.all(reads) : []
       const merged = texts.filter(Boolean).join('\n\n')
-      if (merged) setBrief(merged)
+      setBrief(merged)
 
-      const pdfFile = arr.find((f) => /\.pdf$/i.test(f.name))
+      const pdfFile = fileArray.find((f) => /\.pdf$/i.test(f.name))
       let pdfPayload: { data: string; name: string } | undefined
       if (pdfFile) {
         if (pdfFile.size > PDF_AUTOREAD_MAX) {
@@ -407,7 +411,7 @@ export default function NewListingForm({
           pdfPayload = { data: await readAsBase64(pdfFile), name: pdfFile.name }
         }
       }
-      if (merged || pdfPayload) void draft(merged, pdfPayload)
+      if (merged || pdfPayload) await draft(merged, pdfPayload)
     } catch (err) {
       setDraftError((err as Error).message)
     } finally {
@@ -415,8 +419,45 @@ export default function NewListingForm({
     }
   }
 
+  // Reset the AI-drafted fields — used when there are no files left to
+  // base them on, so stale info from a removed doc doesn't linger.
+  function resetDraftedFields() {
+    setBrief('')
+    setTitle('')
+    setTagline('')
+    setNiche('')
+    setPlatforms('')
+    setDescText('')
+    setWhatText('')
+    setDraftError(null)
+  }
+
+  // Picking files ADDS to what's already attached (dedupe by name+size),
+  // then re-drafts from the whole set.
+  async function onFilesPicked(picked: FileList | null) {
+    if (!picked || picked.length === 0) return
+    const next = [...files]
+    for (const f of Array.from(picked)) {
+      if (!next.some((e) => e.name === f.name && e.size === f.size)) next.push(f)
+    }
+    setFiles(next)
+    // Reset the input so the same file can be re-picked and "add more" works.
+    if (fileInputRef.current) fileInputRef.current.value = ''
+    await redraft(next)
+  }
+
+  // Remove one file → re-draft from the remainder (or reset if none left).
+  async function removeFile(index: number) {
+    const next = files.filter((_, i) => i !== index)
+    setFiles(next)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+    if (next.length === 0) resetDraftedFields()
+    else await redraft(next)
+  }
+
   function clearFiles() {
     setFiles([])
+    resetDraftedFields()
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
@@ -582,19 +623,36 @@ export default function NewListingForm({
                       className="py-2.5 flex items-center justify-between gap-4"
                     >
                       <p className="font-mono text-sm truncate">{f.name}</p>
-                      <p className="text-xs text-brand-muted shrink-0">
-                        {(f.size / 1024).toFixed(0)} KB
-                      </p>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <p className="text-xs text-brand-muted">
+                          {(f.size / 1024).toFixed(0)} KB
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => removeFile(i)}
+                          aria-label={`Remove ${f.name}`}
+                          className="text-brand-muted hover:text-red-700 transition-colors"
+                        >
+                          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                            <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" />
+                          </svg>
+                        </button>
+                      </div>
                     </li>
                   ))}
                 </ul>
-                <button
-                  type="button"
-                  onClick={clearFiles}
-                  className="mt-3 font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted hover:text-red-700 transition-colors"
-                >
-                  Clear + pick again
-                </button>
+                <div className="mt-3 flex items-center justify-between gap-4">
+                  <p className="text-xs text-brand-muted">
+                    Tap the box above to add more — the AI re-reads all of them.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={clearFiles}
+                    className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted hover:text-red-700 transition-colors shrink-0"
+                  >
+                    Clear all
+                  </button>
+                </div>
               </div>
             )}
 
