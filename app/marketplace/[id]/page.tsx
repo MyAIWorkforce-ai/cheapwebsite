@@ -615,11 +615,11 @@ export default async function ProductDetailPage({
             </h2>
 
             <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">
-              {related.map((r, i) => (
+              {related.map((r) => (
                 <ProductCard
                   key={r.id}
                   product={toCardProduct(r)}
-                  variant={i === 1 ? 'emerald' : 'cream'}
+                  variant={r.featured ? 'emerald' : 'cream'}
                 />
               ))}
             </div>
