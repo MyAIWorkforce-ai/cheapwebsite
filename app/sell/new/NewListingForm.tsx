@@ -522,7 +522,7 @@ export default function NewListingForm({
             <div className="border border-brand-gold bg-brand-cream-card p-4 text-sm">
               <span className="font-semibold">We kept your draft.</span>{' '}
               {files.length === 0
-                ? 'Re-drop your file below — everything you wrote is still here.'
+                ? 'Re-drop your files below — everything you wrote is still here.'
                 : 'Picking up where you left off.'}
             </div>
           )}
@@ -579,8 +579,8 @@ export default function NewListingForm({
           <section>
             <Heading
               step="02"
-              title="Drop your file in"
-              sub="The AI reads it and writes the whole listing below. You just check it."
+              title="Drop your files in"
+              sub="The AI reads them all and writes the whole listing below. You just check it."
             />
             <label
               htmlFor="bundle-files"

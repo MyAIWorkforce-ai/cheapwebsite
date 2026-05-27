@@ -72,7 +72,7 @@ export default async function NewListingPage() {
             </span>
           </h1>
           <p className="mt-7 text-xl text-brand-ink max-w-2xl">
-            Drop your file in — the AI writes the listing. List it once, sell it forever.
+            Drop your files in — the AI writes the listing. List it once, sell it forever.
           </p>
         </div>
       </section>
