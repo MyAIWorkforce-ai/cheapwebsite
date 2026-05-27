@@ -857,3 +857,28 @@ Captured during the launch-day session. None of these block launch.
   in `app/layout.tsx`; just re-add `<NewsletterSlideIn />`).
 - **Retire/replace static demo listings** once real listings populate —
   they're non-buyable showcase data in `lib/catalog.ts`.
+
+## Deploy + env facts (confirmed 2026-05-27)
+
+Hard-won during the admin-access debug — read before touching env vars:
+
+- **Vercel project = `skillzyai`** (under `toby-banks-projects-b6665456`).
+  That's the project whose Domains tab owns `skillzy.ai`. Older notes
+  called it `cheapwebsite-preview` — ignore that.
+- **skillzy.ai is served by the PREVIEW build of branch
+  `claude/build-skillzy-website-MIbCF`** — NOT Production/`main`. So:
+  - A `git push` to that branch auto-creates a fresh Preview deploy =
+    the live site updates. (This is how Claude ships every change.)
+  - To make an **env-var change** go live, redeploy the latest **Preview**
+    deployment of that branch (Deployments → newest `claude/build-…`
+    Preview row → ⋯ → Redeploy). Redeploying a **Production** deployment
+    does NOT update skillzy.ai.
+- **`ADMIN_EMAILS` must NOT be marked "Sensitive".** Vercel hides (and in
+  practice dropped) the value of Sensitive vars on edit, which left the
+  admin allow-list empty → everyone was treated as a standard user and
+  `/admin/dashboard` said "Not for you". Recreated non-sensitive with
+  value `toby@skillzy.ai`, and it holds.
+- **Super admin = `toby@skillzy.ai`** only. There's no separate admin
+  login — sign in as that account, and `/admin/dashboard` unlocks because
+  the email is in `ADMIN_EMAILS`. (`toby@myaiworkforce.ai` was just a test
+  account.)
