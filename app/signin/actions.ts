@@ -1,7 +1,7 @@
 'use server'
 
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { env, hasSupabase } from '@/lib/env'
 
 export type SignInState = {
@@ -105,6 +105,29 @@ export async function signUpWithPassword(
     await claimOrphanPurchases({ id: data.user.id, email: data.user.email })
     const { attributeReferral } = await import('@/lib/affiliate')
     await attributeReferral(data.user.id)
+
+    // Founder "new signup" alert. Password signups never hit
+    // /auth/callback (where the OAuth/magic-link alert lives), so fire it
+    // here. Guarded by an admin-only flag so it only sends once.
+    if (!data.user.app_metadata?.admin_notified) {
+      try {
+        const { sendNewUserNotification } = await import(
+          '@/lib/email/admin-notification'
+        )
+        await sendNewUserNotification({
+          email: data.user.email,
+          name: name || null,
+          handle: null,
+        })
+        const admin = createServiceClient()
+        await admin.auth.admin.updateUserById(data.user.id, {
+          app_metadata: { ...data.user.app_metadata, admin_notified: true },
+        })
+      } catch (err) {
+        console.error('admin new-user email (signup) failed', err)
+      }
+    }
+
     redirect(next && next.startsWith('/') ? next : '/dashboard')
   }
 
