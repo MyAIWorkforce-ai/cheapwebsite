@@ -141,6 +141,24 @@ export default function SellPage() {
                 <p className="mt-3 text-sm text-brand-muted leading-relaxed">{s.desc}</p>
               </li>
             ))}
+
+            {/* Payoff card fills the 6th cell — the reward at the end of
+                the five steps, echoing the "Cha-ching" sale email. */}
+            <li className="bg-brand-navy text-brand-cream p-7 sm:p-8 flex flex-col">
+              <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold-soft">
+                ✿ Cha-ching
+              </span>
+              <h3
+                className="font-display text-2xl mt-4 tracking-tight text-brand-cream"
+                style={{ letterSpacing: '-0.018em' }}
+              >
+                Then do it again.
+              </h3>
+              <p className="mt-3 text-sm text-brand-cream/75 leading-relaxed">
+                Every sale pings your phone and lands straight in your account.
+                List it once, sell it forever — then drop in the next one.
+              </p>
+            </li>
           </ol>
 
           <div className="mt-12 sm:mt-14">
