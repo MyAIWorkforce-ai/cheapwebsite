@@ -470,7 +470,7 @@ export default function NewListingForm({
         <input type="hidden" name="what_you_get" value={JSON.stringify(toArray(whatText))} />
         <input type="hidden" name="type" value={type} />
 
-        <div className="max-w-2xl mx-auto px-6 lg:px-10 py-12 sm:py-16 space-y-16">
+        <div className="max-w-[840px] mx-auto px-6 lg:px-10 py-12 sm:py-16 space-y-16">
           {restored && (
             <div className="border border-brand-gold bg-brand-cream-card p-4 text-sm">
               <span className="font-semibold">We kept your draft.</span>{' '}
@@ -562,11 +562,11 @@ export default function NewListingForm({
                 className="sr-only"
               />
               {busy && (
-                <div className="mt-6 flex flex-col items-center justify-center gap-3 py-4 text-center">
-                  <span className="inline-block animate-spin text-4xl sm:text-5xl text-brand-gold leading-none">
+                <div className="mt-6 flex flex-col items-center justify-center gap-4 py-6 text-center">
+                  <span className="inline-block animate-spin text-6xl sm:text-7xl text-brand-gold leading-none">
                     ✿
                   </span>
-                  <p className="font-display text-xl sm:text-2xl text-brand-gold tracking-tight">
+                  <p className="font-display text-3xl sm:text-4xl text-brand-gold tracking-tight leading-tight">
                     Reading it and writing your listing…
                   </p>
                 </div>
