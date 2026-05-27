@@ -836,6 +836,16 @@ Captured during the launch-day session. None of these block launch.
   after ~2 weeks of clean reports.
 - **Magic-link latency** — investigate Supabase Auth SMTP / Resend
   deliverability if links still take minutes (password-first mitigates).
+- **Separate Skillzy Google Workspace** — right now mail TO `hi@skillzy.ai`
+  is just **forwarded into the `toby@myaiworkforce.ai` mailbox**; there's no
+  standalone Skillzy inbox. Set up a proper Skillzy Google Workspace so
+  `hi@skillzy.ai` (and `toby@skillzy.ai`) are real, owned mailboxes.
+  ⚠️ Implication: `toby@skillzy.ai` is the super-admin login
+  (`ADMIN_EMAILS`), so for its **magic-link / password-reset** emails to be
+  receivable, that address must be a real inbox — confirm it receives mail
+  (the founder logged in via the `toby@myaiworkforce.ai` Google account so
+  far, which is only a test account). Sending from `hi@skillzy.ai` already
+  works (Resend + verified domain); this is about *receiving*.
 
 ### Ops / tax / scale
 - **Stripe:** clear the support phone number from statements; sort proper
