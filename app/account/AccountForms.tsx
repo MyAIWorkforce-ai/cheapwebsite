@@ -42,6 +42,7 @@ export function ProfileForm({
   defaultHandle: string
 }) {
   const [state, action] = useFormState(updateProfile, initial)
+  const hasProfile = Boolean(defaultName.trim() || defaultHandle.trim())
   return (
     <form action={action} className="space-y-5">
       <label className="block">
@@ -72,7 +73,7 @@ export function ProfileForm({
         </p>
       </label>
       <Field state={state} />
-      <Submit label="Save profile" />
+      <Submit label={hasProfile ? 'Update profile' : 'Save profile'} />
     </form>
   )
 }
@@ -104,14 +105,14 @@ export function EmailForm({ defaultEmail }: { defaultEmail: string }) {
 
 const PW_SET_KEY = 'skz_pw_set'
 
-export function PasswordForm() {
+export function PasswordForm({ alreadySet = false }: { alreadySet?: boolean }) {
   const [state, action] = useFormState(updateAccountPassword, initial)
   // Track whether a password has been set so the UI can say "connected"
   // and flip the button to "Change password". Persisted in
   // sessionStorage so it survives a reload. (Supabase doesn't expose a
   // reliable has-password flag, so we track the moment the user sets one
   // here — and once set, the label stays "Change password" thereafter.)
-  const [hasPassword, setHasPassword] = useState(false)
+  const [hasPassword, setHasPassword] = useState(alreadySet)
   const [pw, setPw] = useState('')
 
   useEffect(() => {

@@ -36,6 +36,24 @@ export default async function AccountPage() {
   const name = profile?.name ?? user?.name ?? ''
   const handle = profile?.handle ?? user?.handle ?? ''
 
+  // Does this account already have an email/password credential (vs
+  // OAuth-only)? Drives "Change password" vs "Set a password" labelling
+  // so a creator who signed up with a password isn't told to set one.
+  let hasPassword = false
+  if (hasSupabase && user) {
+    try {
+      const supabase = createClient()
+      const {
+        data: { user: authUser },
+      } = await supabase.auth.getUser()
+      const providers =
+        (authUser?.app_metadata?.providers as string[] | undefined) ?? []
+      hasPassword = providers.includes('email')
+    } catch {
+      /* default false */
+    }
+  }
+
   return (
     <div className="paper">
       <div className="max-w-page mx-auto px-6 lg:px-10 pt-8 sm:pt-10">
@@ -139,7 +157,7 @@ export default async function AccountPage() {
             </p>
           </header>
           <div className="lg:col-span-8 max-w-lg">
-            <PasswordForm />
+            <PasswordForm alreadySet={hasPassword} />
           </div>
         </div>
       </section>
