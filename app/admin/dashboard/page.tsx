@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { getUser } from '@/lib/auth'
 import { createServiceClient } from '@/lib/supabase/server'
 import { hasSupabase, isAdminEmail } from '@/lib/env'
+import CreatorList from './CreatorList'
 
 export const metadata = {
   title: 'Admin',
@@ -54,6 +55,17 @@ type CreatorAgg = {
   payoutCents: number
 }
 
+type CreatorRow = {
+  id: string
+  email: string
+  name: string
+  handle: string
+  joined: string
+  listings: number
+  sales: number
+  connected: boolean
+}
+
 type Metrics = {
   grossCents: number
   payoutCents: number
@@ -74,6 +86,7 @@ type Metrics = {
   topListings: { title: string; sales: number; gross: number }[]
   topCreators: CreatorAgg[]
   unconnectedEarners: CreatorAgg[]
+  creatorList: CreatorRow[]
   byChannel: Record<string, number>
 }
 
@@ -184,6 +197,39 @@ async function loadMetrics(): Promise<Metrics | null> {
 
     const totalOrders = paidCount + refundedCount
 
+    // Full creator/user roster with emails. Emails live in auth.users
+    // (not profiles), so pull them via the admin API and join.
+    const listingCountByCreator: Record<string, number> = {}
+    for (const l of listings) {
+      const cid = l.creator_id as string
+      if (cid) listingCountByCreator[cid] = (listingCountByCreator[cid] ?? 0) + 1
+    }
+    let creatorList: CreatorRow[] = []
+    try {
+      const { data: usersData } = await db.auth.admin.listUsers({
+        page: 1,
+        perPage: 1000,
+      })
+      creatorList = (usersData?.users ?? [])
+        .map((u) => {
+          const prof = profileById.get(u.id)
+          const agg = byCreator[u.id]
+          return {
+            id: u.id,
+            email: u.email ?? '—',
+            name: prof?.name ?? (u.email ? u.email.split('@')[0] : '—'),
+            handle: prof?.handle ?? '—',
+            joined: u.created_at ?? '',
+            listings: listingCountByCreator[u.id] ?? 0,
+            sales: agg?.sales ?? 0,
+            connected: prof?.connected ?? false,
+          }
+        })
+        .sort((a, b) => (a.joined < b.joined ? 1 : -1)) // newest first
+    } catch {
+      /* listUsers may be unavailable; leave the roster empty */
+    }
+
     return {
       grossCents,
       payoutCents,
@@ -209,6 +255,7 @@ async function loadMetrics(): Promise<Metrics | null> {
       topListings,
       topCreators,
       unconnectedEarners,
+      creatorList,
       byChannel,
     }
   } catch {
@@ -296,6 +343,9 @@ export default async function AdminDashboard() {
                 <Stat label="Creators" value={String(m.creators)} sub={`${m.connectedCreators} Stripe-connected`} />
               </div>
             </div>
+
+            {/* ALL CREATORS — searchable roster with emails */}
+            <CreatorList creators={m.creatorList} />
 
             {/* ACTIONABLE: earning but no payout account */}
             <div>
