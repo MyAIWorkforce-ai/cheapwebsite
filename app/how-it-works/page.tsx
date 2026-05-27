@@ -76,7 +76,7 @@ export default function HowItWorksPage() {
                     <p className="mt-4 text-sm text-brand-muted">
                       No agent yet?{' '}
                       <a
-                        href="https://myaiworkforce.ai"
+                        href="https://myaiworkforce.ai/buildagent"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-brand-ink border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5 transition-colors"
