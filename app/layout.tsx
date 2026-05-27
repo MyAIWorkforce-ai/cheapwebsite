@@ -19,45 +19,43 @@ const sans = Inter({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://skillzy.ai'),
+  metadataBase: new URL('https://myaiworkforce.ai'),
   title: {
-    default: 'Skillzy — Drop it in. Agent supercharged.',
-    template: '%s — Skillzy',
+    default: 'My AI Workforce — Build the agent that does the work.',
+    template: '%s — My AI Workforce',
   },
   description:
-    'A marketplace for skills, guides, and ready-to-go agent setups. Built by creators. Plug them into any agent — yours levels up instantly.',
+    'Tell us the job. We build you an AI agent that handles it — on the tools you already use, in the way you already work. No code.',
   keywords: [
-    'AI agent marketplace',
-    'agent skills',
-    'agent setups',
-    'Claude skills',
-    'OpenClaw',
-    'n8n',
-    'AI prompts',
-    'SKILL.md',
-    'sell AI skills',
-    'creator marketplace',
+    'build AI agent',
+    'AI agent for business',
+    'AI workforce',
+    'custom AI agent',
+    'AI automation',
+    'Claude agent',
+    'n8n agent',
+    'no-code AI agent',
   ],
-  authors: [{ name: 'Skillzy' }],
-  creator: 'Skillzy',
-  publisher: 'Skillzy',
+  authors: [{ name: 'My AI Workforce' }],
+  creator: 'My AI Workforce',
+  publisher: 'My AI Workforce',
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: 'Skillzy — Drop it in. Agent supercharged.',
+    title: 'My AI Workforce — Build the agent that does the work.',
     description:
-      'A marketplace for skills, guides, and ready-to-go agent setups. Built by creators.',
-    url: 'https://skillzy.ai',
-    siteName: 'Skillzy',
+      'Tell us the job. We build you an AI agent that handles it — on the tools you already use. No code.',
+    url: 'https://myaiworkforce.ai',
+    siteName: 'My AI Workforce',
     type: 'website',
     locale: 'en_US',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Skillzy — Drop it in. Agent supercharged.',
+    title: 'My AI Workforce — Build the agent that does the work.',
     description:
-      'A marketplace for skills, guides, and ready-to-go agent setups.',
+      'Tell us the job. We build you an AI agent that handles it. No code.',
   },
   robots: {
     index: true,

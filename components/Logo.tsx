@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { BRAND } from '@/lib/brand'
 
 type LogoProps = {
   href?: string | null
@@ -31,14 +32,14 @@ export default function Logo({
       className={`font-display ${sizeClass[size]} ${toneClass[tone]} font-medium leading-none ${className}`}
       style={{ letterSpacing: '-0.02em' }}
     >
-      Skillzy
+      {BRAND.name}
     </span>
   )
 
   if (!href) return content
 
   return (
-    <Link href={href} aria-label="Skillzy — home" className="inline-flex items-baseline">
+    <Link href={href} aria-label={`${BRAND.name} — home`} className="inline-flex items-baseline">
       {content}
     </Link>
   )

@@ -1,24 +1,16 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
-import { useState, FormEvent } from 'react'
+import { usePathname } from 'next/navigation'
+import { useState } from 'react'
 import Logo from './Logo'
+import { MARKETPLACE_URL } from '@/lib/brand'
 import type { SessionUser } from '@/lib/auth'
 
 export default function NavbarClient({ user }: { user: SessionUser | null }) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
-  const [q, setQ] = useState('')
-  const router = useRouter()
   const isHome = pathname === '/'
-
-  function onSearch(e: FormEvent) {
-    e.preventDefault()
-    const value = q.trim()
-    router.push(value ? `/marketplace?q=${encodeURIComponent(value)}` : '/marketplace')
-    setOpen(false)
-  }
 
   if (isHome) {
     return (
@@ -36,8 +28,8 @@ export default function NavbarClient({ user }: { user: SessionUser | null }) {
         </button>
         {open && (
           <div className="absolute right-0 mt-1 w-48 bg-brand-cream border border-brand-hairline shadow-lg flex flex-col py-1">
-            <Link href="/marketplace" onClick={() => setOpen(false)} className="px-4 py-2.5 text-sm text-brand-ink hover:bg-brand-gold/15">Marketplace</Link>
-            <Link href="/sell" onClick={() => setOpen(false)} className="px-4 py-2.5 text-sm text-brand-ink hover:bg-brand-gold/15">Sell</Link>
+            <Link href="/contact" onClick={() => setOpen(false)} className="px-4 py-2.5 text-sm text-brand-ink hover:bg-brand-gold/15">Build my agent</Link>
+            <a href={MARKETPLACE_URL} target="_blank" rel="noopener noreferrer" onClick={() => setOpen(false)} className="px-4 py-2.5 text-sm text-brand-ink hover:bg-brand-gold/15">Marketplace ↗</a>
             {user ? (
               <>
                 <Link href="/dashboard" onClick={() => setOpen(false)} className="px-4 py-2.5 text-sm text-brand-ink hover:bg-brand-gold/15">Dashboard</Link>
@@ -57,28 +49,17 @@ export default function NavbarClient({ user }: { user: SessionUser | null }) {
   return (
     <nav className="border-b border-brand-hairline bg-brand-cream/85 backdrop-blur supports-[backdrop-filter]:bg-brand-cream/70 sticky top-0 z-40">
       <div className="max-w-page mx-auto px-6 lg:px-10 h-16 flex items-center gap-8">
-        <Logo size="md" />
+        <Logo size="sm" />
 
-        <form onSubmit={onSearch} className="hidden md:flex flex-1 max-w-md mx-auto">
-          <div className="relative w-full">
-            <input
-              type="search"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Search the catalogue"
-              aria-label="Search"
-              className="w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none text-sm py-2 placeholder:text-brand-muted text-brand-ink transition-colors"
-            />
-          </div>
-        </form>
-
-        <div className="hidden md:flex items-center gap-6">
-          <Link href="/marketplace" className="text-sm text-brand-ink hover:text-brand-gold transition-colors">
-            Marketplace
-          </Link>
-          <Link href="/sell" className="text-sm text-brand-ink hover:text-brand-gold transition-colors">
-            Sell
-          </Link>
+        <div className="hidden md:flex items-center gap-6 ml-auto">
+          <a
+            href={MARKETPLACE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-brand-ink hover:text-brand-gold transition-colors"
+          >
+            Marketplace ↗
+          </a>
           {user ? (
             <>
               <Link href="/dashboard" className="text-sm text-brand-ink hover:text-brand-gold transition-colors">
@@ -95,13 +76,16 @@ export default function NavbarClient({ user }: { user: SessionUser | null }) {
               </form>
             </>
           ) : (
-            <Link
-              href="/signin"
-              className="bg-brand-gold text-brand-ink font-semibold text-sm px-5 py-2 hover:bg-brand-gold-dark transition-colors"
-            >
+            <Link href="/signin" className="text-sm text-brand-ink hover:text-brand-gold transition-colors">
               Sign in
             </Link>
           )}
+          <Link
+            href="/contact"
+            className="bg-brand-gold text-brand-ink font-semibold text-sm px-5 py-2 hover:bg-brand-gold-dark transition-colors"
+          >
+            Build my agent
+          </Link>
         </div>
 
         <button
@@ -120,18 +104,8 @@ export default function NavbarClient({ user }: { user: SessionUser | null }) {
       {open && (
         <div className="md:hidden border-t border-brand-hairline bg-brand-cream">
           <div className="max-w-page mx-auto px-6 py-5 flex flex-col gap-4">
-            <form onSubmit={onSearch}>
-              <input
-                type="search"
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="Search the catalogue"
-                aria-label="Search"
-                className="w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none text-base py-2 placeholder:text-brand-muted"
-              />
-            </form>
-            <Link href="/marketplace" onClick={() => setOpen(false)} className="py-2">Marketplace</Link>
-            <Link href="/sell" onClick={() => setOpen(false)} className="py-2">Sell</Link>
+            <Link href="/contact" onClick={() => setOpen(false)} className="py-2 font-semibold">Build my agent</Link>
+            <a href={MARKETPLACE_URL} target="_blank" rel="noopener noreferrer" onClick={() => setOpen(false)} className="py-2">Marketplace ↗</a>
             {user ? (
               <>
                 <Link href="/dashboard" onClick={() => setOpen(false)} className="py-2">Dashboard</Link>
@@ -140,7 +114,7 @@ export default function NavbarClient({ user }: { user: SessionUser | null }) {
                 </form>
               </>
             ) : (
-              <Link href="/signin" onClick={() => setOpen(false)} className="py-2 font-semibold">
+              <Link href="/signin" onClick={() => setOpen(false)} className="py-2">
                 Sign in
               </Link>
             )}
