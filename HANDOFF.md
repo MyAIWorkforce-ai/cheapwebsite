@@ -793,3 +793,58 @@ taking **minutes** to arrive, which made first-login feel broken.
   Resend → inbox), not a code bug. Password-first sidesteps it for most
   users. If you want to speed up the link itself later, check Supabase
   Auth SMTP/rate-limit settings and Resend deliverability.
+
+## Phase 2 — post-launch backlog
+
+Captured during the launch-day session. None of these block launch.
+
+### Revenue / product
+- **Paid featured placement ("Feature my listing").** Today `featured` is
+  just a hardcoded flag on 2 demo listings (`lib/catalog.ts`) — no DB
+  column, no admin toggle, no way for real listings to be featured. Build:
+  a `featured_until` column on `listings`, a paid "Feature my listing"
+  Stripe flow (flat fee or weekly), and marketplace logic to surface
+  featured listings (navy card) until the timer expires. Clean extra
+  revenue on top of the 20% — doesn't touch creator economics. ~half a day.
+  (Navy card styling is already reserved for `featured`, so it'll "just
+  work" once listings can be flagged.)
+- **Prompts as a product.** Founder considered a 4th type. Decision for
+  launch: keep the 3 types; a good prompt pack is already a "Skill." If
+  creators ask, add prompts as the lightweight end of Skill rather than a
+  separate product.
+
+### Affiliate program hardening (earnings book now; payout/guards don't)
+- **Affiliate payout mechanism** — the 5% earnings are recorded in
+  `affiliate_earnings`, but disbursing them via Stripe (and the $50
+  threshold) still needs building. See `docs/affiliate-program.md`.
+- **Fraud guards** from that design doc: only self-referral-at-attribution
+  is handled today. Still to add: same-Stripe-account block, same-email
+  block, reciprocal-referral detection, velocity/IP flags. Build before
+  affiliate money actually flows.
+
+### Auth / branding polish
+- **Google OAuth logo** — add the Skillzy logo to the consent screen
+  (name is done + verified). Uploading a logo triggers another Google
+  verification round, so it was skipped for launch.
+- **Supabase custom auth domain** (paid) — point the OAuth callback at
+  e.g. `auth.skillzy.ai` so the Google screen shows a skillzy.ai domain
+  instead of `…supabase.co` entirely.
+
+### Email / deliverability
+- **DMARC** — route the `rua=` reports to a free DMARC dashboard
+  (Postmark/dmarcian), then tighten policy `none → quarantine → reject`
+  after ~2 weeks of clean reports.
+- **Magic-link latency** — investigate Supabase Auth SMTP / Resend
+  deliverability if links still take minutes (password-first mitigates).
+
+### Ops / tax / scale
+- **Stripe:** clear the support phone number from statements; sort proper
+  GST / global tax with an accountant (code adds no tax today).
+- **Scale-up** when traffic justifies: Vercel Pro, Supabase Pro, Resend
+  paid, add a Sentry DSN.
+
+### Content / marketplace
+- **Re-enable the Dispatch newsletter slide-in** at ~50 creators (paused
+  in `app/layout.tsx`; just re-add `<NewsletterSlideIn />`).
+- **Retire/replace static demo listings** once real listings populate —
+  they're non-buyable showcase data in `lib/catalog.ts`.
