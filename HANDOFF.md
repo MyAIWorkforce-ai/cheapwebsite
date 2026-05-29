@@ -902,3 +902,23 @@ longer be auto-exposed to the Data API (PostgREST / GraphQL / supabase-js).
   -- then enable RLS + add policies as usual
   ```
   (Tighten the verbs per table — e.g. read-only tables only need `select`.)
+
+## Founder alerts must NOT be self-addressed — set NOTIFY_EMAIL
+
+Gotcha found 2026-05-30 after `hi@skillzy.ai` became its own Google
+Workspace mailbox: the founder alerts (new signup / new listing / new
+sale / sample-buy-attempt) send **from `hi@skillzy.ai`**, and by default
+**to `hi@skillzy.ai`** (`env.resend.fromEmail`). A self-addressed message
+arriving via an external relay (Resend) is **silently dropped by
+Gmail/Workspace — not even shown in Spam.**
+
+- It *used* to work only because `hi@` was forwarding to a *different*
+  inbox (`toby@myaiworkforce.ai`), so it wasn't self-to-self at the
+  destination. Once `hi@` became its own mailbox, the self-send vanished.
+- **Fix:** set **`NOTIFY_EMAIL`** in Vercel (`skillzyai`, Prod+Preview,
+  NOT sensitive) to a **different address** than the sender — e.g.
+  `toby@skillzy.ai` or a personal Gmail. Then alerts go `hi@ → toby@` and
+  deliver. The code already reads `NOTIFY_EMAIL`
+  (`lib/email/admin-notification.ts → notifyTo()`); no code change needed.
+- **Rule of thumb:** the alert recipient (`NOTIFY_EMAIL`) must never equal
+  the sender (`EMAIL_FROM` = `hi@skillzy.ai`).
