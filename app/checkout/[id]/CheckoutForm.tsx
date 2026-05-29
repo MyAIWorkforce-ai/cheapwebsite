@@ -69,6 +69,12 @@ export default function CheckoutForm({
   const stripeRef = useRef<Stripe | null>(null)
   const elementsRef = useRef<StripeElements | null>(null)
 
+  // Open checkout at the top (the payment form), not wherever the buyer
+  // was scrolled on the listing page when they tapped buy.
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
   const amountCents = Math.round(
     Number(price.replace(/[^0-9.]/g, '')) * 100,
   )
