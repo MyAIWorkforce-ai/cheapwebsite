@@ -834,6 +834,17 @@ Captured during the launch-day session. None of these block launch.
 - **DMARC** — route the `rua=` reports to a free DMARC dashboard
   (Postmark/dmarcian), then tighten policy `none → quarantine → reject`
   after ~2 weeks of clean reports.
+- **Keep DMARC at `p=none` for now.** Update 2026-05-30: the Google
+  Workspace is live (`hi@skillzy.ai` sends as skillzy.ai). DMARC reports
+  show Workspace mail **passing via SPF** ✅, but some "From skillzy.ai"
+  messages (forwards / non-aligned paths) still show DMARC fail — harmless
+  at `p=none` (nothing blocked). Don't tighten to quarantine/reject until
+  BOTH Resend and Workspace mail align cleanly, or legit mail could start
+  bouncing.
+- **Finish Google Workspace DKIM** — Google Admin → Apps → Gmail →
+  **Authenticate email** → add the DKIM TXT record for `skillzy.ai`. Then
+  Workspace mail aligns on DKIM too (today it only passes via SPF). Not
+  urgent, but do it before tightening DMARC.
 - **Magic-link latency** — investigate Supabase Auth SMTP / Resend
   deliverability if links still take minutes (password-first mitigates).
 - **Separate Skillzy Google Workspace** — right now mail TO `hi@skillzy.ai`
