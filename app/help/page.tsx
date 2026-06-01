@@ -54,6 +54,23 @@ const buyer: QA[] = [
     a: 'Yes — every purchase lives in your dashboard forever, even if the creator updates or pulls the listing. Old versions stay downloadable.',
   },
   {
+    q: 'I bought as a guest and lost the email. How do I get my files?',
+    a: (
+      <>
+        Two options.{' '}
+        <Link
+          href="/find-my-order"
+          className="border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
+        >
+          Find my order
+        </Link>{' '}
+        resends the download link to the email you bought with — works
+        even without an account. Or sign up with that same email and your
+        purchase auto-attaches to your dashboard, with permanent re-downloads.
+      </>
+    ),
+  },
+  {
     q: 'Do I need to know how to code?',
     a: 'No for Skills and Agent Setups. They’re drop-in. Guides assume you can read and follow a step list.',
   },
