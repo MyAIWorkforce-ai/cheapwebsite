@@ -47,8 +47,8 @@ export default function GlobalError({
           </h1>
           <p style={{ marginTop: 20, color: '#5F6B7E', fontSize: 17 }}>
             Refresh the page. If it keeps happening, email{' '}
-            <a href="mailto:hi@skillzy.ai" style={{ color: '#0F1729' }}>
-              hi@skillzy.ai
+            <a href="mailto:help@skillzy.ai" style={{ color: '#0F1729' }}>
+              help@skillzy.ai
             </a>
             {error.digest && <> and quote <code>{error.digest}</code></>}.
           </p>

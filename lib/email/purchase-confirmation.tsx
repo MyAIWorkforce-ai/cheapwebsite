@@ -55,7 +55,7 @@ export async function sendPurchaseConfirmation({
       </p>
       <p style="margin-top:32px;font-size:13px;color:#5F6B7E;">
         Questions? Reply to this email or write to
-        <a href="mailto:hi@skillzy.ai" style="color:#5F6B7E;">hi@skillzy.ai</a>.
+        <a href="mailto:help@skillzy.ai" style="color:#5F6B7E;">help@skillzy.ai</a>.
       </p>
       <p style="margin-top:32px;font-size:12px;color:#5F6B7E;border-top:1px solid #CCD2DD;padding-top:16px;">
         Skillzy — a marketplace for agent skills.
@@ -64,7 +64,7 @@ export async function sendPurchaseConfirmation({
   </body>
   </html>`
 
-  const text = `You're all set.\n\nOrder ${orderId}\n\n${product.title}\n${product.type} · by ${product.creator.name}\n\nDownload your files (no sign-in needed, keeps working):\n${downloadUrl}\n\nQuestions? hi@skillzy.ai`
+  const text = `You're all set.\n\nOrder ${orderId}\n\n${product.title}\n${product.type} · by ${product.creator.name}\n\nDownload your files (no sign-in needed, keeps working):\n${downloadUrl}\n\nQuestions? help@skillzy.ai`
 
   return resend.emails.send({
     from: `Skillzy <${env.resend.fromEmail}>`,

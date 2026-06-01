@@ -158,10 +158,10 @@ export default async function OrderSuccessPage({
                     to get your files — this page only reveals them through
                     that secure link. Can’t find the email? Write to{' '}
                     <a
-                      href="mailto:hi@skillzy.ai"
+                      href="mailto:help@skillzy.ai"
                       className="border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold"
                     >
-                      hi@skillzy.ai
+                      help@skillzy.ai
                     </a>
                     .
                   </p>
@@ -198,10 +198,10 @@ export default async function OrderSuccessPage({
                     dashboard, and stays available for re-download. If nothing
                     arrives within a few minutes, write to{' '}
                     <a
-                      href="mailto:hi@skillzy.ai"
+                      href="mailto:help@skillzy.ai"
                       className="border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold"
                     >
-                      hi@skillzy.ai
+                      help@skillzy.ai
                     </a>
                     .
                   </p>

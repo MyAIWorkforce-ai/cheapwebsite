@@ -54,7 +54,7 @@ const baseFaq = (niche: string): { q: string; a: string }[] => [
   ),
   Q(
     'What if it does not work for my business?',
-    'Email hi@skillzy.ai with your order number and what went wrong. A human reviews every refund request — genuine cases where a listing did not deliver get sorted.',
+    'Email help@skillzy.ai with your order number and what went wrong. A human reviews every refund request — genuine cases where a listing did not deliver get sorted.',
   ),
 ]
 

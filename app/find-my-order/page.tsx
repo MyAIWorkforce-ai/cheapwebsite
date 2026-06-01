@@ -49,10 +49,10 @@ export default function FindMyOrderPage() {
           <p className="mt-6 text-brand-muted max-w-prose">
             Still stuck? Email{' '}
             <a
-              href="mailto:hi@skillzy.ai"
+              href="mailto:help@skillzy.ai"
               className="border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
             >
-              hi@skillzy.ai
+              help@skillzy.ai
             </a>{' '}
             with anything you remember — the rough date, the listing name,
             the card&rsquo;s last four. A human reads every one.

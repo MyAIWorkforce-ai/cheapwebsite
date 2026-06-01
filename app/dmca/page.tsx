@@ -49,10 +49,10 @@ export default function DmcaPage() {
             <p className="text-brand-muted">
               Email{' '}
               <a
-                href="mailto:hi@skillzy.ai?subject=Takedown%20notice"
+                href="mailto:help@skillzy.ai?subject=Takedown%20notice"
                 className="border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
               >
-                hi@skillzy.ai
+                help@skillzy.ai
               </a>{' '}
               with:
             </p>

@@ -199,7 +199,7 @@ export default async function PayoutsPage({
         <div className="bg-red-50 border-b border-red-200">
           <div className="max-w-page mx-auto px-6 lg:px-10 py-3 text-sm text-red-700">
             Couldn&rsquo;t finish connecting Stripe. Please try again, or write
-            to hi@skillzy.ai if it keeps happening.
+            to help@skillzy.ai if it keeps happening.
           </div>
         </div>
       )}

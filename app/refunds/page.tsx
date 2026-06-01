@@ -78,10 +78,10 @@ export default function RefundsPage() {
             <p className="text-brand-muted">
               Email{' '}
               <a
-                href="mailto:hi@skillzy.ai?subject=Refund%20request"
+                href="mailto:help@skillzy.ai?subject=Refund%20request"
                 className="border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
               >
-                hi@skillzy.ai
+                help@skillzy.ai
               </a>{' '}
               within a reasonable time, with your order email and what went
               wrong. We usually respond within a few business days. Please

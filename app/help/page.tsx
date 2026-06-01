@@ -37,10 +37,10 @@ const buyer: QA[] = [
       <>
         Email{' '}
         <a
-          href="mailto:hi@skillzy.ai"
+          href="mailto:help@skillzy.ai"
           className="border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
         >
-          hi@skillzy.ai
+          help@skillzy.ai
         </a>{' '}
         with your order number and what went wrong. We look at every
         request in good faith. Refunds aren&rsquo;t automatic and
@@ -158,10 +158,10 @@ export default function HelpPage() {
           <p className="mt-5 text-brand-muted max-w-prose">
             For everything not answered below, email{' '}
             <a
-              href="mailto:hi@skillzy.ai"
+              href="mailto:help@skillzy.ai"
               className="border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
             >
-              hi@skillzy.ai
+              help@skillzy.ai
             </a>
             . A real person reads every message.
           </p>

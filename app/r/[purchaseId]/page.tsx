@@ -34,10 +34,10 @@ function NotFound() {
         <p className="mt-5 text-brand-muted">
           If you bought a Skillzy listing and want to leave a review, email{' '}
           <a
-            href="mailto:hi@skillzy.ai"
+            href="mailto:help@skillzy.ai"
             className="border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
           >
-            hi@skillzy.ai
+            help@skillzy.ai
           </a>{' '}
           with your order number — we&rsquo;ll send a fresh link.
         </p>

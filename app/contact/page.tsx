@@ -42,10 +42,10 @@ export default function ContactPage() {
             <dt className="label-cap text-brand-gold">Trust &amp; safety</dt>
             <dd className="mt-3">
               <a
-                href="mailto:hi@skillzy.ai"
+                href="mailto:help@skillzy.ai"
                 className="font-display text-2xl border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
               >
-                hi@skillzy.ai
+                help@skillzy.ai
               </a>
             </dd>
             <p className="mt-3 text-sm text-brand-muted">

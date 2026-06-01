@@ -540,7 +540,7 @@ export default async function ProductDetailPage({
       <section className="px-6 lg:px-10 py-10 sm:py-14 border-t border-brand-hairline">
         <div className="max-w-page mx-auto flex items-center justify-between flex-wrap gap-6">
           <a
-            href={`mailto:hi@skillzy.ai?subject=Report%20listing%20${encodeURIComponent(p.id)}`}
+            href={`mailto:help@skillzy.ai?subject=Report%20listing%20${encodeURIComponent(p.id)}`}
             className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted hover:text-brand-ink transition-colors"
           >
             Report this listing

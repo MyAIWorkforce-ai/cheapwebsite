@@ -14,10 +14,10 @@ export default function GuaranteeBadge() {
           <p className="mt-1.5 text-sm text-brand-muted leading-relaxed">
             If the listing doesn’t work as described, email{' '}
             <a
-              href="mailto:hi@skillzy.ai"
+              href="mailto:help@skillzy.ai"
               className="border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold"
             >
-              hi@skillzy.ai
+              help@skillzy.ai
             </a>{' '}
             with your order number. A real person reviews every request — no
             forms, no friction.

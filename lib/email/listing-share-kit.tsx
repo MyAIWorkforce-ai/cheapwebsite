@@ -79,7 +79,7 @@ export async function sendListingShareKit({
       </p>
 
       <p style="font-size:12px;color:#5F6B7E;border-top:1px solid #CCD2DD;margin:32px 0 0;padding-top:16px;">
-        Skillzy — built by humans, dropped into your agent. Questions? <a href="mailto:hi@skillzy.ai" style="color:#5F6B7E;">hi@skillzy.ai</a>
+        Skillzy — built by humans, dropped into your agent. Questions? <a href="mailto:help@skillzy.ai" style="color:#5F6B7E;">help@skillzy.ai</a>
       </p>
     </div>
   </body></html>`
@@ -100,7 +100,7 @@ Post it everywhere in week one — IG bio + story QR, LinkedIn, X, FB groups, em
 
 Dashboard: ${dashboard}
 
-Skillzy — hi@skillzy.ai`
+Skillzy — help@skillzy.ai`
 
   return resend.emails.send({
     from: `Skillzy <${env.resend.fromEmail}>`,

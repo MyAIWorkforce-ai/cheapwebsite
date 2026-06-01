@@ -55,7 +55,7 @@ export async function sendBuyerRefundEmail({
       </div>
       <p style="font-size:14px;color:#5F6B7E;margin:24px 0 0;line-height:1.55;">
         Questions or something not right? Reply to this email or write to
-        <a href="mailto:hi@skillzy.ai" style="color:#5F6B7E;">hi@skillzy.ai</a>.
+        <a href="mailto:help@skillzy.ai" style="color:#5F6B7E;">help@skillzy.ai</a>.
       </p>
       <hr style="border:none;border-top:1px solid #CCD2DD;margin:32px 0;" />
       <p style="font-family:monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#5F6B7E;margin:0;">Skillzy</p>
@@ -71,7 +71,7 @@ Order: ${orderId}
 
 Funds usually land back on the same card within 3–10 business days.
 
-Questions? hi@skillzy.ai`
+Questions? help@skillzy.ai`
 
   try {
     const res = await resend.emails.send({
