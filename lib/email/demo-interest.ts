@@ -21,8 +21,10 @@ type Args = {
  * "no longer available" message — this email is purely a demand
  * signal for us (which samples people actually want to buy).
  *
- * Goes to ADMIN_EMAILS if configured, else the Skillzy inbox so it
- * still lands somewhere we read before that env var is set.
+ * Routes via the per-type founder-alert chain:
+ *   NOTIFY_EMAIL_SALE -> NOTIFY_EMAIL -> EMAIL_FROM (last-resort).
+ * Never set any of these to EMAIL_FROM itself — Gmail/Workspace
+ * silently drops self-addressed mail.
  */
 export async function sendDemoInterestNotification({
   productTitle,
@@ -34,7 +36,10 @@ export async function sendDemoInterestNotification({
   if (!hasResend) return { skipped: true as const }
 
   const resend = getResend()
-  const to = env.adminEmails.length ? env.adminEmails : [env.resend.fromEmail]
+  const to =
+    process.env.NOTIFY_EMAIL_SALE?.trim() ||
+    process.env.NOTIFY_EMAIL?.trim() ||
+    env.resend.fromEmail
   const when = new Date().toUTCString()
 
   const subject = `Demo listing interest — ${productTitle}`
