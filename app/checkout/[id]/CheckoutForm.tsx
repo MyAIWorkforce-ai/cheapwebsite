@@ -70,15 +70,40 @@ export default function CheckoutForm({
   const elementsRef = useRef<StripeElements | null>(null)
 
   // Open checkout at the top (the payment form), not wherever the buyer
-  // was scrolled on the listing page when they tapped buy. useLayoutEffect
-  // fires before the browser paints, and we also turn off the browser's
-  // own scroll restoration so it doesn't override us.
+  // was scrolled on the listing page when they tapped buy. The Stripe
+  // Payment Element iframe auto-focuses when it mounts and pulls the
+  // page down to it, so a single scroll-to-top on mount isn't enough —
+  // we re-pin across the window where that load can happen, and stop
+  // the moment the buyer scrolls deliberately.
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return
     if ('scrollRestoration' in window.history) {
       window.history.scrollRestoration = 'manual'
     }
     window.scrollTo(0, 0)
+
+    let userScrolled = false
+    const onUserScroll = () => {
+      userScrolled = true
+    }
+    window.addEventListener('wheel', onUserScroll, { passive: true })
+    window.addEventListener('touchmove', onUserScroll, { passive: true })
+    window.addEventListener('keydown', onUserScroll)
+
+    const pin = () => {
+      if (userScrolled) return
+      if (window.scrollY > 0) window.scrollTo(0, 0)
+    }
+    const timers = [50, 150, 400, 900, 1800, 3000].map((ms) =>
+      window.setTimeout(pin, ms),
+    )
+
+    return () => {
+      timers.forEach(clearTimeout)
+      window.removeEventListener('wheel', onUserScroll)
+      window.removeEventListener('touchmove', onUserScroll)
+      window.removeEventListener('keydown', onUserScroll)
+    }
   }, [])
 
   const amountCents = Math.round(
@@ -137,15 +162,6 @@ export default function CheckoutForm({
       cancelled = true
     }
   }, [listingId, amountCents])
-
-  // Stripe's Payment Element iframe auto-focuses when it mounts, which
-  // makes the browser scroll the iframe (sitting at the bottom of the
-  // form) into view. Re-pin to the top once it's ready — but only if
-  // the buyer hasn't deliberately scrolled away in the meantime.
-  useEffect(() => {
-    if (!ready) return
-    if (window.scrollY < 400) window.scrollTo(0, 0)
-  }, [ready])
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
