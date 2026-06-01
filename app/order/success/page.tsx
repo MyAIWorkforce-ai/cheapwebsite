@@ -4,6 +4,8 @@ import { getStripe, hasStripe } from '@/lib/stripe'
 import { fulfillPaymentIntent, orderIdFromIntent } from '@/lib/fulfillment'
 import { listingFiles } from '@/lib/delivery'
 import { deliveryTokenValid } from '@/lib/delivery-token'
+import { getUser } from '@/lib/auth'
+import GuestAccountPrompt from './GuestAccountPrompt'
 
 export const metadata = {
   title: "You're all set",
@@ -90,6 +92,13 @@ export default async function OrderSuccessPage({
   const files = verified && productId ? await listingFiles(productId) : []
   orderId = orderId.toUpperCase()
   email = email || 'you@example.com'
+
+  // Guests who paid without an account need a clear next step: add a
+  // password to the same email so the purchase auto-attaches to their
+  // dashboard. Skip this for signed-in buyers (they already own it).
+  const signedIn = await getUser()
+  const showGuestPrompt =
+    !signedIn && verified && email !== 'you@example.com'
 
   return (
     <div className="paper">
@@ -226,14 +235,18 @@ export default async function OrderSuccessPage({
             </div>
           </div>
 
+          {showGuestPrompt && <GuestAccountPrompt email={email} />}
+
           <div className="mt-12 flex flex-wrap gap-3 sm:gap-4 items-center">
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
-            >
-              Go to my dashboard
-              <span aria-hidden>→</span>
-            </Link>
+            {signedIn ? (
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
+              >
+                Go to my dashboard
+                <span aria-hidden>→</span>
+              </Link>
+            ) : null}
             <Link
               href="/marketplace"
               className="text-sm border-b border-brand-ink pb-0.5 hover:text-brand-gold hover:border-brand-gold transition-colors"

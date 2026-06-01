@@ -52,15 +52,17 @@ export default function SignInForm({
   demoMode,
   oauthError,
   sentEmail,
+  defaultEmail,
   next,
 }: {
   demoMode: boolean
   oauthError?: string
   sentEmail?: string
+  defaultEmail?: string
   next?: string
 }) {
   const [mode, setMode] = useState<'link' | 'password'>('password')
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(defaultEmail ?? '')
   const [linkState, linkAction] = useFormState(signInWithEmail, initial)
   const [pwState, pwAction] = useFormState(signInWithPassword, initial)
   const state = mode === 'link' ? linkState : pwState

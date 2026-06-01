@@ -12,12 +12,13 @@ export const metadata = {
 export default async function SignInPage({
   searchParams,
 }: {
-  searchParams: { error?: string; sent?: string; next?: string }
+  searchParams: { error?: string; sent?: string; next?: string; email?: string }
 }) {
   const next =
     searchParams.next && searchParams.next.startsWith('/')
       ? searchParams.next
       : undefined
+  const defaultEmail = searchParams.email?.trim() || undefined
   const user = await getUser()
   if (user) redirect(next ?? '/dashboard')
 
@@ -41,6 +42,7 @@ export default async function SignInPage({
           demoMode={!hasSupabase}
           oauthError={searchParams.error}
           sentEmail={searchParams.sent}
+          defaultEmail={defaultEmail}
           next={next}
         />
       </div>
