@@ -182,6 +182,19 @@ export default function NewListingForm({
   const [state, action] = useFormState(publishListing, initial)
   const formRef = useRef<HTMLFormElement | null>(null)
 
+  // The bundle <input type="file"> is cleared after each pick so the
+  // user can re-pick the same file ("add more"). That means at submit
+  // time the input is empty even though we still have the File objects
+  // in React state. Append them back into the FormData here so the
+  // server action actually receives them.
+  function actionWithFiles(formData: FormData) {
+    formData.delete('bundle')
+    for (const f of files) {
+      formData.append('bundle', f, f.name)
+    }
+    return action(formData)
+  }
+
   // After Publish returns a message (error or info), the message renders
   // at the very bottom by the button — scroll it into view so the
   // creator isn't left staring at the footer wondering what happened.
@@ -512,7 +525,7 @@ export default function NewListingForm({
 
   return (
     <>
-      <form action={action} ref={formRef}>
+      <form action={actionWithFiles} ref={formRef}>
         <input type="hidden" name="description" value={JSON.stringify(toArray(descText))} />
         <input type="hidden" name="what_you_get" value={JSON.stringify(toArray(whatText))} />
         <input type="hidden" name="type" value={type} />
