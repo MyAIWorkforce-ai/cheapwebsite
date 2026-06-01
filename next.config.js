@@ -8,6 +8,18 @@ const nextConfig = {
     instrumentationHook: true,
   },
 
+  // Apple Pay domain verification. Stripe expects the file at the
+  // exact /.well-known/... URL; map that to our route handler that
+  // serves the value of STRIPE_APPLE_PAY_VERIFICATION.
+  async rewrites() {
+    return [
+      {
+        source: '/.well-known/apple-developer-merchantid-domain-association',
+        destination: '/api/apple-pay-domain-association',
+      },
+    ]
+  },
+
   // Production security headers, applied to every route.
   async headers() {
     return [
