@@ -862,6 +862,20 @@ Captured during the launch-day session. None of these block launch.
   GST / global tax with an accountant (code adds no tax today).
 - **Scale-up** when traffic justifies: Vercel Pro, Supabase Pro, Resend
   paid, add a Sentry DSN.
+- **Storage / egress optimisation.** Architecture is already efficient
+  — each file lives once at `skillzy-products/<creator_id>/<listing_id>/<filename>`
+  in Supabase Storage, and every buyer gets a short-lived signed URL
+  to the same object (no per-buyer duplication). At scale the dominant
+  cost will be **egress, not storage** (~$0.09/GB on Supabase vs
+  $0.021/GB·mo storage). When traffic justifies:
+  - Front Supabase Storage with **Bunny.net or Cloudflare R2** —
+    bandwidth ~5× cheaper at scale.
+  - Add a **re-download counter / cap per purchase** — currently
+    unlimited; OK at launch, worth metering above ~10k buyers per
+    listing.
+  - **Content-hash de-dupe across listings** — only worth it if
+    creators repeatedly upload identical SKILL.md files (probably
+    rare).
 
 ### Content / marketplace
 - **Re-enable the Dispatch newsletter slide-in** at ~50 creators (paused
