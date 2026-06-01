@@ -18,19 +18,23 @@
 import { NextResponse } from 'next/server'
 import { env, hasAnthropic } from '@/lib/env'
 import { checkRateLimit, callerIp } from '@/lib/rate-limit'
+import { getUser } from '@/lib/auth'
 
 export const runtime = 'nodejs'
 
 // Anonymous is intentional — "drop a file, see your listing in seconds"
 // is the conversion hook. Bounds on AI spend:
-//   - per-IP daily: stops one machine spamming
-//   - global hourly: stops a botnet running up the bill catastrophically
+//   - anon per-IP daily: tight, so a botnet can't farm drafts
+//   - signed-in per-user daily: 10× the anon cap so real creators
+//     can list a dozen products in one sitting without hitting a wall
+//   - global hourly: catastrophic-bill circuit breaker
 //
 // Backend is Upstash Redis (persistent) if UPSTASH_REDIS_REST_URL and
 // UPSTASH_REDIS_REST_TOKEN are set; in-memory per-instance otherwise
 // (soft limit — counters reset on Vercel cold-start).
-const PER_IP_DAILY = 10
-const GLOBAL_HOURLY = 50
+const ANON_DAILY = 10
+const USER_DAILY = 100
+const GLOBAL_HOURLY = 200
 
 function todayBucket() {
   return new Date().toISOString().slice(0, 10) // YYYY-MM-DD
@@ -105,16 +109,34 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: globalCheck.reason }, { status: 429 })
   }
 
-  // Per-IP daily cap — stops one machine spamming.
-  const ip = callerIp(req)
-  const ipCheck = await checkRateLimit(`draft:ip:${ip}:${todayBucket()}`, {
-    max: PER_IP_DAILY,
-    windowSec: 86_400,
-    reason:
-      "You've used today's AI drafts. Sign in to keep going, or come back tomorrow.",
-  })
-  if (!ipCheck.ok) {
-    return NextResponse.json({ error: ipCheck.reason }, { status: 429 })
+  // Signed-in creators get a much larger per-user budget than anon
+  // visitors. Anon visitors stay capped per-IP so a single machine
+  // can't farm the API.
+  const user = await getUser().catch(() => null)
+  if (user) {
+    const userCheck = await checkRateLimit(
+      `draft:user:${user.id}:${todayBucket()}`,
+      {
+        max: USER_DAILY,
+        windowSec: 86_400,
+        reason:
+          "You've used today's AI draft budget. It resets at midnight UTC — or email help@skillzy.ai if you're working on a bigger batch and need a lift.",
+      },
+    )
+    if (!userCheck.ok) {
+      return NextResponse.json({ error: userCheck.reason }, { status: 429 })
+    }
+  } else {
+    const ip = callerIp(req)
+    const ipCheck = await checkRateLimit(`draft:ip:${ip}:${todayBucket()}`, {
+      max: ANON_DAILY,
+      windowSec: 86_400,
+      reason:
+        "You've used today's AI drafts. Sign in to keep going (signed-in creators get a much larger daily budget), or come back tomorrow.",
+    })
+    if (!ipCheck.ok) {
+      return NextResponse.json({ error: ipCheck.reason }, { status: 429 })
+    }
   }
 
   const { brief, type, pdfs, pdfBase64, pdfName } = await req
