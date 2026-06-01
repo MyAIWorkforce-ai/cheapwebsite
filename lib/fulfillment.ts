@@ -77,10 +77,15 @@ export async function fulfillPaymentIntent(intent: Stripe.PaymentIntent) {
     }
   }
 
-  // Seller "you sold X" email. Needs Supabase to look up the listing's
-  // creator and their auth email — silent no-op if either is missing.
-  async function emailSeller() {
-    if (!hasResend || !hasSupabase || !product) return
+  // Look up the seller once — both the seller-facing "you sold X"
+  // email and the founder "cha-ching" alert want creator details.
+  // All failures are non-fatal: emails just send without the extra
+  // context if the lookup falls over.
+  let sellerEmail: string | null = null
+  let sellerHandle: string | null = null
+  let listingSlug: string | null = null
+  let listingTitle: string | null = null
+  if (hasSupabase && product) {
     try {
       const supabase = createServiceClient()
       const { data: listing } = await supabase
@@ -88,16 +93,33 @@ export async function fulfillPaymentIntent(intent: Stripe.PaymentIntent) {
         .select('creator_id, slug, title')
         .eq('id', listingId)
         .single()
-      if (!listing?.creator_id) return
-      const { data: userResp } = await supabase.auth.admin.getUserById(
-        listing.creator_id as string,
-      )
-      const sellerEmail = userResp.user?.email
-      if (!sellerEmail) return
+      if (listing?.creator_id) {
+        listingSlug = (listing.slug as string) ?? null
+        listingTitle = (listing.title as string) ?? null
+        const { data: userResp } = await supabase.auth.admin.getUserById(
+          listing.creator_id as string,
+        )
+        sellerEmail = userResp.user?.email ?? null
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('handle')
+          .eq('id', listing.creator_id as string)
+          .maybeSingle()
+        sellerHandle = (profile?.handle as string | null) ?? null
+      }
+    } catch (err) {
+      console.error('Seller lookup for sale emails failed', err)
+    }
+  }
+
+  // Seller "you sold X" email.
+  async function emailSeller() {
+    if (!hasResend || !product || !sellerEmail) return
+    try {
       await sendSaleNotification({
         to: sellerEmail,
-        title: (listing.title as string) ?? product.title,
-        slug: (listing.slug as string) ?? listingId,
+        title: listingTitle ?? product.title,
+        slug: listingSlug ?? listingId!,
         amountCents: amount,
         payoutCents: payout,
         currency,
@@ -108,8 +130,9 @@ export async function fulfillPaymentIntent(intent: Stripe.PaymentIntent) {
     }
   }
 
-  // Founder "new sale" alert to hi@skillzy.ai — fired once per recorded
-  // sale (gated by the same fresh-insert guard as the other emails).
+  // Founder "new sale" alert to sales@skillzy.ai — fired once per
+  // recorded sale (gated by the same fresh-insert guard as the other
+  // emails).
   async function emailFounder() {
     if (!hasResend) return
     try {
@@ -123,6 +146,8 @@ export async function fulfillPaymentIntent(intent: Stripe.PaymentIntent) {
         payoutCents: payout,
         currency,
         buyerEmail: buyerEmail || null,
+        sellerEmail,
+        sellerHandle,
         orderId: orderIdFromIntent(intent.id),
         routedToCreator,
       })

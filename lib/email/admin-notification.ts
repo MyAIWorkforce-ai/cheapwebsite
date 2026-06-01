@@ -207,6 +207,8 @@ export async function sendNewSaleNotification({
   payoutCents,
   currency = 'usd',
   buyerEmail,
+  sellerEmail,
+  sellerHandle,
   orderId,
   routedToCreator,
 }: {
@@ -216,6 +218,8 @@ export async function sendNewSaleNotification({
   payoutCents: number
   currency?: string
   buyerEmail?: string | null
+  sellerEmail?: string | null
+  sellerHandle?: string | null
   orderId: string
   routedToCreator: boolean
 }) {
@@ -225,11 +229,18 @@ export async function sendNewSaleNotification({
   const m = (c: number) =>
     `${cur} ${(c / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 
+  const sellerLabel = sellerHandle
+    ? sellerEmail
+      ? `@${sellerHandle} (${sellerEmail})`
+      : `@${sellerHandle}`
+    : sellerEmail
+
   const rows = [
     ['Listing', title],
     ['Sale total', m(amountCents)],
     ['Skillzy 20%', m(skillzyCents)],
     ['Creator payout', routedToCreator ? m(payoutCents) : '— not routed'],
+    ['Seller', sellerLabel],
     ['Buyer', buyerEmail],
     ['Order', orderId],
   ]
@@ -254,7 +265,7 @@ export async function sendNewSaleNotification({
 
   const text = `New sale: ${title} — ${m(amountCents)} (Skillzy ${m(skillzyCents)}, creator ${
     routedToCreator ? m(payoutCents) : 'not routed'
-  }). Buyer: ${buyerEmail ?? '—'}. Order ${orderId}.`
+  }). Seller: ${sellerLabel ?? '—'}. Buyer: ${buyerEmail ?? '—'}. Order ${orderId}.`
 
   try {
     const res = await resend.emails.send({
