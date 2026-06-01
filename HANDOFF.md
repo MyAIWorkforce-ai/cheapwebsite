@@ -1079,6 +1079,34 @@ the handler never fires and no emails (or DB flips) happen.
   during PaymentIntent creation as a safety net if the Resend
   pipeline is ever down. Phase-2 candidate.
 
+### Critical: listings were publishing with no files (`ac14ce7`)
+
+Caught while testing the refund flow — the test listing's dashboard
+read "No files attached yet — the creator may still be uploading."
+The `/sell/new` form was clearing the bundle `<input type="file">`
+after each pick (so a user could re-add the same file via "Add more"),
+which meant on submit the FormData carried zero files even though
+React state held them.
+
+**Fix:** wrap the form action so it appends the in-state files into
+the FormData before delegating to `publishListing`.
+
+**Impact:** every listing created before `ac14ce7` is affected — needs
+checking. Use this query to find them:
+
+```sql
+select l.id, l.title, l.created_at, count(f.id) as file_count
+from public.listings l
+left join public.files f on f.listing_id = l.id
+group by l.id
+order by l.created_at desc;
+```
+
+Broken listings can be re-created from scratch, or files can be
+uploaded manually via Supabase Storage to bucket `skillzy-products`,
+path `<creator_id>/<listing_id>/<filename>`, with a matching row in
+`public.files`.
+
 ## Outstanding follow-ups for next session
 
 1. **Run end-to-end refund test on a fresh buy** (`e613654` deploy).
