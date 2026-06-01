@@ -132,13 +132,112 @@ async function handleAccountUpdated(account: Stripe.Account) {
 }
 
 async function handleChargeRefunded(charge: Stripe.Charge) {
-  if (!hasSupabase || !charge.payment_intent) return
+  const intentId = (charge.payment_intent as string | null) ?? null
+  if (!intentId) return
+
+  // Mark the purchase row as refunded; pull back enough context to
+  // email the buyer, seller, and Skillzy. Idempotency: Stripe can
+  // re-deliver this event, so we only send the emails the FIRST time
+  // we see status flip from paid -> refunded.
+  if (!hasSupabase) return
+
   try {
     const supabase = createServiceClient()
+
+    const { data: existing } = await supabase
+      .from('purchases')
+      .select(
+        'id, listing_id, buyer_email, amount_cents, creator_payout_cents, currency, status',
+      )
+      .eq('stripe_payment_intent_id', intentId)
+      .maybeSingle()
+    if (!existing) return
+    if (existing.status === 'refunded') return // already processed
+
     await supabase
       .from('purchases')
       .update({ status: 'refunded', refunded_at: new Date().toISOString() })
-      .eq('stripe_payment_intent_id', charge.payment_intent as string)
+      .eq('id', existing.id as string)
+
+    if (!hasResend) return
+
+    const listingId = existing.listing_id as string
+    const buyerEmail = (existing.buyer_email as string | null) ?? null
+    const amountCents = (existing.amount_cents as number) ?? 0
+    const payoutCents = (existing.creator_payout_cents as number) ?? 0
+    const currency = (existing.currency as string) ?? 'usd'
+
+    // Pull listing + seller details (same shape as the sale path).
+    const { data: listing } = await supabase
+      .from('listings')
+      .select('creator_id, slug, title')
+      .eq('id', listingId)
+      .single()
+    const title = (listing?.title as string) ?? 'Skillzy listing'
+    const slug = (listing?.slug as string) ?? listingId
+    const orderId = intentId.replace(/^pi_/, '').slice(0, 12).toUpperCase()
+
+    let sellerEmail: string | null = null
+    let sellerHandle: string | null = null
+    if (listing?.creator_id) {
+      try {
+        const { data: userResp } = await supabase.auth.admin.getUserById(
+          listing.creator_id as string,
+        )
+        sellerEmail = userResp.user?.email ?? null
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('handle')
+          .eq('id', listing.creator_id as string)
+          .maybeSingle()
+        sellerHandle = (profile?.handle as string | null) ?? null
+      } catch (err) {
+        console.error('Seller lookup on refund failed', err)
+      }
+    }
+
+    const {
+      sendBuyerRefundEmail,
+      sendSellerRefundEmail,
+      sendFounderRefundEmail,
+    } = await import('@/lib/email/refund-notification')
+
+    const tasks: Promise<unknown>[] = [
+      sendFounderRefundEmail({
+        title,
+        amountCents,
+        currency,
+        buyerEmail,
+        sellerEmail,
+        sellerHandle,
+        orderId,
+      }),
+    ]
+    if (buyerEmail) {
+      tasks.push(
+        sendBuyerRefundEmail({
+          to: buyerEmail,
+          title,
+          amountCents,
+          currency,
+          orderId,
+        }),
+      )
+    }
+    if (sellerEmail) {
+      tasks.push(
+        sendSellerRefundEmail({
+          to: sellerEmail,
+          title,
+          slug,
+          amountCents,
+          payoutCents,
+          currency,
+          orderId,
+        }),
+      )
+    }
+    await Promise.all(tasks)
   } catch (err) {
     console.error('Failed to mark refund', err)
   }
