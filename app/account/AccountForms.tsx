@@ -2,6 +2,7 @@
 
 import { useFormState, useFormStatus } from 'react-dom'
 import { useState, useEffect } from 'react'
+import PasswordInput from '@/components/PasswordInput'
 import {
   updateProfile,
   updateEmail,
@@ -157,8 +158,7 @@ export function PasswordForm({ alreadySet = false }: { alreadySet?: boolean }) {
         <span className="label-cap text-brand-muted">
           {hasPassword ? 'Change password' : 'Set a password'}
         </span>
-        <input
-          type="password"
+        <PasswordInput
           name="password"
           required
           minLength={8}
@@ -166,7 +166,6 @@ export function PasswordForm({ alreadySet = false }: { alreadySet?: boolean }) {
           value={pw}
           onChange={(e) => setPw(e.target.value)}
           placeholder="At least 8 characters"
-          className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 placeholder:text-brand-muted/60"
         />
       </label>
       {state.error && <p className="text-sm text-red-700">{state.error}</p>}

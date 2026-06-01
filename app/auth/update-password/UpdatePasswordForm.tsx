@@ -2,6 +2,7 @@
 
 import { useFormState, useFormStatus } from 'react-dom'
 import { updatePassword, type SignInState } from '@/app/signin/actions'
+import PasswordInput from '@/components/PasswordInput'
 
 const initial: SignInState = {}
 
@@ -30,14 +31,12 @@ export default function UpdatePasswordForm({ demoMode }: { demoMode: boolean }) 
       <form action={action} className="mt-10 flex flex-col gap-5">
         <label className="block">
           <span className="label-cap text-brand-muted">New password</span>
-          <input
-            type="password"
+          <PasswordInput
             name="password"
             required
             minLength={8}
             autoComplete="new-password"
             placeholder="At least 8 characters"
-            className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 placeholder:text-brand-muted/60"
           />
         </label>
         {state.error && <p className="text-sm text-red-700">{state.error}</p>}

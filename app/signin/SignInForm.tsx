@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useFormState, useFormStatus } from 'react-dom'
 import { useState } from 'react'
+import PasswordInput from '@/components/PasswordInput'
 import {
   signInWithEmail,
   signInWithPassword,
@@ -146,13 +147,10 @@ export default function SignInForm({
           </label>
           <label className="block">
             <span className="label-cap text-brand-muted">Password</span>
-            <input
-              type="password"
+            <PasswordInput
               name="password"
               required
               autoComplete="current-password"
-              placeholder="••••••••"
-              className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 placeholder:text-brand-muted/60"
             />
           </label>
           <div className="flex justify-end -mt-3">

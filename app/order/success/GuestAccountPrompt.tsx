@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useFormState, useFormStatus } from 'react-dom'
 import { signUpWithPassword, type SignInState } from '@/app/signin/actions'
+import PasswordInput from '@/components/PasswordInput'
 
 const initial: SignInState = {}
 
@@ -70,14 +71,13 @@ export default function GuestAccountPrompt({
           <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
             Choose a password
           </span>
-          <input
-            type="password"
+          <PasswordInput
             name="password"
             required
             minLength={8}
             autoComplete="new-password"
             placeholder="At least 8 characters"
-            className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg placeholder:text-brand-muted/60"
+            className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 pr-10 text-lg placeholder:text-brand-muted/60"
           />
         </label>
 

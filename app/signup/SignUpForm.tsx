@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useFormState, useFormStatus } from 'react-dom'
+import PasswordInput from '@/components/PasswordInput'
 import {
   signUpWithPassword,
   signInWithGitHub,
@@ -121,14 +122,12 @@ export default function SignUpForm({
         </label>
         <label className="block">
           <span className="label-cap text-brand-muted">Password</span>
-          <input
-            type="password"
+          <PasswordInput
             name="password"
             required
             minLength={8}
             autoComplete="new-password"
             placeholder="At least 8 characters"
-            className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 placeholder:text-brand-muted/60"
           />
         </label>
 
