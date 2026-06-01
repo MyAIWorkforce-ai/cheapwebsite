@@ -933,3 +933,163 @@ Gmail/Workspace — not even shown in Spam.**
   (`lib/email/admin-notification.ts → notifyTo()`); no code change needed.
 - **Rule of thumb:** the alert recipient (`NOTIFY_EMAIL`) must never equal
   the sender (`EMAIL_FROM` = `hi@skillzy.ai`).
+
+---
+
+## 2026-06-01 — Launch-day polish + critical email bugs
+
+Live-test session against the production site after launch. Everything
+below is shipped to `claude/build-skillzy-website-MIbCF`, the branch
+that serves `skillzy.ai`.
+
+### Per-type founder alert routing (`7a7e325`, `d2d011f`)
+
+The single `NOTIFY_EMAIL` was forcing every founder alert (signup,
+listing, sale, sample-buy) into one inbox. Added per-type overrides so
+sales go to `sales@`, signups + listings to `toby@`:
+
+| Alert type | Env var |
+|---|---|
+| New signup | `NOTIFY_EMAIL_SIGNUP` |
+| New listing | `NOTIFY_EMAIL_LISTING` |
+| New sale + sample-buy-attempt + refund | `NOTIFY_EMAIL_SALE` |
+
+Fallback chain: type-specific → `NOTIFY_EMAIL` → `EMAIL_FROM`. The
+demo-interest alert (`lib/email/demo-interest.ts`) was on the old
+`ADMIN_EMAILS` fallback path and needed a separate fix to join the
+chain — easy to miss when adding new alert paths.
+
+**Current production env (Vercel `skillzyai`, Prod+Preview, NOT sensitive):**
+- `NOTIFY_EMAIL_SALE = sales@skillzy.ai`
+- `NOTIFY_EMAIL = toby@skillzy.ai` (catches signup + listing via fallback)
+- `EMAIL_FROM = hi@skillzy.ai` (sender — never set it to itself)
+
+### Scroll-to-top now global (`e9ec090` → `fac6d8a`)
+
+Buyers landing on `/checkout/[id]` were dropped at the bottom of the
+page. Same bug existed after signup, listing creation, and any other
+server-action redirect. **Root cause:** the Stripe Payment Element
+iframe auto-focuses on mount and the browser scrolls the iframe (which
+sits at the bottom of the form) into view, after Next.js has done its
+initial scroll-to-top.
+
+Fix: `components/ScrollToTopOnRouteChange.tsx` mounted in the root
+layout. On every pathname change it pins window scroll to 0 and
+re-pins through a 2-second window (50/150/400/900/1800 ms). Bails the
+instant the user scrolls deliberately (wheel/touchmove/keydown), so it
+never fights a real gesture. Also disables `history.scrollRestoration`.
+Skips deep links (URLs with `#hash`).
+
+### Critical: purchase emails were duplicating (up to 4x) (`ae568ed`)
+
+A real test buy sent the buyer/seller/founder emails **four times each**.
+**Root cause:** `fulfillPaymentIntent` is called by both the post-payment
+success page AND the Stripe webhook (`payment_intent.succeeded`). The
+application-level idempotency guard was SELECT-then-INSERT on
+`stripe_payment_intent_id`, with no DB-level uniqueness. Stripe also
+retries the webhook if it doesn't get a 200 fast enough, so up to four
+racing paths can all pass the SELECT before any INSERT lands → four
+rows insert, four emails go out.
+
+**Fix:** migration `008-purchases-unique-payment-intent.sql`:
+1. Deduplicate existing duplicate rows (keep earliest by `created_at`)
+2. Add `UNIQUE` partial index on `stripe_payment_intent_id`
+
+`fulfillPaymentIntent` already returns on `insertError` without emailing,
+so the unique index alone collapses parallel paths to one send. **User
+ran this in Supabase SQL Editor 2026-06-01.**
+
+Verified: a follow-up test buy delivered exactly one email of each kind.
+
+### Find-my-order page for guest buyers (`29b12e5`)
+
+Guest checkout works without an account; the only thread back to the
+file is the confirmation email. If the buyer loses it there was no
+recovery path other than emailing `hi@skillzy.ai`. Added:
+
+- `/find-my-order` — buyer enters email, we resend a fresh
+  confirmation with the existing token-signed download URL (reuses
+  `sendPurchaseConfirmation` + `deliveryToken`)
+- Footer link under the Skillzy column
+- Help FAQ entry "I bought as a guest and lost the email"
+
+Always returns the same "if we have a purchase, check your inbox"
+message — can't be used to enumerate buyer emails.
+
+### Seller info in founder cha-ching alert (`d567235`)
+
+Founder sale alert now shows a **Seller** row (`@handle (email)`) so
+the founder can spot top earners at a glance. Hoisted the seller
+lookup out of `emailSeller` so both the seller-facing email and the
+founder alert get it. Same shape (`sellerEmail`, `sellerHandle`) is
+also used by the refund emails below.
+
+### Inline "create account" prompt after guest checkout (`886d511`)
+
+Guests who paid without an account were given a "Go to my dashboard"
+button on `/order/success` that just dumped them at the sign-in wall
+with no context. Replaced for guests with an inline **"Last step —
+Keep this in your dashboard"** card on the same page:
+
+- Email pre-filled (read-only) with the email they paid with
+- Single password input
+- "Create account & save my purchase →" button → `signUpWithPassword`
+  with `next=/dashboard`
+- `claimOrphanPurchases` (already wired) auto-attaches the orphan
+  purchase to the new account
+- Secondary "Already have an account? Sign in instead →" link going
+  to `/signin?email=…&next=/dashboard` (sign-in page now pre-fills
+  the email when arriving with the `?email=` param)
+
+Signed-in buyers see the original "Go to my dashboard" button.
+
+### Refund emails (`e613654`)
+
+Previously the `charge.refunded` webhook just flipped the DB row to
+`status='refunded'` — no emails to anyone. Now sends three branded
+emails on every refund:
+
+- **Buyer**: "Your Skillzy refund — <title>" — refund amount, "3–10
+  business days to land back on your card", reply to hi@.
+- **Seller**: "Refund issued on your sale of <title>" — explains
+  Stripe will reverse the share from the seller's next payout
+  automatically, no action needed.
+- **Founder** (sales@ via `NOTIFY_EMAIL_SALE`): full context for
+  pattern-watching (high refund rate per listing = quality problem).
+
+**Idempotency:** webhook handler now SELECTs the row first and bails
+if `status === 'refunded'` already, so Stripe webhook redeliveries
+don't re-email. To test against a previously-refunded purchase, flip
+the row back to `paid` in Supabase and resend the webhook event from
+Stripe.
+
+**Open verification:** confirm `charge.refunded` is registered on the
+Stripe webhook endpoint (Stripe → Developers → Webhooks → Events tab
+on the Skillzy endpoint). If missing, add it — without that event
+the handler never fires and no emails (or DB flips) happen.
+
+### Misc
+
+- **Customer email "trimmed content" in Gmail** — purely Gmail's
+  thread-collapsing heuristic, triggered by the duplicate-email bug
+  above. Once dupes stopped, fresh emails render fully.
+- **No buyer Stripe receipt for refund** — Stripe's auto-receipt only
+  fires if `receipt_email` is set on the PaymentIntent. Our own
+  refund emails make this moot, but worth setting `receipt_email`
+  during PaymentIntent creation as a safety net if the Resend
+  pipeline is ever down. Phase-2 candidate.
+
+## Outstanding follow-ups for next session
+
+1. **Run end-to-end refund test on a fresh buy** (`e613654` deploy).
+   Confirms all three refund emails actually land.
+2. **Verify Stripe webhook has `charge.refunded` event registered.**
+   Without it, the new refund-email code never runs.
+3. **Full Connect → split → refund walkthrough** with the test VA
+   account the user created (real $9 buy, verify 80/20 split in Stripe
+   dashboard, then refund). Was queued before the duplicate-email +
+   refund-email fixes; now ready.
+4. **Phase-2 items still pending** — see earlier sections of this doc:
+   paid featured placement, affiliate payouts/fraud, DMARC tightening,
+   Workspace separation, Stripe `receipt_email` safety net.
+
