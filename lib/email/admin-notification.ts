@@ -13,9 +13,14 @@ function getResend() {
   return cached
 }
 
-// Where the alerts land. Defaults to the Skillzy from address.
-function notifyTo() {
-  return process.env.NOTIFY_EMAIL || env.resend.fromEmail
+// Where the alerts land. Each call can override with a type-specific
+// env var; otherwise falls back to NOTIFY_EMAIL, then EMAIL_FROM.
+function notifyTo(specificEnvKey?: string) {
+  if (specificEnvKey) {
+    const specific = process.env[specificEnvKey]?.trim()
+    if (specific) return specific
+  }
+  return process.env.NOTIFY_EMAIL?.trim() || env.resend.fromEmail
 }
 
 function site() {
@@ -70,7 +75,7 @@ export async function sendNewUserNotification({
   try {
     const res = await resend.emails.send({
       from: `Skillzy <${env.resend.fromEmail}>`,
-      to: notifyTo(),
+      to: notifyTo('NOTIFY_EMAIL_SIGNUP'),
       subject: `New signup${email ? `: ${email}` : ''}`,
       html,
       text,
@@ -135,7 +140,7 @@ export async function sendNewListingNotification({
   try {
     const res = await resend.emails.send({
       from: `Skillzy <${env.resend.fromEmail}>`,
-      to: notifyTo(),
+      to: notifyTo('NOTIFY_EMAIL_LISTING'),
       subject: `New listing: ${title}`,
       html,
       text,
@@ -184,7 +189,7 @@ export async function sendDemoBuyAttemptNotification({
   try {
     const res = await resend.emails.send({
       from: `Skillzy <${env.resend.fromEmail}>`,
-      to: notifyTo(),
+      to: notifyTo('NOTIFY_EMAIL_SALE'),
       subject: `Buy attempt on sample: ${title}`,
       html,
       text,
@@ -254,7 +259,7 @@ export async function sendNewSaleNotification({
   try {
     const res = await resend.emails.send({
       from: `Skillzy <${env.resend.fromEmail}>`,
-      to: notifyTo(),
+      to: notifyTo('NOTIFY_EMAIL_SALE'),
       subject: `Sale: ${title} — ${m(amountCents)}`,
       html,
       text,
