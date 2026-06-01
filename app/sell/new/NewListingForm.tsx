@@ -106,16 +106,27 @@ type Draft = {
 
 const initial: PublishState = {}
 
-function Submit({ onPublishClick }: { onPublishClick?: () => void }) {
+function Submit({
+  onPublishClick,
+  busy,
+}: {
+  onPublishClick?: () => void
+  busy?: boolean
+}) {
   const { pending } = useFormStatus()
+  const disabled = pending || busy
   return (
     <button
       type="submit"
       onClick={onPublishClick}
-      disabled={pending}
+      disabled={disabled}
       className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors disabled:opacity-60"
     >
-      {pending ? 'Publishing…' : 'Publish listing'}
+      {pending
+        ? 'Publishing…'
+        : busy
+          ? 'Reading your files…'
+          : 'Publish listing'}
       <span aria-hidden>→</span>
     </button>
   )
@@ -955,6 +966,7 @@ export default function NewListingForm({
             </label>
 
             <Submit
+              busy={busy}
               onPublishClick={() => {
                 // Mark intent so that, if the creator isn't signed in and
                 // gets bounced to sign-up, we auto-finish the publish when
