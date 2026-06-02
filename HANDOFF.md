@@ -885,6 +885,20 @@ Captured during the launch-day session. None of these block launch.
   daily AI traffic justifies persistent counters, sign up at upstash.com,
   create a Redis DB, paste the REST URL + token into Vercel env vars.
   No code change required — the rate-limit lib auto-detects.
+- **BIMI (logo + blue check across all email clients).** Tier-1 logo
+  display (Gmail-only, free) is a Workspace profile-photo upload —
+  see "Outstanding follow-ups" below. For the proper cross-client
+  brand display (Gmail + Yahoo + Apple Mail + Outlook):
+  1. Tighten DMARC from `p=none` → `p=quarantine`. Needs ~30 days of
+     clean DKIM/SPF reports first so we don't break delivery.
+  2. Trademark the Skillzy "S" mark (or use a CMC for unregistered).
+  3. Buy a Verified Mark Certificate (VMC) from Entrust or DigiCert —
+     ~$1,000–$1,500/year.
+  4. Convert logo to BIMI-spec SVG (Tiny PS profile).
+  5. Add `default._bimi.skillzy.ai` TXT record pointing to the SVG +
+     VMC PEM file.
+  Worth it once revenue justifies — gives the official brand look in
+  every major inbox.
 
 ### Content / marketplace
 - **Re-enable the Dispatch newsletter slide-in** at ~50 creators (paused
@@ -1140,7 +1154,16 @@ path `<creator_id>/<listing_id>/<filename>`, with a matching row in
    account the user created (real $9 buy, verify 80/20 split in Stripe
    dashboard, then refund). Was queued before the duplicate-email +
    refund-email fixes; now ready.
-4. **Phase-2 items still pending** — see earlier sections of this doc:
+4. **Upload Skillzy "S" logo to every Workspace user (founder action,
+   ~5 minutes).** Today every transactional email shows a plain monogram
+   ("h", "s", etc.) in recipients' Gmail inboxes. Fix:
+   - admin.google.com → Users → click each of `hi@`, `help@`, `sales@`,
+     `toby@skillzy.ai` → Profile photo → upload the Skillzy "S" logo
+     (square, ≥250×250px PNG/JPG).
+   - Propagates in 24–48 hours. Works for Gmail recipients only; full
+     cross-client coverage needs BIMI (see Phase 2 / Ops / scale).
+5. **Phase-2 items still pending** — see earlier sections of this doc:
    paid featured placement, affiliate payouts/fraud, DMARC tightening,
-   Workspace separation, Stripe `receipt_email` safety net.
+   Workspace separation, Stripe `receipt_email` safety net, BIMI for
+   cross-client brand logo.
 
