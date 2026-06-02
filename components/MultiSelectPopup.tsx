@@ -229,16 +229,28 @@ export default function MultiSelectPopup({
               )}
 
               <div className="mt-6 flex items-center justify-between gap-4">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    onChange('')
-                  }}
-                  className="text-xs text-brand-muted hover:text-brand-ink underline underline-offset-4"
-                >
-                  Clear all
-                </button>
+                <div className="flex items-center gap-5">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      onChange(options.join(','))
+                    }}
+                    className="text-xs text-brand-muted hover:text-brand-ink underline underline-offset-4"
+                  >
+                    Select all
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      onChange('')
+                    }}
+                    className="text-xs text-brand-muted hover:text-brand-ink underline underline-offset-4"
+                  >
+                    Clear all
+                  </button>
+                </div>
                 <button
                   type="button"
                   onClick={(e) => {

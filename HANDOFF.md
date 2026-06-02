@@ -876,6 +876,15 @@ Captured during the launch-day session. None of these block launch.
   - **Content-hash de-dupe across listings** — only worth it if
     creators repeatedly upload identical SKILL.md files (probably
     rare).
+- **Upstash Redis for AI draft rate-limits.** The /api/listings/draft
+  rate-limiter is now split anon (10/day/IP) + signed-in (100/day/user)
+  + global (200/hr). It checks `UPSTASH_REDIS_REST_URL` and
+  `UPSTASH_REDIS_REST_TOKEN` first; without them it falls back to
+  per-instance in-memory counters that reset on every Vercel cold start.
+  Fine at launch volume (cold starts mostly happen overnight). Once
+  daily AI traffic justifies persistent counters, sign up at upstash.com,
+  create a Redis DB, paste the REST URL + token into Vercel env vars.
+  No code change required — the rate-limit lib auto-detects.
 
 ### Content / marketplace
 - **Re-enable the Dispatch newsletter slide-in** at ~50 creators (paused
