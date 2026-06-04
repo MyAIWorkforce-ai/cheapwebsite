@@ -61,13 +61,20 @@ export async function sendNewUserNotification({
     )
     .join('')
 
+  // Only include the creator-page link when we actually have a handle.
+  // Password signups don't set one until /account, so the link would
+  // otherwise emit `/creator/` and 404 the founder.
+  const creatorLink = handle
+    ? `<p style="font-size:14px;color:#5F6B7E;margin:0;">Creator page: ${site()}/creator/${handle}</p>`
+    : ''
+
   const html = shell(
     'New signup',
     'A new account just joined.',
     `<div style="margin:24px 0;padding:18px;background:#fff;border:1px solid #CCD2DD;">
       <table style="width:100%;border-collapse:collapse;font-size:15px;">${rows}</table>
     </div>
-    <p style="font-size:14px;color:#5F6B7E;margin:0;">Creators page: ${site()}/creator/${handle ?? ''}</p>`,
+    ${creatorLink}`,
   )
 
   const text = `New Skillzy signup.\nEmail: ${email ?? '—'}\nName: ${name ?? '—'}\nHandle: ${handle ? '@' + handle : '—'}`
@@ -113,9 +120,17 @@ export async function sendNewListingNotification({
   })}`
   const listingUrl = `${site()}/marketplace/${slug}`
 
+  // Humanize the DB enum (skill / guide / agent_setup) for display.
+  const TYPE_LABEL: Record<string, string> = {
+    skill: 'Skill',
+    guide: 'Guide',
+    agent_setup: 'Agent Setup',
+  }
+  const typeLabel = TYPE_LABEL[type] ?? type
+
   const rows = [
     ['Title', title],
-    ['Type', type],
+    ['Type', typeLabel],
     ['Price', price],
     ['Creator', creatorHandle ? `@${creatorHandle}` : creatorEmail],
   ]

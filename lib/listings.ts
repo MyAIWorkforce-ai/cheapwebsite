@@ -48,7 +48,11 @@ export function isSeedProductId(id: string): boolean {
   return Boolean(getProduct(id))
 }
 
-type ProfileJoin = { name: string | null; handle: string | null }
+type ProfileJoin = {
+  name: string | null
+  handle: string | null
+  stripe_payouts_enabled?: boolean | null
+}
 
 type ListingRow = {
   id: string
@@ -92,6 +96,7 @@ function mapRow(row: ListingRow): Product {
       bio: '',
       totalSales: 0,
       joined: updated,
+      payoutsEnabled: prof?.stripe_payouts_enabled === true,
     },
     platformList: row.platform_list ?? [],
     rating: 0,
@@ -109,7 +114,7 @@ function mapRow(row: ListingRow): Product {
 }
 
 const LISTING_COLS =
-  'id, slug, type, title, tagline, niche, price_cents, platform_list, description, what_you_get, created_at, profiles:creator_id ( name, handle )'
+  'id, slug, type, title, tagline, niche, price_cents, platform_list, description, what_you_get, created_at, profiles:creator_id ( name, handle, stripe_payouts_enabled )'
 
 /**
  * Resolve a product by seed id, DB slug, or DB uuid. Seed (demo)

@@ -22,6 +22,12 @@ export type Creator = {
   bio: string
   totalSales: number
   joined: string
+  // Whether the creator has connected Stripe and has payouts enabled.
+  // Buyer-facing surfaces use this to disable the Buy button on
+  // paid listings whose creator can't actually receive money yet
+  // (avoids silently routing the whole sale to Skillzy). Undefined
+  // on seed/demo creators — they bypass real checkout anyway.
+  payoutsEnabled?: boolean
 }
 
 export type Product = {

@@ -119,12 +119,19 @@ export async function signUpWithPassword(
           name: name || null,
           handle: null,
         })
+        if (data.user.email) {
+          const { sendWelcomeEmail } = await import('@/lib/email/welcome')
+          await sendWelcomeEmail({
+            to: data.user.email,
+            name: name || null,
+          })
+        }
         const admin = createServiceClient()
         await admin.auth.admin.updateUserById(data.user.id, {
           app_metadata: { ...data.user.app_metadata, admin_notified: true },
         })
       } catch (err) {
-        console.error('admin new-user email (signup) failed', err)
+        console.error('admin new-user / welcome email (signup) failed', err)
       }
     }
 

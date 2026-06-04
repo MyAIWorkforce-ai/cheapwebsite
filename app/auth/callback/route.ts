@@ -34,26 +34,34 @@ export async function GET(request: NextRequest) {
       await attributeReferral(session.user.id)
     }
 
-    // First time we've seen this account → ping the Skillzy team once.
-    // Uses an admin-only app_metadata flag (the user can't set it), so it
-    // fires exactly once per signup. Never blocks login.
+    // First time we've seen this account → ping the Skillzy team AND
+    // send the new creator the welcome email. Both gated by an
+    // admin-only app_metadata flag (the user can't set it from the
+    // client), so each fires exactly once per signup. Never blocks login.
     if (session?.user?.id && !session.user.app_metadata?.admin_notified) {
       try {
         const admin = createServiceClient()
+        const userEmail = session.user.email ?? null
+        const userName =
+          (session.user.user_metadata?.name as string | undefined) ?? null
+        const userHandle =
+          (session.user.user_metadata?.user_name as string | undefined) ??
+          (session.user.user_metadata?.preferred_username as
+            | string
+            | undefined) ??
+          null
         const { sendNewUserNotification } = await import(
           '@/lib/email/admin-notification'
         )
         await sendNewUserNotification({
-          email: session.user.email ?? null,
-          name:
-            (session.user.user_metadata?.name as string | undefined) ?? null,
-          handle:
-            (session.user.user_metadata?.user_name as string | undefined) ??
-            (session.user.user_metadata?.preferred_username as
-              | string
-              | undefined) ??
-            null,
+          email: userEmail,
+          name: userName,
+          handle: userHandle,
         })
+        if (userEmail) {
+          const { sendWelcomeEmail } = await import('@/lib/email/welcome')
+          await sendWelcomeEmail({ to: userEmail, name: userName })
+        }
         const nextMeta = { ...session.user.app_metadata, admin_notified: true }
         await admin.auth.admin.updateUserById(session.user.id, {
           app_metadata: nextMeta,
@@ -62,7 +70,7 @@ export async function GET(request: NextRequest) {
         // onto it instead of clobbering the flag we just set.
         session.user.app_metadata = nextMeta
       } catch (err) {
-        console.error('admin new-user email failed', err)
+        console.error('admin new-user / welcome email failed', err)
       }
     }
 

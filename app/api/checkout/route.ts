@@ -75,8 +75,23 @@ export async function POST(request: NextRequest) {
         destinationAccount = data.stripe_account_id
       }
     } catch {
-      // Fall through to platform-only charge.
+      // Fall through to the guard below.
     }
+  }
+
+  // BLOCK paid sales when the creator hasn't connected Stripe yet —
+  // without a destination, the entire amount would route to the
+  // Skillzy platform and the creator would get nothing. The UI hides
+  // the Buy button in this case; this is the defense-in-depth layer
+  // so a direct POST can't bypass it.
+  if (!destinationAccount) {
+    return NextResponse.json(
+      {
+        error:
+          "This creator hasn't enabled payouts yet, so we can't accept your purchase. We'll open it the moment they connect Stripe.",
+      },
+      { status: 403 },
+    )
   }
 
   // 4. Identify the buyer if signed in.
