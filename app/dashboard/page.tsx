@@ -297,8 +297,54 @@ export default async function DashboardPage({
 
   const displayName = user?.name ?? user?.email?.split('@')[0] ?? 'there'
 
+  // Soft nudge banner for creators with paid listings whose Stripe
+  // isn't connected yet (or whose Stripe account exists but Stripe
+  // hasn't approved payouts). Their listings are live but every Buy
+  // button shows "not buyable yet" — they earn $0 until this is sorted.
+  const hasPaidListing = sellerData.listings.some(
+    (l) => Number(l.price_cents ?? 0) > 0,
+  )
+  const showStripeBanner = hasPaidListing && !sellerData.payoutsEnabled
+  const stripeBannerHeadline = sellerData.stripeAccountId
+    ? "Stripe is still finishing your setup."
+    : "Your paid listings aren't earning yet."
+  const stripeBannerBody = sellerData.stripeAccountId
+    ? "Stripe is verifying your account. Once it's done, every Buy button switches on automatically — usually within a few hours. Open Payouts to see what's pending."
+    : "Buyers see “not buyable yet” instead of a checkout button until Stripe is connected. 60 seconds to fix — you keep 80% of every sale."
+  const stripeBannerCta = sellerData.stripeAccountId
+    ? 'Open Payouts'
+    : 'Connect Stripe'
+
   return (
     <div className="paper">
+      {showStripeBanner && (
+        <div className="border-b-2 border-brand-gold bg-brand-gold/15">
+          <div className="max-w-page mx-auto px-6 lg:px-10 py-5 sm:py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="max-w-2xl">
+              <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold-dark">
+                60 seconds
+              </p>
+              <p
+                className="font-display mt-1 text-2xl sm:text-3xl tracking-tight leading-tight"
+                style={{ letterSpacing: '-0.02em' }}
+              >
+                {stripeBannerHeadline}
+              </p>
+              <p className="mt-2 text-sm text-brand-ink leading-relaxed">
+                {stripeBannerBody}
+              </p>
+            </div>
+            <Link
+              href="/dashboard/payouts"
+              className="shrink-0 inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-6 py-3 text-[14px] hover:bg-brand-gold-dark transition-colors"
+            >
+              {stripeBannerCta}
+              <span aria-hidden>→</span>
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* hero */}
       <section className="px-6 lg:px-10 pt-14 sm:pt-20 pb-10 sm:pb-14 border-b border-brand-hairline">
         <div className="max-w-page mx-auto">
