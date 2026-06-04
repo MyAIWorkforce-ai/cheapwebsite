@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useFormState, useFormStatus } from 'react-dom'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import GitHubImport from '@/components/GitHubImport'
@@ -982,9 +983,42 @@ export default function NewListingForm({
             />
 
             <div ref={msgRef}>
-              {state.error && <p className="mt-4 text-sm text-red-700">{state.error}</p>}
+              {state.error && (
+                <div
+                  role="alert"
+                  aria-live="polite"
+                  className="mt-6 border-2 border-red-700 bg-red-50 p-5 sm:p-6"
+                >
+                  <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-red-700">
+                    Couldn&rsquo;t publish
+                  </p>
+                  <p className="mt-2 text-[15px] sm:text-base text-brand-ink leading-relaxed">
+                    {state.error}
+                  </p>
+                  {state.errorCta && (
+                    <Link
+                      href={state.errorCta.href}
+                      className="mt-4 inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-5 py-3 text-[14px] hover:bg-brand-gold-dark transition-colors"
+                    >
+                      {state.errorCta.label}
+                      <span aria-hidden>→</span>
+                    </Link>
+                  )}
+                </div>
+              )}
               {state.info && (
-                <p className="mt-4 text-sm text-brand-gold-dark">{state.info}</p>
+                <div
+                  role="status"
+                  aria-live="polite"
+                  className="mt-6 border-2 border-brand-gold bg-brand-cream-card p-5 sm:p-6"
+                >
+                  <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
+                    Heads up
+                  </p>
+                  <p className="mt-2 text-[15px] sm:text-base text-brand-ink leading-relaxed">
+                    {state.info}
+                  </p>
+                </div>
               )}
             </div>
           </section>

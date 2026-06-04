@@ -8,6 +8,9 @@ import { normalizeVideoUrl } from '@/lib/video'
 export type PublishState = {
   error?: string
   info?: string
+  // Optional call-to-action rendered alongside an error — lets the
+  // form turn plain "Dashboard → Payouts" copy into an actual button.
+  errorCta?: { label: string; href: string }
 }
 
 const BUCKET = 'skillzy-products'
@@ -142,7 +145,11 @@ export async function publishListing(
     if (!profile?.stripe_account_id) {
       return {
         error:
-          'Connect your Stripe account before publishing a paid listing — otherwise the sale routes 100% to Skillzy and you earn $0. Open Dashboard → Payouts, then come back and publish.',
+          "Connect your Stripe account before publishing a paid listing — otherwise the sale routes 100% to Skillzy and you earn $0.",
+        errorCta: {
+          label: 'Open Dashboard → Payouts',
+          href: '/dashboard/payouts',
+        },
       }
     }
   }
