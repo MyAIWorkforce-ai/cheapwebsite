@@ -1,24 +1,73 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { createServiceClient } from '@/lib/supabase/server'
 import { claimOrphanPurchases } from '@/lib/auth'
-import { hasSupabase } from '@/lib/env'
+import { env, hasSupabase } from '@/lib/env'
 
-// OAuth + magic-link callback. Exchanges the code for a session, then bounces home.
+// OAuth, magic-link, AND password-recovery callback.
+//
+// Two important things this route does differently from the previous
+// version:
+//
+// 1. The Supabase server client writes session cookies onto OUR
+//    redirect response (not next/headers). In a Route Handler that
+//    returns NextResponse.redirect(), the next/headers cookies jar
+//    does NOT propagate to the redirect response — so the browser
+//    never received the session cookies after exchangeCodeForSession.
+//    That's why magic-link sign-ins landed on /dashboard logged out.
+//
+// 2. The redirect response is created up front and threaded through
+//    so every cookie write goes onto it.
 export async function GET(request: NextRequest) {
   const url = new URL(request.url)
   const code = url.searchParams.get('code')
   // Only allow same-site relative paths as `next` (guards against an
   // open-redirect via a crafted ?next=https://evil.com).
   const rawNext = url.searchParams.get('next')
-  const next = rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//')
-    ? rawNext
-    : '/dashboard'
+  const next =
+    rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//')
+      ? rawNext
+      : '/dashboard'
+
+  // Build the redirect response first so the Supabase client can
+  // mutate ITS cookies. Without this the Set-Cookie headers get
+  // dropped between the exchange and the user's browser.
+  const response = NextResponse.redirect(new URL(next, request.url))
 
   if (hasSupabase && code) {
-    const supabase = createClient()
+    const supabase = createServerClient(
+      env.supabase.url,
+      env.supabase.anonKey,
+      {
+        cookies: {
+          get(name: string) {
+            return request.cookies.get(name)?.value
+          },
+          set(name: string, value: string, options: CookieOptions) {
+            response.cookies.set({ name, value, ...options })
+          },
+          remove(name: string, options: CookieOptions) {
+            response.cookies.set({ name, value: '', ...options })
+          },
+        },
+      },
+    )
+
     const {
       data: { session },
+      error,
     } = await supabase.auth.exchangeCodeForSession(code)
+
+    if (error) {
+      // Bad/expired/already-used code. Send to signin with a friendly
+      // message rather than to /dashboard logged out.
+      const url = new URL('/signin', request.url)
+      url.searchParams.set(
+        'error',
+        'That link is no longer valid. Request a new one.',
+      )
+      return NextResponse.redirect(url)
+    }
 
     // Right after the session is established, claim any guest-checkout
     // purchases that were made with this email but never linked to an
@@ -66,8 +115,6 @@ export async function GET(request: NextRequest) {
         await admin.auth.admin.updateUserById(session.user.id, {
           app_metadata: nextMeta,
         })
-        // Keep the in-memory copy in sync so the GitHub block below merges
-        // onto it instead of clobbering the flag we just set.
         session.user.app_metadata = nextMeta
       } catch (err) {
         console.error('admin new-user / welcome email failed', err)
@@ -77,9 +124,7 @@ export async function GET(request: NextRequest) {
     // GitHub OAuth: stash the provider access token in app_metadata so
     // the /api/github/* routes can pull a creator's private repos. The
     // provider_token is ONLY present in the session right after the
-    // OAuth code exchange — never again — so we have to capture it
-    // here. app_metadata is admin-controlled (the user can't tamper
-    // with it from the client).
+    // OAuth code exchange — never again — so we have to capture it here.
     const providerToken = session?.provider_token
     if (
       providerToken &&
@@ -100,5 +145,5 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  return NextResponse.redirect(new URL(next, request.url))
+  return response
 }

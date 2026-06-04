@@ -156,7 +156,12 @@ export async function requestPasswordReset(
 
   const supabase = createClient()
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${env.siteUrl}/auth/update-password`,
+    // Route through /auth/callback so the recovery code is exchanged
+    // for a real session (cookies written onto the redirect response)
+    // BEFORE the user lands on the password form. Without this hop
+    // the password form sees "Auth session missing!" because the
+    // tokens never made it into cookies.
+    redirectTo: `${env.siteUrl}/auth/callback?next=/auth/update-password`,
   })
   if (error) return { error: error.message }
   return { info: 'If that account exists, we just emailed you a reset link.' }

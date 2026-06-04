@@ -123,6 +123,30 @@ export async function publishListing(
     redirect('/signup?next=/sell/new')
   }
 
+  // Defense-in-depth Stripe gate: refuse to publish a paid listing if
+  // the creator hasn't even started Stripe Connect. The marketplace
+  // page + checkout page also block Buy CTAs when payouts aren't
+  // enabled, but blocking publish here means there's no window where
+  // a paid listing is live without a recipient. Free listings are
+  // unaffected — they don't route money. (Note: stripe_account_id
+  // means the creator has at least started Connect; payouts_enabled
+  // = true is the stricter "Stripe has verified them" state, which we
+  // gate on at buy time. Publish only needs Connect kicked off.)
+  if (price > 0) {
+    const admin = createServiceClient()
+    const { data: profile } = await admin
+      .from('profiles')
+      .select('stripe_account_id')
+      .eq('id', user!.id)
+      .maybeSingle()
+    if (!profile?.stripe_account_id) {
+      return {
+        error:
+          'Connect your Stripe account before publishing a paid listing — otherwise the sale routes 100% to Skillzy and you earn $0. Open Dashboard → Payouts, then come back and publish.',
+      }
+    }
+  }
+
   // 1. Create the listing row.
   const slug = `${slugify(title)}-${Date.now().toString(36).slice(-4)}`
   const { data: inserted, error } = await supabase
