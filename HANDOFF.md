@@ -1167,3 +1167,74 @@ path `<creator_id>/<listing_id>/<filename>`, with a matching row in
    Workspace separation, Stripe `receipt_email` safety net, BIMI for
    cross-client brand logo.
 
+---
+
+## 2026-06-02 — Pre-500-creator readiness checklist
+
+After landing creator-readiness fixes + auth callback fix + Stripe-
+connect nudges, the next session should know exactly what's been
+verified live vs only shipped, and what to harden before pushing
+500 creators at this thing.
+
+### Verified live by founder (do NOT re-test as new work)
+- Embedded checkout: real $9 buy, 80/20 split, refund flow, email
+  delivery
+- Duplicate-purchase-email fix (migration 008 dedupe + unique index)
+- Per-type founder alert routing (`sales@`/`toby@`)
+- Sample-listing demand-signal email path (still fires after recent
+  buy-blocks)
+- File save on `/sell/new` (after `ac14ce7`)
+
+### Shipped but NOT yet live-tested by founder — verify before launch push
+1. **Auth callback cookie fix** (`b65ac2f`). Magic link + password
+   reset. Documented Supabase pattern; needs real browser + real
+   email to confirm. Verify steps in HANDOFF section above.
+2. **Buy-time blocks for unconnected creators** — 3 layers:
+   marketplace listing CTAs (`13ad1e4`), `/checkout/[id]` server
+   page (`d546580`), `POST /api/checkout` 403 (`13ad1e4`).
+3. **Publish-time gate was REMOVED** (`12bd945`). Listings now
+   publish immediately even without Stripe connected. Buy-time
+   blocks are the only gate. This is deliberate (creator velocity).
+4. **Dashboard Stripe-connect banner** (`04278a1`) — gold strip at
+   the top of `/dashboard` for creators with paid listings + no
+   payouts.
+5. **24h Stripe-connect nudge cron** (`ef2ceba`) — runs daily at
+   14:00 UTC. Requires `CRON_SECRET` env var. Smoke-test with
+   `curl -H "Authorization: Bearer $CRON_SECRET" https://skillzy.ai/api/cron/stripe-nudge`.
+6. **Welcome email to creators** (`13ad1e4`) — fires from OAuth +
+   password signup paths.
+7. **Refund emails** (`e613654`) — buyer + seller + founder.
+   Requires Stripe webhook to have `charge.refunded` registered.
+8. **Find-my-order** page for guest buyers (`29b12e5`).
+9. **Inline "Create account" prompt** on `/order/success` for
+   guests (`886d511`).
+10. **Email routing sweep** (`7d65d5c`) — buyer-facing support
+    points at `help@`, founder + general stays where it should.
+11. **Password eye-toggle** site-wide (`133a352`).
+12. **Apple Pay route handler** (`fc13b8b`) — domain already
+    verified on Stripe's side, env var not strictly needed.
+
+### Scale concerns at 500 creators (with concrete actions)
+
+| Action | Why | Cost / time |
+|---|---|---|
+| **Upgrade Resend to Pro** | Free tier = 100 emails/day. Buyer + seller + founder + welcome + nudge × 500 creators = blown in week 1. | $20/mo, 5 min |
+| **Set up Upstash Redis** (`UPSTASH_REDIS_REST_URL` + `_TOKEN` in Vercel) | Without it, AI-draft rate-limit counters reset on every Vercel cold start — abuse protection is leaky. With it, the existing rate-limit lib auto-detects and uses it. | Free tier, 15 min |
+| **Vercel Pro** if still on Hobby | Function execution limits + faster cold starts at 500-user volume | $20/mo, 5 min |
+| **Buy sister domain for cold outreach** (e.g. `skillzy.email`, `getskillzy.com`) and warm via Instantly/Smartlead | Don't burn `skillzy.ai` sender reputation cold-emailing creator leads. Transactional emails (purchase confirmations) MUST keep landing in inbox. | ~$10/yr domain + ~$60/mo Smartlead/Instantly |
+| **Smoke-test the nudge cron manually** | Confirms cron actually fires and idempotency is real | 5 min |
+| **Run e2e through 2-3 fresh accounts** | Catches whole-flow bugs nobody can see from code | 30 min |
+| **Raise AI draft global hourly cap** if traffic justifies | Currently `GLOBAL_HOURLY = 200`. At 500 creators all drafting in a window, will throttle. | Code change, 1 min |
+
+### Likely-fine at 500 creators (no action needed)
+- Stripe scales infinitely; no concern
+- Supabase Pro tier: 500 creators × ~5 listings = trivial volume
+- Storage architecture: one stored copy per file regardless of buyer count (egress cost dominates eventually — see existing Phase 2 note)
+- Vercel serverless: scales fine; only cost concern is execution-minute limits on Hobby
+
+### Untested high-risk paths (be on alert)
+- Bug 2 fix (auth callback) — documented pattern, needs real-world confirmation
+- Stripe Connect onboarding when Stripe flags a creator for extra ID verification — the "Stripe is still finishing your setup" banner state is theoretical
+- Concurrent same-product purchases — dedupe index handles parallel writes per migration 008, not load-tested
+- Cold-email deliverability from `skillzy.ai` — fresh sender domain; cold blasts of 500 leads from `hi@` could trigger spam reputation hits that affect transactional mail. ALWAYS use the sister domain (above) for cold.
+
