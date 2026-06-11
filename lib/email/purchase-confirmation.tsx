@@ -67,7 +67,7 @@ export async function sendPurchaseConfirmation({
   const text = `You're all set.\n\nOrder ${orderId}\n\n${product.title}\n${product.type} · by ${product.creator.name}\n\nDownload your files (no sign-in needed, keeps working):\n${downloadUrl}\n\nQuestions? help@skillzy.ai`
 
   return resend.emails.send({
-    from: `Skillzy <${env.resend.fromEmail}>`,
+    from: `Skillzy AI <${env.resend.fromEmail}>`,
     to,
     subject,
     html,

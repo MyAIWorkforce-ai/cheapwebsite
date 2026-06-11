@@ -81,7 +81,7 @@ export async function sendNewUserNotification({
 
   try {
     const res = await resend.emails.send({
-      from: `Skillzy <${env.resend.fromEmail}>`,
+      from: `Skillzy AI <${env.resend.fromEmail}>`,
       to: notifyTo('NOTIFY_EMAIL_SIGNUP'),
       subject: `New signup${email ? `: ${email}` : ''}`,
       html,
@@ -154,7 +154,7 @@ export async function sendNewListingNotification({
 
   try {
     const res = await resend.emails.send({
-      from: `Skillzy <${env.resend.fromEmail}>`,
+      from: `Skillzy AI <${env.resend.fromEmail}>`,
       to: notifyTo('NOTIFY_EMAIL_LISTING'),
       subject: `New listing: ${title}`,
       html,
@@ -203,7 +203,7 @@ export async function sendDemoBuyAttemptNotification({
 
   try {
     const res = await resend.emails.send({
-      from: `Skillzy <${env.resend.fromEmail}>`,
+      from: `Skillzy AI <${env.resend.fromEmail}>`,
       to: notifyTo('NOTIFY_EMAIL_SALE'),
       subject: `Buy attempt on sample: ${title}`,
       html,
@@ -284,7 +284,7 @@ export async function sendNewSaleNotification({
 
   try {
     const res = await resend.emails.send({
-      from: `Skillzy <${env.resend.fromEmail}>`,
+      from: `Skillzy AI <${env.resend.fromEmail}>`,
       to: notifyTo('NOTIFY_EMAIL_SALE'),
       subject: `Sale: ${title} — ${m(amountCents)}`,
       html,

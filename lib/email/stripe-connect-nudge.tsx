@@ -91,7 +91,7 @@ Need help? help@skillzy.ai
 
   try {
     const res = await resend.emails.send({
-      from: `Skillzy <${env.resend.fromEmail}>`,
+      from: `Skillzy AI <${env.resend.fromEmail}>`,
       to,
       subject,
       html,

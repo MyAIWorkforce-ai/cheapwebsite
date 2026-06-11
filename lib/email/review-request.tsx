@@ -89,7 +89,7 @@ Leave a comment too: ${baseUrl}
 
   try {
     const res = await resend.emails.send({
-      from: `Skillzy <${env.resend.fromEmail}>`,
+      from: `Skillzy AI <${env.resend.fromEmail}>`,
       to,
       subject,
       html,

@@ -75,7 +75,7 @@ Questions? help@skillzy.ai`
 
   try {
     const res = await resend.emails.send({
-      from: `Skillzy <${env.resend.fromEmail}>`,
+      from: `Skillzy AI <${env.resend.fromEmail}>`,
       to,
       subject,
       html,
@@ -152,7 +152,7 @@ Dashboard: ${dashboard}`
 
   try {
     const res = await resend.emails.send({
-      from: `Skillzy <${env.resend.fromEmail}>`,
+      from: `Skillzy AI <${env.resend.fromEmail}>`,
       to,
       subject,
       html,
@@ -224,7 +224,7 @@ export async function sendFounderRefundEmail({
 
   try {
     const res = await resend.emails.send({
-      from: `Skillzy <${env.resend.fromEmail}>`,
+      from: `Skillzy AI <${env.resend.fromEmail}>`,
       to:
         process.env.NOTIFY_EMAIL_SALE?.trim() ||
         process.env.NOTIFY_EMAIL?.trim() ||
