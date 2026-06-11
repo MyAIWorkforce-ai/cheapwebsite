@@ -77,7 +77,7 @@ export async function sendWelcomeEmail({
       </div>
 
       <p style="font-size:14px;color:#5F6B7E;margin:28px 0 0;line-height:1.55;">
-        Got a question? Reply to this email — a human reads every one. Or write to <a href="mailto:help@skillzy.ai" style="color:#5F6B7E;">help@skillzy.ai</a>.
+        Got a question? Reply to this email — a human reads every one. Or write to <a href="mailto:creators@skillzy.ai" style="color:#5F6B7E;">creators@skillzy.ai</a>.
       </p>
 
       <hr style="border:none;border-top:1px solid #CCD2DD;margin:32px 0;" />
@@ -97,7 +97,7 @@ Two ways to use it:
 2. BROWSE. Drop a ready-made skill into your agent (Claude, ChatGPT, n8n, …):
    ${marketplaceUrl}
 
-Got a question? Reply to this email or write to help@skillzy.ai.
+Got a question? Reply to this email or write to creators@skillzy.ai.
 
 — Skillzy`
 

@@ -91,7 +91,7 @@ export default function AboutPage() {
                 eyebrow: 'Skills',
                 price: '$9 — $109+',
                 title: 'One thing. Done sharp.',
-                body: 'A single SKILL.md and supporting prompts. Drop it in your agent’s skills folder and that capability is live.',
+                body: 'A small bundle — SKILL.md plus the configs, prompts, and examples it needs. Drop it in your agent’s skills folder and that capability is live.',
               },
               {
                 eyebrow: 'Guides',

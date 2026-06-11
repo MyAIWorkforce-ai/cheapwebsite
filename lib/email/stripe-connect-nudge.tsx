@@ -72,7 +72,7 @@ export async function sendStripeConnectNudge({
       </p>
 
       <p style="font-size:14px;color:#5F6B7E;margin:24px 0 0;line-height:1.55;">
-        Need a hand or hit a snag? Reply to this email or write to <a href="mailto:help@skillzy.ai" style="color:#5F6B7E;">help@skillzy.ai</a>.
+        Need a hand or hit a snag? Reply to this email or write to <a href="mailto:creators@skillzy.ai" style="color:#5F6B7E;">creators@skillzy.ai</a>.
       </p>
 
       <hr style="border:none;border-top:1px solid #CCD2DD;margin:32px 0;" />
@@ -87,7 +87,7 @@ Connect Stripe (60 seconds): ${payoutsUrl}
 
 You keep 80% of every sale. Stripe pays you direct.
 
-Need help? help@skillzy.ai
+Need help? creators@skillzy.ai
 
 — Skillzy`
 
