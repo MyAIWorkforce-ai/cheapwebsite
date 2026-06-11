@@ -843,6 +843,7 @@ export default function NewListingForm({
                     value={platforms}
                     onChange={setPlatforms}
                     placeholder="Tap to choose platforms"
+                    selectAllLabel="All agents"
                   />
                 </Field>
               </div>

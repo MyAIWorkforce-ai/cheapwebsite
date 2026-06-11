@@ -26,6 +26,7 @@ export default function MultiSelectPopup({
   onChange,
   placeholder = 'Tap to choose',
   allowCustom = true,
+  selectAllLabel = 'All',
 }: {
   label: string
   options: string[]
@@ -33,6 +34,10 @@ export default function MultiSelectPopup({
   onChange: (next: string) => void
   placeholder?: string
   allowCustom?: boolean
+  // Label for the prominent first-position "select-all toggle" chip
+  // (e.g. "All", "All agents", "Every niche"). Click it once to tick
+  // everything in the list; click again to clear.
+  selectAllLabel?: string
 }) {
   const [open, setOpen] = useState(false)
   const [custom, setCustom] = useState('')
@@ -168,6 +173,36 @@ export default function MultiSelectPopup({
               </div>
 
               <div className="mt-5 flex flex-wrap gap-2">
+                {/* Prominent select-all toggle chip. Shown first so
+                    "works with everything" is the visible default
+                    rather than buried under the chip list. */}
+                {options.length > 1 &&
+                  (() => {
+                    const allOn = options.every((o) =>
+                      Array.from(selected).some(
+                        (s) => s.toLowerCase() === o.toLowerCase(),
+                      ),
+                    )
+                    return (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          onChange(allOn ? '' : options.join(','))
+                        }}
+                        className={
+                          'px-3.5 py-2 text-sm border-2 transition-colors ' +
+                          (allOn
+                            ? 'border-brand-ink bg-brand-ink text-white font-semibold'
+                            : 'border-brand-ink text-brand-ink hover:bg-brand-ink hover:text-white')
+                        }
+                      >
+                        {allOn && <span aria-hidden className="mr-1.5">✓</span>}
+                        {selectAllLabel}
+                      </button>
+                    )
+                  })()}
+
                 {allChips.map((opt) => {
                   const isSelected = Array.from(selected).some(
                     (s) => s.toLowerCase() === opt.toLowerCase(),
