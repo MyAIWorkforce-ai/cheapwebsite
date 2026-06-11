@@ -20,7 +20,7 @@ const buyer: QA[] = [
     q: 'What’s the difference between a Skill, a Guide, and an Agent Setup?',
     a: (
       <>
-        <strong>Skills</strong> are single-purpose SKILL.md files — one job done sharp.{' '}
+        <strong>Skills</strong> are single-purpose bundles — usually a SKILL.md plus the configs, schemas, and examples it needs — one job done sharp.{' '}
         <strong>Guides</strong> are short reads that teach you to build something yourself.{' '}
         <strong>Agent Setups</strong> are the whole agent — every prompt, config, and connector
         for a complete line of work in one purchase.

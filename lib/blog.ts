@@ -545,7 +545,7 @@ export const POSTS: Post[] = [
     body: [
       P('Every listing here is one of three things. Buying the wrong one for where you are is the fastest way to decide “this AI stuff is not for me” when really you just started in the wrong place.'),
       H('A Skill — when you have one job that annoys you'),
-      P('One file, one job, done. Buy a skill when there is a single repetitive task you can name in a sentence. It is the cheapest way to find out this works on your actual business.'),
+      P('One job, done sharp. A skill is a small bundle — usually a SKILL.md plus the configs, schemas, and example inputs it needs — built for a single repetitive task you can name in a sentence. The cheapest way to find out this stuff actually works on your business.'),
       H('A Guide — when you want to understand it'),
       P('You are not buying a file, you are buying someone’s judgement on how to do this well. Buy a guide when you want to build it yourself but not learn it the hard way.'),
       H('An Agent Setup — when you want the outcome, not the project'),
