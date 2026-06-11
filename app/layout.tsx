@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Fraunces, Inter } from 'next/font/google'
 import './globals.css'
 import Navbar from '@/components/Navbar'
@@ -42,6 +42,28 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  // PWA / iOS install metadata. Manifest auto-served from app/manifest.ts.
+  // appleWebApp lets iOS Safari treat "Add to Home Screen" as a standalone
+  // app (no Safari chrome) with a black-translucent status bar that blends
+  // into the brand navy.
+  appleWebApp: {
+    capable: true,
+    title: 'Skillzy',
+    statusBarStyle: 'black-translucent',
+  },
+  applicationName: 'Skillzy',
+  formatDetection: {
+    telephone: false,
+  },
+}
+
+// Status bar + safe-area + responsive defaults. Separate export per
+// Next.js 14 convention.
+export const viewport: Viewport = {
+  themeColor: '#0F1729',
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
 }
 
 export default function RootLayout({
