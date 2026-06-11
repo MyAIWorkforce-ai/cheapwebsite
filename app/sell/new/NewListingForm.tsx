@@ -381,8 +381,48 @@ export default function NewListingForm({
         }
         if (json.title) setTitle(json.title)
         if (json.tagline) setTagline(json.tagline)
-        if (json.niche) setNiche(json.niche)
-        if (json.platforms?.length) setPlatforms(json.platforms.join(', '))
+        // Niche + platforms: merge with whatever the seller already
+        // picked rather than replace. The AI runs on every file
+        // add/remove, so a plain replace would silently wipe any
+        // chips the seller hand-added (e.g. "Hermes", "OpenClaw")
+        // when the new draft doesn't infer them from the file.
+        if (json.niche) {
+          const existing = new Set(
+            niche
+              .split(',')
+              .map((s) => s.trim())
+              .filter(Boolean)
+              .map((s) => s.toLowerCase()),
+          )
+          if (!existing.has(String(json.niche).toLowerCase())) {
+            setNiche(
+              [
+                ...niche
+                  .split(',')
+                  .map((s) => s.trim())
+                  .filter(Boolean),
+                String(json.niche),
+              ].join(', '),
+            )
+          }
+        }
+        if (json.platforms?.length) {
+          const existingPlatforms = platforms
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean)
+          const lowered = new Set(
+            existingPlatforms.map((s) => s.toLowerCase()),
+          )
+          const additions = (json.platforms as string[]).filter(
+            (p) => !lowered.has(p.toLowerCase()),
+          )
+          if (additions.length) {
+            setPlatforms(
+              [...existingPlatforms, ...additions].join(', '),
+            )
+          }
+        }
         if (json.description?.length) setDescText(json.description.join('\n'))
         if (json.whatYouGet?.length) setWhatText(json.whatYouGet.join('\n'))
       } catch (err) {
