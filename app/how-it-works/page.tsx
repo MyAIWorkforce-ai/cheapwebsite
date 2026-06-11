@@ -14,7 +14,7 @@ const steps = [
     n: '01',
     title: 'Buy a listing',
     body: 'Pick a skill, guide, or full agent setup. Pay with card via Stripe — Skillzy never sees your card. You do not need an account to buy; the download lands in your email either way.',
-    aside: 'Checkout takes about 30 seconds. Test card or real card, same flow.',
+    aside: 'Checkout takes about 30 seconds. Your card never touches Skillzy — Stripe handles it.',
   },
   {
     n: '02',
