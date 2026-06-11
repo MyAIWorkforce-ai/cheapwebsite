@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import { env, hasResend } from '@/lib/env'
+import { brandHeaderHtml } from './brand'
 
 type Args = {
   to: string
@@ -56,6 +57,7 @@ export async function sendReviewRequest({
 
   const html = `<!doctype html><html><body style="margin:0;background:#E8ECF0;font-family:Georgia,'Times New Roman',serif;color:#0F1729;">
     <div style="max-width:560px;margin:0 auto;padding:40px 28px;">
+      ${brandHeaderHtml()}
       <p style="font-family:monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#C19E50;margin:0;">Rate your purchase</p>
       <h1 style="font-size:30px;line-height:1.15;letter-spacing:-0.02em;margin:14px 0 0;">${variant === 'day3' ? 'How was it?' : 'One last nudge.'}</h1>
       <p style="font-size:16px;color:#5F6B7E;margin:18px 0 0;line-height:1.55;">${intro}</p>

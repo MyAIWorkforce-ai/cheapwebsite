@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import { env, hasResend } from '@/lib/env'
+import { brandHeaderHtml } from './brand'
 
 let cached: Resend | null = null
 function getResend() {
@@ -62,6 +63,7 @@ export async function sendDemoInterestNotification({
   <html>
   <body style="margin:0;padding:32px;background:#E8ECF0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#0F1729;">
     <div style="max-width:560px;margin:0 auto;background:#F2F4F8;border:1px solid #CCD2DD;padding:32px;">
+      ${brandHeaderHtml()}
       <div style="font-family:'Times New Roman',serif;font-size:32px;line-height:1.1;letter-spacing:-1px;">
         Someone tried to buy a sample.
       </div>

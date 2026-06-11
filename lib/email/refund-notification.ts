@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import { env, hasResend } from '@/lib/env'
+import { brandHeaderHtml } from './brand'
 
 // Refund notifications — three audiences, one module. Each function
 // is silent if Resend isn't configured. Fired from the `charge.refunded`
@@ -41,6 +42,7 @@ export async function sendBuyerRefundEmail({
 
   const html = `<!doctype html><html><body style="margin:0;background:#E8ECF0;font-family:Georgia,'Times New Roman',serif;color:#0F1729;">
     <div style="max-width:560px;margin:0 auto;padding:40px 28px;">
+      ${brandHeaderHtml()}
       <p style="font-family:monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#C19E50;margin:0;">Refund</p>
       <h1 style="font-size:34px;line-height:1.1;letter-spacing:-0.02em;margin:14px 0 0;">Your refund is on its way.</h1>
       <p style="font-size:16px;color:#0F1729;margin:18px 0 0;line-height:1.55;">
@@ -115,6 +117,7 @@ export async function sendSellerRefundEmail({
 
   const html = `<!doctype html><html><body style="margin:0;background:#E8ECF0;font-family:Georgia,'Times New Roman',serif;color:#0F1729;">
     <div style="max-width:560px;margin:0 auto;padding:40px 28px;">
+      ${brandHeaderHtml()}
       <p style="font-family:monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#C19E50;margin:0;">Heads up</p>
       <h1 style="font-size:32px;line-height:1.1;letter-spacing:-0.02em;margin:14px 0 0;">A refund was issued on a sale.</h1>
       <p style="font-size:16px;color:#0F1729;margin:18px 0 0;line-height:1.55;">
@@ -211,6 +214,7 @@ export async function sendFounderRefundEmail({
 
   const html = `<!doctype html><html><body style="margin:0;background:#E8ECF0;font-family:Georgia,'Times New Roman',serif;color:#0F1729;">
     <div style="max-width:560px;margin:0 auto;padding:40px 28px;">
+      ${brandHeaderHtml()}
       <p style="font-family:monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#C19E50;margin:0;">Refund</p>
       <h1 style="font-size:30px;line-height:1.15;letter-spacing:-0.02em;margin:12px 0 0;">A refund was processed.</h1>
       <div style="margin:24px 0;padding:18px;background:#fff;border:1px solid #CCD2DD;">
