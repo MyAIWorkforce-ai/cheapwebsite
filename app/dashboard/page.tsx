@@ -358,6 +358,35 @@ export default async function DashboardPage({
             Your{' '}
             <em className="italic text-brand-gold font-medium">stuff.</em>
           </h1>
+
+          {/* Public identity strip — shows the creator's handle (the
+              part buyers / share links see) plus a quick path to edit
+              their name + handle. */}
+          <div className="mt-5 flex items-center gap-3 flex-wrap text-sm">
+            {user?.handle ? (
+              <Link
+                href={`/creator/${user.handle.replace(/^@/, '')}`}
+                className="font-display text-lg sm:text-xl text-brand-ink border-b border-brand-hairline hover:text-brand-gold hover:border-brand-gold pb-0.5 transition-colors"
+                style={{ letterSpacing: '-0.02em' }}
+              >
+                @{user.handle.replace(/^@/, '')}
+              </Link>
+            ) : (
+              <Link
+                href="/account"
+                className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold border-b border-brand-gold pb-0.5 hover:text-brand-gold-dark transition-colors"
+              >
+                Set your handle →
+              </Link>
+            )}
+            <Link
+              href="/account"
+              className="text-brand-muted hover:text-brand-ink transition-colors"
+            >
+              Edit name &amp; handle
+            </Link>
+          </div>
+
           <p className="mt-5 text-brand-muted max-w-prose">
             Everything you&rsquo;ve bought lives here. Everything you&rsquo;ve sold too.
           </p>
