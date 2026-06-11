@@ -1238,3 +1238,98 @@ verified live vs only shipped, and what to harden before pushing
 - Concurrent same-product purchases — dedupe index handles parallel writes per migration 008, not load-tested
 - Cold-email deliverability from `skillzy.ai` — fresh sender domain; cold blasts of 500 leads from `hi@` could trigger spam reputation hits that affect transactional mail. ALWAYS use the sister domain (above) for cold.
 
+---
+
+## 2026-06-11 — Third-party "deep dive" findings — fix tomorrow
+
+An external review of skillzy.ai produced a damning read: *"a
+concept/launch-stage storefront with a fixed set of illustrative
+listings, not an operating marketplace with verifiable creators or
+sales yet."* That's a real perception problem. They flagged two
+concrete bugs + one strategic gap.
+
+### 1. Review counts vary between pages (BUG)
+
+The reviewer saw:
+- Harlow's Real Estate setup — 22 reviews on homepage, 218 on marketplace
+- Invoice Generator — no rating on homepage, 524 on marketplace
+
+Both pages import from `lib/catalog.ts` and use `toCardProduct` which
+passes through `p.ratingCount` unchanged. The seed values in catalog.ts
+match what shows on the homepage (Real Estate = 22, Invoice Gen = 16).
+So the inflated 218 / 524 are coming from somewhere ELSE:
+- Possibly `liveDbProducts()` (DB-backed listings) returning rows the
+  marketplace merges in with random counts
+- Possibly a stale Vercel ISR cache showing an OLD seed snapshot
+- Possibly a different `lib/catalog-seed.ts` variant rendering on one
+  page only
+
+**Action**: open both pages, screenshot the actual counts shown, then
+diff against `lib/catalog.ts` values. Whoever's wrong gets the patch.
+
+### 2. OG image URLs leaking `cheapwebsite-preview` hostname (BUG)
+
+Reviewer: *"the marketplace's preview image is served from a Vercel
+hostname literally named `cheapwebsite-preview` under the same personal
+project namespace."* Massive trust signal.
+
+Why it happens: skillzy.ai is served by the PREVIEW build of branch
+`claude/build-skillzy-website-MIbCF` on Vercel project `skillzyai`.
+Vercel sets `VERCEL_URL` to the preview hostname. Next.js's OG image
+routes (`app/**/opengraph-image.tsx` — 5 of them) generate absolute
+URLs. If `metadataBase` isn't set tightly to `https://skillzy.ai` at
+EVERY route level, Next will fall back to `VERCEL_URL` and the
+preview hostname leaks into shared previews.
+
+Already set in `app/layout.tsx`:
+```ts
+metadataBase: new URL('https://skillzy.ai')
+```
+But child `pageMetadata()` calls don't override it — they should
+inherit. Worth force-setting in each per-route `generateMetadata`
+just to make sure Next never falls back to `VERCEL_URL` for OG paths.
+
+Files to check:
+- `lib/seo.ts` — `pageMetadata` builder
+- `app/marketplace/[id]/opengraph-image.tsx`
+- `app/blog/[slug]/opengraph-image.tsx`
+- `app/opengraph-image.tsx`
+- `app/for/[niche]/opengraph-image.tsx`
+- `app/creator/[handle]/opengraph-image.tsx`
+
+**Action**: in `pageMetadata`, force-set `metadataBase: new URL(SITE_URL)`
+even though layout sets it — defensive. Verify with
+`curl -sI https://skillzy.ai/marketplace/<id> | grep -i og:image` to
+confirm the URL is `https://skillzy.ai/...` not the vercel preview.
+
+### 3. Demo listings look like real listings (strategic)
+
+Already in the Phase 2 backlog ("Retire/replace static demo listings")
+but it's now URGENT — the reviewer specifically called this out as the
+single biggest signal that Skillzy is a template. Options:
+
+a. **Hide all seed listings entirely** until real ones populate. Most
+   honest, but the homepage looks empty. Could work with a strong
+   "first listings landing this week — be the first" banner.
+b. **Re-label seed listings as "Sample / coming soon"** visibly on
+   each card. Still in front of buyers but clearly marked. The
+   demand-signal email already fires when someone clicks Buy on these.
+c. **Convert top 3-5 to genuine free downloads** (real SKILL.md files
+   we authored), drop the rest. Buyers can actually use them; reviewer
+   sees real downloads happening.
+
+Recommendation: **(b) for tomorrow** — fastest, lowest-risk, preserves
+the demand-sensing signal. Then (c) once toby has 30 minutes to
+generate the real downloads, and (a) once real creator listings
+populate.
+
+### 4. Skip the `cheapwebsite-preview` Vercel project name itself
+
+While we're at it: the Vercel project is called `skillzyai` but
+deployments still show `cheapwebsite-preview` URLs in some places.
+The REPO is `MyAIWorkforce-ai/cheapwebsite` and Vercel uses the repo
+name for preview-deployment hostnames. Renaming the repo would fix
+that — but breaks every existing skillzy.ai → branch pin. Safer:
+just make sure `metadataBase` (#2) hides the leak from anything
+public.
+
