@@ -32,7 +32,7 @@ export default function Footer() {
               <li><Link href="/marketplace?type=agent-setup" className="hover:text-brand-gold transition-colors">Agent Setups</Link></li>
               <li><Link href="/marketplace?type=skill" className="hover:text-brand-gold transition-colors">Skills</Link></li>
               <li><Link href="/marketplace?type=guide" className="hover:text-brand-gold transition-colors">Guides</Link></li>
-              <li><Link href="/marketplace" className="hover:text-brand-gold transition-colors">All of it</Link></li>
+              <li><Link href="/marketplace" className="hover:text-brand-gold transition-colors">All</Link></li>
             </ul>
           </div>
 
