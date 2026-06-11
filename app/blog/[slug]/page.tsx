@@ -4,7 +4,8 @@ import { getAllPosts, getPost, readingMinutes } from '@/lib/blog'
 import { getProduct } from '@/lib/catalog'
 import { getNiche, getPlatform, nicheSlug } from '@/lib/content'
 import StructuredData from '@/components/StructuredData'
-import NewsletterForm from '@/components/NewsletterForm'
+// NewsletterForm import paused with the Dispatch — restore when reviving.
+// import NewsletterForm from '@/components/NewsletterForm'
 import { pageMetadata, SITE_URL } from '@/lib/seo'
 import { breadcrumbLd } from '@/lib/jsonld'
 
@@ -150,17 +151,10 @@ export default function BlogPost({ params }: { params: { slug: string } }) {
         </div>
       </header>
 
-      {/* top-of-post newsletter */}
-      <div className="px-6 lg:px-10 pt-10">
-        <div className="max-w-3xl mx-auto border border-brand-hairline bg-brand-cream-card p-5">
-          <p className="label-cap text-brand-gold mb-1">The dispatch</p>
-          <p className="text-sm text-brand-muted">
-            New listings, creator interviews, the occasional discount. Every
-            other Friday.
-          </p>
-          <NewsletterForm />
-        </div>
-      </div>
+      {/* Top-of-post Dispatch signup paused until ~50–100 creators.
+          When reviving: re-wrap in
+          <div className="px-6 lg:px-10 pt-10"><div className="max-w-3xl mx-auto border border-brand-hairline bg-brand-cream-card p-5">…</div></div>
+          with NewsletterForm + the "The dispatch" label/blurb. */}
 
       <div className="px-6 lg:px-10 py-12 sm:py-16">
         <div className="max-w-3xl mx-auto text-lg leading-relaxed">
@@ -203,16 +197,12 @@ export default function BlogPost({ params }: { params: { slug: string } }) {
             return null
           })}
 
-          {/* end-of-post newsletter */}
-          <div className="mt-14 border border-brand-hairline bg-brand-cream-card p-6">
-            <p className="font-display text-2xl tracking-tight">
-              Liked this? Get the next one.
-            </p>
-            <p className="mt-1 text-sm text-brand-muted">
-              Field Notes, every other Friday. No spam.
-            </p>
-            <NewsletterForm />
-          </div>
+          {/* Bottom-of-post Dispatch signup paused. Restore inside
+              <div className="mt-14 border border-brand-hairline bg-brand-cream-card p-6">
+                "Liked this? Get the next one." + "Field Notes, every
+                other Friday." + <NewsletterForm />
+              </div>
+              when reviving the newsletter (~50–100 creators). */}
         </div>
       </div>
 

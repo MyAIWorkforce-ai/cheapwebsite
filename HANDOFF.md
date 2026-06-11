@@ -901,8 +901,21 @@ Captured during the launch-day session. None of these block launch.
   every major inbox.
 
 ### Content / marketplace
-- **Re-enable the Dispatch newsletter slide-in** at ~50 creators (paused
-  in `app/layout.tsx`; just re-add `<NewsletterSlideIn />`).
+- **Revive the entire Dispatch newsletter at ~50–100 creators.** Fully
+  paused 2026-06-11 — there's no point collecting signups while there's
+  nothing to dispatch about. To revive:
+  1. `components/Footer.tsx` — uncomment `NewsletterForm` import and
+     restore the "The dispatch" block inside the Brand column.
+  2. `app/blog/[slug]/page.tsx` — uncomment `NewsletterForm` import and
+     restore both the top-of-post + bottom-of-post Dispatch blocks
+     (comments mark exact wrappers + copy).
+  3. `app/layout.tsx` — re-add `<NewsletterSlideIn />` if also reviving
+     the slide-in popup (separately paused earlier).
+  4. Server action `app/_actions/newsletter.ts` + the Beehiiv fallback
+     chain are untouched — set `BEEHIIV_API_KEY` +
+     `BEEHIIV_PUBLICATION_ID` in Vercel and signups flow in immediately.
+  5. The `/dispatch` page itself is kept as the "what's new" listings
+     archive — separate from the newsletter, no changes needed.
 - **Retire/replace static demo listings** once real listings populate —
   they're non-buyable showcase data in `lib/catalog.ts`.
 

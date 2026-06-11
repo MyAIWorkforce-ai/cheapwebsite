@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import Logo from './Logo'
-import NewsletterForm from './NewsletterForm'
+// NewsletterForm import kept commented during the Dispatch pause —
+// uncomment + restore the footer block when reviving (~50 creators).
+// import NewsletterForm from './NewsletterForm'
 
 export default function Footer() {
   const year = new Date().getFullYear()
@@ -16,14 +18,12 @@ export default function Footer() {
               Made by humans. Dropped into your agent.
             </p>
 
-            <div className="mt-8 max-w-sm">
-              <p className="label-cap text-brand-gold mb-2">The dispatch</p>
-              <p className="text-xs text-brand-muted leading-relaxed">
-                New listings, creator interviews, the occasional discount.
-                Every other Friday.
-              </p>
-              <NewsletterForm />
-            </div>
+            {/* The Dispatch newsletter is paused until ~50–100 creators
+                are on the platform. Until we have something worth
+                dispatching about, no point collecting signups. The
+                form component, server action, and Beehiiv fallback
+                chain are kept in the repo for fast revival — see
+                HANDOFF "Phase 2 / Content / marketplace". */}
           </div>
 
           <div className="md:col-span-2">
