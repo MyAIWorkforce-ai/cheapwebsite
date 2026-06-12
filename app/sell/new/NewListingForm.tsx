@@ -5,56 +5,11 @@ import { useFormState, useFormStatus } from 'react-dom'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import GitHubImport from '@/components/GitHubImport'
 import MultiSelectPopup from '@/components/MultiSelectPopup'
+import { NICHE_OPTIONS, PLATFORM_OPTIONS } from '@/lib/options'
 import { publishListing, type PublishState } from './actions'
 
-// Canonical lists for the niche + platform picker popups. Kept in sync
-// with lib/content but inlined here so this client component stays free
-// of server-only imports.
-const NICHE_OPTIONS = [
-  'Real Estate',
-  'Property Mgmt',
-  'Tradies',
-  'Builders',
-  'Plumbers',
-  'Electricians',
-  'Accountants',
-  'Bookkeepers',
-  'Lawyers',
-  'Consultants',
-  'Coaches',
-  'E-commerce',
-  'Hospitality',
-  'Restaurants',
-  'Cafes',
-  'Healthcare',
-  'Dentists',
-  'Vets',
-  'Therapists',
-  'Education',
-  'Tutors',
-  'Fitness',
-  'Salons',
-  'Marketing',
-  'Agencies',
-  'Recruiters',
-  'Photographers',
-  'Designers',
-]
-const PLATFORM_OPTIONS = [
-  'Claude',
-  'OpenClaw',
-  'Manus',
-  'ChatGPT',
-  'Hermes',
-  'Gemini',
-  'Grok',
-  'Ollama',
-  'Mistral',
-  'DeepSeek',
-  'n8n',
-  'Make',
-  'Zapier',
-]
+// Niche + platform option lists moved to lib/options.ts so /sell/new
+// and /dashboard/listings/[id]/edit share the same canonical lists.
 
 // Minimal local types for the Web Speech API (not in lib.dom by default).
 type SpeechRecResultLike = { isFinal: boolean; 0: { transcript: string } }

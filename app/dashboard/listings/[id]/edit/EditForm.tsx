@@ -1,7 +1,10 @@
 'use client'
 
+import { useState } from 'react'
 import { useFormState, useFormStatus } from 'react-dom'
 import { updateListing, type EditState } from './actions'
+import MultiSelectPopup from '@/components/MultiSelectPopup'
+import { NICHE_OPTIONS, PLATFORM_OPTIONS } from '@/lib/options'
 
 const initial: EditState = {}
 
@@ -30,6 +33,12 @@ export type EditDefaults = {
 
 export default function EditForm({ defaults }: { defaults: EditDefaults }) {
   const [state, action] = useFormState(updateListing, initial)
+  // Controlled state for the multi-select pickers so the popup
+  // can update without losing values across re-renders. Hidden
+  // inputs below carry the comma-joined strings into the form
+  // submission, matching the publish action's contract.
+  const [niche, setNiche] = useState(defaults.niche)
+  const [platforms, setPlatforms] = useState(defaults.platforms)
   return (
     <form action={action} className="space-y-8">
       <input type="hidden" name="id" value={defaults.id} />
@@ -75,32 +84,35 @@ export default function EditForm({ defaults }: { defaults: EditDefaults }) {
             className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 font-display text-2xl"
           />
         </label>
-        <label className="block">
+        <div className="block">
           <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
             Niche
           </span>
-          <input
-            type="text"
-            name="niche"
-            defaultValue={defaults.niche}
-            placeholder="Real Estate, Builders, …"
-            className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg placeholder:text-brand-muted/60"
+          <input type="hidden" name="niche" value={niche} />
+          <MultiSelectPopup
+            label="Pick the niches this listing fits"
+            options={NICHE_OPTIONS}
+            value={niche}
+            onChange={setNiche}
+            placeholder="Tap to choose niches"
           />
-        </label>
+        </div>
       </div>
 
-      <label className="block">
+      <div className="block">
         <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
-          Platforms (comma-separated)
+          Works with
         </span>
-        <input
-          type="text"
-          name="platforms"
-          defaultValue={defaults.platforms}
-          placeholder="Claude, OpenClaw, n8n"
-          className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg placeholder:text-brand-muted/60"
+        <input type="hidden" name="platforms" value={platforms} />
+        <MultiSelectPopup
+          label="Pick the platforms this works with"
+          options={PLATFORM_OPTIONS}
+          value={platforms}
+          onChange={setPlatforms}
+          placeholder="Tap to choose platforms"
+          selectAllLabel="All agents"
         />
-      </label>
+      </div>
 
       <fieldset>
         <legend className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted mb-3">
