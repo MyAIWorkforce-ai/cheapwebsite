@@ -2,9 +2,9 @@ import Link from 'next/link'
 import { pageMetadata } from '@/lib/seo'
 
 export const metadata = pageMetadata({
-  title: 'Sell AI Agent Skills — Keep 80% — Skillzy',
+  title: 'Sell AI Agent Skills · List Once, Earn Forever — Skillzy',
   description:
-    'List once. Earn forever. Skillzy gives creators 80% of every sale, instant Stripe payouts, and zero IP lock-in.',
+    'List once. Earn forever. Publish in minutes, connect Stripe, get paid direct.',
   path: '/sell',
   keywords: [
     'sell AI skills',
@@ -46,8 +46,8 @@ const steps = [
   { n: '01', title: 'Sign up', desc: 'Email or one-click GitHub login. No profile to fill in.' },
   { n: '02', title: 'List it', desc: 'Skill, guide, or full agent setup. Drop in your files.' },
   { n: '03', title: 'Let it describe itself', desc: 'Upload notes, talk, or type. Our AI drafts the full listing — title, blurb, features, setup. Refine until it sounds like you.' },
-  { n: '04', title: 'Connect Stripe', desc: 'One click at publish. Payouts go straight to your account. Skillzy never touches the money.' },
-  { n: '05', title: 'Get paid', desc: 'Keep 80%. Stripe splits the cash. You re-list, raise prices, or pull anytime.' },
+  { n: '04', title: 'Connect Stripe', desc: 'One click at publish. Stripe pays you direct — you keep 80%.' },
+  { n: '05', title: 'Get paid', desc: 'Stripe splits the cash on every sale. You re-list, raise prices, or pull anytime.' },
 ]
 
 export default function SellPage() {
@@ -64,16 +64,16 @@ export default function SellPage() {
             className="font-display text-5xl sm:text-7xl leading-[0.92] tracking-tight"
             style={{ letterSpacing: '-0.035em' }}
           >
-            <span className="block">Built it?</span>
+            <span className="block">List once.</span>
             <span className="block">
-              <em className="italic font-medium text-brand-gold">Sell it.</em>
+              <em className="italic font-medium text-brand-gold">Earn forever.</em>
             </span>
           </h1>
 
           <div className="mt-14 sm:mt-20 grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
             <p className="lg:col-span-7 text-xl sm:text-2xl leading-snug max-w-2xl text-brand-ink">
-              Skillzy turns your agent and your skills into income. Stripe pays
-              you direct. Keep 80% of every sale.
+              Skillzy turns your skills and agent setups into income. Connect
+              Stripe once and get paid direct on every sale, forever.
             </p>
             <div className="lg:col-span-5 flex items-center gap-6 lg:justify-end">
               <Link
@@ -99,7 +99,7 @@ export default function SellPage() {
         <div className="max-w-page mx-auto grid grid-cols-1 md:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">
           {[
             { n: '∞', label: 'Resales', desc: 'List once. Sell it forever.' },
-            { n: '80%', label: 'You keep', desc: 'On every sale. Always.' },
+            { n: '$0', label: 'Skillzy holds', desc: 'Stripe pays you direct on every sale.' },
             { n: 'Minutes', label: 'To publish', desc: 'From sign-up to live. Faster if you already have an account.' },
           ].map((s) => (
             <div key={s.label} className="bg-brand-cream-card p-8 sm:p-10">
