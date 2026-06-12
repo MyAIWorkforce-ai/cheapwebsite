@@ -119,21 +119,36 @@ export default function EditForm({ defaults }: { defaults: EditDefaults }) {
           Status
         </legend>
         <div className="flex flex-wrap gap-2">
-          {(['live', 'pending_review', 'removed'] as const).map((s) => (
-            <label
-              key={s}
-              className="inline-flex items-center gap-2 px-3 py-1.5 border border-brand-hairline cursor-pointer hover:border-brand-ink transition-colors text-sm"
-            >
-              <input
-                type="radio"
-                name="status"
-                value={s}
-                defaultChecked={s === defaults.status}
-                className="accent-brand-ink"
-              />
-              {s === 'live' ? 'Live' : s === 'pending_review' ? 'Pending review' : 'Removed'}
-            </label>
-          ))}
+          {/* Only two seller-controlled states. The DB enum still
+              carries `pending_review` for legacy rows but it's never
+              a state the seller picks from here. */}
+          {(['live', 'removed'] as const).map((s) => {
+            // Label switches between action and state for the removed
+            // option: shows "Remove" while not selected (what the
+            // button does), flips to "Removed" once the listing is
+            // actually in that state.
+            const label =
+              s === 'live'
+                ? 'Live'
+                : defaults.status === 'removed'
+                  ? 'Removed'
+                  : 'Remove'
+            return (
+              <label
+                key={s}
+                className="inline-flex items-center gap-2 px-3 py-1.5 border border-brand-hairline cursor-pointer hover:border-brand-ink transition-colors text-sm"
+              >
+                <input
+                  type="radio"
+                  name="status"
+                  value={s}
+                  defaultChecked={s === defaults.status}
+                  className="accent-brand-ink"
+                />
+                {label}
+              </label>
+            )
+          })}
         </div>
       </fieldset>
 
