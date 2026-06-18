@@ -10,6 +10,7 @@ to upload via `/sell/new`.
 |---|---|---|---|
 | `site-builder/` | Site + Stripe, end to end. | $199 | Ready — see `PUBLISH.md` |
 | `stripe-setup/` | Stripe Setup, end to end. | $129 | Ready — see `PUBLISH.md` |
+| `real-estate-agent/` | Real Estate Agent, end to end. | $199 | Ready — see `PUBLISH.md` |
 
 ## How to publish each
 
