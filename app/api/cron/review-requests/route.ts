@@ -26,14 +26,45 @@ const DAY = 24 * 60 * 60 * 1000
 type PurchaseRow = {
   id: string
   buyer_email: string | null
-  listings: { title?: string | null } | { title?: string | null }[] | null
+  listings:
+    | {
+        title?: string | null
+        type?: string | null
+        profiles?:
+          | { handle?: string | null }
+          | { handle?: string | null }[]
+          | null
+      }
+    | {
+        title?: string | null
+        type?: string | null
+        profiles?:
+          | { handle?: string | null }
+          | { handle?: string | null }[]
+          | null
+      }[]
+    | null
 }
 
-function listingTitle(row: PurchaseRow): string {
+function listingDetails(row: PurchaseRow): {
+  title: string
+  type: string | undefined
+  creatorHandle: string | null
+} {
   const l = row.listings
-  if (!l) return 'your purchase'
-  if (Array.isArray(l)) return l[0]?.title ?? 'your purchase'
-  return l.title ?? 'your purchase'
+  const flat = Array.isArray(l) ? (l[0] ?? null) : l
+  if (!flat) {
+    return { title: 'your purchase', type: undefined, creatorHandle: null }
+  }
+  const profilesRaw = flat.profiles
+  const profile = Array.isArray(profilesRaw)
+    ? (profilesRaw[0] ?? null)
+    : (profilesRaw ?? null)
+  return {
+    title: flat.title ?? 'your purchase',
+    type: flat.type ?? undefined,
+    creatorHandle: profile?.handle ?? null,
+  }
 }
 
 export async function GET(req: Request) {
@@ -64,7 +95,7 @@ export async function GET(req: Request) {
   // Day-3 batch
   const { data: day3, error: e1 } = await db
     .from('purchases')
-    .select('id, buyer_email, listings:listing_id (title)')
+    .select('id, buyer_email, listings:listing_id ( title, type, profiles:creator_id ( handle ) )')
     .eq('status', 'paid')
     .is('review_email_sent_at', null)
     .gte('created_at', day3From)
@@ -75,9 +106,12 @@ export async function GET(req: Request) {
   for (const p of (day3 ?? []) as PurchaseRow[]) {
     if (!p.buyer_email) continue
     const tok = reviewToken(p.id)
+    const details = listingDetails(p)
     const res = await sendReviewRequest({
       to: p.buyer_email,
-      title: listingTitle(p),
+      title: details.title,
+      type: details.type,
+      creatorHandle: details.creatorHandle,
       purchaseId: p.id,
       token: tok,
       variant: 'day3',
@@ -94,7 +128,7 @@ export async function GET(req: Request) {
   // Day-7 batch — skip if a review already exists
   const { data: day7, error: e2 } = await db
     .from('purchases')
-    .select('id, buyer_email, listings:listing_id (title)')
+    .select('id, buyer_email, listings:listing_id ( title, type, profiles:creator_id ( handle ) )')
     .eq('status', 'paid')
     .is('review_followup_sent_at', null)
     .gte('created_at', day7From)
@@ -118,9 +152,12 @@ export async function GET(req: Request) {
       continue
     }
     const tok = reviewToken(p.id)
+    const details = listingDetails(p)
     const res = await sendReviewRequest({
       to: p.buyer_email,
-      title: listingTitle(p),
+      title: details.title,
+      type: details.type,
+      creatorHandle: details.creatorHandle,
       purchaseId: p.id,
       token: tok,
       variant: 'day7',
