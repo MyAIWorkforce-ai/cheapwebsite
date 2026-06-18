@@ -1,9 +1,15 @@
-# Site + Stripe, end to end.
+# Website Builder, end to end.
 
-A complete website + payments desk for your agent. Drop this bundle
-into Claude (or any compatible agent), tell it what you want to build,
-and it walks you from a blank page to a deployed, domain-pointed,
-SEO-ready site — and wires up Stripe so it actually takes money.
+A complete website desk for your agent. Drop this bundle into Claude
+(or any compatible agent), tell it what you want to build, and it
+walks you from a blank page to a deployed, domain-pointed, SEO-ready
+site at your own URL.
+
+If you also want to take payments — coaching sessions, a digital
+product, a subscription, a booking deposit — the same agent wires
+up Stripe end-to-end on top of the site. If you don't, it skips
+those steps cleanly. You can add Stripe later just by saying *"add
+Stripe"* and the agent picks up where it left off.
 
 ## What's in this bundle
 

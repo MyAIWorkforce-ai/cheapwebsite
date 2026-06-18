@@ -1,4 +1,4 @@
-# Publish — Site + Stripe, end to end.
+# Publish — Website Builder, end to end.
 
 Step-by-step to publish this bundle on skillzy.ai. Should take ~5 minutes.
 
@@ -48,37 +48,38 @@ with this polished copy from `LISTING_COPY.md`:
 
 ### Title
 ```
-Site + Stripe, end to end.
+Website Builder, end to end.
 ```
 
 ### Tagline
 ```
-Build it, deploy it, get found, get paid. Your agent ships a real website AND wires up Stripe payments — from scratch or onto your existing domain.
+Build it, deploy it, get found — and take Stripe payments if you sell something. Your agent ships the full thing, then keeps shipping changes after launch.
 ```
 
 ### Description (paste into the description box)
 ```
-A complete website + payments desk, dropped into your agent. Interview, scaffold, deploy, connect domain, write SEO, wire up Stripe so the site actually takes money — all in one agent setup. The buyer goes from "I want to charge for my coaching" or "I want my plumbing business online with a quote form" to a real, deployed, payment-ready site in an afternoon.
+A complete website desk, dropped into your agent. Interview, scaffold, write the actual copy, deploy through Vercel, wire the custom domain, set the SEO for Google and AI search — your buyer goes from blank page to a live website at their own domain in an afternoon. Built on the stack we run for live clients: Next.js + Tailwind + GitHub + Vercel. The agent doesn't just generate code; it guides every command, every Vercel click, every DNS record, in plain English. A non-developer can ship this end to end.
 
-Built on the stack we run for live clients: Next.js + Vercel + GitHub + Stripe. The agent doesn't just generate code; it guides every command, every Vercel click, every Stripe dashboard step, in plain English. A non-developer can ship this end to end.
+If the buyer needs to take payments (coaches charging for sessions, plumbers taking deposits, anyone selling a digital product or subscription), the same agent walks them through activating Stripe, setting up Products and Prices, wiring the payment surface directly into the site, handling tax + refunds + the Customer Portal. They go from "I want a site that takes money" to a real $1 test charge succeeding by end of day.
 
-Includes the prompts for AI-search ranking (llms.txt, structured data patterns Claude + ChatGPT + Perplexity actually read), the Stripe-side stuff most setup guides skip (branded statement descriptors, dispute-evidence habits, tax-inclusive vs exclusive decisions), and a monthly Stripe reporting routine the buyer can hand straight to their accountant.
+If the buyer doesn't need payments (informational site, lead-gen page, portfolio), the agent skips the Stripe steps cleanly. They can add them later — just say "add Stripe" and the agent picks up where it left off.
 
-If the buyer doesn't need payments (informational site, lead-gen page), the agent skips the Stripe steps cleanly. They can add them later just by saying "add Stripe".
+Includes the bits most builders skip: AI-search readiness (llms.txt, structured data Claude + ChatGPT + Perplexity actually read), branded statement descriptors on Stripe charges, dispute-evidence habits that win chargebacks, tax-inclusive vs exclusive pricing decisions, and a monthly reporting routine the buyer can hand straight to their accountant. Then it stays on standby — every later change ships with a single sentence like "make the headline say X".
 ```
 
 ### What you get (paste as bullets, one per line)
 ```
-12 SKILL.md files: 5 for the site, 6 for Stripe (skippable for info-only sites), 1 for ongoing updates
-Master orchestrator prompt that routes the agent through the right path
-Real Next.js + Tailwind + Vercel stack — production-grade, free to deploy
-Built-in support for AI search (llms.txt + structured-data templates) most builders ignore
-Three payment-surface paths integrated with the site: Payment Link, hosted Checkout, embedded Payment Element — agent picks the right one
+A real Next.js + Tailwind website on GitHub, deployed to Vercel, at the buyer's own domain
+12 SKILL.md files: discovery, scaffold, deploy, domain, SEO, plus 6 Stripe skills (skippable for info-only sites) and a standing-by update skill
+Master orchestrator prompt that routes the agent through the right path based on whether payments are needed
+Built-in support for AI search (llms.txt + structured-data templates Claude / ChatGPT / Perplexity actually read) — most builders skip this entirely
+Three Stripe payment-surface paths integrated with the site: Payment Link, hosted Checkout, embedded Payment Element — agent picks the right one for the use case
 Stripe tax setup for AU/NZ GST, EU VAT, US sales tax — automated or manual
 Dispute-defence checklist that wins chargebacks
 Customer Portal so subscribers self-serve (cancel, swap plan, update card)
 Monthly Stripe reporting routine + Xero/QuickBooks connection notes
-Update skill is the standing-by mode — buyer comes back forever and just says "change X"
+Update skill is the standing-by mode — the buyer comes back forever and just says "change X"
+Real Next.js + Vercel stack — production-grade, free to deploy
 ```
 
 ## Step 4 — set the meta
