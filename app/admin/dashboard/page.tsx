@@ -86,6 +86,16 @@ type Metrics = {
   topListings: { title: string; sales: number; gross: number }[]
   topCreators: CreatorAgg[]
   unconnectedEarners: CreatorAgg[]
+  // House-listings aggregate (creators whose handle starts with skillzy-).
+  // Lets the super admin separate Skillzy House revenue from third-party
+  // creator revenue at a glance.
+  house: {
+    sales: number
+    grossCents: number
+    payoutCents: number
+    platformFeeCents: number
+    creators: number
+  }
   creatorList: CreatorRow[]
   byChannel: Record<string, number>
 }
@@ -188,6 +198,22 @@ async function loadMetrics(): Promise<Metrics | null> {
       .slice(0, 8)
 
     const creatorsAgg = Object.values(byCreator)
+    // House-listings rollup: any creator whose handle begins with
+    // skillzy- (e.g. @skillzy-house). Filter case-insensitive, ignore
+    // the leading @.
+    const houseCreators = creatorsAgg.filter((c) =>
+      /^skillzy[-_]/i.test((c.handle ?? '').replace(/^@/, '')),
+    )
+    const house = {
+      sales: houseCreators.reduce((s, c) => s + c.sales, 0),
+      grossCents: houseCreators.reduce((s, c) => s + c.grossCents, 0),
+      payoutCents: houseCreators.reduce((s, c) => s + c.payoutCents, 0),
+      platformFeeCents: houseCreators.reduce(
+        (s, c) => s + (c.grossCents - c.payoutCents),
+        0,
+      ),
+      creators: houseCreators.length,
+    }
     const topCreators = [...creatorsAgg]
       .sort((a, b) => b.grossCents - a.grossCents)
       .slice(0, 10)
@@ -255,6 +281,7 @@ async function loadMetrics(): Promise<Metrics | null> {
       topListings,
       topCreators,
       unconnectedEarners,
+      house,
       creatorList,
       byChannel,
     }
@@ -344,6 +371,35 @@ export default async function AdminDashboard() {
               </div>
             </div>
 
+            {/* SKILLZY HOUSE — first-party revenue, separated from third-party
+                creator income for clean monthly reporting. Any creator whose
+                handle starts with `skillzy-` rolls up here. */}
+            {m.house.sales > 0 && (
+              <div>
+                <h2
+                  className="font-display text-2xl tracking-tight mb-1"
+                  style={{ letterSpacing: '-0.02em' }}
+                >
+                  Skillzy House
+                </h2>
+                <p className="text-sm text-brand-muted mb-4 max-w-prose">
+                  First-party listings sold under handles starting with{' '}
+                  <span className="font-mono">@skillzy-</span>. The payout
+                  number is the 80% routed to whichever connected Stripe
+                  the House account is linked to (currently My AI Workforce).
+                  In Stripe, filter Payments by{' '}
+                  <span className="font-mono">metadata.creator_handle = skillzy-house</span>{' '}
+                  to see only these transactions in your books.
+                </p>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-brand-hairline border border-brand-hairline">
+                  <Stat label="House sales" value={String(m.house.sales)} sub={`${m.house.creators} house creator${m.house.creators === 1 ? '' : 's'}`} />
+                  <Stat label="House gross" value={money(m.house.grossCents)} sub="from buyers" />
+                  <Stat label="Skillzy 20%" value={money(m.house.platformFeeCents)} sub="kept on platform Stripe" tone="gold" />
+                  <Stat label="House 80%" value={money(m.house.payoutCents)} sub="paid to connected Stripe" />
+                </div>
+              </div>
+            )}
+
             {/* ALL CREATORS — searchable roster with emails */}
             <CreatorList creators={m.creatorList} />
 
@@ -414,6 +470,11 @@ export default async function AdminDashboard() {
                             {c.name}
                           </Link>{' '}
                           <span className="text-brand-muted">{c.handle}</span>
+                          {/^skillzy[-_]/i.test((c.handle ?? '').replace(/^@/, '')) && (
+                            <span className="ml-2 font-mono text-[10px] uppercase tracking-[0.18em] px-1.5 py-0.5 bg-brand-navy text-brand-cream align-middle">
+                              House
+                            </span>
+                          )}
                           {!c.connected && (
                             <span className="text-red-700"> · no payout</span>
                           )}

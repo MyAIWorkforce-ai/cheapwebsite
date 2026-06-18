@@ -157,6 +157,11 @@ export async function POST(request: NextRequest) {
     }),
     metadata: {
       listing_id: product.id,
+      // Creator's @handle — saved on every charge so monthly reporting can
+      // filter by metadata.creator_handle in the Stripe dashboard. Lets
+      // Toby separate Skillzy House revenue from MyAIWorkforce revenue
+      // in the connected Stripe account without picking through line items.
+      creator_handle: product.creator.handle.replace(/^@/, ''),
       buyer_id: buyerId ?? '',
       buyer_email: (buyerEmail ?? '').trim().toLowerCase(),
       referrer_slug: request.cookies.get('skz_ref')?.value ?? '',
