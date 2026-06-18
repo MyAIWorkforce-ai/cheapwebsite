@@ -14,15 +14,19 @@ real-estate-agent-setup/
 ├── SKILL.md                  ← the core agent brain (start with this)
 ├── knowledge/
 │   ├── 01_real-estate-knowledge-base.md
-│   └── 02_frameworks.md
+│   ├── 02_frameworks.md
+│   └── 03_regional-reference.md     ← terms + tools + compliance per region
 ├── prompts/
 │   └── prompt-library.md
 ├── templates/
 │   ├── email-templates.md
-│   └── listing-and-scripts.md
+│   ├── listing-and-scripts.md
+│   ├── listing-presentation-script.md   ← the win-the-listing play
+│   └── crm-notes-and-logs.md            ← CRM-pasteable notes for any CRM
 ├── sops/
 │   └── workflows-and-checklists.md
-└── LISTING.md                ← (for sellers on Skillzy — ignore if you're the buyer)
+└── examples/
+    └── sample-runthrough.md             ← end-to-end worked example
 ```
 
 ---

@@ -14,7 +14,7 @@ Step-by-step to publish this bundle on skillzy.ai. Should take ~5 minutes.
 
 ## Step 2 — drop in the files
 
-Drag all 9 .md files from the unzipped folder into the file dropper:
+Drag all 12 .md files from the unzipped folder into the file dropper:
 
 **Root files:**
 - `00_START_HERE.md`
@@ -23,6 +23,7 @@ Drag all 9 .md files from the unzipped folder into the file dropper:
 **knowledge/:**
 - `01_real-estate-knowledge-base.md`
 - `02_frameworks.md`
+- `03_regional-reference.md`
 
 **prompts/:**
 - `prompt-library.md`
@@ -30,6 +31,8 @@ Drag all 9 .md files from the unzipped folder into the file dropper:
 **templates/:**
 - `email-templates.md`
 - `listing-and-scripts.md`
+- `listing-presentation-script.md`
+- `crm-notes-and-logs.md`
 
 **sops/:**
 - `workflows-and-checklists.md`

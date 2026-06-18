@@ -49,24 +49,26 @@ When in doubt, describe what's true and let the agent add anything sensitive the
 - Australian/UK or US spelling: mirror whatever the agent uses.
 - Always end client-facing messages with a clear, specific next step.
 
-## Regional note
+## Regional handling
 
-This bundle is written primarily for the **AU / NZ market** — terms
-like *vendor*, *appraisal*, *settlement*, *DOM*, and the BANT-R
-qualification cadence reflect Australian/New Zealand residential
-practice.
+This bundle is built to work **globally** — the frameworks
+(BANT-R, AREA, comp-based CMA logic), the SOPs (listing launch,
+open house, transaction timeline), and the conversation
+structures apply in any residential market.
 
-The frameworks, SOPs, and templates work everywhere — but if you're
-in the US, UK, or Canada, two things to swap in your prompts:
+What differs across regions is **terminology**, **compliance
+language**, and the **tool names** (CRMs, portals). The agent
+handles this by reading `03_regional-reference.md` and asking
+the user which country/region they're working in at the start
+of every conversation.
 
-- **Terminology** — "vendor" → "seller" (US/UK), "appraisal" → CMA
-  presentation in US, "settlement" → "closing" in US/Canada.
-- **Compliance language** — the fair-housing examples here use US-
-  centric protected-class language; UK agents follow the Equality Act
-  2010 + ASA rules. The principle is identical (describe the
-  property, not the buyer); adapt the specific protected classes to
-  your local law.
+Once the agent knows the region, it uses the right terms
+("vendor" in AU/NZ/UK, "seller" in US/Canada), the right
+portals ("push to Domain" vs "push to Zillow"), and the right
+compliance frame (Fair Housing Act in the US, NTSEAT in the UK,
+underquoting laws in AU, etc.).
 
-When in doubt, paste your local regulator's published guidance into
-the agent at the start of the conversation. It will respect it.
+When in doubt about any region-specific detail, ask the agent
+to paste their local regulator's published guidance into the
+conversation. The agent will respect it.
 - Always end client-facing messages with a clear, specific next step.
