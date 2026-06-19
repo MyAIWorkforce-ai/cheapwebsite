@@ -125,7 +125,7 @@ export default async function EditListingPage({
             className="font-display mt-5 text-5xl sm:text-6xl tracking-tight leading-[0.95]"
             style={{ letterSpacing: '-0.03em' }}
           >
-            Tweak. <em className="italic text-brand-gold font-medium">Ship live.</em>
+            Tweak. <em className="italic text-brand-gold font-medium">Ship. Live.</em>
           </h1>
           <p className="mt-5 text-brand-muted">
             Changes to live listings publish instantly.

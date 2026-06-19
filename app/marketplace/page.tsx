@@ -41,11 +41,22 @@ export default async function MarketplacePage({
   const platform = searchParams.platform?.toLowerCase().trim()
 
   // Real seller listings (newest first) ahead of the demo showcase.
-  // Then a stable sort: paid-featured / showcase listings float to the
-  // top of the merged list so the navy card always wins the eye.
-  const allProducts = [...(await liveDbProducts()), ...products].sort(
-    (a, b) => Number(b.featured ?? false) - Number(a.featured ?? false),
-  )
+  // Then: featured listings float to the top, BUT we interleave a
+  // regular listing between each pair so two navy cards never sit
+  // next to each other in the grid (looks heavy + same-y).
+  const merged = [...(await liveDbProducts()), ...products]
+  const featuredList = merged.filter((p) => p.featured)
+  const regularList = merged.filter((p) => !p.featured)
+  const interleaved: typeof merged = []
+  for (let i = 0; i < featuredList.length; i++) {
+    interleaved.push(featuredList[i])
+    // Drop one regular listing between each pair of featured so two
+    // navy cards never end up adjacent.
+    if (i < featuredList.length - 1 && regularList.length > 0) {
+      interleaved.push(regularList.shift()!)
+    }
+  }
+  const allProducts = [...interleaved, ...regularList]
 
   const filtered = allProducts.filter((p) => {
     const f = filters.find((x) => x.key === activeKey)

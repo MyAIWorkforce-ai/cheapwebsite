@@ -25,6 +25,14 @@ export async function fulfillPaymentIntent(intent: Stripe.PaymentIntent) {
   if (!listingId) return
   if (intent.status !== 'succeeded') return
 
+  // Showcase featured-listing upgrade — different path: no purchase
+  // row, no buyer confirmation, no "you just sold" creator email.
+  // The webhook's handleCheckoutCompleted does the featured_tier
+  // flip; we just bail here so the creator doesn't get a $49 sale
+  // notification for what's actually their own platform-fee payment.
+  const kind = (intent.metadata?.kind as string | undefined) ?? null
+  if (kind === 'feature') return
+
   const product = await resolveProduct(listingId)
   const buyerEmail = (
     intent.receipt_email ||
