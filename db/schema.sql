@@ -187,6 +187,8 @@ create table if not exists public.purchases (
   stripe_payment_intent_id text,
   status purchase_status not null default 'pending',
   refunded_at timestamptz,
+  -- Per migration 010: which promo code (if any) was used.
+  promo_code_id uuid,
   created_at timestamptz not null default now()
 );
 
@@ -203,6 +205,44 @@ create policy "purchases_read_self_or_creator"
   using (
     auth.uid() = buyer_id
     or exists (
+      select 1 from public.listings l
+      where l.id = listing_id and l.creator_id = auth.uid()
+    )
+  );
+
+-- =========
+-- listing_promo_codes (per migration 010)
+-- =========
+create table if not exists public.listing_promo_codes (
+  id uuid primary key default gen_random_uuid(),
+  listing_id uuid not null references public.listings (id) on delete cascade,
+  code text not null,
+  discount_type text not null default 'free' check (discount_type in ('free')),
+  max_redemptions integer,
+  redemption_count integer not null default 0 check (redemption_count >= 0),
+  active boolean not null default true,
+  created_at timestamptz not null default now(),
+  constraint listing_promo_codes_unique unique (listing_id, code)
+);
+
+create index if not exists listing_promo_codes_listing_active_idx
+  on public.listing_promo_codes (listing_id) where active;
+create unique index if not exists listing_promo_codes_code_ci_idx
+  on public.listing_promo_codes (listing_id, upper(code));
+
+alter table public.listing_promo_codes enable row level security;
+
+drop policy if exists "promo_codes_owner_all" on public.listing_promo_codes;
+create policy "promo_codes_owner_all"
+  on public.listing_promo_codes for all
+  using (
+    exists (
+      select 1 from public.listings l
+      where l.id = listing_id and l.creator_id = auth.uid()
+    )
+  )
+  with check (
+    exists (
       select 1 from public.listings l
       where l.id = listing_id and l.creator_id = auth.uid()
     )
