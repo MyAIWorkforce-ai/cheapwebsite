@@ -2,8 +2,9 @@
 
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import JSZip from 'jszip'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
-import { hasSupabase } from '@/lib/env'
+import { env, hasSupabase } from '@/lib/env'
 
 export type EditState = {
   error?: string
@@ -15,14 +16,72 @@ export type FilesState = {
   info?: string
 }
 
+export type RedraftResult = {
+  error?: string
+  draft?: {
+    title: string
+    tagline: string
+    niche: string
+    platforms: string[]
+    description: string[]
+    whatYouGet: string[]
+  }
+}
+
 const BUCKET = 'skillzy-products'
 const MAX_FILE_SIZE = 50 * 1024 * 1024
+// Cap the brief we send the draft model so a giant bundle can't
+// blow up the token bill or hit a context limit. ~100K chars ≈ 25k
+// tokens — comfortably inside Haiku 4.5's context window.
+const MAX_BRIEF_CHARS = 100_000
+// File suffixes worth feeding the model. Anything else (PDFs,
+// images, audio) is named-only so the model still knows it exists.
+const TEXTUAL_SUFFIXES = [
+  '.md',
+  '.mdx',
+  '.txt',
+  '.json',
+  '.yml',
+  '.yaml',
+  '.toml',
+  '.csv',
+  '.tsv',
+  '.html',
+  '.htm',
+  '.xml',
+  '.ini',
+  '.env',
+  '.js',
+  '.ts',
+  '.tsx',
+  '.jsx',
+  '.py',
+  '.rb',
+  '.go',
+  '.sh',
+]
+// Internal-only files baked into house bundles. Reading these
+// would just re-feed the existing listing copy back to the model
+// and bias it toward a near-identical re-draft.
+const INTERNAL_ONLY_BASENAMES = new Set([
+  'listing_copy.md',
+  'publish.md',
+])
 
 function safeName(name: string) {
   return name
     .replace(/[^A-Za-z0-9._-]+/g, '-')
     .replace(/-{2,}/g, '-')
     .slice(0, 80)
+}
+
+function isTextual(name: string): boolean {
+  const n = name.toLowerCase()
+  return TEXTUAL_SUFFIXES.some((suf) => n.endsWith(suf))
+}
+
+function isInternal(name: string): boolean {
+  return INTERNAL_ONLY_BASENAMES.has(name.toLowerCase().split('/').pop() ?? '')
 }
 
 export async function updateListing(
@@ -176,4 +235,211 @@ export async function addListingFiles(
   return {
     info: `Added ${files.length} file${files.length === 1 ? '' : 's'}.`,
   }
+}
+
+// Reads every attached file, extracts text (including from zips),
+// and asks the listing-draft AI to suggest fresh title / tagline /
+// niche / platforms / description / whatYouGet based on what's
+// actually in the bundle. Used when the bundle changes shape and
+// the existing copy may be stale.
+//
+// Internal-only files (LISTING_COPY.md, PUBLISH.md) are skipped —
+// feeding the existing listing copy back would just produce a
+// near-identical re-draft.
+export async function redraftListingFromBundle(
+  listingId: string,
+  listingSlug: string,
+): Promise<RedraftResult> {
+  if (!hasSupabase) {
+    return { error: 'Demo mode — Supabase not configured.' }
+  }
+  if (!listingId || !listingSlug) {
+    return { error: 'Missing listing id.' }
+  }
+
+  const supabase = createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: 'Sign in to re-draft.' }
+
+  const { data: listing } = await supabase
+    .from('listings')
+    .select('id, creator_id, type')
+    .eq('id', listingId)
+    .eq('creator_id', user!.id)
+    .single()
+  if (!listing) return { error: 'Listing not found.' }
+
+  const { data: fileRows } = await supabase
+    .from('files')
+    .select('id, name, storage_path, size_bytes')
+    .eq('listing_id', listing.id)
+    .order('created_at', { ascending: true })
+  if (!fileRows || fileRows.length === 0) {
+    return { error: 'No attached files to read — upload the bundle first.' }
+  }
+
+  const admin = createServiceClient()
+  const briefSections: string[] = []
+  let totalChars = 0
+
+  for (const row of fileRows) {
+    if (totalChars >= MAX_BRIEF_CHARS) break
+    const dl = await admin.storage.from(BUCKET).download(row.storage_path)
+    if (dl.error || !dl.data) continue
+    const bytes = new Uint8Array(await dl.data.arrayBuffer())
+    const lowerName = (row.name as string).toLowerCase()
+
+    if (lowerName.endsWith('.zip')) {
+      try {
+        const zip = await JSZip.loadAsync(bytes)
+        const entries = Object.values(zip.files).filter((f) => !f.dir)
+        for (const entry of entries) {
+          if (totalChars >= MAX_BRIEF_CHARS) break
+          if (isInternal(entry.name)) continue
+          if (!isTextual(entry.name)) {
+            briefSections.push(`--- ${entry.name} (binary, name only) ---`)
+            continue
+          }
+          const text = await entry.async('string')
+          const trimmed = text.slice(0, MAX_BRIEF_CHARS - totalChars)
+          briefSections.push(`--- ${entry.name} ---\n${trimmed}`)
+          totalChars += trimmed.length
+        }
+      } catch {
+        briefSections.push(`--- ${row.name} (could not extract zip) ---`)
+      }
+      continue
+    }
+
+    if (isInternal(row.name as string)) continue
+
+    if (!isTextual(row.name as string)) {
+      briefSections.push(`--- ${row.name} (binary, name only) ---`)
+      continue
+    }
+    const text = new TextDecoder().decode(bytes)
+    const trimmed = text.slice(0, MAX_BRIEF_CHARS - totalChars)
+    briefSections.push(`--- ${row.name} ---\n${trimmed}`)
+    totalChars += trimmed.length
+  }
+
+  if (briefSections.length === 0) {
+    return {
+      error: 'Nothing readable in the bundle — check the attached files.',
+    }
+  }
+
+  const brief = briefSections.join('\n\n')
+
+  // Call the same draft endpoint /sell/new uses. Server-to-server
+  // call inside the same Vercel deploy, so no public URL needed.
+  // We resolve the host from the request origin via env — falling
+  // back to a localhost dev URL.
+  const site = env.siteUrl.replace(/\/$/, '')
+  try {
+    const res = await fetch(`${site}/api/listings/draft`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        brief,
+        type: (listing.type as string) ?? 'agent_setup',
+      }),
+    })
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({ error: 'Draft failed.' }))
+      return {
+        error: `Draft failed (${res.status}): ${j.error ?? 'unknown'}`,
+      }
+    }
+    const draft = await res.json()
+    return {
+      draft: {
+        title: String(draft.title ?? ''),
+        tagline: String(draft.tagline ?? ''),
+        niche: String(draft.niche ?? ''),
+        platforms: Array.isArray(draft.platforms)
+          ? draft.platforms.map(String)
+          : [],
+        description: Array.isArray(draft.description)
+          ? draft.description.map(String)
+          : [],
+        whatYouGet: Array.isArray(draft.whatYouGet)
+          ? draft.whatYouGet.map(String)
+          : [],
+      },
+    }
+  } catch (err) {
+    return { error: (err as Error).message }
+  }
+}
+
+// Saves a re-drafted set of fields onto the listing. Only writes
+// the fields the user actually ticked to accept; the rest stay
+// untouched. Mirrors the column set updateListing writes, plus the
+// jsonb description + what_you_get columns the static catalogue
+// also reads from.
+export async function applyRedraft(
+  _prev: EditState,
+  formData: FormData,
+): Promise<EditState> {
+  if (!hasSupabase) return { info: 'Demo mode — nothing saved.' }
+  const listingId = String(formData.get('listingId') ?? '')
+  const listingSlug = String(formData.get('listingSlug') ?? '')
+  if (!listingId || !listingSlug) return { error: 'Missing listing id.' }
+
+  const supabase = createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) redirect('/signin')
+
+  // Build the partial update from whichever fields the form ticked.
+  const patch: Record<string, unknown> = {}
+  const maybe = (key: string, value: unknown) => {
+    if (formData.get(`accept_${key}`) === 'on') patch[key] = value
+  }
+  maybe('title', String(formData.get('title') ?? '').trim())
+  maybe('tagline', String(formData.get('tagline') ?? '').trim())
+  maybe('niche', String(formData.get('niche') ?? '').trim() || null)
+  maybe(
+    'platform_list',
+    String(formData.get('platforms') ?? '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean),
+  )
+  if (formData.get('accept_description') === 'on') {
+    try {
+      patch.description = JSON.parse(
+        String(formData.get('description') ?? '[]'),
+      )
+    } catch {
+      /* ignore — leave description untouched */
+    }
+  }
+  if (formData.get('accept_whatYouGet') === 'on') {
+    try {
+      patch.what_you_get = JSON.parse(
+        String(formData.get('whatYouGet') ?? '[]'),
+      )
+    } catch {
+      /* ignore */
+    }
+  }
+
+  if (Object.keys(patch).length === 0) {
+    return { info: 'Nothing ticked — no changes applied.' }
+  }
+
+  const { error } = await supabase
+    .from('listings')
+    .update(patch)
+    .eq('id', listingId)
+    .eq('creator_id', user!.id)
+  if (error) return { error: error.message }
+
+  revalidatePath(`/dashboard/listings/${listingSlug}/edit`)
+  return { info: `Applied ${Object.keys(patch).length} change${Object.keys(patch).length === 1 ? '' : 's'} from the re-draft.` }
 }

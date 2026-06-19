@@ -1,19 +1,23 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useRef, useState, useTransition } from 'react'
 import { useFormState, useFormStatus } from 'react-dom'
 import {
   updateListing,
   addListingFiles,
   deleteListingFile,
+  redraftListingFromBundle,
+  applyRedraft,
   type EditState,
   type FilesState,
+  type RedraftResult,
 } from './actions'
 import MultiSelectPopup from '@/components/MultiSelectPopup'
 import { NICHE_OPTIONS, PLATFORM_OPTIONS } from '@/lib/options'
 
 const initial: EditState = {}
 const filesInitial: FilesState = {}
+const redraftInitial: EditState = {}
 
 function Submit() {
   const { pending } = useFormStatus()
@@ -88,9 +92,33 @@ export default function EditForm({ defaults }: { defaults: EditDefaults }) {
     addListingFiles,
     filesInitial,
   )
+  const [redraftApplyState, redraftApplyAction] = useFormState(
+    applyRedraft,
+    redraftInitial,
+  )
   const [niche, setNiche] = useState(defaults.niche)
   const [platforms, setPlatforms] = useState(defaults.platforms)
   const fileInput = useRef<HTMLInputElement>(null)
+  const [redraftPending, startRedraftTransition] = useTransition()
+  const [redraft, setRedraft] = useState<RedraftResult | null>(null)
+  const [accepted, setAccepted] = useState<Record<string, boolean>>({})
+
+  function runRedraft() {
+    startRedraftTransition(async () => {
+      const result = await redraftListingFromBundle(defaults.id, defaults.slug)
+      setRedraft(result)
+      if (result.draft) {
+        setAccepted({
+          title: true,
+          tagline: true,
+          niche: true,
+          platform_list: true,
+          description: true,
+          whatYouGet: true,
+        })
+      }
+    })
+  }
 
   return (
     <div className="space-y-12">
@@ -281,7 +309,250 @@ export default function EditForm({ defaults }: { defaults: EditDefaults }) {
           )}
           <AddFilesButton />
         </form>
+
+        {defaults.files.length > 0 && (
+          <div className="mt-10 pt-8 border-t border-brand-hairline">
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
+              Re-draft from the bundle
+            </span>
+            <h3
+              className="font-display mt-3 text-2xl tracking-tight"
+              style={{ letterSpacing: '-0.025em' }}
+            >
+              Let the AI re-read what&rsquo;s in the files.
+            </h3>
+            <p className="mt-2 text-sm text-brand-muted">
+              When the bundle changes, your listing copy can drift. Click to
+              re-read everything attached above (zips included) and get a
+              fresh title, tagline, niche, platforms, description, and
+              what&rsquo;s-inside list — you tick which to accept.
+            </p>
+
+            <button
+              type="button"
+              onClick={runRedraft}
+              disabled={redraftPending}
+              className="mt-5 inline-flex items-center gap-2 bg-brand-ink text-white font-semibold px-5 py-2.5 text-sm hover:bg-brand-gold hover:text-brand-ink transition-colors disabled:opacity-60"
+            >
+              {redraftPending
+                ? 'Reading bundle…'
+                : redraft?.draft
+                  ? 'Re-read again'
+                  : 'Re-read bundle, suggest updated copy'}
+            </button>
+
+            {redraft?.error && (
+              <p className="mt-4 text-sm text-red-700">{redraft.error}</p>
+            )}
+
+            {redraft?.draft && (
+              <form
+                action={redraftApplyAction}
+                className="mt-6 border border-brand-hairline divide-y divide-brand-hairline"
+              >
+                <input
+                  type="hidden"
+                  name="listingId"
+                  value={defaults.id}
+                />
+                <input
+                  type="hidden"
+                  name="listingSlug"
+                  value={defaults.slug}
+                />
+                <input
+                  type="hidden"
+                  name="title"
+                  value={redraft.draft.title}
+                />
+                <input
+                  type="hidden"
+                  name="tagline"
+                  value={redraft.draft.tagline}
+                />
+                <input
+                  type="hidden"
+                  name="niche"
+                  value={redraft.draft.niche}
+                />
+                <input
+                  type="hidden"
+                  name="platforms"
+                  value={redraft.draft.platforms.join(', ')}
+                />
+                <input
+                  type="hidden"
+                  name="description"
+                  value={JSON.stringify(redraft.draft.description)}
+                />
+                <input
+                  type="hidden"
+                  name="whatYouGet"
+                  value={JSON.stringify(redraft.draft.whatYouGet)}
+                />
+
+                <RedraftRow
+                  fieldKey="title"
+                  label="Title"
+                  current={defaults.title}
+                  suggested={redraft.draft.title}
+                  accepted={accepted.title}
+                  onToggle={(v) =>
+                    setAccepted((p) => ({ ...p, title: v }))
+                  }
+                />
+                <RedraftRow
+                  fieldKey="tagline"
+                  label="Tagline"
+                  current={defaults.tagline}
+                  suggested={redraft.draft.tagline}
+                  accepted={accepted.tagline}
+                  onToggle={(v) =>
+                    setAccepted((p) => ({ ...p, tagline: v }))
+                  }
+                />
+                <RedraftRow
+                  fieldKey="niche"
+                  label="Niche"
+                  current={defaults.niche}
+                  suggested={redraft.draft.niche}
+                  accepted={accepted.niche}
+                  onToggle={(v) =>
+                    setAccepted((p) => ({ ...p, niche: v }))
+                  }
+                />
+                <RedraftRow
+                  fieldKey="platform_list"
+                  label="Platforms"
+                  current={defaults.platforms}
+                  suggested={redraft.draft.platforms.join(', ')}
+                  accepted={accepted.platform_list}
+                  onToggle={(v) =>
+                    setAccepted((p) => ({ ...p, platform_list: v }))
+                  }
+                />
+                <RedraftRow
+                  fieldKey="description"
+                  label="Description"
+                  current="(replaces existing description on save)"
+                  suggested={redraft.draft.description.join('\n\n')}
+                  accepted={accepted.description}
+                  onToggle={(v) =>
+                    setAccepted((p) => ({ ...p, description: v }))
+                  }
+                />
+                <RedraftRow
+                  fieldKey="whatYouGet"
+                  label="What's inside"
+                  current="(replaces existing list on save)"
+                  suggested={redraft.draft.whatYouGet
+                    .map((x, i) => `${String(i + 1).padStart(2, '0')}  ${x}`)
+                    .join('\n')}
+                  accepted={accepted.whatYouGet}
+                  onToggle={(v) =>
+                    setAccepted((p) => ({ ...p, whatYouGet: v }))
+                  }
+                />
+
+                <div className="p-5 flex items-center gap-4">
+                  <ApplyRedraftButton />
+                  <button
+                    type="button"
+                    onClick={() => setRedraft(null)}
+                    className="text-sm text-brand-muted hover:text-brand-ink transition-colors"
+                  >
+                    Discard suggestion
+                  </button>
+                </div>
+
+                {redraftApplyState.error && (
+                  <p className="px-5 pb-4 text-sm text-red-700">
+                    {redraftApplyState.error}
+                  </p>
+                )}
+                {redraftApplyState.info && (
+                  <p className="px-5 pb-4 text-sm text-brand-gold-dark">
+                    {redraftApplyState.info}
+                  </p>
+                )}
+              </form>
+            )}
+          </div>
+        )}
       </section>
+    </div>
+  )
+}
+
+function ApplyRedraftButton() {
+  const { pending } = useFormStatus()
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="bg-brand-gold text-brand-ink font-semibold px-5 py-2.5 text-sm hover:bg-brand-gold-dark transition-colors disabled:opacity-60"
+    >
+      {pending ? 'Applying…' : 'Apply ticked changes'}
+    </button>
+  )
+}
+
+function RedraftRow({
+  fieldKey,
+  label,
+  current,
+  suggested,
+  accepted,
+  onToggle,
+}: {
+  fieldKey: string
+  label: string
+  current: string
+  suggested: string
+  accepted: boolean | undefined
+  onToggle: (v: boolean) => void
+}) {
+  const isOn = accepted === true
+  const unchanged = current.trim() === suggested.trim()
+  return (
+    <div className="p-5">
+      <label className="flex items-center gap-3 cursor-pointer">
+        <input
+          type="checkbox"
+          name={`accept_${fieldKey}`}
+          checked={isOn}
+          onChange={(e) => onToggle(e.target.checked)}
+          className="accent-brand-gold w-4 h-4"
+        />
+        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+          {label}
+        </span>
+        {unchanged && (
+          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold-dark">
+            (no change)
+          </span>
+        )}
+      </label>
+      <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-px bg-brand-hairline border border-brand-hairline">
+        <div className="bg-white p-3">
+          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-brand-muted mb-1.5">
+            Current
+          </p>
+          <p className="text-sm text-brand-ink whitespace-pre-wrap break-words">
+            {current || <span className="italic text-brand-muted">empty</span>}
+          </p>
+        </div>
+        <div className="bg-brand-cream-card p-3">
+          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-brand-gold mb-1.5">
+            Suggested
+          </p>
+          <p className="text-sm text-brand-ink whitespace-pre-wrap break-words">
+            {suggested || (
+              <span className="italic text-brand-muted">empty</span>
+            )}
+          </p>
+        </div>
+      </div>
     </div>
   )
 }
