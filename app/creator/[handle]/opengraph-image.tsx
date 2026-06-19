@@ -1,27 +1,58 @@
 import { ImageResponse } from 'next/og'
 import { getCreatorByHandle, getProductsByCreatorHandle } from '@/lib/catalog'
+import { dbCreatorByHandle } from '@/lib/listings'
 
 export const alt = 'Skillzy creator'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
-export default function CreatorOG({ params }: { params: { handle: string } }) {
-  const creator = getCreatorByHandle(params.handle)
+export default async function CreatorOG({
+  params,
+}: {
+  params: { handle: string }
+}) {
+  // Try the static seed catalogue first (Harlow, Ledgerlab, etc.) so
+  // we keep their richer hand-written bios. Fall through to the DB so
+  // real creators (Skillzy House and anyone after) get a populated OG
+  // card instead of the bare "Skillzy" placeholder iMessage was
+  // surfacing before.
+  let name: string | null = null
+  let handle: string | null = null
+  let bio: string | null = null
+  let listings = 0
 
-  if (!creator) {
+  const seed = getCreatorByHandle(params.handle)
+  if (seed) {
+    name = seed.name
+    handle = seed.handle
+    bio = seed.bio
+    listings = getProductsByCreatorHandle(seed.handle).length
+  } else {
+    const dbHit = await dbCreatorByHandle(params.handle)
+    if (dbHit) {
+      name = dbHit.creator.name
+      handle = dbHit.creator.handle
+      bio = dbHit.creator.bio || 'Skillzy creator. Drop-in agent skills, setups & guides.'
+      listings = dbHit.products.length
+    }
+  }
+
+  if (!name) {
     return new ImageResponse(
       (
         <div
           style={{
             width: '100%',
             height: '100%',
-            background: '#E8ECF0',
-            color: '#0F1729',
+            background: '#0F1729',
+            color: '#C19E50',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: 80,
+            fontSize: 110,
             fontFamily: 'serif',
+            fontWeight: 600,
+            letterSpacing: '-0.025em',
           }}
         >
           Skillzy
@@ -30,8 +61,6 @@ export default function CreatorOG({ params }: { params: { handle: string } }) {
       { ...size },
     )
   }
-
-  const listings = getProductsByCreatorHandle(creator.handle).length
 
   return new ImageResponse(
     (
@@ -81,7 +110,7 @@ export default function CreatorOG({ params }: { params: { handle: string } }) {
               lineHeight: 1,
             }}
           >
-            {creator.name}
+            {name}
           </span>
           <span
             style={{
@@ -91,7 +120,7 @@ export default function CreatorOG({ params }: { params: { handle: string } }) {
               marginTop: 6,
             }}
           >
-            {creator.handle}
+            {handle}
           </span>
         </div>
 
@@ -105,7 +134,7 @@ export default function CreatorOG({ params }: { params: { handle: string } }) {
           }}
         >
           <span style={{ fontSize: 26, color: '#CCD2DD', maxWidth: 720, lineHeight: 1.35 }}>
-            {creator.bio}
+            {bio}
           </span>
           <span
             style={{
