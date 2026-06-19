@@ -46,12 +46,14 @@ export async function POST(
     return NextResponse.json({ error: 'Sign in to feature a listing.' }, { status: 401 })
   }
 
-  // Resolve listing by slug or id; either is acceptable since
-  // /dashboard/listings/[id]/edit accepts both as the URL param.
+  // The /dashboard/listings/[id]/edit URL param is always a slug, so
+  // look up by slug directly. (Earlier draft also accepted a UUID via
+  // .or(), but mixing uuid/text columns in PostgREST .or() casts the
+  // slug to uuid and the whole query silently returns nothing.)
   const { data: listing } = await supabase
     .from('listings')
     .select('id, slug, title, creator_id, featured_tier')
-    .or(`slug.eq.${params.id},id.eq.${params.id}`)
+    .eq('slug', params.id)
     .single()
 
   if (!listing) {
