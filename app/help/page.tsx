@@ -117,16 +117,17 @@ const creator: QA[] = [
     q: 'What’s a SKILL.md, exactly?',
     a: (
       <>
-        A Markdown file that tells an agent how to do one thing. The first line names the
-        skill; the rest is a prompt structured into intent, inputs, steps, and outputs. We
-        sell a guide on writing them well — see{' '}
+        A plain Markdown file that tells an agent how to do one thing. The
+        first line names the skill; the rest is the prompt — intent, inputs,
+        steps, outputs. Buyers don’t need to write one; every listing already
+        ships with the SKILL.md ready to drop into the agent. Browse the{' '}
         <Link
-          href="/marketplace/your-first-skill-md"
+          href="/marketplace?type=guide"
           className="border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
         >
-          Your first SKILL.md, the right way
-        </Link>
-        .
+          guides on the marketplace
+        </Link>{' '}
+        if you want to learn to write your own.
       </>
     ),
   },
