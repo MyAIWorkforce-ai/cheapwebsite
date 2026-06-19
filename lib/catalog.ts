@@ -1,4 +1,16 @@
 import { seedProducts } from './catalog-seed'
+import { PLATFORM_OPTIONS } from './options'
+
+// Cards keep platform context tight: 1–3 platforms render the names,
+// every-platform listings collapse to "All agents" (no 13-item run-on),
+// and anything in between shows the first few + "+N".
+function formatPlatformsForCard(list: string[]): string {
+  if (list.length === 0) return ''
+  if (list.length >= PLATFORM_OPTIONS.length) return 'All agents'
+  if (list.length <= 3) return list.join(' · ')
+  return `${list.slice(0, 3).join(' · ')} · +${list.length - 3}`
+}
+
 
 export type ProductType = 'Skill' | 'Guide' | 'Agent Setup'
 
@@ -1037,7 +1049,7 @@ export function toCardProduct(p: Product): CardProduct {
     title: p.title,
     tagline: p.tagline,
     creator: p.creator.name,
-    platform: p.platformList.join(' · '),
+    platform: formatPlatformsForCard(p.platformList),
     rating: p.rating,
     ratingCount: p.ratingCount,
     price: p.price,

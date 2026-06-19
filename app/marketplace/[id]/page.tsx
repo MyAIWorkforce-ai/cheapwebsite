@@ -10,6 +10,7 @@ import { pageMetadata } from '@/lib/seo'
 import { productLd, breadcrumbLd, faqLd } from '@/lib/jsonld'
 import { videoEmbedUrl } from '@/lib/video'
 import { getPostsForListing, readingMinutes } from '@/lib/blog'
+import { nicheSlug } from '@/lib/content'
 
 export function generateStaticParams() {
   return products.map((p) => ({ id: p.id }))
@@ -146,11 +147,6 @@ export default async function ProductDetailPage({
               <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
                 {p.type}
               </span>
-              {p.niche && (
-                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
-                  · {p.niche}
-                </span>
-              )}
               <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
                 · {p.version} · Updated {p.updated}
               </span>
@@ -197,6 +193,29 @@ export default async function ProductDetailPage({
                 ))}
               </div>
             </div>
+
+            {p.niche && (
+              <div className="mt-6">
+                <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted mb-2">
+                  Built for
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {p.niche
+                    .split(',')
+                    .map((n) => n.trim())
+                    .filter(Boolean)
+                    .map((n) => (
+                      <Link
+                        key={n}
+                        href={`/for/${nicheSlug(n)}`}
+                        className="font-mono text-[11px] uppercase tracking-[0.18em] border border-brand-hairline px-2.5 py-1.5 text-brand-ink hover:border-brand-ink hover:bg-brand-navy hover:text-brand-cream transition-colors"
+                      >
+                        {n}
+                      </Link>
+                    ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* BUY CARD */}
