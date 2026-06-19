@@ -122,12 +122,12 @@ const creator: QA[] = [
         steps, outputs. Buyers don’t need to write one; every listing already
         ships with the SKILL.md ready to drop into the agent. Browse the{' '}
         <Link
-          href="/marketplace?type=guide"
+          href="/marketplace?type=skill"
           className="border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
         >
-          guides on the marketplace
+          skills on the marketplace
         </Link>{' '}
-        if you want to learn to write your own.
+        to see them in action.
       </>
     ),
   },
