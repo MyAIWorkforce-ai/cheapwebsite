@@ -175,7 +175,8 @@ export default async function PayoutsPage({
           </h1>
           <p className="mt-5 text-brand-muted max-w-prose">
             Skillzy never holds your money. Stripe pays you directly the
-            moment a sale completes &mdash; minus the 20% platform fee.
+            moment a sale completes &mdash; a clean 80% of every sale, with
+            Stripe&rsquo;s processing fees absorbed by our 20% cut.
           </p>
         </div>
       </section>
@@ -278,7 +279,7 @@ export default async function PayoutsPage({
                 },
                 {
                   title: 'Sell',
-                  desc: 'Every sale pays 80% straight into your own Stripe account. Skillzy keeps 20%. The money shows in your normal Stripe dashboard.',
+                  desc: 'Every sale pays a clean 80% straight into your own Stripe account. Skillzy keeps 20% — which covers Stripe’s processing fees, so 80% is what you actually get. The money shows in your normal Stripe dashboard.',
                 },
                 {
                   title: 'Payouts',

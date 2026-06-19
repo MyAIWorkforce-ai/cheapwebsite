@@ -168,7 +168,8 @@ export default function TermsPage() {
               full card details. Sellers are paid through Stripe Connect —
               Skillzy does not hold seller funds; Stripe pays the seller
               directly on Stripe’s schedule, net of the 20% platform
-              commission and Stripe’s own fees. You must complete Stripe’s
+              commission (which covers Stripe’s own processing fees). You
+              must complete Stripe’s
               onboarding and identity checks before payouts can run. If a
               sale is refunded or charged back, the corresponding amount
               (including any platform commission already attributed) may be

@@ -76,14 +76,14 @@ const buyer: QA[] = [
   },
   {
     q: 'How is payment handled?',
-    a: 'Stripe runs every checkout. Skillzy never sees your card. Stripe pays the creator directly; we take a 20% platform fee.',
+    a: 'Stripe runs every checkout — Skillzy never sees your card. Stripe pays the creator directly. We take a 20% platform fee, which also covers Stripe’s processing fees, so the creator gets a clean 80% of what you paid.',
   },
 ]
 
 const creator: QA[] = [
   {
     q: 'How much does Skillzy take?',
-    a: '20%. Creators keep 80% of every sale. Stripe takes its standard processing fees on top, before the split.',
+    a: '20%. Creators keep a clean 80% of every sale — full stop. Stripe’s standard processing fees (around 2.9% + 30¢) come out of Skillzy’s 20%, not yours. The cut you see on the listing is the cut that lands in your account.',
   },
   {
     q: 'How do payouts work?',
