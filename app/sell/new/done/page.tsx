@@ -12,6 +12,11 @@ export const metadata = {
   robots: { index: false, follow: false },
 }
 
+// Page reads searchParams + auth cookies; this enforces dynamic
+// rendering so the Showcase offer section always reflects fresh
+// featured_tier state (no cached HTML missing the new section).
+export const dynamic = 'force-dynamic'
+
 function humanise(slug: string) {
   return slug
     .replace(/-[a-z0-9]{1,4}$/i, '')
