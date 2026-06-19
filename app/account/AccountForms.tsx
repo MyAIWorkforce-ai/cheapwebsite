@@ -83,6 +83,18 @@ export function EmailForm({ defaultEmail }: { defaultEmail: string }) {
   const [state, action] = useFormState(updateEmail, initial)
   return (
     <form action={action} className="space-y-5">
+      {state.info ? (
+        <div className="flex items-start gap-3 border border-brand-gold bg-brand-gold/10 px-4 py-4">
+          <span aria-hidden className="text-brand-gold-dark text-2xl leading-none">✓</span>
+          <div className="text-base text-brand-ink">
+            <p className="font-semibold">Confirmation sent.</p>
+            <p className="mt-1 text-sm">
+              Check your new inbox and click the link to finish the change.
+              Until then, you can still sign in with your old address.
+            </p>
+          </div>
+        </div>
+      ) : null}
       <label className="block">
         <span className="label-cap text-brand-muted">Email</span>
         <input
@@ -98,7 +110,7 @@ export function EmailForm({ defaultEmail }: { defaultEmail: string }) {
         We&rsquo;ll send a confirmation link to the new address before the
         change goes through.
       </p>
-      <Field state={state} />
+      {state.error && <p className="text-sm text-red-700">{state.error}</p>}
       <Submit label="Change email" />
     </form>
   )
