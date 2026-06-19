@@ -41,7 +41,11 @@ export default async function MarketplacePage({
   const platform = searchParams.platform?.toLowerCase().trim()
 
   // Real seller listings (newest first) ahead of the demo showcase.
-  const allProducts = [...(await liveDbProducts()), ...products]
+  // Then a stable sort: paid-featured / showcase listings float to the
+  // top of the merged list so the navy card always wins the eye.
+  const allProducts = [...(await liveDbProducts()), ...products].sort(
+    (a, b) => Number(b.featured ?? false) - Number(a.featured ?? false),
+  )
 
   const filtered = allProducts.filter((p) => {
     const f = filters.find((x) => x.key === activeKey)

@@ -65,6 +65,30 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const listingId = (session.metadata?.listing_id as string | undefined) ?? null
   if (!listingId) return
 
+  // Showcase featured-listing upgrade — different code path: flip
+  // the listing's featured_tier, don't record a purchase, don't
+  // send a buyer email. The session pays the platform, not the
+  // creator, so there's no fulfilment to do.
+  const kind = (session.metadata?.kind as string | undefined) ?? null
+  if (kind === 'feature') {
+    if (!hasSupabase) return
+    try {
+      const supabase = createServiceClient()
+      const tier =
+        (session.metadata?.feature_tier as string | undefined) ?? 'showcase'
+      await supabase
+        .from('listings')
+        .update({
+          featured_tier: tier,
+          featured_started_at: new Date().toISOString(),
+        })
+        .eq('id', listingId)
+    } catch (err) {
+      console.error('Failed to flip featured_tier', err)
+    }
+    return
+  }
+
   const product = await resolveProduct(listingId)
   const buyerEmail =
     session.customer_details?.email ||

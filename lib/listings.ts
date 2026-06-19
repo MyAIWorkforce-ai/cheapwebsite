@@ -65,6 +65,7 @@ type ListingRow = {
   platform_list: string[] | null
   description: string[] | null
   what_you_get: string[] | null
+  featured_tier: string | null
   created_at: string | null
   profiles: ProfileJoin | ProfileJoin[] | null
 }
@@ -99,6 +100,7 @@ function mapRow(row: ListingRow): Product {
       payoutsEnabled: prof?.stripe_payouts_enabled === true,
     },
     platformList: row.platform_list ?? [],
+    featured: row.featured_tier === 'showcase',
     rating: 0,
     ratingCount: 0,
     price: priceLabel(row.price_cents),
@@ -114,7 +116,7 @@ function mapRow(row: ListingRow): Product {
 }
 
 const LISTING_COLS =
-  'id, slug, type, title, tagline, niche, price_cents, platform_list, description, what_you_get, created_at, profiles:creator_id ( name, handle, stripe_payouts_enabled )'
+  'id, slug, type, title, tagline, niche, price_cents, platform_list, description, what_you_get, featured_tier, created_at, profiles:creator_id ( name, handle, stripe_payouts_enabled )'
 
 /**
  * Resolve a product by seed id, DB slug, or DB uuid. Seed (demo)
@@ -142,15 +144,19 @@ export async function resolveProduct(
   }
 }
 
-/** All live DB listings, newest first, mapped to Product shape. */
+/** All live DB listings, featured first then newest, mapped to Product shape. */
 export async function liveDbProducts(): Promise<Product[]> {
   if (!hasSupabase) return []
   try {
     const admin = createServiceClient()
+    // featured_tier desc puts non-null tiers first (Postgres sorts
+    // NULL last on desc by default), then created_at desc keeps the
+    // newest non-featured listings on top within each bucket.
     const { data } = await admin
       .from('listings')
       .select(LISTING_COLS)
       .eq('status', 'live')
+      .order('featured_tier', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false })
       .limit(200)
     return (data ?? []).map((r) => mapRow(r as unknown as ListingRow))

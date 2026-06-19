@@ -83,10 +83,17 @@ export type EditDefaults = {
   niche: string
   platforms: string
   status: 'live' | 'pending_review' | 'removed'
+  featuredTier: string | null
   files: { id: string; name: string; size_bytes: number | null }[]
 }
 
-export default function EditForm({ defaults }: { defaults: EditDefaults }) {
+export default function EditForm({
+  defaults,
+  featuredFlash,
+}: {
+  defaults: EditDefaults
+  featuredFlash?: 'success' | 'cancelled' | null
+}) {
   const [state, action] = useFormState(updateListing, initial)
   const [filesState, filesAction] = useFormState(
     addListingFiles,
@@ -480,7 +487,125 @@ export default function EditForm({ defaults }: { defaults: EditDefaults }) {
           </div>
         )}
       </section>
+
+      <FeatureListingSection
+        listingSlug={defaults.slug}
+        featuredTier={defaults.featuredTier}
+        featuredFlash={featuredFlash}
+      />
     </div>
+  )
+}
+
+function FeatureListingSection({
+  listingSlug,
+  featuredTier,
+  featuredFlash,
+}: {
+  listingSlug: string
+  featuredTier: string | null
+  featuredFlash?: 'success' | 'cancelled' | null
+}) {
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const isFeatured = featuredTier === 'showcase'
+
+  async function startCheckout() {
+    setPending(true)
+    setError(null)
+    try {
+      const res = await fetch(
+        `/api/listings/${encodeURIComponent(listingSlug)}/feature-checkout`,
+        { method: 'POST' },
+      )
+      const j = await res.json().catch(() => ({}))
+      if (!res.ok || !j.url) {
+        setError(j.error ?? 'Could not start checkout.')
+        setPending(false)
+        return
+      }
+      window.location.href = j.url as string
+    } catch (err) {
+      setError((err as Error).message)
+      setPending(false)
+    }
+  }
+
+  return (
+    <section className="pt-10 border-t border-brand-hairline">
+      <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
+        Feature this listing
+      </span>
+      <h2
+        className="font-display mt-3 text-3xl tracking-tight"
+        style={{ letterSpacing: '-0.025em' }}
+      >
+        Top of the marketplace. <em className="italic text-brand-gold font-medium">Navy card.</em>
+      </h2>
+      <p className="mt-3 text-sm text-brand-muted max-w-prose">
+        Showcase tier — your listing gets the premium navy card on the
+        marketplace and sorts above every standard listing. One-time $49,
+        permanent for v1 (no monthly fee). Early-bird launch price.
+      </p>
+
+      {featuredFlash === 'success' && (
+        <div className="mt-5 flex items-start gap-3 border border-brand-gold bg-brand-gold/10 px-4 py-4">
+          <span aria-hidden className="text-brand-gold-dark text-2xl leading-none">
+            ✿
+          </span>
+          <div className="text-sm">
+            <p className="font-semibold text-brand-ink">
+              Showcase unlocked — your listing is now featured.
+            </p>
+            <p className="mt-1 text-brand-muted">
+              The navy card and top placement go live within a minute as
+              caches refresh.
+            </p>
+          </div>
+        </div>
+      )}
+      {featuredFlash === 'cancelled' && (
+        <div className="mt-5 flex items-start gap-3 border border-brand-hairline bg-brand-cream-card px-4 py-4">
+          <span aria-hidden className="text-brand-muted text-xl leading-none">·</span>
+          <p className="text-sm text-brand-muted">
+            Checkout cancelled — no charge was made.
+          </p>
+        </div>
+      )}
+
+      {isFeatured ? (
+        <div className="mt-6 flex items-start gap-3 border border-brand-ink bg-brand-navy text-brand-cream px-5 py-4">
+          <span aria-hidden className="text-brand-gold text-2xl leading-none">
+            ✿
+          </span>
+          <div className="text-sm">
+            <p className="font-semibold">Featured — Showcase tier active.</p>
+            <p className="mt-1 text-brand-cream/75">
+              Your listing has the navy card and sorts above standard
+              listings. Nothing more to do.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-6">
+          <button
+            type="button"
+            onClick={startCheckout}
+            disabled={pending}
+            className="inline-flex items-center gap-2 bg-brand-navy text-brand-cream border border-brand-gold font-semibold px-7 py-3.5 text-[15px] hover:bg-brand-gold hover:text-brand-ink transition-colors disabled:opacity-60"
+          >
+            {pending ? 'Opening checkout…' : 'Make this Showcase — $49'}
+          </button>
+          {error && (
+            <p className="mt-3 text-sm text-red-700">{error}</p>
+          )}
+          <p className="mt-3 text-xs text-brand-muted">
+            One-time payment via Stripe. Goes to Skillzy (not split with
+            you, since this is a platform service). Receipt by email.
+          </p>
+        </div>
+      )}
+    </section>
   )
 }
 

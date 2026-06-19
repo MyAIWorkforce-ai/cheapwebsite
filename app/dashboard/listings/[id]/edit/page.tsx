@@ -30,6 +30,7 @@ async function loadDefaults(
       niche: p.niche ?? '',
       platforms: p.platformList.join(', '),
       status: 'live',
+      featuredTier: p.featured ? 'showcase' : null,
       files: [],
     }
   }
@@ -38,7 +39,9 @@ async function loadDefaults(
     const supabase = createClient()
     const { data } = await supabase
       .from('listings')
-      .select('id, title, tagline, price_cents, niche, platform_list, status')
+      .select(
+        'id, title, tagline, price_cents, niche, platform_list, status, featured_tier',
+      )
       .eq('slug', id)
       .eq('creator_id', userId)
       .single()
@@ -60,6 +63,7 @@ async function loadDefaults(
       niche: data.niche ?? '',
       platforms: (data.platform_list ?? []).join(', '),
       status: data.status,
+      featuredTier: (data.featured_tier as string | null) ?? null,
       files: (filesRows ?? []).map((f) => ({
         id: f.id as string,
         name: f.name as string,
@@ -73,12 +77,21 @@ async function loadDefaults(
 
 export default async function EditListingPage({
   params,
+  searchParams,
 }: {
   params: { id: string }
+  searchParams: { featured?: string }
 }) {
   const user = await getUser()
   const defaults = await loadDefaults(params.id, user?.id ?? null)
   if (!defaults) notFound()
+
+  const featuredFlash =
+    searchParams.featured === '1'
+      ? 'success'
+      : searchParams.featured === 'cancelled'
+        ? 'cancelled'
+        : null
 
   return (
     <div className="paper">
@@ -120,7 +133,7 @@ export default async function EditListingPage({
         </div>
 
         <div className="mt-12 max-w-2xl">
-          <EditForm defaults={defaults} />
+          <EditForm defaults={defaults} featuredFlash={featuredFlash} />
         </div>
 
         <div id="share" className="mt-12 max-w-2xl scroll-mt-20">

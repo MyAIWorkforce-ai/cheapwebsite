@@ -106,6 +106,9 @@ create table if not exists public.listings (
   use_cases jsonb,                                   -- {who,what}[]
   faqs jsonb not null default '[]'::jsonb,           -- {q,a}[]
   related_ids text[] not null default '{}',
+  -- Paid feature tier (see migrations/009-listings-featured-tier.sql)
+  featured_tier text check (featured_tier in ('showcase')),
+  featured_started_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -114,6 +117,9 @@ create index if not exists listings_creator_idx on public.listings (creator_id);
 create index if not exists listings_status_idx on public.listings (status);
 create index if not exists listings_type_idx on public.listings (type);
 create index if not exists listings_niche_idx on public.listings (niche);
+create index if not exists listings_featured_tier_idx
+  on public.listings (featured_tier)
+  where featured_tier is not null;
 
 alter table public.listings enable row level security;
 
