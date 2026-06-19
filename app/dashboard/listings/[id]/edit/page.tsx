@@ -32,6 +32,7 @@ async function loadDefaults(
       status: 'live',
       featuredTier: p.featured ? 'showcase' : null,
       files: [],
+      promoCodes: [],
     }
   }
 
@@ -54,6 +55,13 @@ async function loadDefaults(
       .eq('listing_id', data.id)
       .order('created_at', { ascending: true })
 
+    const { data: promoRows } = await supabase
+      .from('listing_promo_codes')
+      .select('id, code, max_redemptions, redemption_count, active, created_at')
+      .eq('listing_id', data.id)
+      .eq('active', true)
+      .order('created_at', { ascending: false })
+
     return {
       id: data.id,
       slug: id,
@@ -68,6 +76,12 @@ async function loadDefaults(
         id: f.id as string,
         name: f.name as string,
         size_bytes: (f.size_bytes as number | null) ?? null,
+      })),
+      promoCodes: (promoRows ?? []).map((p) => ({
+        id: p.id as string,
+        code: p.code as string,
+        maxRedemptions: (p.max_redemptions as number | null) ?? null,
+        redemptionCount: (p.redemption_count as number) ?? 0,
       })),
     }
   } catch {

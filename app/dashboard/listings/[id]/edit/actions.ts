@@ -443,3 +443,107 @@ export async function applyRedraft(
   revalidatePath(`/dashboard/listings/${listingSlug}/edit`)
   return { info: `Applied ${Object.keys(patch).length} change${Object.keys(patch).length === 1 ? '' : 's'} from the re-draft.` }
 }
+
+// ---------- Promo codes ----------
+
+export type PromoCodeState = {
+  error?: string
+  info?: string
+}
+
+/**
+ * Create a free ("100% off") promo code for one of the creator's
+ * listings. v1 is free-only — schema is shaped for percent-off later
+ * without a migration.
+ *
+ * Code is normalised to uppercase and trimmed. Uniqueness is enforced
+ * by the partial unique index (listing_id, upper(code)).
+ */
+export async function createPromoCode(
+  _prev: PromoCodeState,
+  formData: FormData,
+): Promise<PromoCodeState> {
+  if (!hasSupabase) return { info: 'Demo mode — code not saved.' }
+
+  const listingId = String(formData.get('listingId') ?? '').trim()
+  const listingSlug = String(formData.get('listingSlug') ?? '').trim()
+  const codeRaw = String(formData.get('code') ?? '').trim().toUpperCase()
+  const maxRedemptionsRaw = String(formData.get('maxRedemptions') ?? '').trim()
+  const maxRedemptions = maxRedemptionsRaw ? Number(maxRedemptionsRaw) : null
+
+  if (!listingId || !listingSlug) return { error: 'Missing listing id.' }
+  if (!codeRaw) return { error: 'Pick a code.' }
+  if (codeRaw.length > 40) return { error: 'Code is too long (40 chars max).' }
+  if (!/^[A-Z0-9_-]+$/.test(codeRaw))
+    return { error: 'Use letters, numbers, dashes, underscores only.' }
+  if (maxRedemptions !== null && (!Number.isInteger(maxRedemptions) || maxRedemptions < 1))
+    return { error: 'Max redemptions must be a whole number ≥ 1.' }
+
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/signin?next=/dashboard/listings')
+
+  // Verify ownership before inserting.
+  const { data: listing } = await supabase
+    .from('listings')
+    .select('id')
+    .eq('id', listingId)
+    .eq('creator_id', user!.id)
+    .single()
+  if (!listing) return { error: 'Listing not found.' }
+
+  const { error } = await supabase.from('listing_promo_codes').insert({
+    listing_id: listing.id,
+    code: codeRaw,
+    discount_type: 'free',
+    max_redemptions: maxRedemptions,
+    active: true,
+  })
+
+  if (error) {
+    // Likely the unique constraint — surface a friendlier message.
+    if (error.message?.toLowerCase().includes('unique') || error.code === '23505')
+      return { error: `Code "${codeRaw}" already exists on this listing.` }
+    return { error: error.message }
+  }
+
+  revalidatePath(`/dashboard/listings/${listingSlug}/edit`)
+  return {
+    info: `Code ${codeRaw} created — ${
+      maxRedemptions ? `${maxRedemptions} redemptions` : 'unlimited'
+    }, 100% off.`,
+  }
+}
+
+/**
+ * Soft-delete: mark a code inactive. Keeps audit trail of past
+ * redemptions. RLS plus the explicit creator_id check below double-
+ * gate ownership.
+ */
+export async function deactivatePromoCode(formData: FormData): Promise<void> {
+  if (!hasSupabase) return
+  const codeId = String(formData.get('codeId') ?? '').trim()
+  const listingSlug = String(formData.get('listingSlug') ?? '').trim()
+  if (!codeId || !listingSlug) return
+
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/signin')
+
+  const { data: row } = await supabase
+    .from('listing_promo_codes')
+    .select('id, listings!inner ( creator_id )')
+    .eq('id', codeId)
+    .single()
+  if (!row) return
+  const listing = row.listings as { creator_id?: string } | { creator_id?: string }[] | null
+  const owner = Array.isArray(listing) ? listing[0]?.creator_id : listing?.creator_id
+  if (owner !== user!.id) return
+
+  await supabase
+    .from('listing_promo_codes')
+    .update({ active: false })
+    .eq('id', codeId)
+
+  revalidatePath(`/dashboard/listings/${listingSlug}/edit`)
+}

@@ -133,17 +133,17 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // Atomically bump the redemption count. Skip on failure — the
-  // purchase is already recorded; the dashboard will reconcile.
-  await admin.rpc('increment_promo_code_redemption', {
-    code_id: promo.id,
-  }).then(() => undefined).catch(() => {
-    // Fallback if the RPC doesn't exist: do a plain update.
-    return admin
+  // Bump the redemption counter. Non-atomic (races on simultaneous
+  // redeems) — fine for v1 founder-driven giveaways; needs a Postgres
+  // function before any campaign that drives concurrent traffic.
+  try {
+    await admin
       .from('listing_promo_codes')
       .update({ redemption_count: (promo.redemption_count as number) + 1 })
       .eq('id', promo.id)
-  })
+  } catch (err) {
+    console.error('redeem-promo: counter bump failed', err)
+  }
 
   // Send the buyer confirmation (with download link) just like a
   // paid purchase. Mirror fulfillPaymentIntent's email path.

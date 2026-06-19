@@ -56,6 +56,10 @@ export default function CheckoutForm({
   demo?: boolean
 }) {
   const [email, setEmail] = useState(defaultEmail ?? '')
+  const [showPromoField, setShowPromoField] = useState(false)
+  const [promoCode, setPromoCode] = useState('')
+  const [redeeming, setRedeeming] = useState(false)
+  const [promoError, setPromoError] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [unavailable, setUnavailable] = useState(false)
   const [initializing, setInitializing] = useState(true)
@@ -162,6 +166,41 @@ export default function CheckoutForm({
       cancelled = true
     }
   }, [listingId, amountCents])
+
+  async function redeemPromo() {
+    setPromoError(null)
+    const code = promoCode.trim()
+    if (!code) {
+      setPromoError('Enter a code.')
+      return
+    }
+    if (!email || !/.+@.+\..+/.test(email)) {
+      setPromoError('Add your email above first — we send the bundle there.')
+      return
+    }
+    setRedeeming(true)
+    try {
+      const res = await fetch('/api/checkout/redeem-promo', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ listingId, code, email }),
+      })
+      const j = (await res.json().catch(() => ({}))) as {
+        ok?: boolean
+        redirectUrl?: string
+        error?: string
+      }
+      if (!res.ok || !j.ok || !j.redirectUrl) {
+        setPromoError(j.error ?? 'Could not redeem that code.')
+        setRedeeming(false)
+        return
+      }
+      window.location.href = j.redirectUrl
+    } catch (err) {
+      setPromoError((err as Error).message)
+      setRedeeming(false)
+    }
+  }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
@@ -316,6 +355,48 @@ export default function CheckoutForm({
           </select>
         </label>
       </fieldset>
+
+      <div className="mt-8">
+        {!showPromoField ? (
+          <button
+            type="button"
+            onClick={() => setShowPromoField(true)}
+            className="text-sm text-brand-muted hover:text-brand-gold-dark border-b border-brand-muted/40 hover:border-brand-gold-dark pb-0.5 transition-colors"
+          >
+            Have a code?
+          </button>
+        ) : (
+          <div className="flex flex-col sm:flex-row sm:items-end gap-3">
+            <label className="block flex-1">
+              <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+                Promo code
+              </span>
+              <input
+                type="text"
+                name="promo_code"
+                value={promoCode}
+                onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                placeholder="e.g. SOOSAL"
+                disabled={redeeming}
+                autoComplete="off"
+                className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 font-mono text-lg uppercase tracking-wider placeholder:text-brand-muted/60"
+                style={{ textTransform: 'uppercase' }}
+              />
+            </label>
+            <button
+              type="button"
+              onClick={redeemPromo}
+              disabled={redeeming}
+              className="shrink-0 bg-brand-ink text-white font-semibold px-5 py-2.5 text-sm hover:bg-brand-gold hover:text-brand-ink transition-colors disabled:opacity-60"
+            >
+              {redeeming ? 'Redeeming…' : 'Apply code'}
+            </button>
+          </div>
+        )}
+        {promoError && (
+          <p className="mt-2 text-sm text-red-700">{promoError}</p>
+        )}
+      </div>
 
       <div className="mt-10 pt-10 border-t border-brand-hairline">
         <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">

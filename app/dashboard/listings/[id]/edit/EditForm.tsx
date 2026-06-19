@@ -8,9 +8,12 @@ import {
   deleteListingFile,
   redraftListingFromBundle,
   applyRedraft,
+  createPromoCode,
+  deactivatePromoCode,
   type EditState,
   type FilesState,
   type RedraftResult,
+  type PromoCodeState,
 } from './actions'
 import MultiSelectPopup from '@/components/MultiSelectPopup'
 import { NICHE_OPTIONS, PLATFORM_OPTIONS } from '@/lib/options'
@@ -85,6 +88,12 @@ export type EditDefaults = {
   status: 'live' | 'pending_review' | 'removed'
   featuredTier: string | null
   files: { id: string; name: string; size_bytes: number | null }[]
+  promoCodes: {
+    id: string
+    code: string
+    maxRedemptions: number | null
+    redemptionCount: number
+  }[]
 }
 
 export default function EditForm({
@@ -493,7 +502,159 @@ export default function EditForm({
         featuredTier={defaults.featuredTier}
         featuredFlash={featuredFlash}
       />
+
+      <PromoCodesSection
+        listingId={defaults.id}
+        listingSlug={defaults.slug}
+        codes={defaults.promoCodes}
+      />
     </div>
+  )
+}
+
+function PromoCodesSection({
+  listingId,
+  listingSlug,
+  codes,
+}: {
+  listingId: string
+  listingSlug: string
+  codes: EditDefaults['promoCodes']
+}) {
+  const promoInitial: PromoCodeState = {}
+  const [state, action] = useFormState(createPromoCode, promoInitial)
+
+  return (
+    <section className="pt-10 border-t border-brand-hairline">
+      <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
+        Promo codes
+      </span>
+      <h2
+        className="font-display mt-3 text-3xl tracking-tight"
+        style={{ letterSpacing: '-0.025em' }}
+      >
+        Give a free copy.
+      </h2>
+      <p className="mt-2 text-sm text-brand-muted max-w-prose">
+        Hand out a free copy to a specific person — a founding electrician,
+        a conference contact, your brother testing the listing. Each code
+        gives 100% off. Set a redemption cap if you only want N people to
+        use it, or leave it unlimited.
+      </p>
+
+      {codes.length === 0 ? (
+        <p className="mt-6 text-sm text-brand-muted italic">
+          No codes yet. Create one below.
+        </p>
+      ) : (
+        <ul className="mt-6 divide-y divide-brand-hairline border-y border-brand-hairline">
+          {codes.map((c) => (
+            <li
+              key={c.id}
+              className="py-3 flex items-center justify-between gap-4"
+            >
+              <div className="min-w-0">
+                <p className="font-mono text-base text-brand-ink tracking-wider">
+                  {c.code}
+                </p>
+                <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted mt-0.5">
+                  {c.redemptionCount} of {c.maxRedemptions ?? '∞'} used · 100%
+                  off
+                </p>
+              </div>
+              <form action={deactivatePromoCode} className="shrink-0">
+                <input type="hidden" name="codeId" value={c.id} />
+                <input
+                  type="hidden"
+                  name="listingSlug"
+                  value={listingSlug}
+                />
+                <DeactivatePromoButton />
+              </form>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <form action={action} className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:items-end">
+        <input type="hidden" name="listingId" value={listingId} />
+        <input type="hidden" name="listingSlug" value={listingSlug} />
+        <label className="block sm:col-span-2">
+          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+            Code
+          </span>
+          <input
+            type="text"
+            name="code"
+            required
+            placeholder="e.g. SOOSAL"
+            maxLength={40}
+            className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 font-mono text-lg uppercase tracking-wider"
+            style={{ textTransform: 'uppercase' }}
+            autoComplete="off"
+          />
+        </label>
+        <label className="block">
+          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+            Max uses (blank = ∞)
+          </span>
+          <input
+            type="number"
+            name="maxRedemptions"
+            min="1"
+            step="1"
+            placeholder="e.g. 1"
+            className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg"
+          />
+        </label>
+
+        <div className="sm:col-span-3 flex items-center gap-4 pt-2">
+          <CreatePromoButton />
+          {state.error && (
+            <p className="text-sm text-red-700">{state.error}</p>
+          )}
+          {state.info && (
+            <p className="text-sm text-brand-gold-dark">{state.info}</p>
+          )}
+        </div>
+
+        <p className="sm:col-span-3 text-xs text-brand-muted">
+          Buyers redeem the code at checkout — link is{' '}
+          <span className="font-mono">/marketplace/{listingSlug}</span>{' '}
+          → click "Have a code?".
+        </p>
+      </form>
+    </section>
+  )
+}
+
+function CreatePromoButton() {
+  const { pending } = useFormStatus()
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="bg-brand-ink text-white font-semibold px-5 py-2.5 text-sm hover:bg-brand-gold hover:text-brand-ink transition-colors disabled:opacity-60"
+    >
+      {pending ? 'Creating…' : 'Create code'}
+    </button>
+  )
+}
+
+function DeactivatePromoButton() {
+  const { pending } = useFormStatus()
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      onClick={(e) => {
+        if (!confirm('Deactivate this code? Past redemptions stay valid.'))
+          e.preventDefault()
+      }}
+      className="text-xs uppercase tracking-wider text-brand-muted hover:text-red-700 transition-colors disabled:opacity-60"
+    >
+      {pending ? 'Removing…' : 'Deactivate'}
+    </button>
   )
 }
 
