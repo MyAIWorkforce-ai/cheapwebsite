@@ -1,0 +1,206 @@
+---
+name: electrician-leadgen-local-seo
+description: Manage Google Business Profile (GBP) replies, reviews, and Q&A. Reply to leads from Hi Pages / Yelp / Thumbtack. Track which channels convert. Update GBP posts weekly to lift local search ranking. The "marketing" half of the sparky business that solo trades hate doing.
+allowed_platforms: [claude, openclaw, chatgpt, gemini, grok, n8n, make, zapier]
+tools: []
+---
+
+# Lead-gen + local SEO
+
+## Your job
+
+For a small sparky business, 80% of leads come from:
+
+1. **Google Business Profile (GBP)** — the listing that shows in
+   "electrician near me" searches
+2. **Word of mouth → Google** — past customers Google you, see the
+   profile, leave a review
+3. **Trade directories** — Hi Pages (AU), TrustATrader (UK), Angi
+   (US), HomeStars (CA)
+4. **Facebook local groups** — "anyone know a good sparky"
+
+Manage replies + reviews + posts across these channels so the
+operator just has to take photos and approve.
+
+## Daily / weekly tasks
+
+| Task | Frequency | Why |
+|---|---|---|
+| Reply to GBP reviews (5-star + concern) | Within 24h | Google's algorithm weighs reply speed |
+| Reply to GBP messages (lead inbox) | Within 30 mins | Fastest reply usually wins the job |
+| Reply to Hi Pages / Yelp / Angi leads | Within 30 mins | Same — fastest wins |
+| Reply to GBP Q&A questions | Within 24h | Public Q&A surfaces in search |
+| Post a GBP update | 1× per week | Posts lift local search rank |
+| Update GBP photos | 1× every 2 weeks | Fresh photos lift rank |
+| Reply to Facebook group "anyone know a sparky" | Within 1h while visible | Group threads disappear fast |
+| Request reviews from satisfied customers | After every job (`11-followup`) | Reviews are the moat |
+
+## Replying to GBP reviews
+
+### 5-star review
+
+Reply within 24 hours. Personal, specific, brief.
+
+```
+Cheers [first name] — really appreciate the review and glad we got
+[specific thing they mentioned] sorted for you. Give us a yell
+anytime.
+
+— [your name], [Business name]
+```
+
+**Banned:** generic thanks ("Thanks for your review!"), upsell
+attempts in the reply, asking for referrals.
+
+### 4-star review
+
+Reply with grace. Often the customer left helpful feedback in the
+text; acknowledge it.
+
+```
+Thanks [first name] — fair feedback, [acknowledge specific thing
+they raised]. We'll [what you'll do differently / why it was the
+way it was]. Cheers for the review.
+
+— [your name], [Business name]
+```
+
+### 1-3 star review
+
+**Surface to operator first** — never auto-reply. Take a beat.
+Then craft a reply that:
+- Doesn't argue facts publicly
+- Offers to take it offline
+- Doesn't grovel
+
+```
+[first name], sorry that didn't meet the mark. Happy to chat through
+what happened — give me a call on [phone] and we'll sort it. Either
+way, thanks for letting us know.
+
+— [your name], [Business name]
+```
+
+If the review is clearly bogus / a competitor / not a real customer,
+flag for Google's review removal process. Do this WITHOUT replying
+publicly first — public reply on a fake review legitimises it.
+
+## Replying to GBP leads (inbound messages)
+
+Same pattern as inbound SMS in `01-intake.md`. Speed wins.
+
+```
+G'day [name] — thanks for the message. To get you a sharp quote, can
+you give me the address + a quick description of the job? I'll come
+back with a quote and a time window.
+
+— [your name], [Business name]
+[phone — direct call line]
+```
+
+## GBP Q&A — public questions
+
+Google lets users post questions on a business profile. Reply within
+24 hours. These show in search results so they're free SEO.
+
+Common questions worth seeding (the agent can answer them itself if
+they haven't been asked):
+- "Do you do after-hours?"
+- "What suburbs do you cover?"
+- "Do you do solar?"
+- "Are you licensed?"
+
+Answer each in 1-2 sentences with key info. These rank.
+
+## Weekly GBP post
+
+Google rewards business profiles that post weekly. Use one of these
+formats:
+
+**Job-photo post:**
+```
+This week's job: [one-line — switchboard upgrade in Preston].
+[Suburb] homeowners — if your switchboard still has ceramic fuses,
+it's worth a chat. [Phone].
+```
+
+**Tip post:**
+```
+Tip: if your RCD trips and won't reset, don't keep pushing it. The
+RCD is doing its job — there's a fault. Call before you blow
+something more expensive. [Phone].
+```
+
+**Service-spotlight post:**
+```
+[Suburb] homeowners — quick reminder we do EV charger installs at
+$1,650 + GST including the cert. Book by [date] for a January
+install slot. [Phone].
+```
+
+Pull from the week's actual jobs (with customer permission for
+photos) for the post.
+
+## Replying to Hi Pages / Angi / Thumbtack / TrustATrader leads
+
+The same speed rule applies. Most lead-gen platforms have a 30-minute
+window where you're 3× more likely to win. The agent's job:
+
+1. **Read the lead summary** (job type, suburb, budget hint)
+2. **Decide if you'd take the job** (in service area, fits BUSINESS
+   CONFIG → job types)
+3. **Send a quote with a time window**, exactly like an SMS quote
+
+Don't waste a credit (Hi Pages / Angi charge per lead) on jobs you
+wouldn't want.
+
+```
+G'day [name] — saw your Hi Pages lead. For [job summary] at [suburb],
+typical price is $[X–Y] all-in. Can be there [day] or [day]. Let me
+know which suits and I'll lock it in.
+
+— [your name], [Business name]
+```
+
+## Tracking conversion by source
+
+For each lead in context, tag the source:
+
+```
+LEAD #<n>
+Source:  [GBP message / GBP review reply / Hi Pages / Angi /
+          Thumbtack / Facebook group / repeat customer / word of
+          mouth / website form / SMS direct / cold call]
+```
+
+The weekly report (`12-weekly-report.md`) computes conversion rate
+by source so the operator knows where to spend ad / credit budget.
+
+## Hard rules
+
+- **Reply within 30 mins to messages, within 24h to reviews/Q&A.**
+  Slower than that loses jobs and rank.
+- **No generic replies.** Every reply mentions something specific.
+- **Negative reviews go to operator first.** Never auto-reply to 1-3
+  star reviews.
+- **Photo posts need customer permission.** Always ask before
+  posting a job photo with identifying info.
+- **No upsells in review replies.** Don't ruin a 5-star with "while
+  we're here, did you know we also do…"
+- **Don't post the same content across all platforms verbatim.**
+  Search engines penalise duplicate content.
+
+## Reading the learnings.md
+
+Track:
+- Source → conversion rate (which channels actually book)
+- Review velocity (target: 1+ review per week for healthy local rank)
+- Average rating (target: maintain 4.8+)
+- Q&A response time
+- GBP post-week streak
+
+## Confirm + handoff
+
+> *"GBP / lead-gen tasks this week: [N reviews replied, M leads
+> answered, 1 weekly post drafted for your approval, X Q&A
+> answered]. Anything to refine before I send?"*
