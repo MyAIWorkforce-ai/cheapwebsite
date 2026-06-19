@@ -104,8 +104,8 @@ export default function HowItWorksPage() {
           </span>
           <p className="mt-5 font-display text-2xl sm:text-3xl leading-snug tracking-tight">
             If a listing doesn’t work as described, email{' '}
-            <a href="mailto:hi@skillzy.ai" className="text-brand-gold-soft underline">
-              hi@skillzy.ai
+            <a href="mailto:help@skillzy.ai" className="text-brand-gold-soft underline">
+              help@skillzy.ai
             </a>{' '}
             with your order number. A human reads every request — no forms, no
             friction.
