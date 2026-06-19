@@ -18,10 +18,11 @@
  */
 import { NextResponse, type NextRequest } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
-import { hasSupabase, hasResend } from '@/lib/env'
+import { env, hasSupabase, hasResend } from '@/lib/env'
 import { resolveProduct } from '@/lib/listings'
 import { sendPurchaseConfirmation } from '@/lib/email/purchase-confirmation'
 import { orderIdFromIntent } from '@/lib/fulfillment'
+import { freeToken } from '@/lib/delivery-token'
 
 export const runtime = 'nodejs'
 
@@ -145,14 +146,25 @@ export async function POST(request: NextRequest) {
     console.error('redeem-promo: counter bump failed', err)
   }
 
-  // Send the buyer confirmation (with download link) just like a
-  // paid purchase. Mirror fulfillPaymentIntent's email path.
+  // Build the no-login download URL with a signed freeToken — same
+  // scheme the EmailGate uses for genuinely free listings. The
+  // /order/free page validates the token and reveals the files
+  // without requiring a Stripe PaymentIntent.
+  const tok = freeToken(product.id, email)
+  const site = env.siteUrl.replace(/\/$/, '')
+  const downloadPageUrl = `${site}/order/free?listing=${encodeURIComponent(
+    product.id,
+  )}&email=${encodeURIComponent(email)}&t=${encodeURIComponent(tok)}`
+
+  // Send the buyer confirmation, pointing the email CTA at the
+  // signed /order/free URL so they can download without an account.
   if (hasResend) {
     try {
       await sendPurchaseConfirmation({
         to: email,
         product,
         orderId,
+        downloadPageUrl,
       })
     } catch (err) {
       console.error('redeem-promo: confirmation email failed', err)
@@ -161,6 +173,11 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({
     ok: true,
-    redirectUrl: `/order/success?id=${product.slug ?? product.id}&order=${orderId}&promo=1`,
+    // Send the buyer to the same signed /order/free URL the email
+    // points at, so the post-redemption page shows the file list
+    // right away.
+    redirectUrl: `/order/free?listing=${encodeURIComponent(
+      product.id,
+    )}&email=${encodeURIComponent(email)}&t=${encodeURIComponent(tok)}`,
   })
 }
