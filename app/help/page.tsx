@@ -29,7 +29,7 @@ const buyer: QA[] = [
   },
   {
     q: 'How do I "drop it in" — what does that actually mean?',
-    a: 'Every listing ships as a folder of files (SKILL.md, system prompts, configs, templates). You unzip, paste the SKILL.md into your agent’s skills folder, restart the agent, and it picks up the new capability. Most are working inside two minutes.',
+    a: 'Open your agent (Claude, ChatGPT, OpenClaw, n8n — whatever you use), drop the files in, and tell it to use the skill. The agent takes it from there. Most are working inside two minutes.',
   },
   {
     q: 'What if the listing doesn’t work?',

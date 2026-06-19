@@ -25,7 +25,7 @@ const steps = [
   {
     n: '03',
     title: 'Drop it into your agent',
-    body: 'Paste the SKILL.md into your agent’s skills folder — Claude, OpenClaw, ChatGPT, n8n — restart, and the new capability is live. Agent Setups include a short wiring guide for connecting your tools.',
+    body: 'Open your agent — Claude, OpenClaw, ChatGPT, n8n — drop the files in, and tell it to use the skill. The agent handles the rest. Agent Setups include a short wiring guide for connecting your tools.',
     aside: 'Most single skills are running inside two minutes. Full setups, a bit longer.',
   },
 ]
