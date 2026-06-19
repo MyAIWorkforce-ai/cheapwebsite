@@ -11,6 +11,7 @@ import { productLd, breadcrumbLd, faqLd } from '@/lib/jsonld'
 import { videoEmbedUrl } from '@/lib/video'
 import { getPostsForListing, readingMinutes } from '@/lib/blog'
 import { nicheSlug } from '@/lib/content'
+import CopyShareButton from '@/components/CopyShareButton'
 
 export function generateStaticParams() {
   return products.map((p) => ({ id: p.id }))
@@ -181,6 +182,15 @@ export default async function ProductDetailPage({
                   </span>
                 </>
               )}
+            </div>
+
+            <div className="mt-6">
+              <CopyShareButton
+                url={`/marketplace/${p.slug ?? p.id}`}
+                shareTitle={p.title}
+                shareText={`${p.title} — ${p.tagline}`}
+                label="Send to a friend"
+              />
             </div>
 
             <div className="mt-6">

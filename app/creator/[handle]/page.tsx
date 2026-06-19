@@ -10,6 +10,7 @@ import {
 import { dbCreatorByHandle } from '@/lib/listings'
 import ProductCard from '@/components/ProductCard'
 import StructuredData from '@/components/StructuredData'
+import CopyShareButton from '@/components/CopyShareButton'
 import { pageMetadata } from '@/lib/seo'
 import { breadcrumbLd } from '@/lib/jsonld'
 
@@ -127,6 +128,15 @@ export default async function CreatorPage({
           <p className="mt-7 text-xl text-brand-ink max-w-2xl leading-relaxed">
             {creator.bio}
           </p>
+
+          <div className="mt-7">
+            <CopyShareButton
+              url={`/creator/${handle}`}
+              shareTitle={`${creator.name} on Skillzy`}
+              shareText={`${creator.name} — drop-in AI agent skills, setups & guides on Skillzy.`}
+              label="Share this creator"
+            />
+          </div>
 
           <dl className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline max-w-3xl">
             <div className="bg-brand-cream-card p-5">
