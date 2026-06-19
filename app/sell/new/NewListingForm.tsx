@@ -412,7 +412,43 @@ export default function NewListingForm({
             }),
         )
       const texts = reads.length > 0 ? await Promise.all(reads) : []
-      const merged = texts.filter(Boolean).join('\n\n')
+
+      // Zips: extract any textual entries (md / yaml / json / txt / prompt)
+      // and feed them into the brief just like loose files would be. Lazy-
+      // load jszip so we don't pull ~95 KB on first paint when no zip is
+      // ever dropped. Same INTERNAL skip list as the redraft-from-bundle
+      // path on /dashboard/.../edit so the AI never re-reads LISTING_COPY
+      // back to itself.
+      const zipFiles = fileArray.filter((f) => /\.zip$/i.test(f.name))
+      const zipTexts: string[] = []
+      if (zipFiles.length > 0) {
+        const { default: JSZip } = await import('jszip')
+        for (const zf of zipFiles) {
+          try {
+            const zip = await JSZip.loadAsync(await zf.arrayBuffer())
+            const entries = Object.values(zip.files).filter((e) => !e.dir)
+            for (const entry of entries) {
+              const base = entry.name.split('/').pop()?.toLowerCase() ?? ''
+              if (base === 'listing_copy.md' || base === 'publish.md') continue
+              if (!TEXT_EXT.test(entry.name)) continue
+              const content = await entry.async('string')
+              if (content.length > 200_000) {
+                zipTexts.push(
+                  `--- ${entry.name} (truncated to 200KB) ---\n${content.slice(0, 200_000)}`,
+                )
+              } else {
+                zipTexts.push(`--- ${entry.name} ---\n${content}`)
+              }
+            }
+          } catch (err) {
+            setDraftError(
+              `Could not read ${zf.name}: ${(err as Error).message}`,
+            )
+          }
+        }
+      }
+
+      const merged = [...texts.filter(Boolean), ...zipTexts].join('\n\n')
       setBrief(merged)
 
       // Read EVERY attached PDF (not just the first) so the AI drafts
