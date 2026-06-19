@@ -173,8 +173,14 @@ export default async function ProductDetailPage({
                 </Link>{' '}
                 <span className="text-brand-muted">{p.creator.handle}</span>
               </span>
-              <Stars rating={p.rating} className="text-brand-ink" />
-              <span className="text-brand-muted">({p.ratingCount} reviews)</span>
+              {p.ratingCount > 0 && (
+                <>
+                  <Stars rating={p.rating} className="text-brand-ink" />
+                  <span className="text-brand-muted">
+                    ({p.ratingCount} reviews)
+                  </span>
+                </>
+              )}
             </div>
 
             <div className="mt-6">
