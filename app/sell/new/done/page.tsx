@@ -5,6 +5,7 @@ import { hasSupabase } from '@/lib/env'
 import ShareListing from '@/components/ShareListing'
 import ProfileShareKit from '@/components/ProfileShareKit'
 import DoneInit from './DoneInit'
+import ShowcaseOfferButton from './ShowcaseOfferButton'
 
 export const metadata = {
   title: 'Listing live',
@@ -24,11 +25,15 @@ async function loadListing(slug: string, userId?: string) {
     const supabase = createClient()
     const { data } = await supabase
       .from('listings')
-      .select('title, tagline')
+      .select('title, tagline, featured_tier')
       .eq('slug', slug)
       .eq('creator_id', userId)
       .single()
-    return data as { title: string; tagline: string } | null
+    return data as {
+      title: string
+      tagline: string
+      featured_tier: string | null
+    } | null
   } catch {
     return null
   }
@@ -145,6 +150,48 @@ export default async function ListingDonePage({
           <ProfileShareKit handle={user?.handle} name={displayName} />
         </div>
       </section>
+
+      {/* Showcase upsell — only if this listing isn't already featured.
+          Shows what the navy card looks like in situ + lets them buy
+          the upgrade in one tap, while motivation is high. */}
+      {row && row.featured_tier !== 'showcase' && (
+        <section className="px-6 lg:px-10 py-14 sm:py-20 border-b border-brand-hairline bg-brand-navy text-brand-cream">
+          <div className="max-w-page mx-auto max-w-3xl">
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
+              ✿ Showcase — optional upgrade
+            </span>
+            <h2
+              className="font-display mt-4 text-3xl sm:text-5xl tracking-tight leading-[1.05]"
+              style={{ letterSpacing: '-0.025em' }}
+            >
+              Put it{' '}
+              <em className="italic text-brand-gold font-medium">
+                top of the marketplace.
+              </em>
+            </h2>
+            <p className="mt-5 text-brand-cream/85 max-w-xl leading-relaxed">
+              Showcase tier: your listing gets the premium navy card (the one
+              you&rsquo;re looking at) and sorts above every standard listing
+              on{' '}
+              <span className="text-brand-cream font-semibold">
+                /marketplace
+              </span>
+              , every niche page, and every platform page. One-time{' '}
+              <span className="text-brand-gold font-semibold">$49</span>,
+              permanent for v1. Early-bird launch price — goes up once we
+              have conversion data behind it.
+            </p>
+            <p className="mt-4 text-brand-cream/65 text-sm max-w-xl">
+              Skip it for now if you&rsquo;d rather see how the listing
+              performs first — it&rsquo;s also available any time from
+              Dashboard → Edit listing.
+            </p>
+            <div className="mt-7">
+              <ShowcaseOfferButton slug={slug} />
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Next actions */}
       <section className="px-6 lg:px-10 py-14 sm:py-20">
