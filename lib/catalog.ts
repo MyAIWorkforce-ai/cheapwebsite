@@ -168,78 +168,6 @@ const creators: Record<string, Creator> = {
 const baseProducts: Product[] = [
   // ===== AGENT SETUPS =====
   {
-    id: 'real-estate-agent-setup',
-    type: 'Agent Setup',
-    title: 'Real Estate, end to end.',
-    tagline: 'Lead capture, listings, follow-ups, market reports. Drop it in, get an agent that runs the desk.',
-    niche: 'Real Estate',
-    featured: true,
-    creator: creators.harlow,
-    platformList: ['Claude', 'OpenClaw', 'n8n', 'Make'],
-    rating: 0,
-    ratingCount: 0,
-    price: '$249',
-    version: 'v1.4',
-    updated: '12 May 2026',
-    description: [
-      'A full real-estate desk in a box. Drop this in and your agent will capture inbound leads, draft listings, push follow-ups, generate comparable-sales reports, and write market updates in your voice.',
-      'Built from a working agency that used it on 240+ listings over six months before we listed it here. Every prompt has been beaten on by a real agent at 10pm on a Thursday.',
-    ],
-    whatYouGet: [
-      '12 SKILL.md files covering leads, listings, follow-ups, market reports, comparables, and admin',
-      'System prompts tuned for buyer-side, seller-side, and rental scenarios',
-      'Email + SMS follow-up sequences (4 cadences, customisable)',
-      'CRM connectors: HubSpot, Pipedrive, FUB. n8n flows for each',
-      '14-page setup guide with screenshots',
-      'A starter market-report template that doesn’t look like a market report',
-    ],
-    howItWorks: [
-      { n: '01', title: 'Download', desc: 'Buy once, get the bundle by email and on your dashboard.' },
-      { n: '02', title: 'Drop it in', desc: 'Upload the SKILL.md files to your agent. Two minutes.' },
-      { n: '03', title: 'Connect', desc: 'Connect your CRM, email, and calendar. Wizard in the setup guide.' },
-      { n: '04', title: 'Press go', desc: 'Your agent runs the desk. You handle the people part.' },
-    ],
-    skillMdPreview: `---
-name: lead-capture-and-qualify
-description: Captures inbound buyer enquiries, qualifies budget + timeline, books a viewing.
-allowed_platforms: [claude, openclaw, n8n]
-tools:
-  - email.send
-  - calendar.create_event
-  - crm.upsert_contact
----
-
-# Lead capture & qualify
-
-When a new lead arrives via email or form:
-
-1. Pull the property reference from the message.
-2. Reply within 60 seconds with a warm acknowledgement
-   and three viewing-time options that match the agent's calendar.
-3. Ask the two qualifying questions: budget band, timeline.
-4. Push the lead to CRM with all extracted fields.
-5. If the lead is hot (budget + timeline + reply within 4h),
-   notify the agent on SMS.
-`,
-    useCases: [
-      { who: 'Solo agent', what: 'Captures leads while you’re showing a property. No more cold callbacks.' },
-      { who: 'Boutique agency', what: 'Standardises follow-up across the team. Same voice, same speed.' },
-      { who: 'Rental manager', what: 'Handles enquiry volume on listing day without breaking a sweat.' },
-    ],
-    reviews: [
-      { author: 'Daniel R.', location: 'Sydney', rating: 5, date: '2 May 2026', body: 'Recouped the cost in the first week. Honestly the follow-up sequences alone are worth it.' },
-      { author: 'Aisha N.', location: 'Auckland', rating: 5, date: '21 Apr 2026', body: 'I changed three lines of the prompt and it sounded exactly like me. Wild.' },
-      { author: 'Tom B.', location: 'Melbourne', rating: 4, date: '14 Apr 2026', body: 'Setup took longer than advertised because of HubSpot, not their fault. Once running, it’s a beast.' },
-    ],
-    faqs: [
-      { q: 'Will it work with my CRM?', a: 'Out of the box: HubSpot, Pipedrive, Follow Up Boss. Others via n8n in about 30 minutes.' },
-      { q: 'Does it write listings I can use?', a: 'Yes, but read them before you publish. It’s good, not perfect.' },
-      { q: 'Can I customise the voice?', a: 'Yes. There’s a personality config you edit once. The whole agent shifts.' },
-    ],
-    relatedIds: ['daily-summary-email', 'invoice-generator', 'wire-claude-and-n8n'],
-  },
-
-  {
     id: 'bookkeeper-agent-setup',
     type: 'Agent Setup',
     title: 'Bookkeeper & BAS.',
@@ -302,7 +230,7 @@ Output: a clean queue for the bookkeeper, sorted by confidence.
       { q: 'Will it replace my accountant?', a: 'No. It makes you cheaper for your accountant to work with.' },
       { q: 'What about non-AU tax?', a: 'GST logic is AU/NZ-shaped. Other regions are coming. Vote in the changelog.' },
     ],
-    relatedIds: ['invoice-generator', 'real-estate-agent-setup', 'first-skill-md'],
+    relatedIds: ['invoice-generator', 'first-skill-md'],
   },
 
   {
@@ -861,7 +789,7 @@ Never: defensive language, exclamation marks > 1, "we strive to."
       { q: 'Total beginner OK?', a: 'If you can install an app and read a paragraph, you’re fine.' },
       { q: 'Updates?', a: 'Free updates for the life of this edition.' },
     ],
-    relatedIds: ['first-skill-md', 'agent-prompt-patterns', 'real-estate-agent-setup'],
+    relatedIds: ['first-skill-md', 'agent-prompt-patterns'],
   },
 
   {

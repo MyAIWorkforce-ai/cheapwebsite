@@ -324,7 +324,7 @@ export const POSTS: Post[] = [
     author: 'Toby Banks',
     authorRole: 'Founder, Skillzy',
     tags: ['real-estate', 'lead-response', 'case-study'],
-    relatedListings: ['real-estate-agent-setup', 'after-hours-triage'],
+    relatedListings: ['after-hours-triage'],
     body: [
       P('In real estate the lead does not wait for office hours. The portal enquiry at 8pm Saturday goes to whoever replies first, and most of the time that is not you — you were at an open or asleep.'),
       H('What the agent covers'),
@@ -338,7 +338,6 @@ export const POSTS: Post[] = [
       P('It never negotiates and never makes promises on price. It buys you the first ten minutes so the relationship is still yours to win.'),
       QUOTE('We were losing weekend enquiries to faster agents. Now we are the fast agent.'),
       L('after-hours-triage', 'After-hours triage'),
-      L('real-estate-agent-setup', 'Real estate agent setup'),
     ],
   },
   {

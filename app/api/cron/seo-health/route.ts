@@ -22,7 +22,6 @@ export const dynamic = 'force-dynamic'
 const PATHS = [
   '/',
   '/marketplace',
-  '/marketplace/real-estate-agent-setup',
   '/for/electricians',
   '/platforms/n8n',
   '/sell',
