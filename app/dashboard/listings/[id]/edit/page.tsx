@@ -23,12 +23,14 @@ async function loadDefaults(
     if (!p) return null
     return {
       id: p.id,
+      slug: id,
       title: p.title,
       tagline: p.tagline,
       price: Number(p.price.replace(/[^0-9.]/g, '')),
       niche: p.niche ?? '',
       platforms: p.platformList.join(', '),
       status: 'live',
+      files: [],
     }
   }
 
@@ -42,14 +44,27 @@ async function loadDefaults(
       .single()
 
     if (!data) return null
+
+    const { data: filesRows } = await supabase
+      .from('files')
+      .select('id, name, size_bytes, created_at')
+      .eq('listing_id', data.id)
+      .order('created_at', { ascending: true })
+
     return {
       id: data.id,
+      slug: id,
       title: data.title,
       tagline: data.tagline ?? '',
       price: Math.round((data.price_cents ?? 0) / 100),
       niche: data.niche ?? '',
       platforms: (data.platform_list ?? []).join(', '),
       status: data.status,
+      files: (filesRows ?? []).map((f) => ({
+        id: f.id as string,
+        name: f.name as string,
+        size_bytes: (f.size_bytes as number | null) ?? null,
+      })),
     }
   } catch {
     return null
