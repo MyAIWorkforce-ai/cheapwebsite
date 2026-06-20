@@ -621,7 +621,7 @@ function PromoCodesSection({
         <p className="sm:col-span-3 text-xs text-brand-muted">
           Buyers redeem the code at checkout — link is{' '}
           <span className="font-mono">/marketplace/{listingSlug}</span>{' '}
-          → click "Have a code?".
+          → click &ldquo;Have a code?&rdquo;.
         </p>
       </form>
     </section>
