@@ -5,6 +5,7 @@ import { sendPurchaseConfirmation } from '@/lib/email/purchase-confirmation'
 import { sendSaleNotification } from '@/lib/email/sale-notification'
 import { resolveProduct } from '@/lib/listings'
 import { deliveryToken } from '@/lib/delivery-token'
+import { listingEmailAttachments } from '@/lib/delivery'
 
 export function orderIdFromIntent(intentId: string) {
   return intentId.replace(/^pi_/, '').slice(0, 12).toUpperCase()
@@ -74,11 +75,13 @@ export async function fulfillPaymentIntent(intent: Stripe.PaymentIntent) {
   async function emailBuyer() {
     if (!hasResend || !buyerEmail || !product) return
     try {
+      const attachments = await listingEmailAttachments(listingId!)
       await sendPurchaseConfirmation({
         to: buyerEmail,
         product,
         orderId: orderIdFromIntent(intent.id),
         downloadPageUrl: `${env.siteUrl}/order/success?payment_intent=${intent.id}&id=${listingId}&t=${deliveryToken(intent.id)}`,
+        attachments,
       })
     } catch (err) {
       console.error('Failed to send purchase email', err)

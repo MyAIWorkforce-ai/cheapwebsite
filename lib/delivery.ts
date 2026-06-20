@@ -49,3 +49,27 @@ export async function listingFiles(
     return []
   }
 }
+
+// Hard cap on what we'll attach to the confirmation email. Above this,
+// the link in the email is the only delivery — many providers strip /
+// quarantine large zips and some have per-message ceilings around 25MB.
+const MAX_ATTACH_BYTES = 5 * 1024 * 1024
+
+export type EmailAttachment = { filename: string; path: string }
+
+/**
+ * Download-bytes-by-URL list suitable for Resend's `attachments` API.
+ * Returns [] when total attachment payload would exceed the safe email
+ * size cap, when storage is unconfigured, or when the listing has no
+ * files. The download link in the email still works in those cases —
+ * attachments are a convenience, not the source of truth.
+ */
+export async function listingEmailAttachments(
+  listingId: string,
+): Promise<EmailAttachment[]> {
+  const files = await listingFiles(listingId)
+  if (files.length === 0) return []
+  const total = files.reduce((sum, f) => sum + (f.sizeBytes ?? 0), 0)
+  if (total === 0 || total > MAX_ATTACH_BYTES) return []
+  return files.map((f) => ({ filename: f.name, path: f.url }))
+}

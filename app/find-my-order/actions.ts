@@ -8,6 +8,7 @@ import {
   sendPurchaseConfirmation,
 } from '@/lib/email/purchase-confirmation'
 import { orderIdFromIntent } from '@/lib/fulfillment'
+import { listingEmailAttachments } from '@/lib/delivery'
 
 export type FindOrderState = {
   ok?: boolean
@@ -53,11 +54,13 @@ export async function resendOrderLinks(
         const product = await resolveProduct(listingId)
         if (!product) continue
         try {
+          const attachments = await listingEmailAttachments(listingId)
           await sendPurchaseConfirmation({
             to: email,
             product,
             orderId: orderIdFromIntent(intentId),
             downloadPageUrl: `${env.siteUrl}/order/success?payment_intent=${intentId}&id=${listingId}&t=${deliveryToken(intentId)}`,
+            attachments,
           })
         } catch (err) {
           console.error('find-my-order resend failed', err)

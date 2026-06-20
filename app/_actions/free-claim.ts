@@ -5,6 +5,7 @@ import { env, hasSupabase, hasResend } from '@/lib/env'
 import { resolveProduct, isSeedProductId } from '@/lib/listings'
 import { freeToken } from '@/lib/delivery-token'
 import { sendPurchaseConfirmation } from '@/lib/email/purchase-confirmation'
+import { listingEmailAttachments } from '@/lib/delivery'
 
 export type FreeClaimState = { ok?: boolean; error?: string }
 
@@ -73,6 +74,7 @@ export async function claimFreeListing(
 
   if (hasResend) {
     try {
+      const attachments = await listingEmailAttachments(listingId)
       await sendPurchaseConfirmation({
         to: email,
         product,
@@ -80,6 +82,7 @@ export async function claimFreeListing(
         downloadPageUrl: `${env.siteUrl}/order/free?listing=${encodeURIComponent(
           listingId,
         )}&email=${encodeURIComponent(email)}&t=${freeToken(listingId, email)}`,
+        attachments,
       })
     } catch (err) {
       console.error('Free claim email failed', err)

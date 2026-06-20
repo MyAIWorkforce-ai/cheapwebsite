@@ -11,6 +11,10 @@ type Args = {
   // download links every visit. Preferred over embedding links that
   // expire before the buyer opens the email.
   downloadPageUrl?: string
+  // Optional: zip files attached directly to the email. Belt-and-
+  // braces with the download link — buyers whose mail provider strips
+  // attachments fall back to the link, the rest get instant access.
+  attachments?: Array<{ filename: string; path: string }>
 }
 
 let cached: Resend | null = null
@@ -24,6 +28,7 @@ export async function sendPurchaseConfirmation({
   product,
   orderId,
   downloadPageUrl,
+  attachments,
 }: Args) {
   if (!hasResend) return { skipped: true as const }
 
@@ -74,5 +79,6 @@ export async function sendPurchaseConfirmation({
     subject,
     html,
     text,
+    ...(attachments && attachments.length > 0 ? { attachments } : {}),
   })
 }

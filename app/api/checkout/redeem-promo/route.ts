@@ -23,6 +23,7 @@ import { resolveProduct } from '@/lib/listings'
 import { sendPurchaseConfirmation } from '@/lib/email/purchase-confirmation'
 import { orderIdFromIntent } from '@/lib/fulfillment'
 import { freeToken } from '@/lib/delivery-token'
+import { listingEmailAttachments } from '@/lib/delivery'
 
 export const runtime = 'nodejs'
 
@@ -160,11 +161,13 @@ export async function POST(request: NextRequest) {
   // signed /order/free URL so they can download without an account.
   if (hasResend) {
     try {
+      const attachments = await listingEmailAttachments(product.id)
       await sendPurchaseConfirmation({
         to: email,
         product,
         orderId,
         downloadPageUrl,
+        attachments,
       })
     } catch (err) {
       console.error('redeem-promo: confirmation email failed', err)
