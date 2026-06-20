@@ -133,19 +133,36 @@ export default function EditForm({
   const [redraftPending, startRedraftTransition] = useTransition()
   const [redraft, setRedraft] = useState<RedraftResult | null>(null)
   const [accepted, setAccepted] = useState<Record<string, boolean>>({})
+  // Per-field edits to the AI's raw suggestion — buyer of this row sees
+  // the AI's draft pre-filled in a textarea, can tweak before applying.
+  // Submitting uses the edited string (or the AI's original if untouched).
+  const [edits, setEdits] = useState<Record<string, string>>({})
 
   function runRedraft() {
     startRedraftTransition(async () => {
       const result = await redraftListingFromBundle(defaults.id, defaults.slug)
       setRedraft(result)
       if (result.draft) {
+        // Default everything off (untrusted-by-default) so a sloppy AI
+        // suggestion can't overwrite good copy by accident.
         setAccepted({
-          title: true,
-          tagline: true,
-          niche: true,
-          platform_list: true,
-          description: true,
-          whatYouGet: true,
+          title: false,
+          tagline: false,
+          niche: false,
+          platform_list: false,
+          description: false,
+          whatYouGet: false,
+        })
+        // Seed the editable fields with the AI's raw draft.
+        setEdits({
+          title: result.draft.title,
+          tagline: result.draft.tagline,
+          niche: result.draft.niche,
+          platforms: result.draft.platforms.join(', '),
+          description: result.draft.description.join('\n\n'),
+          whatYouGet: result.draft.whatYouGet
+            .map((x) => `- ${x}`)
+            .join('\n'),
         })
       }
     })
@@ -391,42 +408,52 @@ export default function EditForm({
                   name="listingSlug"
                   value={defaults.slug}
                 />
-                <input
-                  type="hidden"
-                  name="title"
-                  value={redraft.draft.title}
-                />
+                <input type="hidden" name="title" value={edits.title ?? ''} />
                 <input
                   type="hidden"
                   name="tagline"
-                  value={redraft.draft.tagline}
+                  value={edits.tagline ?? ''}
                 />
-                <input
-                  type="hidden"
-                  name="niche"
-                  value={redraft.draft.niche}
-                />
+                <input type="hidden" name="niche" value={edits.niche ?? ''} />
                 <input
                   type="hidden"
                   name="platforms"
-                  value={redraft.draft.platforms.join(', ')}
+                  value={edits.platforms ?? ''}
                 />
                 <input
                   type="hidden"
                   name="description"
-                  value={JSON.stringify(redraft.draft.description)}
+                  value={JSON.stringify(
+                    (edits.description ?? '')
+                      .split(/\n\n+/)
+                      .map((s) => s.trim())
+                      .filter(Boolean),
+                  )}
                 />
                 <input
                   type="hidden"
                   name="whatYouGet"
-                  value={JSON.stringify(redraft.draft.whatYouGet)}
+                  value={JSON.stringify(
+                    (edits.whatYouGet ?? '')
+                      .split(/\n/)
+                      .map((s) => s.replace(/^[-*•]\s*/, '').trim())
+                      .filter(Boolean),
+                  )}
                 />
+
+                <p className="px-5 pt-4 text-sm text-brand-muted">
+                  Tick the rows you want to apply. Edit the suggestion text
+                  before applying if it needs tweaking — what&rsquo;s in the{' '}
+                  <span className="font-semibold">Suggested</span> box is
+                  what gets saved.
+                </p>
 
                 <RedraftRow
                   fieldKey="title"
                   label="Title"
                   current={defaults.title}
-                  suggested={redraft.draft.title}
+                  edited={edits.title ?? ''}
+                  onEdit={(v) => setEdits((p) => ({ ...p, title: v }))}
                   accepted={accepted.title}
                   onToggle={(v) =>
                     setAccepted((p) => ({ ...p, title: v }))
@@ -436,7 +463,8 @@ export default function EditForm({
                   fieldKey="tagline"
                   label="Tagline"
                   current={defaults.tagline}
-                  suggested={redraft.draft.tagline}
+                  edited={edits.tagline ?? ''}
+                  onEdit={(v) => setEdits((p) => ({ ...p, tagline: v }))}
                   accepted={accepted.tagline}
                   onToggle={(v) =>
                     setAccepted((p) => ({ ...p, tagline: v }))
@@ -446,7 +474,8 @@ export default function EditForm({
                   fieldKey="niche"
                   label="Niche"
                   current={defaults.niche}
-                  suggested={redraft.draft.niche}
+                  edited={edits.niche ?? ''}
+                  onEdit={(v) => setEdits((p) => ({ ...p, niche: v }))}
                   accepted={accepted.niche}
                   onToggle={(v) =>
                     setAccepted((p) => ({ ...p, niche: v }))
@@ -456,7 +485,10 @@ export default function EditForm({
                   fieldKey="platform_list"
                   label="Platforms"
                   current={defaults.platforms}
-                  suggested={redraft.draft.platforms.join(', ')}
+                  edited={edits.platforms ?? ''}
+                  onEdit={(v) =>
+                    setEdits((p) => ({ ...p, platforms: v }))
+                  }
                   accepted={accepted.platform_list}
                   onToggle={(v) =>
                     setAccepted((p) => ({ ...p, platform_list: v }))
@@ -466,23 +498,29 @@ export default function EditForm({
                   fieldKey="description"
                   label="Description"
                   current="(replaces existing description on save)"
-                  suggested={redraft.draft.description.join('\n\n')}
+                  edited={edits.description ?? ''}
+                  onEdit={(v) =>
+                    setEdits((p) => ({ ...p, description: v }))
+                  }
                   accepted={accepted.description}
                   onToggle={(v) =>
                     setAccepted((p) => ({ ...p, description: v }))
                   }
+                  multiline
                 />
                 <RedraftRow
                   fieldKey="whatYouGet"
                   label="What's inside"
                   current="(replaces existing list on save)"
-                  suggested={redraft.draft.whatYouGet
-                    .map((x, i) => `${String(i + 1).padStart(2, '0')}  ${x}`)
-                    .join('\n')}
+                  edited={edits.whatYouGet ?? ''}
+                  onEdit={(v) =>
+                    setEdits((p) => ({ ...p, whatYouGet: v }))
+                  }
                   accepted={accepted.whatYouGet}
                   onToggle={(v) =>
                     setAccepted((p) => ({ ...p, whatYouGet: v }))
                   }
+                  multiline
                 />
 
                 <div className="p-5 flex items-center gap-4">
@@ -820,19 +858,22 @@ function RedraftRow({
   fieldKey,
   label,
   current,
-  suggested,
+  edited,
+  onEdit,
   accepted,
   onToggle,
+  multiline = false,
 }: {
   fieldKey: string
   label: string
   current: string
-  suggested: string
+  edited: string
+  onEdit: (v: string) => void
   accepted: boolean | undefined
   onToggle: (v: boolean) => void
+  multiline?: boolean
 }) {
   const isOn = accepted === true
-  const unchanged = current.trim() === suggested.trim()
   return (
     <div className="p-5">
       <label className="flex items-center gap-3 cursor-pointer">
@@ -841,21 +882,21 @@ function RedraftRow({
           name={`accept_${fieldKey}`}
           checked={isOn}
           onChange={(e) => onToggle(e.target.checked)}
-          className="accent-brand-gold w-4 h-4"
+          className="accent-brand-gold w-4 h-4 shrink-0"
         />
-        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-ink font-semibold">
           {label}
         </span>
-        {unchanged && (
-          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold-dark">
-            (no change)
-          </span>
-        )}
+        <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-brand-muted">
+          {isOn
+            ? '✓ will replace current on save'
+            : 'untick = keep your current copy'}
+        </span>
       </label>
       <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-px bg-brand-hairline border border-brand-hairline">
         <div className="bg-white p-3">
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-brand-muted mb-1.5">
-            Current
+            Current (kept as-is unless you tick)
           </p>
           <p className="text-sm text-brand-ink whitespace-pre-wrap break-words">
             {current || <span className="italic text-brand-muted">empty</span>}
@@ -863,13 +904,23 @@ function RedraftRow({
         </div>
         <div className="bg-brand-cream-card p-3">
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-brand-gold mb-1.5">
-            Suggested
+            Suggested — edit before applying
           </p>
-          <p className="text-sm text-brand-ink whitespace-pre-wrap break-words">
-            {suggested || (
-              <span className="italic text-brand-muted">empty</span>
-            )}
-          </p>
+          {multiline ? (
+            <textarea
+              value={edited}
+              onChange={(e) => onEdit(e.target.value)}
+              rows={Math.max(4, edited.split('\n').length + 1)}
+              className="w-full text-sm text-brand-ink bg-transparent border border-brand-hairline focus:border-brand-gold outline-none p-2 font-mono whitespace-pre-wrap"
+            />
+          ) : (
+            <input
+              type="text"
+              value={edited}
+              onChange={(e) => onEdit(e.target.value)}
+              className="w-full text-sm text-brand-ink bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-1.5"
+            />
+          )}
         </div>
       </div>
     </div>
