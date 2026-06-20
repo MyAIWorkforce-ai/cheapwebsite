@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState, useTransition } from 'react'
+import { useEffect, useRef, useState, useTransition } from 'react'
 import { useFormState, useFormStatus } from 'react-dom'
 import {
   updateListing,
@@ -50,22 +50,37 @@ function AddFilesButton() {
 
 function DeleteFileButton() {
   const { pending } = useFormStatus()
+  // Two-tap inline confirm instead of native confirm() — mobile
+  // Safari blocks confirm() in some contexts, leaving the Delete
+  // button looking broken when nothing happens on first tap.
+  const [confirming, setConfirming] = useState(false)
+  useEffect(() => {
+    if (!confirming) return
+    const t = setTimeout(() => setConfirming(false), 4000)
+    return () => clearTimeout(t)
+  }, [confirming])
+
+  if (confirming) {
+    return (
+      <button
+        type="submit"
+        disabled={pending}
+        className="text-xs uppercase tracking-wider text-red-700 hover:text-red-900 transition-colors disabled:opacity-60 font-semibold"
+      >
+        {pending ? 'Removing…' : 'Tap to confirm'}
+      </button>
+    )
+  }
   return (
     <button
-      type="submit"
-      disabled={pending}
+      type="button"
       onClick={(e) => {
-        if (
-          !confirm(
-            'Delete this file from the bundle? Past buyers can still re-download what they paid for.',
-          )
-        ) {
-          e.preventDefault()
-        }
+        e.preventDefault()
+        setConfirming(true)
       }}
       className="text-xs uppercase tracking-wider text-brand-muted hover:text-red-700 transition-colors disabled:opacity-60"
     >
-      {pending ? 'Removing…' : 'Delete'}
+      Delete
     </button>
   )
 }
@@ -643,13 +658,31 @@ function CreatePromoButton() {
 
 function DeactivatePromoButton() {
   const { pending } = useFormStatus()
+  // Same two-tap inline confirm as DeleteFileButton (mobile-Safari-safe).
+  const [confirming, setConfirming] = useState(false)
+  useEffect(() => {
+    if (!confirming) return
+    const t = setTimeout(() => setConfirming(false), 4000)
+    return () => clearTimeout(t)
+  }, [confirming])
+
+  if (confirming) {
+    return (
+      <button
+        type="submit"
+        disabled={pending}
+        className="text-xs uppercase tracking-wider text-red-700 hover:text-red-900 transition-colors disabled:opacity-60 font-semibold"
+      >
+        {pending ? 'Removing…' : 'Tap to confirm'}
+      </button>
+    )
+  }
   return (
     <button
-      type="submit"
-      disabled={pending}
+      type="button"
       onClick={(e) => {
-        if (!confirm('Deactivate this code? Past redemptions stay valid.'))
-          e.preventDefault()
+        e.preventDefault()
+        setConfirming(true)
       }}
       className="text-xs uppercase tracking-wider text-brand-muted hover:text-red-700 transition-colors disabled:opacity-60"
     >
