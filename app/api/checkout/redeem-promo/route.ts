@@ -21,6 +21,7 @@ import { createServiceClient } from '@/lib/supabase/server'
 import { env, hasSupabase, hasResend } from '@/lib/env'
 import { resolveProduct } from '@/lib/listings'
 import { sendPurchaseConfirmation } from '@/lib/email/purchase-confirmation'
+import { sendPromoRedemptionNotification } from '@/lib/email/promo-redemption'
 import { orderIdFromIntent } from '@/lib/fulfillment'
 import { freeToken } from '@/lib/delivery-token'
 import { listingEmailAttachments } from '@/lib/delivery'
@@ -171,6 +172,54 @@ export async function POST(request: NextRequest) {
       })
     } catch (err) {
       console.error('redeem-promo: confirmation email failed', err)
+    }
+
+    // Seller + founder notification — same template, two recipients.
+    // Best-effort: failures here MUST NOT roll back the redemption,
+    // since the buyer already has their bundle.
+    try {
+      const { data: listing } = await admin
+        .from('listings')
+        .select('creator_id, slug, title')
+        .eq('id', product.id)
+        .maybeSingle()
+      const sellerSlug = (listing?.slug as string) ?? product.id
+      const sellerTitle = (listing?.title as string) ?? product.title
+      let sellerEmail: string | null = null
+      if (listing?.creator_id) {
+        const { data: userResp } = await admin.auth.admin.getUserById(
+          listing.creator_id as string,
+        )
+        sellerEmail = userResp.user?.email ?? null
+      }
+      if (sellerEmail) {
+        await sendPromoRedemptionNotification({
+          to: sellerEmail,
+          title: sellerTitle,
+          slug: sellerSlug,
+          code: (promo.code as string) ?? null,
+          buyerEmail: email,
+          orderId,
+          kind: 'promo',
+        })
+      }
+      const founderEmail =
+        process.env.NOTIFY_EMAIL_SALE?.trim() ||
+        process.env.NOTIFY_EMAIL?.trim() ||
+        null
+      if (founderEmail && founderEmail !== sellerEmail) {
+        await sendPromoRedemptionNotification({
+          to: founderEmail,
+          title: sellerTitle,
+          slug: sellerSlug,
+          code: (promo.code as string) ?? null,
+          buyerEmail: email,
+          orderId,
+          kind: 'promo',
+        })
+      }
+    } catch (err) {
+      console.error('redeem-promo: seller/founder notification failed', err)
     }
   }
 

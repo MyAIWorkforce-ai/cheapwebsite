@@ -1438,3 +1438,31 @@ public.
 - Reconsider the 20% platform take rate.
 - Phase 2: retire/replace static demo listings (see 2026-06-11
   third-party deep-dive section above).
+
+---
+
+## 2026-06-20 late — bug #2 (review-count mismatch) closed: not reproducible
+
+Investigated the 2026-06-11 review-count mismatch claim. Findings:
+
+- `components/ProductCard.tsx` (used by homepage + marketplace grid +
+  every category page) renders rating stars but **never renders
+  ratingCount** at all. So homepage vs marketplace cards CAN'T
+  disagree on review count.
+- The only surface that renders `ratingCount` is the listing detail
+  page (`app/marketplace/[id]/page.tsx`), pulling directly from
+  `p.ratingCount`. One source, no mismatch path.
+- Seed `ratingCount` values are all single digits (0–7). DB-backed
+  listings always return `ratingCount: 0` from `liveDbProducts()`.
+- No "Harlow Real Estate" listing exists in either the seed catalog
+  or DB — Harlow is a `creators[]` entry with no products attached.
+
+Conclusion: the reviewer's "22 vs 218" claim doesn't match anything
+visible in the current code. Either fixed in a previous session or
+the reviewer misread the marketplace's tab-filter count badge ("All
+N listings") as a review count. Marking closed.
+
+Bug #1 (OG image hostname leak via metadataBase) fixed in commit
+`6c3b442`. Verify next deploy with
+`curl -sI https://skillzy.ai/marketplace/<id> | grep -i og:image` —
+should show skillzy.ai, not cheapwebsite-preview.
