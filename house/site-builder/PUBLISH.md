@@ -1,4 +1,4 @@
-# Publish — Website Builder, end to end.
+# Publish — Website Builder Agent, end to end.
 
 Step-by-step to publish this bundle on skillzy.ai. Should take ~5 minutes.
 
@@ -48,7 +48,7 @@ with this polished copy from `LISTING_COPY.md`:
 
 ### Title
 ```
-Website Builder, end to end.
+Website Builder Agent, end to end.
 ```
 
 ### Tagline

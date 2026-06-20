@@ -1,4 +1,4 @@
-# Stripe Setup, end to end.
+# Stripe Setup Agent, end to end.
 
 A complete Stripe-onboarding desk for your agent. Drop this bundle
 into Claude (or any compatible agent), tell it what you sell, and it

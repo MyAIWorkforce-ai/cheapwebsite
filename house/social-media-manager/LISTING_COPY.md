@@ -1,10 +1,10 @@
-# Listing copy — Social Media Manager, end to end.
+# Listing copy — Social Media Manager Agent, end to end.
 
 Internal: this is the copy that runs on the marketplace listing page.
 Saved here so it stays version-controlled with the bundle.
 
 ## Title
-Social Media Manager, end to end.
+Social Media Manager Agent, end to end.
 
 ## Tagline
 Plan, produce, write, schedule, and measure social content across

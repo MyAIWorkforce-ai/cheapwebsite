@@ -1,4 +1,4 @@
-# Publish — Stripe Setup, end to end.
+# Publish — Stripe Setup Agent, end to end.
 
 Step-by-step to publish this bundle on skillzy.ai. Should take ~5 minutes.
 
@@ -37,7 +37,7 @@ Drag these 9 files into the file dropper:
 
 ### Title
 ```
-Stripe Setup, end to end.
+Stripe Setup Agent, end to end.
 ```
 
 ### Tagline

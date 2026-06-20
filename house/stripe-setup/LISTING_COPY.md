@@ -4,7 +4,7 @@ Internal: this file isn't shipped to buyers. It's the copy bank for
 the Skillzy listing form.
 
 ## Title
-Stripe Setup, end to end.
+Stripe Setup Agent, end to end.
 
 ## Tagline
 From a blank Stripe account to your first paid customer. Products, payment pages, tax, refunds, customer portal — your agent walks every step in plain English.

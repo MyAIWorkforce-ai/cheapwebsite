@@ -1,4 +1,4 @@
-# Website Builder, end to end.
+# Website Builder Agent, end to end.
 
 A complete website desk for your agent. Drop this bundle into Claude
 (or any compatible agent), tell it what you want to build, and it

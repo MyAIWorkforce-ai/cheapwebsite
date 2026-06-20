@@ -8,9 +8,11 @@ to upload via `/sell/new`.
 
 | Folder | Listing title | Price | Status |
 |---|---|---|---|
-| `site-builder/` | Website Builder, end to end. | $199 | Ready — see `PUBLISH.md` |
-| `stripe-setup/` | Stripe Setup, end to end. | $129 | Ready — see `PUBLISH.md` |
+| `site-builder/` | Website Builder Agent, end to end. | $199 | Ready — see `PUBLISH.md` |
+| `stripe-setup/` | Stripe Setup Agent, end to end. | $129 | Ready — see `PUBLISH.md` |
 | `real-estate-agent/` | Real Estate Agent, end to end. | $199 | Ready — see `PUBLISH.md` |
+| `social-media-manager/` | Social Media Manager Agent, end to end. | $129 | Ready — see `PUBLISH.md` |
+| `electrician-agent/` | Electrician Agent, end to end. | $49 | Ready — see `PUBLISH.md` |
 
 ## How to publish each
 

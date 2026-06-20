@@ -13,7 +13,7 @@ who buys today gets a download page with nothing in it.
 ## Recommended fix
 
 1. **Sign in as @skillzy-house** (house@skillzy.ai login).
-2. Go to **Dashboard → Listings → Social Media Manager. Content
+2. Go to **Dashboard → Listings → Social Media Manager Agent. Content
    end-to-end. → Edit.**
 3. Scroll to the new **Attached files** section.
 4. Use the **Add files** upload zone to attach this entire
@@ -48,10 +48,10 @@ who buys today gets a download page with nothing in it.
 
 The current marketplace description matches what's in this
 `LISTING_COPY.md`. The only **copy thing I'd tighten** is the
-title — *"Social Media Manager. Content end-to-end."* reads a bit
+title — *"Social Media Manager Agent. Content end-to-end."* reads a bit
 generic. Two stronger options:
 
-- **"Social Media Manager, end to end."** (matches the house brand
+- **"Social Media Manager Agent, end to end."** (matches the house brand
   pattern: Real Estate Agent, end to end. / Stripe Setup, end to end.)
 - **"Social Manager. One agent, every platform."** (sharper hook)
 

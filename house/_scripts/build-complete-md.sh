@@ -8,10 +8,10 @@ BUNDLES=("site-builder" "real-estate-agent" "stripe-setup" "social-media-manager
 
 # Per-bundle nice display names + recipient verb for the how-to header.
 declare -A NICE=(
-  [site-builder]="Website Builder"
+  [site-builder]="Website Builder Agent"
   [real-estate-agent]="Real Estate Agent"
-  [stripe-setup]="Stripe Setup"
-  [social-media-manager]="Social Media Manager"
+  [stripe-setup]="Stripe Setup Agent"
+  [social-media-manager]="Social Media Manager Agent"
   [electrician-agent]="Electrician Agent"
 )
 

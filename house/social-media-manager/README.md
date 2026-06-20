@@ -1,4 +1,4 @@
-# Social Media Manager, end to end.
+# Social Media Manager Agent, end to end.
 
 A full social media desk for your agent. Strategy, production,
 scheduling — one loop, one agent, every platform you care about.

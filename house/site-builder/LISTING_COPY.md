@@ -4,7 +4,7 @@ Internal: this file isn't shipped to buyers. It's the copy bank for
 the Skillzy listing form.
 
 ## Title
-Website Builder, end to end.
+Website Builder Agent, end to end.
 
 ## Tagline
 Build it, deploy it, get found — and take Stripe payments if you sell something. Your agent ships the full thing, then keeps shipping changes after launch.
