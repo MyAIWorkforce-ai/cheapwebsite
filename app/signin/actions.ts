@@ -96,6 +96,20 @@ export async function signUpWithPassword(
 
   if (error) return { error: error.message }
 
+  // Supabase returns success (anti-enumeration) when the email is
+  // already registered — distinguishable by an empty `identities`
+  // array. Surface a clear "already exists, sign in instead" message
+  // so the user isn't dropped back to a blank form thinking nothing
+  // happened.
+  if (
+    data.user &&
+    (!data.user.identities || data.user.identities.length === 0)
+  ) {
+    return {
+      error: 'That email already has an account. Sign in instead.',
+    }
+  }
+
   // If email confirmation is OFF in Supabase, signUp returns a live
   // session — sign them straight in and continue, no dead-end "check
   // your inbox" step. (Recommended: keep confirmation off so listing

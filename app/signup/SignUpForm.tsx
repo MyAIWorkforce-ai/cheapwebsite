@@ -131,7 +131,22 @@ export default function SignUpForm({
           />
         </label>
 
-        {state.error && <p className="text-sm text-red-700">{state.error}</p>}
+        {state.error && (
+          <p className="text-sm text-red-700">
+            {state.error}
+            {state.error.includes('already has an account') && (
+              <>
+                {' '}
+                <Link
+                  href={next ? `/signin?next=${encodeURIComponent(next)}` : '/signin'}
+                  className="underline font-medium"
+                >
+                  Go to sign in →
+                </Link>
+              </>
+            )}
+          </p>
+        )}
         {state.info && <p className="text-sm text-brand-gold-dark">{state.info}</p>}
 
         <Submit />
