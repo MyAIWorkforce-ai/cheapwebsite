@@ -587,7 +587,7 @@ function PromoCodesSection({
             type="text"
             name="code"
             required
-            placeholder="e.g. SOOSAL"
+            placeholder="e.g. PROMO"
             maxLength={40}
             className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 font-mono text-lg uppercase tracking-wider"
             style={{ textTransform: 'uppercase' }}

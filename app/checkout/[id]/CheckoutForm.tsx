@@ -376,7 +376,7 @@ export default function CheckoutForm({
                 name="promo_code"
                 value={promoCode}
                 onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                placeholder="e.g. SOOSAL"
+                placeholder="e.g. PROMO"
                 disabled={redeeming}
                 autoComplete="off"
                 className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 font-mono text-lg uppercase tracking-wider placeholder:text-brand-muted/60"
