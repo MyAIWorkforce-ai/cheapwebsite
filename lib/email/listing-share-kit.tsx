@@ -49,7 +49,7 @@ export async function sendListingShareKit({
       <p style="font-family:monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#C19E50;margin:0;">Live</p>
       <h1 style="font-size:34px;line-height:1.1;letter-spacing:-0.02em;margin:14px 0 0;">You're listed. Now go sell it.</h1>
       <p style="font-size:16px;color:#5F6B7E;margin:18px 0 0;">
-        <strong>${title}</strong> is live now — buyers can find it, buy it, and download it immediately. You earn the same 80% whether Skillzy sends the buyer or you do, so send them. Everything below has your referral baked in.
+        <strong>${title}</strong> is live now — buyers can find it, buy it, and download it immediately. Everything below has your referral baked in.
       </p>
 
       <div style="margin:28px 0;padding:18px;background:#fff;border:1px solid #CCD2DD;">

@@ -78,9 +78,8 @@ export default function ShareListing({
         Your link, QR &amp; promo kit.
       </h3>
       <p className="mt-2 text-sm text-brand-muted leading-relaxed">
-        You earn the same 80% whether Skillzy sends the buyer or you do —
-        so send them. Everything below already has your referral baked in,
-        so every sale you drive is tracked to you.
+        Everything below already has your referral baked in, so every
+        sale you drive is tracked to you.
       </p>
 
       {/* link + QR */}
