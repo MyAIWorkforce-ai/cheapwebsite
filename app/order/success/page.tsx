@@ -120,9 +120,9 @@ export default async function OrderSuccessPage({
           </h1>
 
           <p className="mt-8 text-xl text-brand-ink max-w-2xl">
-            Your bundle is on its way to{' '}
-            <span className="font-semibold">{email}</span>. It’ll also live on
-            your dashboard, re-downloadable forever.
+            Download link sent to{' '}
+            <span className="font-semibold">{email}</span> — and the bundle
+            lives on your dashboard, re-downloadable forever.
           </p>
 
           {p && (

@@ -19,7 +19,7 @@ const steps = [
   {
     n: '02',
     title: 'Download the pack',
-    body: 'The bundle arrives by email and on your dashboard the moment payment clears — SKILL.md files, system prompts, configs, a README, and example inputs/outputs. Re-download any time, forever.',
+    body: 'A no-login download link lands in your inbox the moment payment clears, and the bundle is waiting on your dashboard — SKILL.md files, system prompts, configs, a README, and example inputs/outputs. Re-download any time, forever.',
     aside: 'Sign in later with the same email and every past purchase is waiting in your dashboard.',
   },
   {

@@ -175,7 +175,7 @@ export default function CheckoutForm({
       return
     }
     if (!email || !/.+@.+\..+/.test(email)) {
-      setPromoError('Add your email above first — we send the bundle there.')
+      setPromoError('Add your email above first — we send the download link there.')
       return
     }
     setRedeeming(true)
