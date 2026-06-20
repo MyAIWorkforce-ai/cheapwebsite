@@ -1346,3 +1346,95 @@ that — but breaks every existing skillzy.ai → branch pin. Safer:
 just make sure `metadataBase` (#2) hides the leak from anything
 public.
 
+
+---
+
+## 2026-06-20 evening — Real-buy test + buyer-UX fixes + email attachments
+
+### Founder action tomorrow morning (office)
+
+**Verify the test purchase landed in both Stripe accounts:**
+
+- Listing: **Website Builder Agent, end to end.** ($199)
+- Order: **№3TKM7LRV0WS5**
+- Buyer email: `info@primeprojects.com.au`
+- Date: 2026-06-20, ~8:30pm
+
+**What to check:**
+
+1. **Skillzy platform Stripe** (`acct_1Tb7o2RV0ws5a7zS`, `hi@skillzy.ai`
+   login): a $199 charge should be visible with
+   `application_fee_amount` of $39.80 (20%) and destination
+   transfer of $159.20 to the Skillzy House connected account.
+2. **Connected creator Stripe** (the Skillzy House Connect account):
+   $159.20 transfer should be sitting in the balance, payout
+   scheduled per the default cadence.
+3. **Refund the test charge** to recover ~$193 (the ~$6 Stripe
+   processing fee is non-refundable — that's the actual cost of the
+   end-to-end test).
+4. **Verify the new attachment behavior** on the confirmation email
+   in `info@primeprojects.com.au` inbox: the zip
+   (`website-builder-agent.zip`) should now be attached directly,
+   alongside the gold "Download your files →" link. If the
+   attachment isn't there, the deploy may not have caught the
+   purchase in time — check the next real sale.
+
+### What shipped tonight
+
+1. **House bundles renamed + repackaged** to consistent
+   `<name>-agent.zip` pattern. All 5 zips now contain a single-file
+   `<NAME>-COMPLETE.md` at the top level so buyers can attach the
+   whole brain to a Claude chat in one tap — no Projects setup
+   needed. Listing titles updated to match:
+   - Website Builder Agent, end to end.
+   - Stripe Setup Agent, end to end.
+   - Social Media Manager Agent, end to end.
+   - Real Estate Agent, end to end. (already had "Agent")
+   - Electrician Agent, end to end. (already had "Agent")
+
+2. **Promo code feature** complete. Codes are per-listing, free-only
+   for now, soft-deleted via `active` flag. UI handles dup-key
+   errors with friendly messages, mobile-safe two-tap delete
+   buttons (mobile Safari blocks native `confirm()`).
+
+3. **SOOSAL2 redeemed** by brother for the Electrician Agent bundle.
+   That code + promo path is validated end-to-end and the codes have
+   been removed from the dashboard.
+
+4. **Buyer-UX fixes from the real-buy test** (commits `e9b84db`,
+   `66d4d20`, `7b7dc1c`, `8ea7117`):
+   - Signup with an existing email no longer drops to a blank form
+     (Supabase returns `identities: []` for dup emails as
+     anti-enumeration — we now detect that and show "Sign in
+     instead" with a direct link).
+   - Order-success page now checks if the buyer already has an
+     account (via `emailHasAccount` in `lib/auth.ts`) and shows a
+     "Sign in to attach this purchase" prompt instead of the
+     misleading "Add a password" guest form. This fixes the case
+     where a buyer signs up, then opens the email link in a new
+     browser (no session cookie carried over).
+   - Copy across `/how-it-works`, `/order/success`, `/checkout`, and
+     the promo error stopped promising "bundle in email" — now says
+     "download link" to match reality. Industry-standard wording
+     (Gumroad, Lemonsqueezy).
+   - **Zip files now attached directly to the confirmation email**
+     via Resend's `attachments` API (5 MB cap), with the download
+     link kept as the always-on fallback for buyers whose corporate
+     filter strips zips. Wired through fulfillment.ts, free-claim,
+     promo redeem, and find-my-order resend.
+
+### Untested but trusted
+
+- `$49 Showcase upgrade` smoke-tested twice (Website Builder +
+  Electrician).
+- Real-buy flow validated $199 end-to-end (this test).
+- Attachment feature is small additive on top of existing email
+  send; next real sale or a fresh promo test will visually confirm.
+
+### Strategic backlog (morning fresh brain)
+
+- Reposition homepage around the `agentskills.io` angle.
+- Send Matt Wolfe outreach email.
+- Reconsider the 20% platform take rate.
+- Phase 2: retire/replace static demo listings (see 2026-06-11
+  third-party deep-dive section above).
