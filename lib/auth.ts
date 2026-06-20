@@ -63,6 +63,30 @@ export async function getUser(): Promise<SessionUser | null> {
 }
 
 /**
+ * Does an auth user exist for this email? Used on the order-success
+ * page so a logged-out buyer who already has an account is offered
+ * "Sign in instead" rather than a "Create password" form that will
+ * fail at submit time. Best-effort — returns false on any error so
+ * the page still renders something useful.
+ */
+export async function emailHasAccount(email: string): Promise<boolean> {
+  if (!hasSupabase || !email) return false
+  try {
+    const admin = createServiceClient()
+    const normalized = email.trim().toLowerCase()
+    const { data } = await admin.auth.admin.listUsers({
+      page: 1,
+      perPage: 1000,
+    })
+    return Boolean(
+      data?.users?.some((u) => u.email?.toLowerCase() === normalized),
+    )
+  } catch {
+    return false
+  }
+}
+
+/**
  * Claim purchases that were made as a guest with this user's email,
  * before they had an account. Idempotent — only updates rows where
  * buyer_id is still NULL. Uses the service-role client to bypass RLS

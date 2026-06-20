@@ -4,7 +4,7 @@ import { getStripe, hasStripe } from '@/lib/stripe'
 import { fulfillPaymentIntent, orderIdFromIntent } from '@/lib/fulfillment'
 import { listingFiles } from '@/lib/delivery'
 import { deliveryTokenValid } from '@/lib/delivery-token'
-import { getUser } from '@/lib/auth'
+import { getUser, emailHasAccount } from '@/lib/auth'
 import GuestAccountPrompt from './GuestAccountPrompt'
 
 export const metadata = {
@@ -96,9 +96,14 @@ export default async function OrderSuccessPage({
   // Guests who paid without an account need a clear next step: add a
   // password to the same email so the purchase auto-attaches to their
   // dashboard. Skip this for signed-in buyers (they already own it).
+  // If the buyer already has an account (e.g. they signed up, then
+  // opened the email link in a new browser without a session) skip
+  // the "create password" form and offer "Sign in" instead.
   const signedIn = await getUser()
   const showGuestPrompt =
     !signedIn && verified && email !== 'you@example.com'
+  const buyerHasAccount =
+    showGuestPrompt ? await emailHasAccount(email) : false
 
   return (
     <div className="paper">
@@ -235,7 +240,36 @@ export default async function OrderSuccessPage({
             </div>
           </div>
 
-          {showGuestPrompt && <GuestAccountPrompt email={email} />}
+          {showGuestPrompt && (
+            buyerHasAccount ? (
+              <div className="mt-12 max-w-2xl border border-brand-ink bg-brand-cream-card p-7 sm:p-9">
+                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
+                  Last step
+                </span>
+                <h2
+                  className="font-display mt-3 text-3xl sm:text-4xl tracking-tight leading-tight"
+                  style={{ letterSpacing: '-0.025em' }}
+                >
+                  Sign in to attach this purchase.
+                </h2>
+                <p className="mt-3 text-brand-muted max-w-prose">
+                  You already have an account at{' '}
+                  <span className="font-semibold text-brand-ink">{email}</span>.
+                  Sign in and this order appears in your dashboard,
+                  re-downloadable from any device.
+                </p>
+                <Link
+                  href={`/signin?email=${encodeURIComponent(email)}&next=/dashboard`}
+                  className="mt-7 inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
+                >
+                  Sign in
+                  <span aria-hidden>→</span>
+                </Link>
+              </div>
+            ) : (
+              <GuestAccountPrompt email={email} />
+            )
+          )}
 
           <div className="mt-12 flex flex-wrap gap-3 sm:gap-4 items-center">
             {signedIn ? (
