@@ -26,6 +26,9 @@ export function pageMetadata(opts: {
 }): Metadata {
   const url = canonical(opts.path)
   return {
+    // Pinned at every route so Next never falls back to VERCEL_URL
+    // (which exposes the preview hostname in shared OG image URLs).
+    metadataBase: new URL(SITE_URL),
     title: opts.title,
     description: opts.description,
     keywords: opts.keywords,
