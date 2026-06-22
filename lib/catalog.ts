@@ -52,6 +52,11 @@ export type Product = {
   niche?: string
   featured?: boolean
   free?: boolean
+  // Marks demo/example listings — they appear in the marketplace so
+  // browsers see breadth, but never carry inflated reviews or sales
+  // counts, never accept payment, and render a visible "Sample" chip
+  // so nobody mistakes them for a real, buyable creator listing.
+  sample?: boolean
   creator: Creator
   platformList: string[]
   rating: number
@@ -76,91 +81,91 @@ const creators: Record<string, Creator> = {
     name: 'Harlow Realty Tools',
     handle: '@harlow',
     bio: 'Real-estate operators turned agent builders. We sold the agency, kept the tooling.',
-    totalSales: 1284,
+    totalSales: 0,
     joined: 'March 2026',
   },
   ledgerlab: {
     name: 'Ledgerlab',
     handle: '@ledgerlab',
     bio: 'Three accountants and an engineer. We built this so we could stop using it ourselves.',
-    totalSales: 612,
+    totalSales: 0,
     joined: 'February 2026',
   },
   sitebench: {
     name: 'Sitebench',
     handle: '@sitebench',
     bio: 'Quote it. Bill it. Get back on site. Tools for the trades.',
-    totalSales: 401,
+    totalSales: 0,
     joined: 'April 2026',
   },
   storefront: {
     name: 'Storefront Labs',
     handle: '@storefrontlabs',
     bio: 'E-commerce ops nerds. We respond to your customers so you can sleep.',
-    totalSales: 942,
+    totalSales: 0,
     joined: 'January 2026',
   },
   practiceos: {
     name: 'practice.os',
     handle: '@practiceos',
     bio: 'Coaching software for coaches. By a coach. Who got tired of Notion.',
-    totalSales: 188,
+    totalSales: 0,
     joined: 'April 2026',
   },
   fronthouse: {
     name: 'Front of House',
     handle: '@fronthouse',
     bio: 'Two restaurant owners with too many tabs open.',
-    totalSales: 96,
+    totalSales: 0,
     joined: 'May 2026',
   },
   jonas: {
     name: 'Jonas Krüger',
     handle: '@jonask',
     bio: 'Indie builder. Berlin. I publish one skill a fortnight.',
-    totalSales: 1820,
+    totalSales: 0,
     joined: 'January 2026',
   },
   paperless: {
     name: 'paperless.io',
     handle: '@paperless',
     bio: 'We made invoices fun. Don’t fact-check that.',
-    totalSales: 2104,
+    totalSales: 0,
     joined: 'February 2026',
   },
   datajedi: {
     name: 'datajedi',
     handle: '@datajedi',
     bio: 'Scrapers, parsers, pipelines. Quiet little tools that do the boring work.',
-    totalSales: 740,
+    totalSales: 0,
     joined: 'February 2026',
   },
   kai: {
     name: 'Kai Mendoza',
     handle: '@kaim',
     bio: 'Replies to Google reviews so you don’t have to. Manila → the internet.',
-    totalSales: 502,
+    totalSales: 0,
     joined: 'March 2026',
   },
   mira: {
     name: 'Mira Sato',
     handle: '@mirasato',
     bio: 'Builds agents for fun. Writes about them on weekends.',
-    totalSales: 1244,
+    totalSales: 0,
     joined: 'January 2026',
   },
   agentschool: {
     name: 'agentschool',
     handle: '@agentschool',
     bio: 'A small classroom for people teaching themselves to build agents.',
-    totalSales: 3502,
+    totalSales: 0,
     joined: 'November 2025',
   },
   promptforge: {
     name: 'promptforge',
     handle: '@promptforge',
     bio: 'Prompt patterns that survive a model upgrade.',
-    totalSales: 1780,
+    totalSales: 0,
     joined: 'December 2025',
   },
 }
@@ -170,6 +175,7 @@ const baseProducts: Product[] = [
   {
     id: 'bookkeeper-agent-setup',
     type: 'Agent Setup',
+    sample: true,
     title: 'Bookkeeper & BAS.',
     tagline: 'Categorise expenses, chase receipts, prep BAS. An agent that does the boring half of bookkeeping.',
     niche: 'Accountants',
@@ -236,6 +242,7 @@ Output: a clean queue for the bookkeeper, sorted by confidence.
   {
     id: 'tradie-agent-setup',
     type: 'Agent Setup',
+    sample: true,
     title: 'On-site Tradie Ops.',
     tagline: 'Quote it, schedule it, invoice it. From the back of the ute.',
     niche: 'Tradies',
@@ -305,6 +312,7 @@ When a job dictation lands:
   {
     id: 'ecom-support-agent-setup',
     type: 'Agent Setup',
+    sample: true,
     title: 'E-commerce Support.',
     tagline: 'Answers your tickets, writes the apology, processes the return. Sleeps when it wants.',
     niche: 'E-commerce',
@@ -371,6 +379,7 @@ For each new ticket:
   {
     id: 'coach-agent-setup',
     type: 'Agent Setup',
+    sample: true,
     title: 'Coach & Client Notes.',
     tagline: 'Session notes, follow-ups, content drafts. The bit between sessions, done.',
     niche: 'Coaches',
@@ -437,6 +446,7 @@ Voice: the coach's. Pull from the brand-voice file.
   {
     id: 'restaurant-agent-setup',
     type: 'Agent Setup',
+    sample: true,
     title: 'Front of House Ops.',
     tagline: 'Bookings, reviews, supplier chases, menu rewrites. While service is on.',
     niche: 'Hospitality',
@@ -502,6 +512,7 @@ Never: emojis, exclamation marks more than one, "we strive to."
   {
     id: 'daily-summary-email',
     type: 'Skill',
+    sample: true,
     title: 'Daily Summary Email',
     tagline: 'One email at 7am with what mattered yesterday. No clutter.',
     creator: creators.jonas,
@@ -567,6 +578,7 @@ Send before send_at. Skip weekends unless told otherwise.
   {
     id: 'invoice-generator',
     type: 'Skill',
+    sample: true,
     title: 'Invoice Generator',
     tagline: 'Voice note in, PDF invoice out.',
     creator: creators.paperless,
@@ -629,6 +641,7 @@ Send: as an attachment, with a one-line covering email.
   {
     id: 'website-scraper',
     type: 'Skill',
+    sample: true,
     title: 'Website Scraper',
     tagline: 'Point. Click. Get structured data.',
     creator: creators.datajedi,
@@ -694,6 +707,7 @@ Behaviour:
   {
     id: 'review-responder',
     type: 'Skill',
+    sample: true,
     title: 'Review Responder',
     tagline: 'Replies to Google reviews in your voice. No "we strive to."',
     creator: creators.kai,
@@ -756,6 +770,7 @@ Never: defensive language, exclamation marks > 1, "we strive to."
   {
     id: 'wire-claude-and-n8n',
     type: 'Guide',
+    sample: true,
     title: 'Wire Claude into n8n in a weekend.',
     tagline: '60-page guide. From zero to a working agent that does real work.',
     creator: creators.mira,
@@ -795,6 +810,7 @@ Never: defensive language, exclamation marks > 1, "we strive to."
   {
     id: 'first-skill-md',
     type: 'Guide',
+    sample: true,
     title: 'Your first SKILL.md, the right way.',
     tagline: 'The short version of "how to publish a skill people will actually buy."',
     creator: creators.agentschool,
@@ -833,6 +849,7 @@ Never: defensive language, exclamation marks > 1, "we strive to."
   {
     id: 'agent-prompt-patterns',
     type: 'Guide',
+    sample: true,
     title: 'Patterns for prompts that hold up.',
     tagline: 'Prompt patterns that survive a model upgrade.',
     creator: creators.promptforge,
@@ -967,6 +984,7 @@ export type CardProduct = {
   ratingCount: number
   featured?: boolean
   free?: boolean
+  sample?: boolean
   price: string
 }
 
@@ -983,5 +1001,6 @@ export function toCardProduct(p: Product): CardProduct {
     price: p.price,
     featured: p.featured,
     free: p.free,
+    sample: p.sample,
   }
 }

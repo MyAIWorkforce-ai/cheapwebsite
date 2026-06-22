@@ -158,13 +158,11 @@ function faqs(s: Spec) {
 }
 
 function reviews(s: Spec) {
-  const cities = ['Sydney', 'Auckland', 'Melbourne', 'Brisbane', 'Perth', 'London', 'Austin']
-  const c1 = cities[s.id.length % cities.length]
-  const c2 = cities[(s.id.length + 3) % cities.length]
-  return [
-    { author: 'Verified buyer', location: c1, rating: 5, date: '6 May 2026', body: 'Paid for itself the first week. Exactly what the listing said.' },
-    { author: 'Verified buyer', location: c2, rating: s.rating >= 4.7 ? 5 : 4, date: '28 Apr 2026', body: 'Took a little setup, then it just ran. Worth it.' },
-  ]
+  // Seed catalogue listings are samples — no fake reviews. The
+  // marketplace renderer hides the social-proof block when
+  // product.sample is true, so this empty array is the source of truth.
+  void s
+  return [] as Product['reviews']
 }
 
 export const seedProducts: Product[] = SPECS.map((s) => ({
@@ -174,10 +172,16 @@ export const seedProducts: Product[] = SPECS.map((s) => ({
   tagline: s.tagline,
   niche: s.niche,
   free: s.free,
+  // Every seed entry is a sample — visible for breadth, but never
+  // carries reviews/sales counts and never accepts payment.
+  sample: true,
   creator: s.creator,
   platformList: s.platforms,
-  rating: s.rating,
-  ratingCount: s.ratingCount,
+  // Force rating/count to zero on samples so no inflated social proof
+  // sneaks through (spec values are kept upstream only for ordering /
+  // grouping experiments).
+  rating: 0,
+  ratingCount: 0,
   price: s.price,
   version: 'v1.0',
   updated: '14 May 2026',

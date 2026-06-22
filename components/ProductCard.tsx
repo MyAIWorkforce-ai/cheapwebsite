@@ -13,6 +13,7 @@ export type Product = {
   price: string
   featured?: boolean
   free?: boolean
+  sample?: boolean
   number?: string // editorial №01, etc.
 }
 
@@ -48,6 +49,7 @@ export default function ProductCard({
               (emerald ? 'text-brand-gold' : 'text-brand-gold')
             }
           >
+            {product.sample && 'Sample · '}
             {product.free && 'Free · '}
             {product.featured && '✿ Featured · '}
             {typeAbbrev[product.type]}

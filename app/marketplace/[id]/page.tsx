@@ -529,7 +529,8 @@ export default async function ProductDetailPage({
         </div>
       </section>
 
-      {/* REVIEWS */}
+      {/* REVIEWS — hidden on sample listings (they carry no real reviews) */}
+      {!p.sample && p.reviews.length > 0 && (
       <section className="px-6 lg:px-10 py-16 sm:py-24 border-t border-brand-hairline">
         <div className="max-w-page mx-auto">
           <div className="flex items-end justify-between gap-6 flex-wrap mb-10">
@@ -566,6 +567,7 @@ export default async function ProductDetailPage({
           </div>
         </div>
       </section>
+      )}
 
       {/* FAQ */}
       <section className="px-6 lg:px-10 py-16 sm:py-24 border-t border-brand-hairline">
