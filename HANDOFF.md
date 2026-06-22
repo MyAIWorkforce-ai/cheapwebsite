@@ -1466,3 +1466,86 @@ Bug #1 (OG image hostname leak via metadataBase) fixed in commit
 `6c3b442`. Verify next deploy with
 `curl -sI https://skillzy.ai/marketplace/<id> | grep -i og:image` —
 should show skillzy.ai, not cheapwebsite-preview.
+
+---
+
+## 2026-06-20 late-evening session — full tally
+
+Continuation of the earlier evening session. After the buyer-UX fixes
+flagged by the $199 Website Builder real-buy test, kept going on the
+2026-06-11 third-party deep-dive backlog and the share-kit polish.
+
+### Bugs closed
+
+1. **OG image hostname leak** (commit `6c3b442`) — `pageMetadata()`
+   now force-sets `metadataBase` to `https://skillzy.ai` at every
+   route so Next.js never falls back to `VERCEL_URL`. Verify next
+   deploy with
+   `curl -sI https://skillzy.ai/marketplace/<id> | grep -i og:image`.
+2. **Review-count mismatch** — investigated, can't reproduce. The
+   reviewer's 22 vs 218 / 524 numbers don't match anything in the
+   current code; `ProductCard` doesn't render `ratingCount` at all,
+   and the listing detail page pulls a single source. Closed.
+3. **Promo-redemption seller notification** (commit `e22ded6`) — new
+   `lib/email/promo-redemption.tsx` template, fired from the redeem
+   route to the listing creator and `NOTIFY_EMAIL_SALE` /
+   `NOTIFY_EMAIL`. Free-claim path supports `kind: 'free'` in the
+   template but the call-site isn't wired yet — TODO.
+
+### Polish
+
+- `components/ShareListing.tsx` + `lib/email/listing-share-kit.tsx`:
+  dropped the "you earn the same 80%" sentence from the share card
+  and the welcome email. Creators already know their split.
+- House `_scripts/build-complete-md.sh` rebuilt so each bundle zip
+  now ships under its public slug (e.g. `website-builder-agent.zip`,
+  not `site-builder.zip`) with a matching `<NAME>-COMPLETE.md` at
+  the top level for one-tap Claude attach.
+
+### Demo-listing honesty pass (Option A from the 2026-06-11 deep-dive)
+
+`lib/catalog.ts` + `lib/catalog-seed.ts` + `components/ProductCard.tsx`
++ `app/marketplace/[id]/page.tsx`:
+
+- Every seed and baseProduct listing flagged `sample: true`
+- All inflated demo-creator `totalSales` zeroed (Harlow 1284 → 0,
+  agentschool 3502 → 0, paperless.io 2104 → 0, etc.)
+- Generated fake reviews on seed listings replaced with `[]`
+- "Sample" chip rendered on every demo card so visitors can tell at
+  a glance what's real vs. curated
+- Reviews section on the listing detail page hides entirely for
+  samples — no more "Based on 3 verified buyers"
+
+**Option B (convert top demos to real free downloads) deferred** —
+real SKILL.md content work, better done fresh-brained with strategic
+intent on which 4 best represent the brand.
+
+### Migration plan (founder action, not started)
+
+Step-by-step Vercel + GitHub Pro migration plan written in chat.
+TL;DR:
+
+- **Stay on existing setup is fine** — Skillzy is shipping real
+  revenue on `MyAIWorkforce-ai/cheapwebsite` + Vercel `skillzyai`.
+- Migrate to Pro only when (a) hitting hobby limits, (b) adding
+  team members, or (c) prepping to spin Skillzy out.
+- Repo separation is 1-2 hours of risk; project separation alone
+  is ~30 min.
+- **Don't touch DNS or delete the current project** until the new
+  one has served real traffic for 24-48h.
+
+### Tomorrow's punch list
+
+1. **Verify the $199 test purchase in both Stripe accounts** (per
+   earlier note in this same session — same checklist).
+2. **Refund yourself** to recover ~$193.
+3. **Confirm the new email attachment** in the buyer inbox
+   (`info@primeprojects.com.au`): `website-builder-agent.zip`
+   should be attached directly alongside the gold link.
+4. (Optional) Pick the Option B free-skill shortlist with fresh
+   eyes — recommended candidates were Daily Summary Email, Invoice
+   Generator, Review Responder, Standup Summary.
+5. Free-claim seller notification — wire `sendPromoRedemptionNotification`
+   into `app/_actions/free-claim.ts` with `kind: 'free'`.
+6. Strategic: agentskills.io homepage repositioning, Matt Wolfe
+   outreach, 20% take-rate reconsideration.
