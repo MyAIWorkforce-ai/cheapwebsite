@@ -19,12 +19,20 @@ function Submit() {
   )
 }
 
-export default function ResetForm({ demoMode }: { demoMode: boolean }) {
+export default function ResetForm({
+  demoMode,
+  sentEmail,
+}: {
+  demoMode: boolean
+  sentEmail?: string | null
+}) {
   const [state, action] = useFormState(requestPasswordReset, initial)
 
   // Successful submit → replace the form with a prominent confirmation
   // panel (rather than a small inline line, which buyers were missing).
-  if (state.info) {
+  // The action redirects to /auth/reset?sent=<email> on success, so the
+  // panel survives a refresh and shows the actual email it was sent to.
+  if (sentEmail || state.info) {
     return (
       <div className="mt-10 border border-brand-hairline bg-brand-cream-card p-6">
         <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
@@ -34,8 +42,17 @@ export default function ResetForm({ demoMode }: { demoMode: boolean }) {
           We just sent the reset link.
         </p>
         <p className="mt-3 text-sm text-brand-muted leading-relaxed">
-          {state.info} The link is single-use and expires in an hour. Can&rsquo;t
-          find it? Check spam, or send another from below.
+          {sentEmail ? (
+            <>
+              If an account exists for{' '}
+              <span className="font-semibold text-brand-ink">{sentEmail}</span>,
+              the reset link is on its way.
+            </>
+          ) : (
+            state.info
+          )}{' '}
+          The link is single-use and expires in an hour. <strong className="text-brand-ink">Check spam too</strong> —
+          some providers flag transactional mail.
         </p>
         <div className="mt-5 flex flex-wrap gap-3 sm:gap-4 items-center">
           <Link

@@ -7,7 +7,12 @@ export const metadata = {
   robots: { index: false, follow: false },
 }
 
-export default function ResetPasswordPage() {
+export default function ResetPasswordPage({
+  searchParams,
+}: {
+  searchParams: { sent?: string }
+}) {
+  const sentEmail = (searchParams.sent || '').trim()
   return (
     <div className="paper px-6 lg:px-10 py-20 sm:py-28">
       <div className="max-w-md mx-auto">
@@ -24,7 +29,7 @@ export default function ResetPasswordPage() {
           We&rsquo;ll email a link. Click it to choose a new password.
         </p>
 
-        <ResetForm demoMode={!hasSupabase} />
+        <ResetForm demoMode={!hasSupabase} sentEmail={sentEmail || null} />
       </div>
     </div>
   )

@@ -178,7 +178,11 @@ export async function requestPasswordReset(
     redirectTo: `${env.siteUrl}/auth/callback?next=/auth/update-password`,
   })
   if (error) return { error: error.message }
-  return { info: 'If that account exists, we just emailed you a reset link.' }
+  // Redirect to a URL that carries the "sent" state. This survives a
+  // full page reload (mobile no-JS / pre-hydration submit case) so the
+  // success panel always shows and never vanishes — same pattern as
+  // signInWithEmail above.
+  redirect(`/auth/reset?sent=${encodeURIComponent(email)}`)
 }
 
 // Set a new password (used after the reset link is clicked).
