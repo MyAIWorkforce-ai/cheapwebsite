@@ -75,8 +75,7 @@ export default function OG() {
               maxWidth: 880,
             }}
           >
-            Publish in minutes. Connect Stripe. Keep 80% of every sale, paid
-            direct.
+            Publish in minutes. Connect Stripe. Get paid direct.
           </span>
         </div>
       </div>
