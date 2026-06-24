@@ -102,12 +102,18 @@ export async function POST(
         creator_id: user.id,
       },
       payment_intent_data: {
+        // Top-level PaymentIntent description — what shows in the
+        // Stripe dashboard's Description column and in monthly
+        // statements. Without this, the dashboard just lists the
+        // raw pi_… ID and you can't tell which listing was featured.
+        description: `Skillzy Showcase — featuring "${listing.title}"`,
         // Same kind tag on the intent so a webhook that only sees the
         // intent (not the session) can still route correctly.
         metadata: {
           kind: 'feature',
           listing_id: listing.id as string,
           feature_tier: FEATURE_TIER,
+          listing_title: listing.title as string,
         },
         // Statement descriptor suffix so the creator's card statement
         // reads "SKILLZY AI* SHOWCASE" not just the default.
