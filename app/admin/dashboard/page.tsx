@@ -67,6 +67,7 @@ type CreatorRow = {
   joined: string
   listings: number
   sales: number
+  purchases: number
   connected: boolean
 }
 
@@ -83,6 +84,10 @@ type Metrics = {
   listings: number
   liveListings: number
   pendingListings: number
+  // `accounts` = every signed-up user (auth.users). `creators` = the
+  // subset of those accounts with at least one listing — not everyone
+  // who signs up actually lists something.
+  accounts: number
   creators: number
   connectedCreators: number
   subscribers: number
@@ -127,7 +132,7 @@ async function loadMetrics(): Promise<Metrics | null> {
     const [purchasesRes, listingsRes, profilesRes, subsRes] = await Promise.all(
       [
         db.from('purchases').select(
-          'amount_cents, creator_payout_cents, platform_fee_cents, status, referrer_channel, listing_id, created_at',
+          'amount_cents, creator_payout_cents, platform_fee_cents, status, referrer_channel, listing_id, buyer_id, created_at',
         ),
         db
           .from('listings')
@@ -277,6 +282,16 @@ async function loadMetrics(): Promise<Metrics | null> {
       const cid = l.creator_id as string
       if (cid) listingCountByCreator[cid] = (listingCountByCreator[cid] ?? 0) + 1
     }
+    // Purchases bought per buyer — counted from purchases.buyer_id
+    // (only set when the buyer was signed in at checkout). Guest
+    // purchases never appear here, by design — the admin roster is
+    // about identified accounts.
+    const purchasesByBuyer: Record<string, number> = {}
+    for (const p of purchases) {
+      if (p.status !== 'paid') continue
+      const bid = (p as { buyer_id?: string | null }).buyer_id
+      if (bid) purchasesByBuyer[bid] = (purchasesByBuyer[bid] ?? 0) + 1
+    }
     let creatorList: CreatorRow[] = []
     try {
       const { data: usersData } = await db.auth.admin.listUsers({
@@ -295,6 +310,7 @@ async function loadMetrics(): Promise<Metrics | null> {
             joined: u.created_at ?? '',
             listings: listingCountByCreator[u.id] ?? 0,
             sales: agg?.sales ?? 0,
+            purchases: purchasesByBuyer[u.id] ?? 0,
             connected: prof?.connected ?? false,
           }
         })
@@ -318,7 +334,13 @@ async function loadMetrics(): Promise<Metrics | null> {
       liveListings: listings.filter((l) => l.status === 'live').length,
       pendingListings: listings.filter((l) => l.status === 'pending_review')
         .length,
-      creators: profiles.length,
+      // `accounts` counts everyone with a profile row (one is created
+      // on first signup). `creators` only counts profiles that own ≥1
+      // listing — the actual ratio of "signed up" vs "listed" matters.
+      accounts: profiles.length,
+      creators: profiles.filter(
+        (p) => (listingCountByCreator[p.id as string] ?? 0) > 0,
+      ).length,
       connectedCreators: profiles.filter(
         (p) => p.stripe_payouts_enabled === true,
       ).length,
@@ -415,6 +437,7 @@ export default async function AdminDashboard() {
                 <Stat label="Avg order" value={money(m.avgOrderCents)} sub="per paid order" />
                 <Stat label="Refunds" value={`${m.refundedCount}`} sub={`${m.refundRatePct}% of orders`} tone={m.refundRatePct >= 10 ? 'warn' : undefined} />
                 <Stat label="Listings" value={String(m.listings)} sub={`${m.liveListings} live · ${m.pendingListings} in review`} />
+                <Stat label="Accounts" value={String(m.accounts)} sub={`${m.creators} have listed`} />
                 <Stat label="Creators" value={String(m.creators)} sub={`${m.connectedCreators} Stripe-connected`} />
               </div>
             </div>
@@ -522,8 +545,15 @@ export default async function AdminDashboard() {
               </div>
             )}
 
-            {/* ALL CREATORS — searchable roster with emails */}
-            <CreatorList creators={m.creatorList} />
+            {/* ACCOUNTS — every signed-up user, with what they've
+                listed, sold, and bought. Not everyone here is a
+                creator (some have 0 listings) — see the Creators
+                section below for the active subset. */}
+            <CreatorList creators={m.creatorList} mode="accounts" />
+
+            {/* CREATORS — accounts that have actually listed something.
+                The honest "we have N real creators" number. */}
+            <CreatorList creators={m.creatorList} mode="creators" />
 
             {/* ACTIONABLE: earning but no payout account */}
             <div>
