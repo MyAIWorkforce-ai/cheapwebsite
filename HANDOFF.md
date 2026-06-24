@@ -1664,3 +1664,28 @@ add a Current Password field to the form, re-auth via
 `signInWithPassword` before calling `updateUser({password})`. For
 now Toby disabled the "Require current password when updating"
 toggle in Supabase as a workaround so the form keeps working.
+
+---
+
+## Stripe account topology — important
+
+- **Skillzy AI** (`acct_1Tb7o2RV0ws5a7zS`) is the **platform** that
+  processes customer charges and keeps the 20% application fee.
+- **Skillzy House** (the creator/seller account that lists the in-
+  house bundles like "Website Builder Agent, end to end.") is a
+  **Stripe Connect connected account** under Skillzy AI — and the
+  underlying Stripe business entity is the **My AI Workforce
+  account** Toby already uses.
+
+So any sale of a Skillzy House listing shows up in BOTH dashboards:
+- Skillzy AI view = the charge + application fee
+- My AI Workforce view = the net transfer (creator-side, 80%)
+
+NOT a bug, NOT a routing problem — it's just both ends of the
+Connect transaction. Confirmed by Toby 2026-06-24.
+
+Refund mechanics on this setup: refund issued from Skillzy AI's
+dashboard pulls funds back from the customer card, reverses the
+application fee back to Skillzy AI, AND reverses the transfer
+from My AI Workforce back. Only the Stripe processing fee
+(~US$5.85 on a $199 charge) is non-refundable.
