@@ -29,7 +29,17 @@ export async function updateProfile(
     .update({ name: name || null, handle: handle || null })
     .eq('id', user.id)
 
-  if (error) return { error: error.message }
+  if (error) {
+    // Surface the unique-handle violation as a plain-English message
+    // instead of the raw Postgres "profiles_handle_key" constraint name.
+    if (
+      (error as { code?: string }).code === '23505' ||
+      /profiles_handle_key|duplicate key/i.test(error.message)
+    ) {
+      return { error: 'That handle is already taken — try another.' }
+    }
+    return { error: error.message }
+  }
 
   revalidatePath('/account')
   revalidatePath(`/creator/${handle}`)
