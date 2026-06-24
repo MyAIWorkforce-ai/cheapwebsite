@@ -1649,3 +1649,18 @@ checklist.
 - Callum's email arriving at `hi@skillzy.ai` with his skills list
 - Whether the new branded auth emails maintain inbox delivery (no
   spam) over the next week as recipients open / mark them
+
+---
+
+## Operator timezone — IMPORTANT
+
+Toby is based in **Melbourne, Australia (AEST / AEDT)**. Don't
+assume he's winding down based on UTC clock times. 11am AEST is
+mid-morning for him; 8pm AEST is start-of-evening, not late night.
+
+Also re-confirmed today (2026-06-24): "current password required"
+error on `/account` change-password form needs proper code fix —
+add a Current Password field to the form, re-auth via
+`signInWithPassword` before calling `updateUser({password})`. For
+now Toby disabled the "Require current password when updating"
+toggle in Supabase as a workaround so the form keeps working.
