@@ -11,6 +11,10 @@ export const metadata = {
 
 export const dynamic = 'force-dynamic'
 
+// Matches FEATURE_PRICE_CENTS in app/api/listings/[id]/feature-checkout/route.ts.
+// Bump this in lockstep if the Showcase upgrade price changes.
+const SHOWCASE_PRICE_CENTS = 4900
+
 function Stat({
   label,
   value,
@@ -86,6 +90,19 @@ type Metrics = {
   topListings: { title: string; sales: number; gross: number }[]
   topCreators: CreatorAgg[]
   unconnectedEarners: CreatorAgg[]
+  // Showcase featured-listing upgrades — $49 charges that don't land
+  // in the `purchases` table (the webhook only flips
+  // listings.featured_tier), so they need their own rollup.
+  showcase: {
+    count: number
+    revenueCents: number
+    listings: {
+      title: string
+      creatorName: string
+      creatorHandle: string
+      since: string | null
+    }[]
+  }
   // House-listings aggregate (creators whose handle starts with skillzy-).
   // Lets the super admin separate Skillzy House revenue from third-party
   // creator revenue at a glance.
@@ -112,7 +129,11 @@ async function loadMetrics(): Promise<Metrics | null> {
         db.from('purchases').select(
           'amount_cents, creator_payout_cents, platform_fee_cents, status, referrer_channel, listing_id, created_at',
         ),
-        db.from('listings').select('id, title, status, created_at, creator_id'),
+        db
+          .from('listings')
+          .select(
+            'id, title, status, created_at, creator_id, featured_tier, featured_started_at',
+          ),
         db
           .from('profiles')
           .select('id, handle, name, stripe_account_id, stripe_payouts_enabled'),
@@ -223,6 +244,32 @@ async function loadMetrics(): Promise<Metrics | null> {
 
     const totalOrders = paidCount + refundedCount
 
+    // Showcase upgrades — paid $49 each, recorded only via
+    // listings.featured_tier='showcase'. Roll them into their own
+    // section so the founder can see featured revenue + who's bought it.
+    const featuredListings = listings.filter(
+      (l) => (l.featured_tier as string | null) != null,
+    )
+    const showcase = {
+      count: featuredListings.length,
+      revenueCents: featuredListings.length * SHOWCASE_PRICE_CENTS,
+      listings: featuredListings
+        .map((l) => {
+          const prof = profileById.get(l.creator_id as string)
+          return {
+            title: (l.title as string) ?? '—',
+            creatorName: prof?.name ?? 'Unknown',
+            creatorHandle: prof?.handle ?? '—',
+            since: (l.featured_started_at as string | null) ?? null,
+          }
+        })
+        .sort((a, b) => {
+          if (!a.since) return 1
+          if (!b.since) return -1
+          return a.since < b.since ? 1 : -1
+        }),
+    }
+
     // Full creator/user roster with emails. Emails live in auth.users
     // (not profiles), so pull them via the admin API and join.
     const listingCountByCreator: Record<string, number> = {}
@@ -282,6 +329,7 @@ async function loadMetrics(): Promise<Metrics | null> {
       topCreators,
       unconnectedEarners,
       house,
+      showcase,
       creatorList,
       byChannel,
     }
@@ -369,6 +417,80 @@ export default async function AdminDashboard() {
                 <Stat label="Listings" value={String(m.listings)} sub={`${m.liveListings} live · ${m.pendingListings} in review`} />
                 <Stat label="Creators" value={String(m.creators)} sub={`${m.connectedCreators} Stripe-connected`} />
               </div>
+            </div>
+
+            {/* SHOWCASE UPGRADES — $49 featured-listing buys. They don't
+                land in the purchases table (the webhook only flips
+                listings.featured_tier), so they need their own rollup. */}
+            <div>
+              <h2
+                className="font-display text-2xl tracking-tight mb-1"
+                style={{ letterSpacing: '-0.02em' }}
+              >
+                Showcase upgrades
+              </h2>
+              <p className="text-sm text-brand-muted mb-4 max-w-prose">
+                $49 each, paid by the creator to feature their listing.
+                Counted from{' '}
+                <span className="font-mono">listings.featured_tier</span>{' '}
+                — the webhook flips the flag rather than writing a purchase
+                row.
+              </p>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-brand-hairline border border-brand-hairline">
+                <Stat
+                  label="Showcase sold"
+                  value={String(m.showcase.count)}
+                  sub={m.showcase.count === 1 ? 'upgrade' : 'upgrades'}
+                  tone="gold"
+                />
+                <Stat
+                  label="Showcase revenue"
+                  value={money(m.showcase.revenueCents)}
+                  sub={`${m.showcase.count} × $49`}
+                  tone="gold"
+                />
+              </div>
+              {m.showcase.listings.length > 0 && (
+                <div className="mt-4 border border-brand-hairline bg-brand-cream-card">
+                  <div className="px-5 py-3 border-b border-brand-hairline font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+                    Featured listings
+                  </div>
+                  <ul>
+                    {m.showcase.listings.map((s, i) => (
+                      <li
+                        key={`${s.title}-${i}`}
+                        className={
+                          'px-5 py-3 grid grid-cols-1 sm:grid-cols-[1fr_auto_auto] gap-2 items-baseline ' +
+                          (i < m.showcase.listings.length - 1
+                            ? 'border-b border-brand-hairline'
+                            : '')
+                        }
+                      >
+                        <span className="text-sm text-brand-ink">
+                          {s.title}
+                        </span>
+                        <span className="text-sm text-brand-muted">
+                          {s.creatorName}{' '}
+                          <span className="font-mono text-xs">
+                            {s.creatorHandle.startsWith('@')
+                              ? s.creatorHandle
+                              : `@${s.creatorHandle}`}
+                          </span>
+                        </span>
+                        <span className="font-mono text-xs text-brand-muted whitespace-nowrap">
+                          {s.since
+                            ? new Date(s.since).toLocaleDateString('en-AU', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric',
+                              })
+                            : '—'}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
 
             {/* SKILLZY HOUSE — first-party revenue, separated from third-party
