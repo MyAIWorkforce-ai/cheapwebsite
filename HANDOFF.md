@@ -1549,3 +1549,103 @@ TL;DR:
    into `app/_actions/free-claim.ts` with `kind: 'free'`.
 6. Strategic: agentskills.io homepage repositioning, Matt Wolfe
    outreach, 20% take-rate reconsideration.
+
+---
+
+## 2026-06-24 morning — auth + email branding day
+
+Continuation of the 2026-06-20 evening session. Founder-driven config
+work in Supabase + Resend, with a few code fixes along the way.
+
+### Shipped (code, pushed to claude/build-skillzy-website-MIbCF)
+
+- **Password reset UX fix** (`2a240a9`) — `requestPasswordReset` now
+  redirects to `/auth/reset?sent=<email>` so the "Check your inbox"
+  panel survives a page refresh and names the email it was sent to.
+  Same pattern as `signInWithEmail`.
+- **`/sell` OG image** (`46d8a71`) — added `app/sell/opengraph-image.tsx`
+  with "List once. Earn forever." card. Sharing /sell on iMessage / IG
+  previously showed title-only because Next.js OG images are
+  per-route-segment, not inherited. Other unbranded routes
+  (`/marketplace`, `/about`, `/how-it-works`, `/dispatch`, `/help`,
+  `/refunds`, `/find-my-order`) still need this same treatment —
+  batch tomorrow.
+- **Friendly handle-taken error** (`9b215f7`) — `/account` profile
+  update no longer leaks the raw Postgres
+  "duplicate key value violates unique constraint
+  profiles_handle_key" message. Now shows "That handle is already
+  taken — try another."
+
+### Config done in dashboards (no code)
+
+- **Resend** — `skillzy.ai` domain verified, API key
+  `supabase-smtp-skillzy` already in place from 3 months ago.
+- **Supabase Custom SMTP** — confirmed already enabled and pointing at
+  Resend. Sender `hi@skillzy.ai` (could be tightened to
+  `auth@skillzy.ai` later).
+- **Supabase email templates** — branded these in cream/gold/serif
+  to match transactional emails (no more "Reset Password / Follow
+  this link" default that Gmail spam-flagged):
+  - Reset password ("Reset it.")
+  - Confirm sign up ("Confirm it's you.")
+  - Magic link or OTP ("Tap to sign in.")
+  - Change email address ("Confirm the change." — note both action
+    + notification go to the OLD address; "Secure email change"
+    setting requires both old + new confirmation, recommended toggle
+    on tomorrow)
+  - Password changed ("Password changed.")
+  - Email address changed ("Email changed.")
+- **Supabase Security notifications** — all 7 toggles ON: Password
+  changed, Email changed, Phone changed, Sign-in method linked,
+  Sign-in method removed, MFA added, MFA removed. Were all OFF by
+  default — closes a silent-takeover risk.
+
+### Outreach
+
+- **Lucie (Klarisa AI)** — welcomed via email, pointed her at
+  `/dashboard/payouts` to finish Stripe Connect so her
+  "Multi-agent orchestration with Trinity and Graph-of-Agents."
+  $249 listing flips from "Notify me" to live Buy. The automated
+  `stripe-nudge` cron is the safety net at 24h if she goes quiet.
+- **Callum Carver** — replied on IG asking to send his AI skills
+  list to `hi@skillzy.ai`. First creator pipeline lead.
+
+### Known UX gaps to ship tomorrow
+
+1. **Auth callback confirmation banners** — `/auth/callback` exchanges
+   the code and dumps users on `/` or `/dashboard` with NO message
+   confirming what just happened. Affects email-change confirmations
+   especially (clicking the link silently lands on homepage). Fix:
+   detect event type from Supabase, redirect with
+   `?email_changed=1` / `?signup_confirmed=1` etc., render a green
+   banner on the destination page.
+2. **Batch-add OG images** for the other unbranded public routes
+   (see `46d8a71` commit message for the list). Same per-route
+   `opengraph-image.tsx` pattern as `/sell`.
+3. **Verify the "Password changed" notification fires** — the
+   template is branded and the toggle is on, but we haven't seen one
+   land yet from an in-account password change vs a `/auth/reset`
+   completion. Check that both code paths trigger it.
+4. **Supabase "Secure email change"** — toggle ON to require both old
+   AND new address confirmation on email changes. Industry standard
+   for any account handling money.
+5. **Account consolidation** — Toby has multiple test accounts
+   (`toby@skillzy.ai`, `toby@tobybanks.com`,
+   `info@primeprojects.com.au`, `hi@myaiworkforce.com.au`).
+   The `toby` handle is held by one of them, blocking it on the
+   others. Plan a consolidation pass: pick the canonical account,
+   migrate purchases via `claimOrphanPurchases`, archive the rest.
+
+### Founder action carried over from yesterday
+
+Still need to verify the $199 Website Builder test purchase
+(№3TKM7LRV0WS5) landed correctly in both Stripe accounts and refund
+it to recover ~$193. See yesterday's HANDOFF section for the
+checklist.
+
+### Watch items
+
+- Lucie's Stripe Connect — opens her listing for sale
+- Callum's email arriving at `hi@skillzy.ai` with his skills list
+- Whether the new branded auth emails maintain inbox delivery (no
+  spam) over the next week as recipients open / mark them
