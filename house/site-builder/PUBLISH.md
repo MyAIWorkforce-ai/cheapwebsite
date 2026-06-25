@@ -1,115 +1,121 @@
-# Publish — Website Builder Agent, end to end.
+# PUBLISH — internal notes
 
-Step-by-step to publish this bundle on skillzy.ai. Should take ~5 minutes.
+How to publish this bundle to a new Skillzy listing.
 
-## Before you start
+## Recommended listing config
 
-- Sign in to skillzy.ai as the **Skillzy House** creator account
-- Confirm Stripe Connect is done for that account (Dashboard → Payouts
-  should say "Connected")
-- Have this folder (`house/site-builder/`) downloaded locally so you
-  can drag files into the form
+- **Title:** Website Builder Agent, end to end.
+- **Type:** Agent Setup
+- **Price:** $199 USD
+- **Niche:** `small-business, freelancers, designers, marketers, local-services`
+- **Platforms:** All agents (Skillzy `All agents` toggle)
+- **Tagline:** *Discovery, sitemap, scaffold, content, deploy, DNS,
+  SEO, analytics, forms, launch — your full website desk in one
+  agent. Works AU, NZ, UK, US, CA.*
 
-## Step 1 — open /sell/new
+## Upload via /sell/new
 
-`https://skillzy.ai/sell/new`
+1. Sign in as **@skillzy-house** (house@skillzy.ai login)
+2. Go to **/sell/new**
+3. Drop `site-builder.zip` (from `house/_bundles/`) in step 02
+4. Let the AI draft run from the README + skills
+5. Override:
+   - Title (if AI suggests something off — the AI tends to add
+     "Builder" or "Creator" suffixes; keep it as "Website Builder
+     Agent, end to end.")
+   - Niche (trim to 3-5)
+   - Platforms (toggle "All agents")
+   - Tagline (use the recommended one if AI is verbose)
+6. Set Price = $199
+7. Publish
 
-## Step 2 — drop in the files
+## Smoke-test after publish
 
-Drag these 14 files (everything in this folder + the skills/ subfolder)
-into the file dropper. The AI will read them and pre-draft a listing:
+- Buy a copy yourself with a $1 test card (or use Stripe test mode)
+- Confirm the zip downloads cleanly
+- Unzip, confirm the structure matches what the listing description
+  promises:
+  - 5 root MDs (README, SETUP, MASTER_PROMPT, LISTING_COPY, PUBLISH)
+  - 2 config files
+  - 12 skill files
+  - 9 template files
+  - 1 knowledge file (regional reference)
+- Drop into Claude, run with: *"I want to build a one-page landing
+  for a fictional Adelaide plumber"* — agent should start with
+  discover (skill 01) and route correctly
+- Check the listing page renders without overflow
 
-**From `house/site-builder/`:**
-- `README.md`
-- `SETUP.md`
-- `MASTER_PROMPT.md`
+## Optional: Showcase tier
 
-**From `house/site-builder/skills/`:**
-- `01-discover.md`
-- `02-scaffold-build.md`
-- `03-deploy-vercel.md`
-- `04-connect-domain.md`
-- `05-seo.md`
-- `06-stripe-account.md`
-- `07-stripe-products.md`
-- `08-stripe-checkout.md`
-- `09-stripe-webhooks.md`
-- `10-stripe-tax-refunds.md`
-- `11-stripe-portal-reporting.md`
-- `12-update.md`
+This is a strong candidate for the $49 Showcase upgrade — the navy
+card stands out on the marketplace grid, and solo founders /
+freelance designers searching "AI agent that builds my website" or
+"AI agent for client websites" should hit a premium-feeling listing
+first. Toggle Showcase after publish if you want to test it.
 
-**DO NOT upload** `LISTING_COPY.md` — it's internal-only.
-**DO NOT upload** this `PUBLISH.md` either.
+## Cross-listing on awesome-claude-skills
 
-## Step 3 — paste the listing copy
+After publish, optionally:
 
-The AI will draft from the file contents. Replace the AI's draft
-with this polished copy from `LISTING_COPY.md`:
+1. Create `github.com/skillzy/site-builder` (public repo with the
+   README + LISTING_COPY content + link to Skillzy listing)
+2. Submit PRs to:
+   - ComposioHQ/awesome-claude-skills
+   - karanb192/awesome-claude-skills
+   - BehiSecc/awesome-claude-skills
 
-### Title
-```
-Website Builder Agent, end to end.
-```
+That gives the listing GitHub-native discovery + organic backlinks.
 
-### Tagline
-```
-Build it, deploy it, get found — and take Stripe payments if you sell something. Your agent ships the full thing, then keeps shipping changes after launch.
-```
+## Cross-promotion with Stripe Setup bundle
 
-### Description (paste into the description box)
-```
-A complete website desk, dropped into your agent. Interview, scaffold, write the actual copy, deploy through Vercel, wire the custom domain, set the SEO for Google and AI search — your buyer goes from blank page to a live website at their own domain in an afternoon. Built on the stack we run for live clients: Next.js + Tailwind + GitHub + Vercel. The agent doesn't just generate code; it guides every command, every Vercel click, every DNS record, in plain English. A non-developer can ship this end to end.
+Skill 09 hands off to the **Stripe Setup, end to end.** bundle. If
+your buyer needs payments, the natural upsell path is:
 
-If the buyer needs to take payments (coaches charging for sessions, plumbers taking deposits, anyone selling a digital product or subscription), the same agent walks them through activating Stripe, setting up Products and Prices, wiring the payment surface directly into the site, handling tax + refunds + the Customer Portal. They go from "I want a site that takes money" to a real $1 test charge succeeding by end of day.
+1. Buyer purchases site-builder ($199)
+2. During skill 09, agent surfaces: *"For payments, the cleanest
+   path is the Stripe Setup, end to end. bundle on Skillzy. Both
+   bundles plug into each other — want me to point you at it?"*
+3. Buyer purchases Stripe Setup ($199)
+4. Both bundles installed; site-builder runs to launch; Stripe Setup
+   handles the payments craft
 
-If the buyer doesn't need payments (informational site, lead-gen page, portfolio), the agent skips the Stripe steps cleanly. They can add them later — just say "add Stripe" and the agent picks up where it left off.
+Consider a **bundle discount** later: $349 for both ($49 off).
 
-Includes the bits most builders skip: AI-search readiness (llms.txt, structured data Claude + ChatGPT + Perplexity actually read), branded statement descriptors on Stripe charges, dispute-evidence habits that win chargebacks, tax-inclusive vs exclusive pricing decisions, and a monthly reporting routine the buyer can hand straight to their accountant. Then it stays on standby — every later change ships with a single sentence like "make the headline say X".
-```
+## Bundles with the trades agents
 
-### What you get (paste as bullets, one per line)
-```
-A real Next.js + Tailwind website on GitHub, deployed to Vercel, at the buyer's own domain
-12 SKILL.md files: discovery, scaffold, deploy, domain, SEO, plus 6 Stripe skills (skippable for info-only sites) and a standing-by update skill
-Master orchestrator prompt that routes the agent through the right path based on whether payments are needed
-Built-in support for AI search (llms.txt + structured-data templates Claude / ChatGPT / Perplexity actually read) — most builders skip this entirely
-Three Stripe payment-surface paths integrated with the site: Payment Link, hosted Checkout, embedded Payment Element — agent picks the right one for the use case
-Stripe tax setup for AU/NZ GST, EU VAT, US sales tax — automated or manual
-Dispute-defence checklist that wins chargebacks
-Customer Portal so subscribers self-serve (cancel, swap plan, update card)
-Monthly Stripe reporting routine + Xero/QuickBooks connection notes
-Update skill is the standing-by mode — the buyer comes back forever and just says "change X"
-Real Next.js + Vercel stack — production-grade, free to deploy
-```
+If a buyer is building for a plumbing / HVAC / electrical / building
+client, the site-builder bundle pairs naturally with the relevant
+trades bundle:
 
-## Step 4 — set the meta
+- **Plumber Agent + Website Builder Agent** — site for the plumbing
+  business + the desk to run the business behind it
+- **Electrician Agent + Website Builder Agent**
+- **HVAC Agent + Website Builder Agent**
+- **Builder Agent + Website Builder Agent**
 
-- **Type**: Agent Setup
-- **Niche**: Small Business
-- **Platforms**: tap **"All agents"** chip → Claude + OpenClaw + ChatGPT (the three this actually works on). Untick the others (Manus, Hermes, etc.) since this bundle is tested on Claude / OpenClaw / ChatGPT only.
-- **Price**: **$199**
+Each pair is ~$398. Could test a $329 bundle price.
 
-## Step 5 — publish
+## Future improvements (post-launch)
 
-Hit Publish. You should land on the listing detail page reading
-**Site + Stripe, end to end.** under @skillzy-house, $199, Agent Setup.
-
-## Step 6 — smoke-test it works
-
-In a separate tab (incognito):
-1. Open the listing as a buyer
-2. Buy it with a real card (you'll refund yourself after)
-3. Check the buyer email arrives with the download link
-4. Click the download → confirm all 14 files are in the bundle
-5. Drop them into Claude and try the orchestrator with: *"I want a landing page for a fictional bakery"*
-6. The agent should start with discovery (skill 01) and route correctly
-
-If anything fails, refund yourself in Stripe and ping the relevant
-fix into the bundle, then re-publish.
-
-## Done
-
-The listing is live. Buyers can find it via:
-- The marketplace
-- `/marketplace/site-stripe-end-to-end` (or whatever slug it gets)
-- The @skillzy-house creator profile
+- **Region-specific landing pages** —
+  `/marketplace/site-builder?region=uk` pre-fills the regional
+  reference for the buyer. (Listing detail page renders the UK-
+  relevant snippet first.)
+- **CMS-specific variants** — a stripped-down "WordPress edition"
+  or "Webflow edition" of the bundle for buyers who already know
+  their CMS. ~$149 each.
+- **Industry-specific templates** — content + sitemap templates
+  tuned for trades, coaches, accountants, dentists, real estate
+  agents as separate sub-bundles.
+- **Integrations directory** — explicit n8n / Zapier / Make flows
+  for the common tools (HubSpot, Mailchimp, Calendly, Cal.com,
+  Tally, Notion CMS) bundled as optional add-ons.
+- **Multilingual variant** — for Quebec / Switzerland / Belgium /
+  general bilingual builds; expand the content writing skill with
+  i18n patterns (next-intl, Astro i18n).
+- **Real case-study customer** — once 5+ buyers have shipped sites,
+  publish a "how a Sydney designer shipped 6 client sites in a
+  month with this bundle" case study on the marketplace blog.
+- **Sub-skill: re-platform** — for buyers moving an existing site
+  (WordPress → Next.js, Squarespace → Webflow) — picks up where
+  scaffold normally starts and adds a content-migration pass.
