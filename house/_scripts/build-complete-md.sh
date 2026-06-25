@@ -6,7 +6,7 @@
 set -e
 
 BASE="/home/user/cheapwebsite/house"
-BUNDLES=("site-builder" "real-estate-agent" "stripe-setup" "social-media-manager" "electrician-agent" "plumber-agent")
+BUNDLES=("site-builder" "real-estate-agent" "stripe-setup" "social-media-manager" "electrician-agent" "plumber-agent" "hvac-agent" "builder-agent")
 
 # Per-bundle nice display name (used in the COMPLETE.md header).
 declare -A NICE=(
@@ -16,6 +16,8 @@ declare -A NICE=(
   [social-media-manager]="Social Media Manager Agent"
   [electrician-agent]="Electrician Agent"
   [plumber-agent]="Plumber Agent"
+  [hvac-agent]="HVAC Agent"
+  [builder-agent]="Builder Agent"
 )
 
 # Public-facing slug for the output zip + COMPLETE.md filename.
@@ -27,6 +29,8 @@ declare -A SLUG=(
   [social-media-manager]="social-media-manager-agent"
   [electrician-agent]="electrician-agent"
   [plumber-agent]="plumber-agent"
+  [hvac-agent]="hvac-agent"
+  [builder-agent]="builder-agent"
 )
 
 # Clean out any stale zips from previous slugs so the bundles folder
