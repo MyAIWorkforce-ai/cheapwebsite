@@ -6,6 +6,7 @@ import { listingFiles } from '@/lib/delivery'
 import { deliveryTokenValid } from '@/lib/delivery-token'
 import { getUser, emailHasAccount } from '@/lib/auth'
 import GuestAccountPrompt from './GuestAccountPrompt'
+import AddToHomeScreenPrompt from '@/components/AddToHomeScreenPrompt'
 
 export const metadata = {
   title: "You're all set",
@@ -270,6 +271,14 @@ export default async function OrderSuccessPage({
               <GuestAccountPrompt email={email} />
             )
           )}
+
+          {/* "Add Skillzy to home screen" — peak engagement moment.
+              Buyer just paid; one tap puts the icon next to their
+              other tools. Self-suppresses on desktop, when already
+              installed, or after dismissal. */}
+          <div className="mt-12 max-w-2xl">
+            <AddToHomeScreenPrompt />
+          </div>
 
           <div className="mt-12 flex flex-wrap gap-3 sm:gap-4 items-center">
             {signedIn ? (
