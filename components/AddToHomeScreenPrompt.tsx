@@ -2,6 +2,22 @@
 
 import { useEffect, useState } from 'react'
 
+// Exposed so the dashboard's "Add to phone" rescue link can clear the
+// dismissed flag and bring the banner back even after a "Not now" tap.
+// SSR-safe: stored under the same key the banner reads from.
+const DISMISS_LOCALSTORAGE_KEY = 'skillzy:install-prompt-dismissed'
+export function resetInstallPromptDismissal() {
+  if (typeof window === 'undefined') return
+  try {
+    window.localStorage.removeItem(DISMISS_LOCALSTORAGE_KEY)
+  } catch {
+    /* private mode / disabled storage — nothing to clear */
+  }
+  // Force any mounted prompt to re-evaluate by reloading the page; the
+  // useEffect re-checks localStorage on next mount.
+  window.location.reload()
+}
+
 // Chrome / Edge expose a non-standard event so the page can trigger the
 // install prompt programmatically. iOS Safari doesn't — there we just
 // show the manual instructions because Apple gates "Add to Home Screen"
@@ -13,7 +29,7 @@ type BeforeInstallPromptEvent = Event & {
 
 type Platform = 'ios' | 'android' | 'other'
 
-const DISMISS_KEY = 'skillzy:install-prompt-dismissed'
+const DISMISS_KEY = DISMISS_LOCALSTORAGE_KEY
 
 function detectPlatform(): Platform {
   if (typeof navigator === 'undefined') return 'other'

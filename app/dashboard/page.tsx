@@ -2,6 +2,7 @@ import Link from 'next/link'
 import ProfileShareKit from '@/components/ProfileShareKit'
 import AffiliatePanel from '@/components/AffiliatePanel'
 import AddToHomeScreenPrompt from '@/components/AddToHomeScreenPrompt'
+import AddToHomeLink from '@/components/AddToHomeLink'
 import { getUser, claimOrphanPurchases } from '@/lib/auth'
 import { createClient } from '@/lib/supabase/server'
 import { hasSupabase } from '@/lib/env'
@@ -411,6 +412,7 @@ export default async function DashboardPage({
             >
               Help
             </Link>
+            <AddToHomeLink />
           </div>
         </div>
       </section>
