@@ -413,52 +413,85 @@ export default function NewListingForm({
         )
       const texts = reads.length > 0 ? await Promise.all(reads) : []
 
-      // Zips: extract any textual entries (md / yaml / json / txt / prompt)
-      // and feed them into the brief just like loose files would be. Lazy-
+      // Zips: extract EVERY textual entry (md / yaml / json / txt / prompt)
+      // and feed them into the brief so the AI sees the whole bundle. Lazy-
       // load jszip so we don't pull ~95 KB on first paint when no zip is
       // ever dropped.
       //
-      // First-time upload (this code path) PREFERS LISTING_COPY.md if the
-      // zip ships one — it's already the structured listing copy the AI
-      // would re-derive, so reading it directly is faster, cheaper, and
-      // avoids overwhelming the model on huge multi-file bundles (House
-      // bundles can hit 500KB of merged text — the model returns prose
-      // instead of JSON). PUBLISH.md is also a great single-file source
-      // for the "what to put on the listing" framing.
+      // Files are read in a prioritised order so that, if the total merged
+      // size exceeds the model's effective input budget and later files
+      // have to be trimmed, the most important context is preserved:
+      //   1. The two curated listing-copy files (LISTING_COPY.md,
+      //      PUBLISH.md) — read first because they already describe the
+      //      product in marketing language.
+      //   2. Top-level orientation files (README, SETUP, MASTER_PROMPT,
+      //      SKILL.md, START_HERE).
+      //   3. config/, knowledge/, skills/, templates/ — in that order.
+      //   4. Everything else.
       //
-      // If no LISTING_COPY.md is found we fall back to the full bundle
-      // concat (legacy behaviour), still capped per-entry at 200KB.
+      // Per-file cap stays at 200KB (huge single files are rare and
+      // catching one runaway file shouldn't starve the rest). The total
+      // merged content is capped at ~280KB / ~70k input tokens, which
+      // leaves Claude room to generate a clean JSON listing without
+      // hitting the "model returned prose instead of JSON" failure mode
+      // that bigger payloads were triggering.
+      const PER_FILE_CAP = 200_000
+      const TOTAL_CAP = 280_000
       const zipFiles = fileArray.filter((f) => /\.zip$/i.test(f.name))
       const zipTexts: string[] = []
+      const priority = (name: string): number => {
+        const base = name.split('/').pop()?.toLowerCase() ?? ''
+        if (base === 'listing_copy.md') return 0
+        if (base === 'publish.md') return 1
+        if (base === 'readme.md' || base.startsWith('00_start_here')) return 2
+        if (base === 'master_prompt.md') return 3
+        if (base === 'setup.md') return 4
+        if (base === 'skill.md') return 5
+        if (/^config\//.test(name)) return 6
+        if (/^knowledge\//.test(name)) return 7
+        if (/^skills\//.test(name)) return 8
+        if (/^templates\//.test(name)) return 9
+        return 10
+      }
       if (zipFiles.length > 0) {
         const { default: JSZip } = await import('jszip')
         for (const zf of zipFiles) {
           try {
             const zip = await JSZip.loadAsync(await zf.arrayBuffer())
-            const entries = Object.values(zip.files).filter((e) => !e.dir)
-            // First pass — look for a curated listing-copy file.
-            const curated = entries.find((entry) => {
-              const base = entry.name.split('/').pop()?.toLowerCase() ?? ''
-              return base === 'listing_copy.md' || base === 'publish.md'
-            })
-            if (curated) {
-              const content = await curated.async('string')
-              zipTexts.push(`--- ${curated.name} ---\n${content.slice(0, 200_000)}`)
-              continue
-            }
-            // No curated copy — fall back to the full text concat.
-            for (const entry of entries) {
-              const base = entry.name.split('/').pop()?.toLowerCase() ?? ''
-              if (base === 'listing_copy.md' || base === 'publish.md') continue
-              if (!TEXT_EXT.test(entry.name)) continue
-              const content = await entry.async('string')
-              if (content.length > 200_000) {
-                zipTexts.push(
-                  `--- ${entry.name} (truncated to 200KB) ---\n${content.slice(0, 200_000)}`,
-                )
-              } else {
-                zipTexts.push(`--- ${entry.name} ---\n${content}`)
+            // Strip the root folder ("plumber-agent/") from entry names so
+            // the priority sort still works when the zip wraps everything
+            // in a single top-level dir (which our build script does).
+            const entries = Object.values(zip.files)
+              .filter((e) => !e.dir && TEXT_EXT.test(e.name))
+              .map((e) => {
+                const stripped = e.name.replace(/^[^/]+\//, '')
+                return { entry: e, key: stripped }
+              })
+              .sort((a, b) => priority(a.key) - priority(b.key))
+
+            let usedBytes = 0
+            let skippedFiles = 0
+            for (const { entry, key } of entries) {
+              if (usedBytes >= TOTAL_CAP) {
+                skippedFiles++
+                continue
               }
+              const raw = await entry.async('string')
+              const room = TOTAL_CAP - usedBytes
+              const slice = raw.slice(0, Math.min(PER_FILE_CAP, room))
+              const note =
+                slice.length < raw.length
+                  ? ` (truncated to ${Math.round(slice.length / 1000)}KB)`
+                  : ''
+              zipTexts.push(`--- ${key}${note} ---\n${slice}`)
+              usedBytes += slice.length
+            }
+            if (skippedFiles > 0) {
+              zipTexts.push(
+                `--- (${skippedFiles} lower-priority file${
+                  skippedFiles === 1 ? '' : 's'
+                } omitted to fit budget) ---`,
+              )
             }
           } catch (err) {
             setDraftError(
