@@ -416,9 +416,18 @@ export default function NewListingForm({
       // Zips: extract any textual entries (md / yaml / json / txt / prompt)
       // and feed them into the brief just like loose files would be. Lazy-
       // load jszip so we don't pull ~95 KB on first paint when no zip is
-      // ever dropped. Same INTERNAL skip list as the redraft-from-bundle
-      // path on /dashboard/.../edit so the AI never re-reads LISTING_COPY
-      // back to itself.
+      // ever dropped.
+      //
+      // First-time upload (this code path) PREFERS LISTING_COPY.md if the
+      // zip ships one — it's already the structured listing copy the AI
+      // would re-derive, so reading it directly is faster, cheaper, and
+      // avoids overwhelming the model on huge multi-file bundles (House
+      // bundles can hit 500KB of merged text — the model returns prose
+      // instead of JSON). PUBLISH.md is also a great single-file source
+      // for the "what to put on the listing" framing.
+      //
+      // If no LISTING_COPY.md is found we fall back to the full bundle
+      // concat (legacy behaviour), still capped per-entry at 200KB.
       const zipFiles = fileArray.filter((f) => /\.zip$/i.test(f.name))
       const zipTexts: string[] = []
       if (zipFiles.length > 0) {
@@ -427,6 +436,17 @@ export default function NewListingForm({
           try {
             const zip = await JSZip.loadAsync(await zf.arrayBuffer())
             const entries = Object.values(zip.files).filter((e) => !e.dir)
+            // First pass — look for a curated listing-copy file.
+            const curated = entries.find((entry) => {
+              const base = entry.name.split('/').pop()?.toLowerCase() ?? ''
+              return base === 'listing_copy.md' || base === 'publish.md'
+            })
+            if (curated) {
+              const content = await curated.async('string')
+              zipTexts.push(`--- ${curated.name} ---\n${content.slice(0, 200_000)}`)
+              continue
+            }
+            // No curated copy — fall back to the full text concat.
             for (const entry of entries) {
               const base = entry.name.split('/').pop()?.toLowerCase() ?? ''
               if (base === 'listing_copy.md' || base === 'publish.md') continue

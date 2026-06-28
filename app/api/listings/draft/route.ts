@@ -221,7 +221,12 @@ export async function POST(req: Request) {
       },
       body: JSON.stringify({
         model: env.anthropic.model,
-        max_tokens: 1024,
+        // 2048 leaves enough headroom for a full structured listing
+        // (title + tagline + niche + platforms[] + description[2-3] +
+        // whatYouGet[4-7]) without risking a mid-JSON cutoff that the
+        // parser would then misread as non-JSON. 1024 was tight on
+        // longer descriptions.
+        max_tokens: 2048,
         system: SYSTEM,
         messages: [{ role: 'user', content: userContent }],
       }),
