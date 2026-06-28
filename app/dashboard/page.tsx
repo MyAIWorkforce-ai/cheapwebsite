@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import ProfileShareKit from '@/components/ProfileShareKit'
 import AffiliatePanel from '@/components/AffiliatePanel'
+import AddToHomeScreenPrompt from '@/components/AddToHomeScreenPrompt'
 import { getUser, claimOrphanPurchases } from '@/lib/auth'
 import { createClient } from '@/lib/supabase/server'
 import { hasSupabase } from '@/lib/env'
@@ -413,6 +414,12 @@ export default async function DashboardPage({
           </div>
         </div>
       </section>
+
+      {/* "Add to home screen" — self-suppresses on desktop, when already
+          installed, or when the user has dismissed it once. */}
+      <div className="max-w-page mx-auto px-6 lg:px-10 pt-8 sm:pt-10">
+        <AddToHomeScreenPrompt />
+      </div>
 
       {/* tabs */}
       <div className="max-w-page mx-auto px-6 lg:px-10 pt-8 sm:pt-10 border-b border-brand-hairline">
