@@ -480,7 +480,14 @@ export default async function ProductDetailPage({
         </section>
       )}
 
-      {/* CREATOR */}
+      {/* CREATOR — hidden on House listings (creator IS the platform —
+          showing "About Skillzy House, 0.0 rating, joined yesterday" reads
+          as a credibility leak, not a feature). For real third-party
+          creators we still show name + handle + bio, but the
+          Rating/Joined stats block is hidden until they have at least
+          one review (a "0.0 ★, joined yesterday" block actively damages
+          new sellers). */}
+      {!/^@?skillzy-/i.test(p.creator.handle) && (
       <section className="px-6 lg:px-10 py-16 sm:py-24 border-t border-brand-hairline">
         <div className="max-w-page mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10">
           <div className="lg:col-span-4">
@@ -508,26 +515,29 @@ export default async function ProductDetailPage({
               </div>
               <p className="mt-4 text-lg max-w-prose">{p.creator.bio}</p>
 
-              <dl className="mt-7 grid grid-cols-2 gap-4 sm:gap-6 max-w-md">
-                <div>
-                  <dt className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
-                    Rating
-                  </dt>
-                  <dd className="font-display text-2xl mt-1">
-                    {p.rating.toFixed(1)}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
-                    Joined
-                  </dt>
-                  <dd className="font-display text-2xl mt-1">{p.creator.joined}</dd>
-                </div>
-              </dl>
+              {p.ratingCount > 0 && (
+                <dl className="mt-7 grid grid-cols-2 gap-4 sm:gap-6 max-w-md">
+                  <div>
+                    <dt className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+                      Rating
+                    </dt>
+                    <dd className="font-display text-2xl mt-1">
+                      {p.rating.toFixed(1)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+                      Joined
+                    </dt>
+                    <dd className="font-display text-2xl mt-1">{p.creator.joined}</dd>
+                  </div>
+                </dl>
+              )}
             </div>
           </div>
         </div>
       </section>
+      )}
 
       {/* REVIEWS — hidden on sample listings (they carry no real reviews) */}
       {!p.sample && p.reviews.length > 0 && (
