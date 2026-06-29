@@ -169,11 +169,21 @@ export default function TermsPage() {
               Skillzy does not hold seller funds; Stripe pays the seller
               directly on Stripe’s schedule, net of the 20% platform
               commission (which covers Stripe’s own processing fees). You
-              must complete Stripe’s
-              onboarding and identity checks before payouts can run. If a
-              sale is refunded or charged back, the corresponding amount
-              (including any platform commission already attributed) may be
-              reversed from the seller.
+              must complete Stripe’s onboarding and identity checks before
+              payouts can run. If a sale is refunded or charged back, the
+              corresponding amount (including any platform commission
+              already attributed) may be reversed from the seller.
+            </p>
+            <p className="text-brand-muted">
+              <strong className="text-brand-ink">
+                Payouts require Stripe Connect.
+              </strong>{' '}
+              You can only receive payouts on sales made after you have
+              connected your Stripe account and enabled payouts. Skillzy
+              does not process payouts retroactively for sales that
+              occurred before your Stripe connection was complete. Once
+              Stripe is connected and verified, all subsequent sales pay
+              out 80% to you / 20% to Skillzy per the standard terms above.
             </p>
           </section>
 

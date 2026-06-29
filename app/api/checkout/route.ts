@@ -79,20 +79,15 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // BLOCK paid sales when the creator hasn't connected Stripe yet —
-  // without a destination, the entire amount would route to the
-  // Skillzy platform and the creator would get nothing. The UI hides
-  // the Buy button in this case; this is the defense-in-depth layer
-  // so a direct POST can't bypass it.
-  if (!destinationAccount) {
-    return NextResponse.json(
-      {
-        error:
-          "This creator hasn't enabled payouts yet, so we can't accept your purchase. We'll open it the moment they connect Stripe.",
-      },
-      { status: 403 },
-    )
-  }
+  // No `destinationAccount` means the creator hasn't connected Stripe
+  // yet. Policy decision (2026-06): rather than block the sale entirely
+  // (which leaves real demand bleeding while creators slow-walk Stripe
+  // onboarding), we accept the purchase, route the full amount to the
+  // Skillzy platform, and nudge the creator across dashboard +
+  // post-publish + sale-notification to connect Stripe so the next sale
+  // pays them out. Skillzy never pays out retroactively for sales made
+  // before connection — that's the trade-off that keeps the policy
+  // simple. Buyers still get full file delivery either way.
 
   // 4. Identify the buyer if signed in.
   let buyerEmail = email

@@ -619,20 +619,20 @@ function SellingView({
             <div className="flex items-start justify-between gap-5 flex-wrap">
               <div className="max-w-2xl">
                 <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
-                  ⚠ Connect Stripe to keep 80% of your sales
+                  Connect Stripe to receive payouts
                 </p>
                 <p
                   className="font-display text-2xl sm:text-3xl mt-2 tracking-tight"
                   style={{ letterSpacing: '-0.02em' }}
                 >
                   {stripeAccountId
-                    ? 'Finish your Stripe verification.'
-                    : 'Connect Stripe to actually get paid.'}
+                    ? 'One quick step to finish Stripe.'
+                    : 'Connect Stripe to start getting paid.'}
                 </p>
                 <p className="mt-2 text-sm text-brand-ink leading-relaxed">
                   {stripeAccountId
-                    ? "You started Stripe onboarding but it isn't verified yet. Until it is, every sale of your listings goes entirely to Skillzy — you get $0."
-                    : "Until you connect Stripe, every sale of your listings goes entirely to Skillzy — you get $0. Takes ~30 seconds: log in to Stripe, confirm a few details, done."}
+                    ? 'You started Stripe onboarding — a couple more details and your payouts are live. 80% of every sale lands straight in your bank.'
+                    : 'Takes about 2 minutes. Once connected, you receive 80% of every sale paid straight to your bank account.'}
                 </p>
               </div>
               <Link

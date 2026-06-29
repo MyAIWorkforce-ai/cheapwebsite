@@ -10,6 +10,12 @@ type Args = {
   payoutCents: number
   currency: string
   orderId: string
+  // True when the creator had Stripe Connect enabled at the time of
+  // the sale (so the standard 80/20 transfer happened). False when
+  // they hadn't — in which case the email celebrates the sale and
+  // nudges them to connect so the NEXT sale pays out. We never tell
+  // them they "missed" their payout — light touch, invite forward.
+  payoutsConnected?: boolean
 }
 
 let cached: Resend | null = null
@@ -29,6 +35,7 @@ export async function sendSaleNotification({
   payoutCents,
   currency,
   orderId,
+  payoutsConnected = true,
 }: Args) {
   if (!hasResend) return { skipped: true as const }
 
@@ -40,13 +47,18 @@ export async function sendSaleNotification({
   const cur = (currency || 'usd').toUpperCase()
   const money = (c: number) =>
     `${cur} ${(c / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+  // Hypothetical 80% on this sale amount — used in the unconnected
+  // variant to show the creator what they'll receive on the NEXT
+  // sale once Stripe is connected. Not a promise of a back-payment.
+  const wouldHaveEarned = Math.round(amountCents * 0.8)
 
   const resend = getResend()
-  const subject = `You just sold "${title}" on Skillzy`
+  const subject = payoutsConnected
+    ? `You just sold "${title}" on Skillzy`
+    : `🎉 Your listing sold — connect Stripe to receive payouts`
 
-  const html = `<!doctype html><html><body style="margin:0;background:#E8ECF0;font-family:Georgia,'Times New Roman',serif;color:#0F1729;">
-    <div style="max-width:560px;margin:0 auto;padding:40px 28px;">
-      ${brandHeaderHtml()}
+  const body = payoutsConnected
+    ? `
       <p style="font-family:monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#C19E50;margin:0;">Cha-ching</p>
       <h1 style="font-size:34px;line-height:1.1;letter-spacing:-0.02em;margin:14px 0 0;">You just made a sale.</h1>
       <p style="font-size:16px;color:#5F6B7E;margin:18px 0 0;">
@@ -70,7 +82,37 @@ export async function sendSaleNotification({
         See every sale + total earned on your <a href="${dashboard}" style="color:#0F1729;">dashboard</a>.
         Check payout status on <a href="${payouts}" style="color:#0F1729;">Payouts</a>.
         Your live listing: <a href="${listing}" style="color:#0F1729;">${listing.replace(site + '/', '/')}</a>.
+      </p>`
+    : `
+      <p style="font-family:monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#C19E50;margin:0;">Your first sale</p>
+      <h1 style="font-size:34px;line-height:1.1;letter-spacing:-0.02em;margin:14px 0 0;">🎉 Someone just bought your listing.</h1>
+      <p style="font-size:16px;color:#5F6B7E;margin:18px 0 0;">
+        <strong>${title}</strong> just sold for <strong>${money(amountCents)}</strong>. Real money, real demand.
       </p>
+
+      <div style="margin:28px 0;padding:18px;background:#fff;border:1px solid #CCD2DD;">
+        <p style="margin:0;font-size:15px;color:#0F1729;line-height:1.55;">
+          <strong>Connect Stripe to start receiving payouts.</strong><br/>
+          Once connected, you'll receive <strong style="color:#C19E50;">80% (${money(wouldHaveEarned)})</strong> from a sale like this paid straight to your bank.
+        </p>
+      </div>
+
+      <p style="font-size:16px;color:#0F1729;margin:24px 0 0;">
+        <a href="${payouts}" style="display:inline-block;background:#C19E50;color:#0F1729;font-weight:bold;text-decoration:none;padding:14px 22px;font-family:Georgia,'Times New Roman',serif;">Connect Stripe →</a>
+      </p>
+
+      <p style="font-size:13px;color:#5F6B7E;margin:24px 0 0;line-height:1.55;">
+        Takes about 2 minutes. Link your existing Stripe account or create one in the same flow. Skillzy doesn't process payouts retroactively, so the sooner you're connected, the sooner sales land in your bank.
+      </p>
+
+      <p style="font-size:14px;color:#5F6B7E;margin:24px 0 0;line-height:1.55;">
+        Order ${orderId} · Listing: <a href="${listing}" style="color:#0F1729;">${listing.replace(site + '/', '/')}</a>
+      </p>`
+
+  const html = `<!doctype html><html><body style="margin:0;background:#E8ECF0;font-family:Georgia,'Times New Roman',serif;color:#0F1729;">
+    <div style="max-width:560px;margin:0 auto;padding:40px 28px;">
+      ${brandHeaderHtml()}
+      ${body}
 
       <hr style="border:none;border-top:1px solid #CCD2DD;margin:32px 0;" />
       <p style="font-family:monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#5F6B7E;margin:0;">Skillzy</p>
@@ -78,7 +120,8 @@ export async function sendSaleNotification({
     </div>
   </body></html>`
 
-  const text = `You just sold "${title}" on Skillzy.
+  const text = payoutsConnected
+    ? `You just sold "${title}" on Skillzy.
 
 Sale total: ${money(amountCents)}
 Skillzy 20%: ${money(amountCents - payoutCents)}
@@ -87,6 +130,17 @@ Order: ${orderId}
 
 Dashboard: ${dashboard}
 Payouts: ${payouts}
+Listing: ${listing}
+`
+    : `Your listing "${title}" just sold for ${money(amountCents)} — real money, real demand.
+
+Connect Stripe to start receiving payouts. Once connected, you'll receive 80% (${money(wouldHaveEarned)}) from a sale like this paid straight to your bank.
+
+Connect Stripe: ${payouts}
+
+Takes about 2 minutes. Skillzy doesn't process payouts retroactively, so the sooner you're connected, the sooner sales land in your bank.
+
+Order: ${orderId}
 Listing: ${listing}
 `
 

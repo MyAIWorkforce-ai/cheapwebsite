@@ -123,7 +123,13 @@ export async function fulfillPaymentIntent(intent: Stripe.PaymentIntent) {
     }
   }
 
-  // Seller "you sold X" email.
+  // Seller "you sold X" email. When the sale was routed to a
+  // connected Stripe account, the standard branded email runs. When
+  // routedToCreator is false (creator hadn't connected Stripe at
+  // the moment of sale) we send the "🎉 connect Stripe to receive
+  // payouts" celebratory variant — never warns about the lost
+  // payout, leads with the dopamine of the sale, asks for the next
+  // sale to land in their bank.
   async function emailSeller() {
     if (!hasResend || !product || !sellerEmail) return
     try {
@@ -135,6 +141,7 @@ export async function fulfillPaymentIntent(intent: Stripe.PaymentIntent) {
         payoutCents: payout,
         currency,
         orderId: orderIdFromIntent(intent.id),
+        payoutsConnected: routedToCreator,
       })
     } catch (err) {
       console.error('Failed to send seller sale notification', err)

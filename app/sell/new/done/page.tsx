@@ -122,25 +122,25 @@ export default async function ListingDonePage({
 
       {/* Get-paid prompt — only if they haven't connected Stripe yet.
           This is the one thing standing between a sale and money in
-          their account, so it sits above the share kit. */}
+          their account, so it sits above the share kit. Tone is
+          celebratory + inviting, not warning-flavoured. */}
       {!canBePaid && (
         <section className="px-6 lg:px-10 py-10 sm:py-12 border-b border-brand-hairline bg-brand-gold/10">
           <div className="max-w-page mx-auto max-w-3xl">
             <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
-              ⚠ One step left to get paid
+              One step left
             </span>
             <h2
               className="font-display mt-3 text-3xl sm:text-4xl tracking-tight"
               style={{ letterSpacing: '-0.025em' }}
             >
-              Connect Stripe so your sales reach your bank.
+              Connect Stripe to be paid.
             </h2>
             <p className="mt-3 text-brand-ink leading-relaxed">
-              Your listing is live and buyable right now — but until you
-              connect Stripe, any sale can&rsquo;t pay out to you. It&rsquo;s
-              about 30 seconds: link your existing Stripe account (or make one
-              in the same flow), confirm a couple of details, done. You keep
-              80% of every sale, paid straight into your own account.
+              Your listing is live and buyable right now. Connect Stripe
+              (about 2 minutes — link your existing account or create one in
+              the same flow) so 80% of every sale lands straight in your
+              bank.
             </p>
             <Link
               href="/dashboard/payouts"

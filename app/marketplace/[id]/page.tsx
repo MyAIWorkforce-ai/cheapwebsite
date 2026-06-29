@@ -85,14 +85,14 @@ export default async function ProductDetailPage({
   const headlineCta =
     isSetup ? 'Get the setup' : isGuide ? 'Get the guide' : 'Get the skill'
 
-  // Block the Buy button on PAID listings whose creator hasn't connected
-  // Stripe yet — otherwise the sale would route 100% to Skillzy with the
-  // creator getting nothing. Free listings (no money to route) and demo
-  // listings (don't actually charge) are unaffected.
-  const payoutsBlocked = !p.free && p.creator.payoutsEnabled === false
-  const notifyHref = `mailto:help@skillzy.ai?subject=${encodeURIComponent(
-    `Tell me when "${p.title}" is ready to buy`,
-  )}`
+  // We used to block the Buy button on PAID listings whose creator hadn't
+  // connected Stripe yet. That left genuinely strong listings (Klarisa
+  // AI's first listing was sitting at "Notify me" for days) un-buyable
+  // while the creator slow-walked their onboarding. Policy now: Buy
+  // always enabled. Sales made before the creator connects Stripe are
+  // retained by the platform — the creator is nudged across dashboard,
+  // post-publish, and sale-notification to connect so future sales pay
+  // out to them. See lib/fulfillment.ts for the no-transfer_data path.
 
   const filterTypeKey =
     p.type === 'Agent Setup' ? 'agent-setup' : p.type === 'Skill' ? 'skill' : 'guide'
@@ -254,20 +254,6 @@ export default async function ProductDetailPage({
 
               {p.free ? (
                 <EmailGate listingId={p.id} ctaLabel={headlineCta} />
-              ) : payoutsBlocked ? (
-                <div className="mt-7">
-                  <div className="w-full text-center bg-brand-cream-card border border-brand-hairline px-7 py-4 text-[14px] text-brand-muted leading-snug">
-                    Not buyable yet — the creator hasn&rsquo;t enabled
-                    payouts. We&rsquo;ll open it the moment they connect Stripe.
-                  </div>
-                  <a
-                    href={notifyHref}
-                    className="mt-3 inline-flex items-center gap-1 text-xs underline underline-offset-4 text-brand-muted hover:text-brand-ink"
-                  >
-                    Tell me when it&rsquo;s ready
-                    <span aria-hidden>→</span>
-                  </a>
-                </div>
               ) : (
                 <Link
                   href={`/checkout/${p.id}`}
@@ -615,23 +601,13 @@ export default async function ProductDetailPage({
           >
             Report this listing
           </a>
-          {payoutsBlocked ? (
-            <a
-              href={notifyHref}
-              className="inline-flex items-center gap-2 border border-brand-hairline bg-brand-cream-card text-brand-muted px-7 py-3.5 text-[14px] hover:text-brand-ink transition-colors"
-            >
-              Not buyable yet — tell me when it&rsquo;s ready
-              <span aria-hidden>→</span>
-            </a>
-          ) : (
-            <Link
-              href={p.free ? '#top' : `/checkout/${p.id}`}
-              className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-3.5 text-[15px] hover:bg-brand-gold-dark transition-colors"
-            >
-              {headlineCta} — {p.free ? 'Free' : p.price}
-              <span aria-hidden>→</span>
-            </Link>
-          )}
+          <Link
+            href={p.free ? '#top' : `/checkout/${p.id}`}
+            className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-3.5 text-[15px] hover:bg-brand-gold-dark transition-colors"
+          >
+            {headlineCta} — {p.free ? 'Free' : p.price}
+            <span aria-hidden>→</span>
+          </Link>
         </div>
       </section>
 
@@ -716,23 +692,13 @@ export default async function ProductDetailPage({
             </p>
             <p className="text-[11px] text-brand-muted truncate">{p.title}</p>
           </div>
-          {payoutsBlocked ? (
-            <a
-              href={notifyHref}
-              className="shrink-0 inline-flex items-center gap-2 border border-brand-hairline bg-brand-cream-card text-brand-muted px-5 py-3 text-sm hover:text-brand-ink transition-colors"
-            >
-              Notify me
-              <span aria-hidden>→</span>
-            </a>
-          ) : (
-            <Link
-              href={p.free ? '#top' : `/checkout/${p.id}`}
-              className="shrink-0 inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-5 py-3 text-sm hover:bg-brand-gold-dark transition-colors"
-            >
-              {headlineCta}
-              <span aria-hidden>→</span>
-            </Link>
-          )}
+          <Link
+            href={p.free ? '#top' : `/checkout/${p.id}`}
+            className="shrink-0 inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-5 py-3 text-sm hover:bg-brand-gold-dark transition-colors"
+          >
+            {headlineCta}
+            <span aria-hidden>→</span>
+          </Link>
         </div>
       </div>
       {/* spacer so the sticky bar never covers footer content on mobile */}
