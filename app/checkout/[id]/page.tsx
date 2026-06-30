@@ -23,70 +23,12 @@ export default async function CheckoutPage({ params }: { params: { id: string } 
   const isDemo = isSeedProductId(params.id)
   const user = await getUser()
 
-  // BLOCK paid checkout when the creator hasn't connected Stripe yet.
-  // The listing page hides the Buy button in this case, but someone
-  // following a direct /checkout/<id> link (saved/shared/legacy) would
-  // otherwise see the full payment form and only learn it's blocked
-  // when the API returns 403 after they entered card details. Render
-  // the "not buyable yet" screen instead. Demo + free listings are
-  // unaffected.
-  const payoutsBlocked = !isDemo && !p.free && p.creator.payoutsEnabled === false
-  if (payoutsBlocked) {
-    const notifyHref = `mailto:help@skillzy.ai?subject=${encodeURIComponent(
-      `Tell me when "${p.title}" is ready to buy`,
-    )}`
-    return (
-      <div className="paper">
-        <div className="max-w-page mx-auto px-6 lg:px-10 pt-8 sm:pt-10">
-          <nav
-            aria-label="Breadcrumb"
-            className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted"
-          >
-            <Link
-              href={`/marketplace/${p.id}`}
-              className="hover:text-brand-gold transition-colors"
-            >
-              ← Back to listing
-            </Link>
-          </nav>
-        </div>
-        <section className="px-6 lg:px-10 pt-10 sm:pt-14 pb-20 sm:pb-28">
-          <div className="max-w-2xl mx-auto">
-            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
-              Not yet
-            </span>
-            <h1
-              className="font-display mt-5 text-5xl sm:text-6xl tracking-tight leading-[0.95]"
-              style={{ letterSpacing: '-0.03em' }}
-            >
-              This one&rsquo;s{' '}
-              <em className="italic text-brand-gold font-medium">not buyable yet.</em>
-            </h1>
-            <p className="mt-6 text-brand-muted max-w-prose text-lg leading-relaxed">
-              The creator hasn&rsquo;t enabled payouts. We&rsquo;ll open
-              <strong className="text-brand-ink"> {p.title}</strong> the moment
-              they connect Stripe — usually within a day of going live.
-            </p>
-            <div className="mt-10 flex flex-wrap gap-3 sm:gap-4 items-center">
-              <a
-                href={notifyHref}
-                className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
-              >
-                Tell me when it&rsquo;s ready
-                <span aria-hidden>→</span>
-              </a>
-              <Link
-                href="/marketplace"
-                className="text-sm border-b border-brand-ink pb-0.5 hover:text-brand-gold hover:border-brand-gold transition-colors"
-              >
-                Browse what&rsquo;s ready now
-              </Link>
-            </div>
-          </div>
-        </section>
-      </div>
-    )
-  }
+  // The checkout-side payouts-not-connected guard used to render a
+  // "not buyable yet" interstitial here. Removed in the 2026-06
+  // policy shift — listings are always buyable. Sales made before
+  // the creator connects Stripe are retained by the platform (no
+  // retroactive payout, per ToS §6). See app/marketplace/[id]/page.tsx
+  // + app/api/checkout/route.ts comments for the matching changes.
 
   const priceNumber = Number(p.price.replace(/[^0-9.]/g, ''))
   const creatorCut = (priceNumber * 0.8).toFixed(2)
