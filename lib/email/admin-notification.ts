@@ -14,12 +14,28 @@ function getResend() {
   return cached
 }
 
-// Where the alerts land. Each call can override with a type-specific
-// env var; otherwise falls back to NOTIFY_EMAIL, then EMAIL_FROM.
+// Where the alerts land. Resolution order, per type:
+//   1. The type-specific env var (NOTIFY_EMAIL_SALE etc.) — Vercel override
+//   2. The type-specific default address on the skillzy.ai domain
+//      (sales@ / listings@ / signups@) — so each alert stream goes to
+//      the right inbox / alias without any env wiring
+//   3. The generic NOTIFY_EMAIL env var
+//   4. The Resend from-address (hi@skillzy.ai) — final safety net
+//
+// Make sure the per-type default address exists as a real mailbox or
+// alias on the skillzy.ai domain — otherwise Resend will accept the
+// send but mail will bounce.
+const DEFAULT_NOTIFY: Record<string, string> = {
+  NOTIFY_EMAIL_SALE: 'sales@skillzy.ai',
+  NOTIFY_EMAIL_LISTING: 'listings@skillzy.ai',
+  NOTIFY_EMAIL_SIGNUP: 'signups@skillzy.ai',
+}
 function notifyTo(specificEnvKey?: string) {
   if (specificEnvKey) {
     const specific = process.env[specificEnvKey]?.trim()
     if (specific) return specific
+    const typed = DEFAULT_NOTIFY[specificEnvKey]
+    if (typed) return typed
   }
   return process.env.NOTIFY_EMAIL?.trim() || env.resend.fromEmail
 }
