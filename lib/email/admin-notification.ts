@@ -26,9 +26,13 @@ function getResend() {
 // alias on the skillzy.ai domain — otherwise Resend will accept the
 // send but mail will bounce.
 const DEFAULT_NOTIFY: Record<string, string> = {
+  // Sales alerts split out to sales@ so revenue events have their
+  // own inbox and don't get drowned in signup / listing noise.
   NOTIFY_EMAIL_SALE: 'sales@skillzy.ai',
-  NOTIFY_EMAIL_LISTING: 'listings@skillzy.ai',
-  NOTIFY_EMAIL_SIGNUP: 'signups@skillzy.ai',
+  // Everything else (new signups, new listings) goes to hi@ — the
+  // working catch-all where Toby already reads.
+  NOTIFY_EMAIL_SIGNUP: 'hi@skillzy.ai',
+  NOTIFY_EMAIL_LISTING: 'hi@skillzy.ai',
 }
 function notifyTo(specificEnvKey?: string) {
   if (specificEnvKey) {
