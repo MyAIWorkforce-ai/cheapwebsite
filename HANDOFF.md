@@ -1689,3 +1689,76 @@ dashboard pulls funds back from the customer card, reverses the
 application fee back to Skillzy AI, AND reverses the transfer
 from My AI Workforce back. Only the Stripe processing fee
 (~US$5.85 on a $199 charge) is non-refundable.
+
+---
+
+## 2026-06-26 — Buyability policy + founder-alert routing
+
+### Policy change: listings are always buyable
+
+Removed the "Not buyable yet — creator hasn't enabled payouts" gate
+that blocked the Buy button on listings whose creator hadn't
+connected Stripe. Was applied in three places — all now removed:
+
+1. `app/marketplace/[id]/page.tsx` — hero CTA, slim CTA, mobile
+   sticky buy bar
+2. `app/checkout/[id]/page.tsx` — full-page interstitial that fired
+   even when someone clicked Buy from the hero (the bug Toby caught
+   when testing Klarisa AI's listing)
+3. `app/api/checkout/route.ts` — 403 defense-in-depth response
+
+When the creator has no `destinationAccount` (no Stripe Connect),
+the PaymentIntent is created **without** `transfer_data` and
+**without** `application_fee_amount`. The conditional spread in
+`baseParams` handles this naturally:
+
+```ts
+...(destinationAccount && {
+  application_fee_amount: platformFee,
+  transfer_data: { destination: destinationAccount },
+}),
+```
+
+Result: full charge stays on the Skillzy platform account. Creator
+gets nothing for that sale. No retroactive payout when they later
+connect Stripe — this is in ToS §6 ("Payouts require Stripe
+Connect").
+
+Nudge tone is light + inviting everywhere, never warns:
+- Dashboard banner: "Connect Stripe to start getting paid. 80%
+  lands in your bank. 2 minutes."
+- Post-publish: "One step left. Connect Stripe to be paid."
+- Sale notification email (unconnected variant in
+  `lib/email/sale-notification.tsx`): 🎉 "Someone bought your
+  listing for $X. Connect Stripe so the next sale (80% = $Y)
+  lands in your bank." Wired via `payoutsConnected` prop driven
+  by `routedToCreator` in `lib/fulfillment.ts`.
+
+### Founder-alert routing — typed defaults
+
+`lib/email/admin-notification.ts` — `notifyTo()` fallback chain
+now picks a sensible type-specific address before falling back to
+the Resend from-address. Resolution order per type:
+
+1. Env var override (`NOTIFY_EMAIL_SALE`, `NOTIFY_EMAIL_SIGNUP`,
+   `NOTIFY_EMAIL_LISTING`) — Vercel can override per type
+2. Typed default from the `DEFAULT_NOTIFY` map (see below)
+3. Generic `NOTIFY_EMAIL` env var
+4. `env.resend.fromEmail` — final safety net
+
+Typed defaults:
+
+```ts
+NOTIFY_EMAIL_SALE    → sales@skillzy.ai
+NOTIFY_EMAIL_SIGNUP  → hi@skillzy.ai
+NOTIFY_EMAIL_LISTING → hi@skillzy.ai
+```
+
+Per Toby (founder): sale alerts get their own inbox (`sales@`) so
+revenue events aren't drowned in signup / listing noise. Signups
+and listings go to `hi@` (the existing working catch-all).
+
+**Founder action carried over:** ensure `sales@skillzy.ai` exists
+as a real mailbox or alias on the domain (likely a forwarding
+alias to wherever Toby reads mail). Otherwise Resend will accept
+the send but Gmail will bounce.
