@@ -71,16 +71,16 @@ export default function Footer() {
             {/* All Skillzy social handles are @skillzyai. LinkedIn is
                 deliberately omitted until that account is live; YouTube
                 and GitHub were removed when the broader social set went
-                live. */}
+                live. Order: Facebook, Instagram, X, TikTok, Threads, Email. */}
             <a
-              href="https://x.com/skillzyai"
+              href="https://facebook.com/skillzyai"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Skillzy on X"
+              aria-label="Skillzy on Facebook"
               className="hover:text-brand-gold transition-colors"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                <path d="M18.244 2H21.5l-7.5 8.57L23 22h-6.91l-5.41-7.07L4.4 22H1.14l8.02-9.17L1 2h7.06l4.9 6.48L18.24 2Zm-1.22 18h1.84L7.07 4H5.1l11.92 16Z" />
+                <path d="M13 22v-8h2.7l.4-3.1H13V8.9c0-.9.3-1.5 1.6-1.5H16V4.6c-.3 0-1.2-.1-2.2-.1-2.2 0-3.8 1.4-3.8 3.9v2.5H7.3V14h2.7v8H13Z" />
               </svg>
             </a>
             <a
@@ -97,14 +97,14 @@ export default function Footer() {
               </svg>
             </a>
             <a
-              href="https://facebook.com/skillzyai"
+              href="https://x.com/skillzyai"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Skillzy on Facebook"
+              aria-label="Skillzy on X"
               className="hover:text-brand-gold transition-colors"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                <path d="M13 22v-8h2.7l.4-3.1H13V8.9c0-.9.3-1.5 1.6-1.5H16V4.6c-.3 0-1.2-.1-2.2-.1-2.2 0-3.8 1.4-3.8 3.9v2.5H7.3V14h2.7v8H13Z" />
+                <path d="M18.244 2H21.5l-7.5 8.57L23 22h-6.91l-5.41-7.07L4.4 22H1.14l8.02-9.17L1 2h7.06l4.9 6.48L18.24 2Zm-1.22 18h1.84L7.07 4H5.1l11.92 16Z" />
               </svg>
             </a>
             <a
