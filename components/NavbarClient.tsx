@@ -22,7 +22,11 @@ export default function NavbarClient({ user }: { user: SessionUser | null }) {
 
   if (isHome) {
     return (
-      <div className="absolute top-3 right-4 sm:top-5 sm:right-6 z-50">
+      // Home renders just the floating menu button; the Skillzy
+      // wordmark sits in the page itself. Push BOTH down by the
+      // device safe-area inset so iOS standalone PWAs (added to
+      // home screen) don't bury the menu under the clock / battery.
+      <div className="absolute top-[calc(env(safe-area-inset-top)+0.75rem)] right-4 sm:top-[calc(env(safe-area-inset-top)+1.25rem)] sm:right-6 z-50">
         <button
           type="button"
           aria-label="Menu"
@@ -58,7 +62,7 @@ export default function NavbarClient({ user }: { user: SessionUser | null }) {
   }
 
   return (
-    <nav className="border-b border-brand-hairline bg-brand-cream/85 backdrop-blur supports-[backdrop-filter]:bg-brand-cream/70 sticky top-0 z-40">
+    <nav className="border-b border-brand-hairline bg-brand-cream/85 backdrop-blur supports-[backdrop-filter]:bg-brand-cream/70 sticky top-0 z-40 pt-[env(safe-area-inset-top)]">
       <div className="max-w-page mx-auto px-6 lg:px-10 h-16 flex items-center gap-8">
         <Logo size="md" />
 
