@@ -1762,3 +1762,42 @@ and listings go to `hi@` (the existing working catch-all).
 as a real mailbox or alias on the domain (likely a forwarding
 alias to wherever Toby reads mail). Otherwise Resend will accept
 the send but Gmail will bounce.
+
+---
+
+## 2026-06-26 — Product-type decision: "Prompt Packs" only, not single Prompts
+
+Founder considered adding **Prompt** as a fourth first-class product
+type alongside Skill / Guide / Agent Setup. Decision: **not now**.
+
+**Reasons to defer:**
+- Dilutes the "production-ready agent setups for real business
+  operators" positioning that's working (tradies, real estate,
+  bookkeepers, Airbnb hosts).
+- Single-prompt selling is a saturated commodity market
+  (Promptbase, PromptHunt, PromptHero, Fewshot own that lane) with
+  race-to-the-bottom pricing at $5-9 per prompt.
+- Different buyer persona from Agent Setup buyers — muddles
+  marketing, homepage, SEO, and trust signals.
+- 20% of $9 = $1.80 per sale — volume required to move the needle
+  is disproportionate to the brand cost.
+
+**When we do add prompts, do it as "Prompt Packs":**
+- Curated sets of 10-50 prompts for a specific role or workflow
+  (e.g., "40 prompts every real estate agent should have,"
+  "Cold outreach prompt pack for SDRs")
+- Priced $29-79, not $9
+- Positioned as "solve a real business problem" not "here's a
+  good prompt" — keeps the on-brand wedge intact
+- Bundles differentiate from Etsy / Gumroad $5 prompts
+
+**Short-term workaround (no schema change needed):**
+Creators who want to sell a prompt pack today can list it under
+the existing **Guide** type. "[Niche] prompt pack, curated."
+reads as a Guide without adding a new type. If a creator asks
+for a dedicated Prompt Pack type, that's the trigger to reconsider.
+
+**Trigger to revisit:** either (a) a creator explicitly asks for
+a dedicated Prompt Pack listing type, or (b) 3-6 months elapse
+and we're deliberately widening top-of-funnel with lower-priced
+inventory.
