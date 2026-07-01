@@ -73,17 +73,37 @@ export default function CreatorList({
               key={c.id}
               className="py-3 flex items-baseline justify-between gap-4"
             >
-              <span className="min-w-0">
-                <Link
-                  href={`/admin/creators/${c.id}`}
-                  className="font-mono text-sm border-b border-brand-ink/30 hover:text-brand-gold hover:border-brand-gold break-all"
+              <span className="min-w-0 flex items-center gap-2">
+                {/* Stripe-connected indicator — the gold tick makes it
+                    instantly scannable which accounts are payout-ready.
+                    Non-connected shows an outlined circle with an
+                    explanatory title on hover. */}
+                <span
+                  aria-label={c.connected ? 'Stripe connected' : 'Stripe not connected'}
+                  title={c.connected ? 'Stripe connected' : 'Stripe not connected'}
+                  className={
+                    'shrink-0 inline-flex items-center justify-center w-4 h-4 rounded-sm border ' +
+                    (c.connected
+                      ? 'bg-brand-gold border-brand-gold text-brand-ink'
+                      : 'border-brand-hairline text-transparent')
+                  }
                 >
-                  {c.email}
-                </Link>
-                <span className="block text-xs text-brand-muted mt-0.5 truncate">
-                  {c.name}
-                  {c.handle !== '—' ? ` · @${c.handle}` : ''}
-                  {!c.connected && c.sales > 0 ? ' · no payout' : ''}
+                  <svg viewBox="0 0 12 12" className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden>
+                    <path d="M2.5 6.5 5 9l4.5-5" />
+                  </svg>
+                </span>
+                <span className="min-w-0 flex-1">
+                  <Link
+                    href={`/admin/creators/${c.id}`}
+                    className="font-mono text-sm border-b border-brand-ink/30 hover:text-brand-gold hover:border-brand-gold break-all"
+                  >
+                    {c.email}
+                  </Link>
+                  <span className="block text-xs text-brand-muted mt-0.5 truncate">
+                    {c.name}
+                    {c.handle !== '—' ? ` · @${c.handle}` : ''}
+                    {!c.connected && c.sales > 0 ? ' · no payout' : ''}
+                  </span>
                 </span>
               </span>
               <span className="font-mono text-xs text-brand-muted shrink-0 text-right">
