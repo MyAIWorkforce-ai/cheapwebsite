@@ -30,13 +30,13 @@ type SpeechRecCtor = new () => SpeechRecLike
 
 const types = [
   { key: 'guide', title: 'Guide', price: '$9 – $59+', desc: 'A how-to people read.' },
+  { key: 'skill', title: 'Skill', price: '$9 – $109+', desc: 'Drop-in capability files.' },
   {
     key: 'prompt_pack',
     title: 'Prompt Pack',
     price: '$29 – $79+',
     desc: '10+ prompts for a specific role.',
   },
-  { key: 'skill', title: 'Skill', price: '$9 – $109+', desc: 'One job, done sharp.' },
   {
     key: 'agent_setup',
     title: 'Agent Setup',
