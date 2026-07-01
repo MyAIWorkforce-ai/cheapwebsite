@@ -245,7 +245,7 @@ export default function HomePage() {
                 Sell it.
               </span>{' '}
               <span className="text-brand-muted">
-                · One listing. Sell it forever · Keep 80% of every sale
+                · List once. Earn forever.
               </span>
             </span>
           </div>
