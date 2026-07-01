@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import Logo from '@/components/Logo'
 import ProductCard from '@/components/ProductCard'
-import { products, toCardProduct, NICHES } from '@/lib/catalog'
+import { products, toCardProduct, NICHES, type CardProduct, type ProductType } from '@/lib/catalog'
+import { liveDbProducts } from '@/lib/listings'
 import { getAllPosts, readingMinutes } from '@/lib/blog'
 import { pageMetadata } from '@/lib/seo'
 
@@ -20,20 +21,38 @@ export const metadata = pageMetadata({
   ],
 })
 
-const agentSetups = products
-  .filter((p) => p.type === 'Agent Setup')
-  .slice(0, 3)
-  .map(toCardProduct)
+// Homepage refreshes at most every 60 seconds. Real DB listings that
+// went live in the last minute appear on the next request; the shuffle
+// re-seeds inside that window too so the shelves aren't frozen for
+// repeat visitors.
+export const revalidate = 60
 
-const skills = products
-  .filter((p) => p.type === 'Skill')
-  .slice(0, 4)
-  .map(toCardProduct)
+// Fisher-Yates. Copies the input so the caller's array isn't mutated.
+function shuffled<T>(arr: T[]): T[] {
+  const out = arr.slice()
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[out[i], out[j]] = [out[j], out[i]]
+  }
+  return out
+}
 
-const guides = products
-  .filter((p) => p.type === 'Guide')
-  .slice(0, 3)
-  .map(toCardProduct)
+// Prefer real DB listings; only fall back to sample seed listings if
+// there aren't enough real ones yet to fill the shelf. Rotates
+// randomly each cache window so visitors don't see the same cards
+// pinned to the top forever.
+function shelfFor(
+  type: ProductType,
+  live: CardProduct[],
+  seedPool: CardProduct[],
+  count: number,
+): CardProduct[] {
+  const real = shuffled(live.filter((p) => p.type === type))
+  if (real.length >= count) return real.slice(0, count)
+  const seeds = shuffled(seedPool.filter((p) => p.type === type))
+  const gap = count - real.length
+  return [...real, ...seeds.slice(0, gap)]
+}
 
 // Pulled from the master list in lib/catalog so every place that
 // shows niches (filter row, hustle grid) stays in sync. "Anything
@@ -87,7 +106,12 @@ function Sticker({
   )
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const seedCards = products.map(toCardProduct)
+  const liveCards = (await liveDbProducts()).map(toCardProduct)
+  const agentSetups = shelfFor('Agent Setup', liveCards, seedCards, 3)
+  const skills = shelfFor('Skill', liveCards, seedCards, 4)
+  const guides = shelfFor('Guide', liveCards, seedCards, 3)
   const latestPosts = getAllPosts().slice(0, 3)
   return (
     <div className="paper overflow-x-clip">
