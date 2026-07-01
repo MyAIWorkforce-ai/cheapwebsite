@@ -111,7 +111,7 @@ export default async function ProductDetailPage({
 
   const filterLabel =
     p.type === 'Agent Setup'
-      ? 'Agent Setups'
+      ? 'Full Agent Setups'
       : p.type === 'Skill'
         ? 'Skills'
         : p.type === 'Prompt Pack'

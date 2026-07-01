@@ -103,6 +103,17 @@ export async function updateListing(
     | 'live'
     | 'pending_review'
     | 'removed'
+  // Type is optional on this update — some legacy edit paths won't submit
+  // it. When present it lets a creator reclassify (e.g. "this was really a
+  // Skill, not a Full Agent Setup") without asking support.
+  const rawType = String(formData.get('type') ?? '').trim()
+  const type =
+    rawType === 'skill' ||
+    rawType === 'guide' ||
+    rawType === 'agent_setup' ||
+    rawType === 'prompt_pack'
+      ? rawType
+      : null
 
   if (!title) return { error: 'Title is required.' }
   if (!Number.isFinite(price) || price < 9)
@@ -127,6 +138,7 @@ export async function updateListing(
       niche,
       platform_list: platforms,
       status,
+      ...(type ? { type } : {}),
     })
     .eq('id', id)
     .eq('creator_id', user!.id)

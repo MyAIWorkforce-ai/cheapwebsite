@@ -26,6 +26,14 @@ async function loadDefaults(
       slug: id,
       title: p.title,
       tagline: p.tagline,
+      type:
+        p.type === 'Skill'
+          ? 'skill'
+          : p.type === 'Guide'
+            ? 'guide'
+            : p.type === 'Prompt Pack'
+              ? 'prompt_pack'
+              : 'agent_setup',
       price: Number(p.price.replace(/[^0-9.]/g, '')),
       niche: p.niche ?? '',
       platforms: p.platformList.join(', '),
@@ -41,7 +49,7 @@ async function loadDefaults(
     const { data } = await supabase
       .from('listings')
       .select(
-        'id, title, tagline, price_cents, niche, platform_list, status, featured_tier',
+        'id, title, tagline, type, price_cents, niche, platform_list, status, featured_tier',
       )
       .eq('slug', id)
       .eq('creator_id', userId)
@@ -67,6 +75,7 @@ async function loadDefaults(
       slug: id,
       title: data.title,
       tagline: data.tagline ?? '',
+      type: (data.type as EditDefaults['type']) ?? 'agent_setup',
       price: Math.round((data.price_cents ?? 0) / 100),
       niche: data.niche ?? '',
       platforms: (data.platform_list ?? []).join(', '),

@@ -20,7 +20,7 @@ export type Product = {
 const typeAbbrev: Record<ProductType, string> = {
   Skill: 'Skill',
   Guide: 'Guide',
-  'Agent Setup': 'Agent Setup',
+  'Agent Setup': 'Full Agent Setup',
   'Prompt Pack': 'Prompt Pack',
 }
 

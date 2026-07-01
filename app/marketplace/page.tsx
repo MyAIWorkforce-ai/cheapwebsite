@@ -24,10 +24,10 @@ export const metadata = pageMetadata({
 })
 
 const filters: { label: string; type?: ProductType; key: string }[] = [
-  { label: 'Agent Setups', type: 'Agent Setup', key: 'agent-setup' },
   { label: 'Skills', type: 'Skill', key: 'skill' },
   { label: 'Guides', type: 'Guide', key: 'guide' },
   { label: 'Prompt Packs', type: 'Prompt Pack', key: 'prompt-pack' },
+  { label: 'Full Agent Setups', type: 'Agent Setup', key: 'agent-setup' },
   { label: 'All', key: 'all' },
 ]
 
