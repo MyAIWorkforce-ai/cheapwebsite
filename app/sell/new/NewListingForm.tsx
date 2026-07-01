@@ -38,6 +38,12 @@ const types = [
     desc: 'The whole agent. Best margins.',
     recommended: true,
   },
+  {
+    key: 'prompt_pack',
+    title: 'Prompt Pack',
+    price: '$29 – $79+',
+    desc: '10+ prompts for a specific role.',
+  },
 ]
 
 // Draft is stashed here so a sign-up / email-confirm detour can never
@@ -46,7 +52,7 @@ const types = [
 const DRAFT_KEY = 'skz_listing_draft_v1'
 
 type Draft = {
-  type: 'skill' | 'guide' | 'agent_setup'
+  type: 'skill' | 'guide' | 'agent_setup' | 'prompt_pack'
   title: string
   tagline: string
   niche: string
@@ -172,7 +178,7 @@ export default function NewListingForm({
     }
   }, [state.error, state.info])
 
-  const [type, setType] = useState<'skill' | 'guide' | 'agent_setup'>('agent_setup')
+  const [type, setType] = useState<'skill' | 'guide' | 'agent_setup' | 'prompt_pack'>('agent_setup')
   const [title, setTitle] = useState('')
   const [tagline, setTagline] = useState('')
   const [niche, setNiche] = useState('')

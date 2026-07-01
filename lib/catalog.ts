@@ -12,7 +12,12 @@ function formatPlatformsForCard(list: string[]): string {
 }
 
 
-export type ProductType = 'Skill' | 'Guide' | 'Agent Setup'
+// 'Prompt Pack' added 2026-06-26 as a lower-friction listing type
+// (10+ curated prompts for a specific role, min $29). Sits alongside
+// the premium Skill / Guide / Agent Setup tiers so it can widen the
+// creator top-of-funnel without diluting the Setups shelf — see
+// HANDOFF.md ("Prompt Packs" decision) for the framing rationale.
+export type ProductType = 'Skill' | 'Guide' | 'Agent Setup' | 'Prompt Pack'
 
 export type Review = {
   author: string

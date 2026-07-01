@@ -79,11 +79,17 @@ export default async function ProductDetailPage({
   const isDemo = isSeedProductId(p.id)
   const isSetup = p.type === 'Agent Setup'
   const isGuide = p.type === 'Guide'
+  const isPromptPack = p.type === 'Prompt Pack'
 
   const related = getRelated(p)
 
-  const headlineCta =
-    isSetup ? 'Get the setup' : isGuide ? 'Get the guide' : 'Get the skill'
+  const headlineCta = isSetup
+    ? 'Get the setup'
+    : isGuide
+      ? 'Get the guide'
+      : isPromptPack
+        ? 'Get the pack'
+        : 'Get the skill'
 
   // We used to block the Buy button on PAID listings whose creator hadn't
   // connected Stripe yet. That left genuinely strong listings (Klarisa
@@ -95,10 +101,22 @@ export default async function ProductDetailPage({
   // out to them. See lib/fulfillment.ts for the no-transfer_data path.
 
   const filterTypeKey =
-    p.type === 'Agent Setup' ? 'agent-setup' : p.type === 'Skill' ? 'skill' : 'guide'
+    p.type === 'Agent Setup'
+      ? 'agent-setup'
+      : p.type === 'Skill'
+        ? 'skill'
+        : p.type === 'Prompt Pack'
+          ? 'prompt-pack'
+          : 'guide'
 
   const filterLabel =
-    p.type === 'Agent Setup' ? 'Agent Setups' : p.type === 'Skill' ? 'Skills' : 'Guides'
+    p.type === 'Agent Setup'
+      ? 'Agent Setups'
+      : p.type === 'Skill'
+        ? 'Skills'
+        : p.type === 'Prompt Pack'
+          ? 'Prompt Packs'
+          : 'Guides'
 
   const videoEmbed = p.videoUrl ? videoEmbedUrl(p.videoUrl) : null
   const featuredIn = getPostsForListing(p.id).slice(0, 3)

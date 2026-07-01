@@ -42,6 +42,7 @@ export async function publishListing(
     | 'skill'
     | 'guide'
     | 'agent_setup'
+    | 'prompt_pack'
   const price = Number(formData.get('price') ?? 0)
   const niche = String(formData.get('niche') ?? '').trim() || null
   const platforms = String(formData.get('platforms') ?? '')

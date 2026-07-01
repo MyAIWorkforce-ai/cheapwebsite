@@ -45,7 +45,7 @@ function hourBucket() {
   return `${d.toISOString().slice(0, 13)}` // YYYY-MM-DDTHH
 }
 
-const SYSTEM = `You write Skillzy product listings. Skillzy is a marketplace for AI agent skills, guides, and ready-to-go agent setups, dropped into a buyer's agent.
+const SYSTEM = `You write Skillzy product listings. Skillzy is a marketplace for AI agent skills, guides, ready-to-go agent setups, and curated prompt packs — dropped into a buyer's agent or copied straight into Claude/ChatGPT.
 
 Voice:
 - Punchy. Short sentences. Verbs first.
@@ -143,7 +143,11 @@ export async function POST(req: Request) {
     .json()
     .catch(() => ({}))
   const briefStr = String(brief ?? '').trim()
-  const typeStr = String(type ?? 'skill') as 'skill' | 'guide' | 'agent_setup'
+  const typeStr = String(type ?? 'skill') as
+    | 'skill'
+    | 'guide'
+    | 'agent_setup'
+    | 'prompt_pack'
 
   // Normalise PDFs to a list. Accept the new `pdfs` array (multiple docs)
   // or the legacy single pdfBase64/pdfName. Capped to bound request size.

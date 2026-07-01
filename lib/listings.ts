@@ -11,6 +11,7 @@ const TYPE_MAP: Record<string, ProductType> = {
   skill: 'Skill',
   guide: 'Guide',
   agent_setup: 'Agent Setup',
+  prompt_pack: 'Prompt Pack',
 }
 
 const UUID_RE =
@@ -34,6 +35,12 @@ function howItWorksFor(type: ProductType): Step[] {
       { n: '01', title: 'Download', desc: 'Buy once, get the file by email and on your dashboard.' },
       { n: '02', title: 'Drop it in', desc: 'Paste it into your agent. One minute.' },
       { n: '03', title: 'Run it', desc: 'Your agent picks up the new capability immediately.' },
+    ]
+  if (type === 'Prompt Pack')
+    return [
+      { n: '01', title: 'Download', desc: 'Buy once, get the pack by email and on your dashboard.' },
+      { n: '02', title: 'Paste + tweak', desc: 'Copy any prompt straight into Claude, ChatGPT, or your agent. Fill in the placeholders.' },
+      { n: '03', title: 'Run', desc: 'Reuse forever across every job that fits.' },
     ]
   return [
     { n: '01', title: 'Download', desc: 'Buy once, get the bundle by email and on your dashboard.' },
