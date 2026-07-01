@@ -4,6 +4,32 @@
 
 ---
 
+## 🔴 TOP — Add `prompt_pack` to Supabase `listing_type` enum — ⏳ **REQUIRED to unlock Prompt Pack listings**
+
+Prompt Pack was added 2026-06-26 as a 4th product type (Skill /
+Guide / Agent Setup / **Prompt Pack**). All app code + the base
+schema were updated in commit `0ca41e8`, but the running production
+Postgres enum needs to be extended before creators can pick the
+new type on `/sell/new` (otherwise the insert throws
+`invalid input value for enum listing_type: "prompt_pack"`).
+
+**Steps (~30 seconds):**
+
+1. Supabase Dashboard → `pbcfhpemrrxpshxfhhad` project → **SQL Editor**
+2. Paste + run:
+
+   ```sql
+   alter type public.listing_type add value if not exists 'prompt_pack';
+   ```
+
+3. Confirm `Success. No rows returned` and close the tab.
+
+The exact same statement lives in
+`db/migrations/011-listing-type-prompt-pack.sql` — if you'd rather
+run migrations from the CLI, use that file.
+
+---
+
 ## 🟣 0. Rename the GitHub repo: `cheapwebsite` → `skillzy` — ⏳ **NOT DONE**
 
 Left for later. 2-min job, no urgency. Steps:
