@@ -28,18 +28,21 @@ type SpeechRecLike = {
 }
 type SpeechRecCtor = new () => SpeechRecLike
 
+// Order: lowest max price → highest. Guide caps at $59, Prompt Pack at
+// $79, Skill at $109, Full Agent Setup at $999+ — walks a creator up
+// the ladder as their scope + price grows.
 const types = [
   { key: 'guide', title: 'Guide', price: '$9 – $59+', desc: 'A how-to people read.' },
-  { key: 'skill', title: 'Skill', price: '$9 – $109+', desc: 'Drop-in capability files.' },
   {
     key: 'prompt_pack',
     title: 'Prompt Pack',
     price: '$29 – $79+',
     desc: '10+ prompts for a specific role.',
   },
+  { key: 'skill', title: 'Skill', price: '$9 – $109+', desc: 'Drop-in capability files.' },
   {
     key: 'agent_setup',
-    title: 'Agent Setup',
+    title: 'Full Agent Setup',
     price: '$49 – $999+',
     desc: 'The whole agent. Best margins.',
     recommended: true,
