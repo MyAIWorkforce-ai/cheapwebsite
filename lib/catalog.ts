@@ -12,12 +12,16 @@ function formatPlatformsForCard(list: string[]): string {
 }
 
 
-// 'Prompt Pack' added 2026-06-26 as a lower-friction listing type
-// (10+ curated prompts for a specific role, min $29). Sits alongside
-// the premium Skill / Guide / Agent Setup tiers so it can widen the
-// creator top-of-funnel without diluting the Setups shelf — see
-// HANDOFF.md ("Prompt Packs" decision) for the framing rationale.
-export type ProductType = 'Skill' | 'Guide' | 'Agent Setup' | 'Prompt Pack'
+// 'Prompt Pack' added 2026-06-26; 'Loop' added 2026-07-01 (scheduled /
+// recurring agent workflow — "runs itself"). Loop sits between Skill
+// and Full Agent Setup on the value ladder — more than a single
+// capability, less than a whole business desk. See HANDOFF.md.
+export type ProductType =
+  | 'Skill'
+  | 'Guide'
+  | 'Agent Setup'
+  | 'Prompt Pack'
+  | 'Loop'
 
 export type Review = {
   author: string

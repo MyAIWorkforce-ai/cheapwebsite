@@ -1,6 +1,11 @@
 import Link from 'next/link'
 
-export type ProductType = 'Skill' | 'Guide' | 'Agent Setup' | 'Prompt Pack'
+export type ProductType =
+  | 'Skill'
+  | 'Guide'
+  | 'Agent Setup'
+  | 'Prompt Pack'
+  | 'Loop'
 
 export type Product = {
   id: string
@@ -22,6 +27,7 @@ const typeAbbrev: Record<ProductType, string> = {
   Guide: 'Guide',
   'Agent Setup': 'Full Agent Setup',
   'Prompt Pack': 'Prompt Pack',
+  Loop: 'Loop',
 }
 
 export default function ProductCard({

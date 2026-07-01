@@ -33,7 +33,9 @@ async function loadDefaults(
             ? 'guide'
             : p.type === 'Prompt Pack'
               ? 'prompt_pack'
-              : 'agent_setup',
+              : p.type === 'Loop'
+                ? 'loop'
+                : 'agent_setup',
       price: Number(p.price.replace(/[^0-9.]/g, '')),
       niche: p.niche ?? '',
       platforms: p.platformList.join(', '),

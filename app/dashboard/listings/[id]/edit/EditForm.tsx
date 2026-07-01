@@ -100,7 +100,7 @@ export type EditDefaults = {
   // Listing type — creator can reclassify from the edit form if they
   // originally picked wrong (e.g. published as Full Agent Setup but
   // it's actually a Skill).
-  type: 'skill' | 'guide' | 'agent_setup' | 'prompt_pack'
+  type: 'skill' | 'guide' | 'agent_setup' | 'prompt_pack' | 'loop'
   price: number
   niche: string
   platforms: string
@@ -213,8 +213,9 @@ export default function EditForm({
             className="mt-2 w-full bg-transparent border-b border-brand-hairline focus:border-brand-gold outline-none py-2 text-lg"
           >
             <option value="guide">Guide</option>
-            <option value="skill">Skill</option>
             <option value="prompt_pack">Prompt Pack</option>
+            <option value="skill">Skill</option>
+            <option value="loop">Loop</option>
             <option value="agent_setup">Full Agent Setup</option>
           </select>
           <span className="mt-1 block text-xs text-brand-muted">

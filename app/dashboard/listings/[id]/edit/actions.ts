@@ -111,7 +111,8 @@ export async function updateListing(
     rawType === 'skill' ||
     rawType === 'guide' ||
     rawType === 'agent_setup' ||
-    rawType === 'prompt_pack'
+    rawType === 'prompt_pack' ||
+    rawType === 'loop'
       ? rawType
       : null
 

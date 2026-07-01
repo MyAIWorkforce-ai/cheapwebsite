@@ -12,6 +12,7 @@ const TYPE_MAP: Record<string, ProductType> = {
   guide: 'Guide',
   agent_setup: 'Agent Setup',
   prompt_pack: 'Prompt Pack',
+  loop: 'Loop',
 }
 
 const UUID_RE =
@@ -41,6 +42,12 @@ function howItWorksFor(type: ProductType): Step[] {
       { n: '01', title: 'Download', desc: 'Buy once, get the pack by email and on your dashboard.' },
       { n: '02', title: 'Paste + tweak', desc: 'Copy any prompt straight into Claude, ChatGPT, or your agent. Fill in the placeholders.' },
       { n: '03', title: 'Run', desc: 'Reuse forever across every job that fits.' },
+    ]
+  if (type === 'Loop')
+    return [
+      { n: '01', title: 'Download', desc: 'Buy once, get the loop by email and on your dashboard.' },
+      { n: '02', title: 'Wire the trigger', desc: 'Point it at your schedule, inbox, or webhook. 2 minutes.' },
+      { n: '03', title: 'Runs itself', desc: 'Fires on the trigger every time. You check the output.' },
     ]
   return [
     { n: '01', title: 'Download', desc: 'Buy once, get the bundle by email and on your dashboard.' },

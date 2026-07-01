@@ -29,17 +29,23 @@ type SpeechRecLike = {
 type SpeechRecCtor = new () => SpeechRecLike
 
 // Order: lowest max price → highest. Guide caps at $59, Prompt Pack at
-// $79, Skill at $109, Full Agent Setup at $999+ — walks a creator up
-// the ladder as their scope + price grows.
+// $79, Skill at $109, Loop at $149, Full Agent Setup at $999+ — walks
+// a creator up the ladder as their scope + price grows.
 const types = [
   { key: 'guide', title: 'Guide', price: '$9 – $59+', desc: 'A how-to people read.' },
   {
     key: 'prompt_pack',
     title: 'Prompt Pack',
-    price: '$29 – $79+',
+    price: '$9 – $79+',
     desc: '10+ prompts for a specific role.',
   },
   { key: 'skill', title: 'Skill', price: '$9 – $109+', desc: 'Drop-in capability files.' },
+  {
+    key: 'loop',
+    title: 'Loop',
+    price: '$29 – $149+',
+    desc: 'Scheduled workflow. Runs itself.',
+  },
   {
     key: 'agent_setup',
     title: 'Full Agent Setup',
@@ -55,7 +61,7 @@ const types = [
 const DRAFT_KEY = 'skz_listing_draft_v1'
 
 type Draft = {
-  type: 'skill' | 'guide' | 'agent_setup' | 'prompt_pack'
+  type: 'skill' | 'guide' | 'agent_setup' | 'prompt_pack' | 'loop'
   title: string
   tagline: string
   niche: string
@@ -181,7 +187,7 @@ export default function NewListingForm({
     }
   }, [state.error, state.info])
 
-  const [type, setType] = useState<'skill' | 'guide' | 'agent_setup' | 'prompt_pack'>('skill')
+  const [type, setType] = useState<'skill' | 'guide' | 'agent_setup' | 'prompt_pack' | 'loop'>('skill')
   const [title, setTitle] = useState('')
   const [tagline, setTagline] = useState('')
   const [niche, setNiche] = useState('')

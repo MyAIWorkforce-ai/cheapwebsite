@@ -27,6 +27,7 @@ const filters: { label: string; type?: ProductType; key: string }[] = [
   { label: 'Skills', type: 'Skill', key: 'skill' },
   { label: 'Guides', type: 'Guide', key: 'guide' },
   { label: 'Prompt Packs', type: 'Prompt Pack', key: 'prompt-pack' },
+  { label: 'Loops', type: 'Loop', key: 'loop' },
   { label: 'Full Agent Setups', type: 'Agent Setup', key: 'agent-setup' },
   { label: 'All', key: 'all' },
 ]
