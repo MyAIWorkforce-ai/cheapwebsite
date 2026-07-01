@@ -4,27 +4,19 @@
 
 ---
 
-## 🔴 TOP — Add `loop` to Supabase `listing_type` enum — ⏳ **REQUIRED to unlock Loop listings**
+## ✅ ~~Add `loop` to Supabase `listing_type` enum~~ — **DONE 2026-07-01**
 
-Loop was added 2026-07-01 as a 5th product type (Guide / Prompt Pack /
-Skill / **Loop** / Full Agent Setup). Same drill as the Prompt Pack
-migration — app code + base schema updated, need to extend the
-running production Postgres enum before creators can pick the new
-type without hitting `invalid input value for enum listing_type`.
+Ran the alter statement in the Supabase SQL Editor —
+`Success. No rows returned`. Enum now includes `loop` in
+production and Loop listings are fully unblocked end-to-end.
 
-**Steps (~30 seconds):**
+Reference (audit trail):
 
-1. Supabase Dashboard → `pbcfhpemrrxpshxfhhad` project → **SQL Editor**
-2. Paste + run:
+```sql
+alter type public.listing_type add value if not exists 'loop';
+```
 
-   ```sql
-   alter type public.listing_type add value if not exists 'loop';
-   ```
-
-3. Confirm `Success. No rows returned`.
-
-Same statement lives in
-`db/migrations/012-listing-type-loop.sql`.
+Same statement lives in `db/migrations/012-listing-type-loop.sql`.
 
 ---
 
