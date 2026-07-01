@@ -29,20 +29,20 @@ type SpeechRecLike = {
 type SpeechRecCtor = new () => SpeechRecLike
 
 const types = [
-  { key: 'skill', title: 'Skill', price: '$9 – $109+', desc: 'One job, done sharp.' },
   { key: 'guide', title: 'Guide', price: '$9 – $59+', desc: 'A how-to people read.' },
+  {
+    key: 'prompt_pack',
+    title: 'Prompt Pack',
+    price: '$29 – $79+',
+    desc: '10+ prompts for a specific role.',
+  },
+  { key: 'skill', title: 'Skill', price: '$9 – $109+', desc: 'One job, done sharp.' },
   {
     key: 'agent_setup',
     title: 'Agent Setup',
     price: '$49 – $999+',
     desc: 'The whole agent. Best margins.',
     recommended: true,
-  },
-  {
-    key: 'prompt_pack',
-    title: 'Prompt Pack',
-    price: '$29 – $79+',
-    desc: '10+ prompts for a specific role.',
   },
 ]
 
@@ -178,7 +178,7 @@ export default function NewListingForm({
     }
   }, [state.error, state.info])
 
-  const [type, setType] = useState<'skill' | 'guide' | 'agent_setup' | 'prompt_pack'>('agent_setup')
+  const [type, setType] = useState<'skill' | 'guide' | 'agent_setup' | 'prompt_pack'>('skill')
   const [title, setTitle] = useState('')
   const [tagline, setTagline] = useState('')
   const [niche, setNiche] = useState('')
