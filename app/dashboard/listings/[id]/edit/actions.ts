@@ -146,6 +146,30 @@ export async function updateListing(
 
   if (error) return { error: error.message }
 
+  // Bust the caches that surface this listing so a title/type/price
+  // change (or a status flip to removed) reflects immediately for
+  // buyers + the creator's profile page. Best-effort — the ISR
+  // windows still catch anything that misses here.
+  try {
+    revalidatePath('/marketplace')
+    const { data: row } = await supabase
+      .from('listings')
+      .select('slug, profiles:creator_id ( handle )')
+      .eq('id', id)
+      .maybeSingle()
+    const listingSlug = (row?.slug as string | null) ?? null
+    if (listingSlug) revalidatePath(`/marketplace/${listingSlug}`)
+    const profilesRaw = (row?.profiles as unknown) ?? null
+    const profileHandle =
+      Array.isArray(profilesRaw)
+        ? ((profilesRaw[0] as { handle?: string | null } | undefined)?.handle ?? null)
+        : ((profilesRaw as { handle?: string | null } | null)?.handle ?? null)
+    if (profileHandle) revalidatePath(`/creator/${profileHandle.replace(/^@/, '')}`)
+    revalidatePath('/dashboard')
+  } catch {
+    /* opportunistic */
+  }
+
   redirect('/dashboard?view=selling&saved=1')
 }
 

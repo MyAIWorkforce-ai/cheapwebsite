@@ -1,6 +1,7 @@
 'use server'
 
 import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { hasSupabase } from '@/lib/env'
 import { normalizeVideoUrl } from '@/lib/video'
@@ -226,6 +227,28 @@ export async function publishListing(
     })
   } catch (err) {
     console.error('admin new-listing email failed', err)
+  }
+
+  // Invalidate the pages that surface this new listing so it shows
+  // up instantly instead of waiting for the ISR window (creator page
+  // revalidates at 60s, marketplace at 300s, individual listing at
+  // 300s). The creator handle lives in profiles.handle — user_metadata
+  // OAuth fields don't reflect edits made on /account, so pull it from
+  // profiles instead. Best-effort — a failed revalidate never blocks
+  // the redirect.
+  try {
+    revalidatePath('/marketplace')
+    revalidatePath(`/marketplace/${slug}`)
+    revalidatePath('/dashboard')
+    const { data: profileRow } = await supabase
+      .from('profiles')
+      .select('handle')
+      .eq('id', user!.id)
+      .maybeSingle()
+    const handle = (profileRow?.handle as string | null) ?? null
+    if (handle) revalidatePath(`/creator/${handle.replace(/^@/, '')}`)
+  } catch {
+    /* revalidation is opportunistic — the ISR window still catches it */
   }
 
   redirect(`/sell/new/done?slug=${encodeURIComponent(slug)}`)

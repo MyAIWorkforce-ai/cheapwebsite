@@ -20,6 +20,13 @@ export function generateStaticParams() {
   return allCreatorHandles().map((handle) => ({ handle }))
 }
 
+// ISR: revalidate the creator page every 60 seconds so newly-published
+// listings appear within a minute for any visitor, without paying the
+// TTFB cost of dynamic rendering on every hit. The publish + edit
+// actions also call revalidatePath('/creator/<handle>') for an instant
+// invalidation on the specific handle that just changed.
+export const revalidate = 60
+
 type ResolvedCreator = {
   name: string
   handle: string // with leading @
