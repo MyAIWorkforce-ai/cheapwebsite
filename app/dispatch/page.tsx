@@ -6,7 +6,7 @@ import { pageMetadata } from '@/lib/seo'
 export const metadata = pageMetadata({
   title: 'Latest on Skillzy — The Dispatch',
   description:
-    'The newest skills, setups, and guides on Skillzy. Built by humans, dropped into your agent. Updated continuously.',
+    'The newest skills, guides, prompt packs, setups, and loops on Skillzy. Built by humans, dropped into your agent. Updated continuously.',
   path: '/dispatch',
   keywords: ['new AI agent skills', 'latest Skillzy listings', 'new SKILL.md'],
 })

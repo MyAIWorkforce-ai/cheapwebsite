@@ -5,7 +5,7 @@ import NewListingForm from './NewListingForm'
 export const metadata = {
   title: 'New listing',
   description:
-    'Publish a skill, guide, or agent setup on Skillzy. Five short sections — the AI drafts most of it from your file.',
+    'Publish a skill, guide, prompt pack, agent setup, or scheduled loop on Skillzy. Five short sections — the AI drafts most of it from your file.',
   keywords: [
     'publish AI skill',
     'list AI agent',

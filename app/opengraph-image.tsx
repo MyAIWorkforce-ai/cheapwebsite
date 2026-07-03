@@ -77,8 +77,8 @@ export default function OG() {
               maxWidth: 880,
             }}
           >
-            Pre-built skills, guides, and full agent setups. Plug them into any
-            agent — yours levels up instantly.
+            Pre-built skills, guides, prompt packs, full setups, and loops.
+            Plug them into any agent — yours levels up instantly.
           </span>
         </div>
       </div>

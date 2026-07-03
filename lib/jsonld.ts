@@ -12,7 +12,7 @@ export function organizationLd() {
     url: SITE_URL,
     logo: `${SITE_URL}/icon`,
     description:
-      'A marketplace for AI agent skills, setups, and guides. Built by creators, dropped into your agent.',
+      'A marketplace for AI agent skills, guides, prompt packs, full setups, and scheduled loops. Built by creators, dropped into your agent.',
     sameAs: [] as string[], // add socials here once the accounts exist
   }
 }

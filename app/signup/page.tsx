@@ -6,7 +6,7 @@ import SignUpForm from './SignUpForm'
 export const metadata = {
   title: 'Create an account',
   description:
-    'Join Skillzy to buy, sell, and re-download skills, guides, and ready-to-go agent setups.',
+    'Join Skillzy to buy, sell, and re-download skills, guides, prompt packs, ready-to-go agent setups, and scheduled loops.',
   keywords: ['Skillzy sign up', 'create account', 'AI agent marketplace account'],
 }
 

@@ -4,16 +4,22 @@ import { pageMetadata } from '@/lib/seo'
 export const metadata = pageMetadata({
   title: 'How Skillzy Works — Buy, Download, Drop In',
   description:
-    'Three steps: buy a listing, download the SKILL.md or setup pack, drop it into your agent. No coding, no DIY. Here is exactly how it works.',
+    'Three steps: buy a skill, guide, prompt pack, full setup, or scheduled loop; download the pack; drop it into your agent. No coding, no DIY. Here is exactly how it works.',
   path: '/how-it-works',
-  keywords: ['how Skillzy works', 'how to use AI agent skills', 'SKILL.md setup'],
+  keywords: [
+    'how Skillzy works',
+    'how to use AI agent skills',
+    'AI prompt packs',
+    'AI agent loops',
+    'SKILL.md setup',
+  ],
 })
 
 const steps = [
   {
     n: '01',
     title: 'Buy a listing',
-    body: 'Pick a skill, guide, or full agent setup. Pay with card via Stripe — Skillzy never sees your card. You do not need an account to buy; the download lands in your email either way.',
+    body: 'Pick a skill, guide, prompt pack, full agent setup, or scheduled loop. Pay with card via Stripe — Skillzy never sees your card. You do not need an account to buy; the download lands in your email either way.',
     aside: 'Checkout takes about 30 seconds. Your card never touches Skillzy — Stripe handles it.',
   },
   {

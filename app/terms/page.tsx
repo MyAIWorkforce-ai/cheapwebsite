@@ -34,8 +34,9 @@ export default function TermsPage() {
         <div className="mt-12 space-y-10 text-base leading-relaxed">
           <p>
             These Terms govern your use of Skillzy (the “Platform”), a
-            marketplace for skills, guides, and ready-to-go agent setups
-            (“Products”). Skillzy is operated from Australia (“Skillzy”,
+            marketplace for skills, guides, prompt packs, ready-to-go agent
+            setups, and scheduled loops (“Products”). Skillzy is operated
+            from Australia (“Skillzy”,
             “we”, “us”). By creating an account, listing a Product, or
             buying one, you agree to these Terms. If you’re using Skillzy
             for an organisation, you confirm you’re authorised to bind it.

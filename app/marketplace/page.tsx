@@ -8,13 +8,16 @@ import { pageMetadata } from '@/lib/seo'
 // Canonical strips query strings → /marketplace?type=skill etc. all
 // canonicalise to https://skillzy.ai/marketplace (per SEO scope 1.1).
 export const metadata = pageMetadata({
-  title: 'Browse AI Agent Skills, Setups & Guides — Skillzy',
+  title: 'Browse AI Agent Skills, Guides, Prompt Packs, Setups & Loops — Skillzy',
   description:
-    'Drop-in AI agent skills, full setups, and guides built by creators in the field. Filter by trade, platform, or type. Works with Claude, n8n, OpenClaw, Make, Zapier.',
+    'Drop-in AI agent skills, guides, prompt packs, full setups, and scheduled loops built by creators in the field. Filter by trade, platform, or type. Works with Claude, n8n, OpenClaw, Make, Zapier.',
   path: '/marketplace',
   keywords: [
     'AI agent skills',
     'AI agent marketplace',
+    'AI prompt packs',
+    'AI agent loops',
+    'scheduled AI workflows',
     'Claude skills',
     'n8n agents',
     'OpenClaw skills',

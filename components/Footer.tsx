@@ -14,8 +14,9 @@ export default function Footer() {
           <div className="md:col-span-5">
             <Logo size="lg" />
             <p className="mt-5 text-sm text-brand-muted max-w-sm leading-relaxed">
-              A marketplace for skills, guides, and ready-to-go agent setups.
-              Made by humans. Dropped into your agent.
+              A marketplace for skills, guides, prompt packs, ready-to-go agent
+              setups, and scheduled loops. Made by humans. Dropped into your
+              agent.
             </p>
 
             {/* The Dispatch newsletter is paused until ~50–100 creators

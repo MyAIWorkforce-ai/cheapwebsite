@@ -44,7 +44,7 @@ export async function sendWelcomeEmail({
       <h1 style="font-size:34px;line-height:1.1;letter-spacing:-0.02em;margin:14px 0 0;">You&rsquo;re in.</h1>
 
       <p style="font-size:16px;color:#0F1729;margin:20px 0 0;line-height:1.55;">
-        ${greeting} thanks for joining Skillzy — a marketplace for AI agent skills, guides, and ready-to-go setups, made by humans, dropped into your agent.
+        ${greeting} thanks for joining Skillzy — a marketplace for AI agent skills, guides, prompt packs, ready-to-go setups, and scheduled loops, made by humans, dropped into your agent.
       </p>
 
       <p style="font-size:16px;color:#0F1729;margin:24px 0 0;line-height:1.55;">
@@ -69,7 +69,7 @@ export async function sendWelcomeEmail({
       <div style="margin:16px 0 0;padding:20px;background:#fff;border:1px solid #CCD2DD;">
         <p style="font-family:monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#C19E50;margin:0;">2 · Browse</p>
         <p style="font-size:16px;color:#0F1729;margin:8px 0 0;line-height:1.55;">
-          Looking for a ready-made skill or setup instead? The marketplace has skills, guides, and full agent setups — drop them straight into Claude, ChatGPT, n8n, and more.
+          Looking for a ready-made skill or setup instead? The marketplace has skills, guides, prompt packs, full agent setups, and scheduled loops — drop them straight into Claude, ChatGPT, n8n, and more.
         </p>
         <p style="margin:16px 0 0;">
           <a href="${marketplaceUrl}" style="display:inline-block;color:#0F1729;font-weight:bold;text-decoration:underline;font-family:Georgia,'Times New Roman',serif;">Open the marketplace →</a>

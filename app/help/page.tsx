@@ -14,16 +14,18 @@ type QA = { q: string; a: React.ReactNode }
 const buyer: QA[] = [
   {
     q: 'What is Skillzy?',
-    a: 'A marketplace for skills, guides, and ready-to-go agent setups, made by humans, dropped into the agent you already use. Claude, OpenClaw, ChatGPT, n8n, and the rest.',
+    a: 'A marketplace for skills, guides, prompt packs, ready-to-go agent setups, and scheduled loops — made by humans, dropped into the agent you already use. Claude, OpenClaw, ChatGPT, n8n, and the rest.',
   },
   {
-    q: 'What’s the difference between a Skill, a Guide, and an Agent Setup?',
+    q: 'What’s the difference between a Skill, Guide, Prompt Pack, Agent Setup, and Loop?',
     a: (
       <>
         <strong>Skills</strong> are single-purpose bundles — usually a SKILL.md plus the configs, schemas, and examples it needs — one job done sharp.{' '}
         <strong>Guides</strong> are short reads that teach you to build something yourself.{' '}
+        <strong>Prompt Packs</strong> are 10+ battle-tested prompts for a specific role, copy-pasteable into Claude, ChatGPT, or any agent.{' '}
         <strong>Agent Setups</strong> are the whole agent — every prompt, config, and connector
-        for a complete line of work in one purchase.
+        for a complete line of work in one purchase.{' '}
+        <strong>Loops</strong> are scheduled workflows that run themselves on a trigger — inbox, cron, or webhook — and drop the output where you need it.
       </>
     ),
   },
