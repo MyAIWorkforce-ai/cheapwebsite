@@ -45,17 +45,11 @@ export default async function MarketplacePage({
   const niche = searchParams.niche?.toLowerCase().trim()
   const platform = searchParams.platform?.toLowerCase().trim()
 
-  // Real seller listings only on the buyer-facing marketplace grid —
-  // sample seed listings are hidden here (they still resolve via direct
-  // URL and still appear on demo creator pages, but they no longer
-  // clutter the general browse now that real creators are shipping).
-  // Featured listings float to the top, BUT we interleave a regular
-  // listing between each pair so two navy cards never sit next to each
-  // other in the grid.
-  const merged = [
-    ...(await liveDbProducts()),
-    ...products.filter((p) => !p.sample),
-  ]
+  // Real seller listings (newest first) ahead of the demo showcase.
+  // Then: featured listings float to the top, BUT we interleave a
+  // regular listing between each pair so two navy cards never sit
+  // next to each other in the grid (looks heavy + same-y).
+  const merged = [...(await liveDbProducts()), ...products]
   const featuredList = merged.filter((p) => p.featured)
   const regularList = merged.filter((p) => !p.featured)
   const interleaved: typeof merged = []

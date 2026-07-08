@@ -107,10 +107,7 @@ function Sticker({
 }
 
 export default async function HomePage() {
-  // Sample seed listings are excluded from the homepage — shelves now
-  // show real DB listings only. Shelves get shorter when we don't have
-  // enough real listings of a type, which is fine (better than filler).
-  const seedCards = products.filter((p) => !p.sample).map(toCardProduct)
+  const seedCards = products.map(toCardProduct)
   const liveCards = (await liveDbProducts()).map(toCardProduct)
   const agentSetups = shelfFor('Agent Setup', liveCards, seedCards, 3)
   const skills = shelfFor('Skill', liveCards, seedCards, 4)

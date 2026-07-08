@@ -56,7 +56,6 @@ export default function ProductCard({
               (emerald ? 'text-brand-gold' : 'text-brand-gold')
             }
           >
-            {product.sample && 'Sample · '}
             {product.free && 'Free · '}
             {product.featured && '✿ Featured · '}
             {typeAbbrev[product.type]}
