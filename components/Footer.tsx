@@ -68,7 +68,7 @@ export default function Footer() {
           <div className="text-xs text-brand-muted space-y-1">
             <p>© {year} Skillzy.ai</p>
             <p>
-              Operated by Toby Banks · Australia ·{' '}
+              Skillzy · Australia ·{' '}
               <a
                 href="mailto:hi@skillzy.ai"
                 className="hover:text-brand-gold transition-colors"

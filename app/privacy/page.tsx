@@ -39,9 +39,9 @@ export default function PrivacyPage() {
           <section className="space-y-3">
             <H2>Who operates Skillzy</H2>
             <p className="text-brand-muted">
-              Skillzy (skillzy.ai) is operated by <strong>Toby Banks</strong>
-              , a sole trader based in Australia. All support, privacy, and
-              data-request correspondence goes to{' '}
+              Skillzy (<strong>skillzy.ai</strong>) is operated from
+              Australia. All support, privacy, and data-request
+              correspondence goes to{' '}
               <a
                 href="mailto:hi@skillzy.ai"
                 className="border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
