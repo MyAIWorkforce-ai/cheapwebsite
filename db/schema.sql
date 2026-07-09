@@ -23,6 +23,18 @@ create table if not exists public.profiles (
   -- Stripe Connect (creator payouts)
   stripe_account_id text,
   stripe_payouts_enabled boolean not null default false,
+  -- Global payouts via Wise Business API (migration 013).
+  -- Which method the creator uses. 'stripe' = Stripe Connect (default
+  -- for supported countries); 'wise' = Wise (for the ~115 countries
+  -- Stripe Connect doesn't reach + anyone who prefers Wise).
+  payout_method text check (payout_method in ('stripe', 'wise')),
+  wise_recipient_name text,
+  wise_recipient_country text,          -- ISO alpha-2 (IN, PK, NG, …)
+  wise_recipient_currency text,         -- ISO 4217 (INR, USD, EUR, …)
+  wise_recipient_email text,            -- Wise personal account email
+  wise_recipient_details jsonb,         -- Country-specific bank fields
+  wise_recipient_id text,               -- Wise's ID once created via API
+  payout_method_updated_at timestamptz,
   -- timestamps
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -189,6 +201,17 @@ create table if not exists public.purchases (
   refunded_at timestamptz,
   -- Per migration 010: which promo code (if any) was used.
   promo_code_id uuid,
+  -- Per-sale payout tracking (migration 013). 'stripe_connect' sales
+  -- are paid out instantly via destination charge; 'wise' sales accrue
+  -- pending balance for the nightly Wise cron; null + 'not_owed' means
+  -- the creator hadn't set any method at sale time and the money stays
+  -- with Skillzy (§6 policy).
+  payout_provider text check (payout_provider in ('stripe_connect', 'wise')),
+  payout_status text
+    check (payout_status in ('not_owed', 'pending', 'paid_out', 'failed'))
+    default 'not_owed',
+  wise_transfer_id text,
+  paid_out_at timestamptz,
   created_at timestamptz not null default now()
 );
 

@@ -61,33 +61,48 @@ export async function POST(request: NextRequest) {
     })
   }
 
-  // 3. Figure out the destination Stripe account (creator), if Connect is set up.
+  // 3. Figure out the creator's payout method + Stripe destination.
+  //    Two supported paths (migration 013):
+  //    - 'stripe'  → destination charge to their connected Stripe account
+  //    - 'wise'    → money stays on the platform Stripe balance; the
+  //                  nightly Wise cron sends payouts once the creator's
+  //                  pending balance crosses the USD threshold
+  //    - null      → no method chosen; per policy §6 the full amount
+  //                  stays with Skillzy (no retroactive payout after
+  //                  they set up a method later).
   let destinationAccount: string | null = null
+  let creatorPayoutMethod: 'stripe' | 'wise' | null = null
   if (hasSupabase) {
     try {
       const supabase = createServiceClient()
       const { data } = await supabase
         .from('profiles')
-        .select('stripe_account_id, stripe_payouts_enabled, handle')
+        .select('stripe_account_id, stripe_payouts_enabled, payout_method, handle')
         .eq('handle', product.creator.handle.replace(/^@/, ''))
         .single()
-      if (data?.stripe_account_id && data.stripe_payouts_enabled) {
-        destinationAccount = data.stripe_account_id
+      creatorPayoutMethod =
+        (data?.payout_method as 'stripe' | 'wise' | null) ?? null
+      // Explicit Wise method wins — we deliberately skip the Stripe
+      // destination even if a stale stripe_account_id lingers on the
+      // profile from an earlier Stripe attempt.
+      if (creatorPayoutMethod !== 'wise') {
+        if (data?.stripe_account_id && data.stripe_payouts_enabled) {
+          destinationAccount = data.stripe_account_id
+        }
       }
     } catch {
       // Fall through to the guard below.
     }
   }
 
-  // No `destinationAccount` means the creator hasn't connected Stripe
-  // yet. Policy decision (2026-06): rather than block the sale entirely
-  // (which leaves real demand bleeding while creators slow-walk Stripe
-  // onboarding), we accept the purchase, route the full amount to the
-  // Skillzy platform, and nudge the creator across dashboard +
-  // post-publish + sale-notification to connect Stripe so the next sale
-  // pays them out. Skillzy never pays out retroactively for sales made
-  // before connection — that's the trade-off that keeps the policy
-  // simple. Buyers still get full file delivery either way.
+  // No `destinationAccount` means either the creator picked Wise (money
+  // held on the platform for the batch payout) or they haven't picked
+  // any payout method yet. Policy decision (2026-06 + 2026-07): the sale
+  // still succeeds either way — buyers get full delivery, the creator
+  // gets the "you sold X" nudge to finish payout setup. For Wise
+  // creators the recorded 80% payout is genuinely owed and flushed
+  // through the cron; for no-method creators §6 says the money stays
+  // with Skillzy (no retroactive payout after the fact).
 
   // 4. Identify the buyer if signed in.
   let buyerEmail = email
@@ -157,6 +172,13 @@ export async function POST(request: NextRequest) {
       // Toby separate Skillzy House revenue from MyAIWorkforce revenue
       // in the connected Stripe account without picking through line items.
       creator_handle: product.creator.handle.replace(/^@/, ''),
+      // Payout method locked in at sale time — the fulfillment side
+      // reads this back to record the right payout_provider / status
+      // on the purchase row. Locking at sale time (rather than
+      // querying the profile again on fulfillment) means a creator
+      // who flips methods mid-flight doesn't retroactively change
+      // how existing sales pay out.
+      creator_payout_method: creatorPayoutMethod ?? '',
       buyer_id: buyerId ?? '',
       buyer_email: (buyerEmail ?? '').trim().toLowerCase(),
       referrer_slug: request.cookies.get('skz_ref')?.value ?? '',

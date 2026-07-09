@@ -5,6 +5,7 @@ import { hasSupabase, hasStripe } from '@/lib/env'
 import { getStripe } from '@/lib/stripe'
 import ConnectButton from './ConnectButton'
 import DisconnectButton from './DisconnectButton'
+import WiseCard, { type WiseDefaults } from './WiseCard'
 import { syncPayoutStatus } from '@/lib/stripe-connect'
 
 export const metadata = {
@@ -16,6 +17,13 @@ export const metadata = {
 type ProfileRow = {
   stripe_account_id: string | null
   stripe_payouts_enabled: boolean
+  payout_method: 'stripe' | 'wise' | null
+  wise_recipient_name: string | null
+  wise_recipient_country: string | null
+  wise_recipient_currency: string | null
+  wise_recipient_email: string | null
+  wise_recipient_details: Record<string, string> | null
+  payout_method_updated_at: string | null
 }
 
 type Sale = {
@@ -36,12 +44,49 @@ async function getPayoutProfile(userId: string): Promise<ProfileRow | null> {
     const supabase = createClient()
     const { data } = await supabase
       .from('profiles')
-      .select('stripe_account_id, stripe_payouts_enabled')
+      .select(
+        'stripe_account_id, stripe_payouts_enabled, payout_method, wise_recipient_name, wise_recipient_country, wise_recipient_currency, wise_recipient_email, wise_recipient_details, payout_method_updated_at',
+      )
       .eq('id', userId)
       .single()
     return (data as ProfileRow) ?? null
   } catch {
     return null
+  }
+}
+
+/**
+ * Sum of pending Wise payouts owed to this creator across all their
+ * live listings. What the dashboard shows as "Pending payout: $X" and
+ * what the nightly cron will use to decide whether the balance's
+ * crossed the $50 threshold to trigger a Wise transfer.
+ */
+async function getPendingWiseBalanceCents(userId: string): Promise<number> {
+  if (!hasSupabase) return 0
+  try {
+    const sb = createClient()
+    // Grab this creator's listing ids first, then sum pending Wise
+    // payouts scoped to those. Two-hop keeps the SQL cheap + the
+    // RLS-friendly (purchases policy already scopes creator reads
+    // through the listing join).
+    const { data: listings } = await sb
+      .from('listings')
+      .select('id')
+      .eq('creator_id', userId)
+    const ids = (listings ?? []).map((l) => l.id as string)
+    if (ids.length === 0) return 0
+    const { data: rows } = await sb
+      .from('purchases')
+      .select('creator_payout_cents')
+      .in('listing_id', ids)
+      .eq('payout_provider', 'wise')
+      .eq('payout_status', 'pending')
+    return (rows ?? []).reduce(
+      (acc, r) => acc + ((r.creator_payout_cents as number) ?? 0),
+      0,
+    )
+  } catch {
+    return 0
   }
 }
 
@@ -107,8 +152,11 @@ export default async function PayoutsPage({
   let profile = user ? await getPayoutProfile(user.id) : null
   // Self-heal: if a Stripe account exists but payouts aren't marked
   // enabled yet, reconcile from Stripe now (no webhook in this app).
+  // Merge only the two Stripe fields so we don't clobber the Wise
+  // columns we just loaded.
   if (user && profile?.stripe_account_id && !profile.stripe_payouts_enabled) {
-    profile = await syncPayoutStatus(user.id)
+    const synced = await syncPayoutStatus(user.id)
+    profile = { ...profile, ...synced }
   }
 
   const connected = Boolean(profile?.stripe_account_id)
@@ -121,12 +169,32 @@ export default async function PayoutsPage({
       ? await getConnectedAccountEmail(profile.stripe_account_id)
       : null
   const sales = user ? await getRecentSales(user.id) : []
+  const pendingWiseCents = user ? await getPendingWiseBalanceCents(user.id) : 0
   const now = Date.now()
   const status: 'not_connected' | 'pending' | 'enabled' = payoutsEnabled
     ? 'enabled'
     : connected
       ? 'pending'
       : 'not_connected'
+
+  const wiseActive = profile?.payout_method === 'wise'
+  const wiseDefaults: WiseDefaults = {
+    name: profile?.wise_recipient_name ?? '',
+    country: profile?.wise_recipient_country ?? '',
+    currency: profile?.wise_recipient_currency ?? '',
+    email: profile?.wise_recipient_email ?? '',
+    bankAccount:
+      (profile?.wise_recipient_details as Record<string, string> | null)?.account_number ??
+      '',
+    bankIfsc:
+      (profile?.wise_recipient_details as Record<string, string> | null)?.ifsc_code ?? '',
+    bankIban:
+      (profile?.wise_recipient_details as Record<string, string> | null)?.iban ?? '',
+    bankOther:
+      (profile?.wise_recipient_details as Record<string, string> | null)?.other ?? '',
+    active: wiseActive,
+    updatedAt: profile?.payout_method_updated_at ?? null,
+  }
 
   const statusCopy = {
     not_connected: {
@@ -313,6 +381,63 @@ export default async function PayoutsPage({
               Skillzy reverses it through Stripe. Your Stripe balance will
               show the deduction on the next reconciliation.
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Wise — alternative payout method for creators in the ~115
+          countries Stripe Connect doesn't reach. Renders below the
+          Stripe card so it's a clear "or" not a replacement. */}
+      <section className="px-6 lg:px-10 py-14 sm:py-20 border-t border-brand-hairline bg-brand-navy-deep/[0.02]">
+        <div className="max-w-page mx-auto">
+          <div className="mb-8 flex items-baseline gap-4 flex-wrap">
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+              — or —
+            </span>
+            <h2
+              className="font-display text-3xl sm:text-4xl tracking-tight"
+              style={{ letterSpacing: '-0.025em' }}
+            >
+              Not in a Stripe country?
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <div className="lg:col-span-7">
+              <WiseCard
+                defaults={wiseDefaults}
+                pendingBalanceCents={pendingWiseCents}
+                currency="usd"
+              />
+            </div>
+            <aside className="lg:col-span-5">
+              <div className="border border-brand-hairline p-6 bg-brand-cream-card">
+                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
+                  How Wise payouts work
+                </span>
+                <ol className="mt-4 space-y-4 text-sm text-brand-muted">
+                  <li>
+                    <span className="font-semibold text-brand-ink">01 · You save details.</span>{' '}
+                    Wise account email or local bank fields — takes a minute.
+                  </li>
+                  <li>
+                    <span className="font-semibold text-brand-ink">02 · You sell.</span>{' '}
+                    Every sale accrues 80% against your account. Dashboard shows the running balance.
+                  </li>
+                  <li>
+                    <span className="font-semibold text-brand-ink">03 · Balance ≥ $50 USD.</span>{' '}
+                    Our nightly cron fires a Wise transfer to your account in your chosen currency.
+                  </li>
+                  <li>
+                    <span className="font-semibold text-brand-ink">04 · Cash arrives.</span>{' '}
+                    Wise usually settles in 1–2 business days. You get a confirmation email each time.
+                  </li>
+                </ol>
+                <p className="mt-5 pt-4 border-t border-brand-hairline text-xs text-brand-muted">
+                  Wise covers ~160 countries including India, Pakistan, Nigeria,
+                  Argentina, Brazil, Egypt, and most of SE Asia.
+                </p>
+              </div>
+            </aside>
           </div>
         </div>
       </section>

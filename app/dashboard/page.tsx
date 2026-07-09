@@ -47,6 +47,10 @@ type SellerStats = {
   referredSales: number
   referredPayout: number   // cents
   byChannel: Record<string, number>
+  // Sum of creator_payout_cents on Wise sales currently pending
+  // payout — what the dashboard callout shows as the running balance
+  // heading toward the $50 cron threshold.
+  pendingWiseCents: number
 }
 
 const CHANNEL_LABEL: Record<string, string> = {
@@ -161,6 +165,7 @@ async function loadSeller(userId: string): Promise<{
   stats: SellerStats
   payoutsEnabled: boolean
   stripeAccountId: string | null
+  payoutMethod: 'stripe' | 'wise' | null
 }> {
   const supabase = createClient()
   const { data: listingsData } = await supabase
@@ -171,11 +176,12 @@ async function loadSeller(userId: string): Promise<{
 
   const { data: profileRow } = await supabase
     .from('profiles')
-    .select('stripe_account_id, stripe_payouts_enabled')
+    .select('stripe_account_id, stripe_payouts_enabled, payout_method')
     .eq('id', userId)
     .maybeSingle()
   const payoutsEnabled = Boolean(profileRow?.stripe_payouts_enabled)
   const stripeAccountId = (profileRow?.stripe_account_id as string | null) ?? null
+  const payoutMethod = (profileRow?.payout_method as 'stripe' | 'wise' | null) ?? null
 
   const listings = (listingsData ?? []) as SellerListing[]
 
@@ -192,9 +198,11 @@ async function loadSeller(userId: string): Promise<{
         referredSales: 0,
         referredPayout: 0,
         byChannel: {},
+        pendingWiseCents: 0,
       },
       payoutsEnabled,
       stripeAccountId,
+      payoutMethod,
     }
   }
 
@@ -204,7 +212,7 @@ async function loadSeller(userId: string): Promise<{
   const { data: salesData } = await supabase
     .from('purchases')
     .select(
-      'listing_id, amount_cents, creator_payout_cents, status, created_at, referrer_slug, referrer_channel',
+      'listing_id, amount_cents, creator_payout_cents, status, created_at, referrer_slug, referrer_channel, payout_provider, payout_status',
     )
     .in('listing_id', listingIds)
     .eq('status', 'paid')
@@ -213,6 +221,7 @@ async function loadSeller(userId: string): Promise<{
   let totalSales = 0
   let referredSales = 0
   let referredPayout = 0
+  let pendingWiseCents = 0
   const monthSalesByListing: Record<string, number> = {}
   const monthRevenueByListing: Record<string, number> = {}
   const byChannel: Record<string, number> = {}
@@ -223,6 +232,12 @@ async function loadSeller(userId: string): Promise<{
       row.creator_payout_cents ?? Math.round((row.amount_cents ?? 0) * 0.8)
     totalEarnings += payout
     totalSales += 1
+    if (
+      row.payout_provider === 'wise' &&
+      row.payout_status === 'pending'
+    ) {
+      pendingWiseCents += payout
+    }
     if (row.referrer_slug) {
       referredSales += 1
       referredPayout += payout
@@ -246,9 +261,11 @@ async function loadSeller(userId: string): Promise<{
       referredSales,
       referredPayout,
       byChannel,
+      pendingWiseCents,
     },
     payoutsEnabled,
     stripeAccountId,
+    payoutMethod,
   }
 }
 
@@ -291,7 +308,7 @@ export default async function DashboardPage({
 
   const [purchases, sellerData] = user
     ? await Promise.all([loadBuyer(user.id), loadSeller(user.id)])
-    : [[], { listings: [], stats: { totalEarnings: 0, totalSales: 0, monthSalesByListing: {}, monthRevenueByListing: {}, referredSales: 0, referredPayout: 0, byChannel: {} }, payoutsEnabled: false, stripeAccountId: null }]
+    : [[], { listings: [], stats: { totalEarnings: 0, totalSales: 0, monthSalesByListing: {}, monthRevenueByListing: {}, referredSales: 0, referredPayout: 0, byChannel: {}, pendingWiseCents: 0 }, payoutsEnabled: false, stripeAccountId: null, payoutMethod: null }]
 
   const affiliate = user
     ? await affiliateSummary(user.id)
@@ -495,6 +512,7 @@ export default async function DashboardPage({
           name={displayName}
           payoutsEnabled={sellerData.payoutsEnabled}
           stripeAccountId={sellerData.stripeAccountId}
+          payoutMethod={sellerData.payoutMethod}
         />
       )}
     </div>
@@ -599,6 +617,7 @@ function SellingView({
   name,
   payoutsEnabled,
   stripeAccountId,
+  payoutMethod,
 }: {
   listings: SellerListing[]
   stats: SellerStats
@@ -606,11 +625,14 @@ function SellingView({
   name: string
   payoutsEnabled: boolean
   stripeAccountId: string | null
+  payoutMethod: 'stripe' | 'wise' | null
 }) {
   const earningsDollars = stats.totalEarnings / 100
-  // Show the banner unless Stripe Connect onboarding is fully done.
-  // Two distinct messages: not started yet vs. started but not yet verified.
-  const needsConnect = !payoutsEnabled
+  const pendingWiseDollars = stats.pendingWiseCents / 100
+  // Suppress the Stripe nudge for creators who've already picked
+  // Wise — they have a valid payout method, just a different one.
+  const needsConnect = !payoutsEnabled && payoutMethod !== 'wise'
+  const wiseActive = payoutMethod === 'wise'
   return (
     <section className="px-6 lg:px-10 py-12 sm:py-16">
       <div className="max-w-page mx-auto">
@@ -619,7 +641,7 @@ function SellingView({
             <div className="flex items-start justify-between gap-5 flex-wrap">
               <div className="max-w-2xl">
                 <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
-                  Connect Stripe to receive payouts
+                  Set up payouts to start getting paid
                 </p>
                 <p
                   className="font-display text-2xl sm:text-3xl mt-2 tracking-tight"
@@ -627,19 +649,51 @@ function SellingView({
                 >
                   {stripeAccountId
                     ? 'One quick step to finish Stripe.'
-                    : 'Connect Stripe to start getting paid.'}
+                    : 'Two options — pick the one for your country.'}
                 </p>
                 <p className="mt-2 text-sm text-brand-ink leading-relaxed">
                   {stripeAccountId
                     ? 'You started Stripe onboarding — a couple more details and your payouts are live. 80% of every sale lands straight in your bank.'
-                    : 'Takes about 2 minutes. Once connected, you receive 80% of every sale paid straight to your bank account.'}
+                    : 'Stripe Connect (US, UK, AU, EU + 40 more countries) or Wise (India, Nigeria, LatAm + ~115 more). Either way you keep 80% of every sale.'}
                 </p>
               </div>
               <Link
                 href="/dashboard/payouts"
                 className="shrink-0 inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-6 py-3 text-sm hover:bg-brand-gold-dark transition-colors"
               >
-                {stripeAccountId ? 'Resume Stripe setup' : 'Connect Stripe now'}
+                {stripeAccountId ? 'Resume Stripe setup' : 'Set up payouts'}
+                <span aria-hidden>→</span>
+              </Link>
+            </div>
+          </div>
+        )}
+        {wiseActive && (
+          <div className="mb-8 border border-brand-hairline bg-brand-cream-card p-5 sm:p-6">
+            <div className="flex items-start justify-between gap-5 flex-wrap">
+              <div className="max-w-2xl">
+                <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
+                  Wise payouts
+                </p>
+                <p
+                  className="font-display text-2xl sm:text-3xl mt-2 tracking-tight"
+                  style={{ letterSpacing: '-0.02em' }}
+                >
+                  Pending{' '}
+                  <span className="text-brand-gold-dark">
+                    ${pendingWiseDollars.toFixed(2)}
+                  </span>
+                </p>
+                <p className="mt-2 text-sm text-brand-muted leading-relaxed">
+                  {stats.pendingWiseCents >= 50 * 100
+                    ? 'Above the $50 threshold — sends to your Wise account on the next nightly run.'
+                    : `Sends automatically when the balance crosses $50. $${(50 - pendingWiseDollars).toFixed(2)} to go.`}
+                </p>
+              </div>
+              <Link
+                href="/dashboard/payouts"
+                className="shrink-0 inline-flex items-center gap-2 border border-brand-ink text-brand-ink font-semibold px-6 py-3 text-sm hover:bg-brand-ink hover:text-white transition-colors"
+              >
+                Update Wise details
                 <span aria-hidden>→</span>
               </Link>
             </div>

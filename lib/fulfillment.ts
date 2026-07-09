@@ -46,28 +46,68 @@ export async function fulfillPaymentIntent(intent: Stripe.PaymentIntent) {
   const amount = intent.amount_received ?? intent.amount ?? 0
   const currency = intent.currency ?? 'usd'
 
-  // Did the money actually route to a creator? A destination charge
-  // sets transfer_data.destination at PaymentIntent creation time. If
-  // it's absent, the whole amount stayed on the platform — the creator
-  // got nothing — so we must record that honestly rather than claiming
-  // an 80% payout that never happened.
+  // Three sale routings supported (see /api/checkout/route.ts for the
+  // decision tree):
+  //
+  //   1. Stripe destination charge — creator has Stripe Connect.
+  //      transfer_data.destination is set at PaymentIntent creation;
+  //      Stripe splits the 80% at charge time. Purchase row is marked
+  //      paid_out immediately (money is already on the creator's side).
+  //
+  //   2. Wise-held sale — creator picked Wise as their payout method.
+  //      Full amount lands on Skillzy's Stripe balance. Purchase row
+  //      is marked pending with creator_payout_cents = 80% (owed).
+  //      The nightly Wise cron picks these up + flushes to Wise once
+  //      the creator's total pending balance crosses the USD threshold.
+  //
+  //   3. No method — creator hasn't set anything up yet. Per policy §6
+  //      the money stays with Skillzy (no retroactive payout later).
+  //      Purchase row records creator_payout_cents = 0, status not_owed.
   const destination =
     typeof intent.transfer_data?.destination === 'string'
       ? intent.transfer_data.destination
       : (intent.transfer_data?.destination?.id ?? null)
   const routedToCreator = Boolean(destination)
-  const fee = routedToCreator ? Math.round(amount * 0.2) : amount
-  const payout = routedToCreator ? amount - Math.round(amount * 0.2) : 0
+  // Payout method locked in at sale time by the checkout API and
+  // stored in the PaymentIntent metadata — reading it here (rather
+  // than re-querying the profile) means later profile edits don't
+  // rewrite the routing of an already-paid sale.
+  const rawPayoutMethod = (
+    intent.metadata?.creator_payout_method as string | undefined
+  ) ?? ''
+  const payoutMethod: 'stripe' | 'wise' | null =
+    rawPayoutMethod === 'stripe' || rawPayoutMethod === 'wise'
+      ? rawPayoutMethod
+      : null
+  const isWiseSale = payoutMethod === 'wise'
+  // Owe the creator 80% on Stripe Connect + Wise sales; nothing when
+  // the creator hadn't set any payout method at sale time.
+  const oweCreator = routedToCreator || isWiseSale
+  const fee = oweCreator ? Math.round(amount * 0.2) : amount
+  const payout = oweCreator ? amount - Math.round(amount * 0.2) : 0
 
-  if (!routedToCreator) {
+  // Populate the per-sale payout tracking columns (migration 013).
+  const payoutProvider: 'stripe_connect' | 'wise' | null = routedToCreator
+    ? 'stripe_connect'
+    : isWiseSale
+      ? 'wise'
+      : null
+  const payoutStatus: 'not_owed' | 'pending' | 'paid_out' = routedToCreator
+    ? 'paid_out' // destination charge already routed the 80% at charge time
+    : isWiseSale
+      ? 'pending' // waiting for the Wise cron to batch this out
+      : 'not_owed' // no payout method set → money stays with Skillzy
+  const paidOutAt = routedToCreator ? new Date().toISOString() : null
+
+  if (!oweCreator) {
     console.error(
-      'Sale recorded but NOT routed to a creator — full amount stayed on the platform.',
+      'Sale recorded but no creator payout method set — full amount stays on the platform.',
       {
         payment_intent: intent.id,
         listing_id: listingId,
         amount_cents: amount,
         reason:
-          'transfer_data.destination was not set at checkout (creator had no connected/payouts-enabled Stripe account when the buyer paid).',
+          'Neither transfer_data.destination nor a Wise method was configured at checkout.',
       },
     )
   }
@@ -123,15 +163,56 @@ export async function fulfillPaymentIntent(intent: Stripe.PaymentIntent) {
     }
   }
 
-  // Seller "you sold X" email. When the sale was routed to a
-  // connected Stripe account, the standard branded email runs. When
-  // routedToCreator is false (creator hadn't connected Stripe at
-  // the moment of sale) we send the "🎉 connect Stripe to receive
-  // payouts" celebratory variant — never warns about the lost
-  // payout, leads with the dopamine of the sale, asks for the next
-  // sale to land in their bank.
+  // Seller "you sold X" email. Three variants driven by how the sale
+  // was routed (see migration 013 for the shape):
+  //   'stripe' — standard cha-ching, money is on its way through Stripe
+  //   'wise'   — cha-ching + queued-for-Wise summary with running balance
+  //   'none'   — 🎉 celebratory + set-up-payouts nudge (no scare copy)
   async function emailSeller() {
     if (!hasResend || !product || !sellerEmail) return
+    const emailPayoutMethod: 'stripe' | 'wise' | 'none' = routedToCreator
+      ? 'stripe'
+      : isWiseSale
+        ? 'wise'
+        : 'none'
+    // For Wise creators, sum THIS creator's currently-pending Wise
+    // payouts so the email can show them how close they are to the
+    // $50 threshold. Best-effort; email still sends without it.
+    let pendingWiseBalanceCents = 0
+    if (isWiseSale && hasSupabase && product) {
+      try {
+        const supabase = createServiceClient()
+        const { data: creatorListings } = await supabase
+          .from('listings')
+          .select('id, creator_id')
+          .eq('id', listingId)
+          .maybeSingle()
+        const creatorId = creatorListings?.creator_id as string | undefined
+        if (creatorId) {
+          const { data: creatorListingRows } = await supabase
+            .from('listings')
+            .select('id')
+            .eq('creator_id', creatorId)
+          const listingIds = (creatorListingRows ?? []).map(
+            (l) => l.id as string,
+          )
+          if (listingIds.length > 0) {
+            const { data: pendingRows } = await supabase
+              .from('purchases')
+              .select('creator_payout_cents')
+              .in('listing_id', listingIds)
+              .eq('payout_provider', 'wise')
+              .eq('payout_status', 'pending')
+            pendingWiseBalanceCents = (pendingRows ?? []).reduce(
+              (acc, r) => acc + ((r.creator_payout_cents as number) ?? 0),
+              0,
+            )
+          }
+        }
+      } catch {
+        /* best-effort — leave the email without the pending balance */
+      }
+    }
     try {
       await sendSaleNotification({
         to: sellerEmail,
@@ -141,7 +222,8 @@ export async function fulfillPaymentIntent(intent: Stripe.PaymentIntent) {
         payoutCents: payout,
         currency,
         orderId: orderIdFromIntent(intent.id),
-        payoutsConnected: routedToCreator,
+        payoutMethod: emailPayoutMethod,
+        pendingWiseBalanceCents,
       })
     } catch (err) {
       console.error('Failed to send seller sale notification', err)
@@ -211,6 +293,12 @@ export async function fulfillPaymentIntent(intent: Stripe.PaymentIntent) {
         referrer_channel:
           (intent.metadata?.referrer_channel as string | undefined) || null,
         status: 'paid',
+        // Migration 013 — per-sale payout tracking so the Wise cron can
+        // find every sale it still owes a creator + the audit trail is
+        // honest about which route the money took.
+        payout_provider: payoutProvider,
+        payout_status: payoutStatus,
+        paid_out_at: paidOutAt,
       })
       .select('id')
       .single()
