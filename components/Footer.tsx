@@ -65,9 +65,18 @@ export default function Footer() {
         </div>
 
         <div className="mt-14 pt-6 border-t border-brand-hairline flex flex-col-reverse sm:flex-row items-start sm:items-center justify-between gap-4">
-          <p className="text-xs text-brand-muted">
-            © {year} Skillzy.ai
-          </p>
+          <div className="text-xs text-brand-muted space-y-1">
+            <p>© {year} Skillzy.ai</p>
+            <p>
+              Operated by Toby Banks · Australia ·{' '}
+              <a
+                href="mailto:hi@skillzy.ai"
+                className="hover:text-brand-gold transition-colors"
+              >
+                hi@skillzy.ai
+              </a>
+            </p>
+          </div>
           <div className="flex items-center gap-5 text-brand-muted">
             {/* All Skillzy social handles are @skillzyai. LinkedIn is
                 deliberately omitted until that account is live; YouTube

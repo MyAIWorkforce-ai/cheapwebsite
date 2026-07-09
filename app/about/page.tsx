@@ -185,9 +185,20 @@ export default function AboutPage() {
           </header>
           <div className="lg:col-span-8 space-y-5 text-lg leading-relaxed text-brand-muted max-w-prose">
             <p>
-              Skillzy is a small team of agent builders who got tired of
-              rebuilding the same skill from scratch every time we started a
-              new project. We made what we wished existed.
+              Skillzy is operated by <strong className="text-brand-ink">Toby Banks</strong>{' '}
+              — a sole trader based in Australia and the founder of{' '}
+              <a
+                href="https://myaiworkforce.ai"
+                target="_blank"
+                rel="noreferrer"
+                className="text-brand-ink border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
+              >
+                My AI Workforce
+              </a>
+              . Skillzy started as an internal marketplace for the agent
+              skills we kept rebuilding from scratch on every new project;
+              it&rsquo;s now open to every creator who builds working
+              agent skills.
             </p>
             <p>
               Creators publish instantly. They warrant they own what they
@@ -196,6 +207,16 @@ export default function AboutPage() {
             </p>
             <p className="text-brand-ink">
               You build. We sell. They use.
+            </p>
+            <p className="text-sm">
+              Support &amp; general enquiries:{' '}
+              <a
+                href="mailto:hi@skillzy.ai"
+                className="text-brand-ink border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
+              >
+                hi@skillzy.ai
+              </a>{' '}
+              — a real person reads every message.
             </p>
           </div>
         </div>

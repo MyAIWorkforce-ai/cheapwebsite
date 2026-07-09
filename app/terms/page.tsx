@@ -36,11 +36,11 @@ export default function TermsPage() {
             These Terms govern your use of Skillzy (the “Platform”), a
             marketplace for skills, guides, prompt packs, ready-to-go agent
             setups, and scheduled loops (“Products”). Skillzy is operated
-            from Australia (“Skillzy”,
-            “we”, “us”). By creating an account, listing a Product, or
-            buying one, you agree to these Terms. If you’re using Skillzy
-            for an organisation, you confirm you’re authorised to bind it.
-            Questions:{' '}
+            by <strong>Toby Banks</strong> (a sole trader based in
+            Australia — “Skillzy”, “we”, “us”). By creating an account,
+            listing a Product, or buying one, you agree to these Terms.
+            If you’re using Skillzy for an organisation, you confirm
+            you’re authorised to bind it. Questions:{' '}
             <a
               href="mailto:hi@skillzy.ai"
               className="border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"

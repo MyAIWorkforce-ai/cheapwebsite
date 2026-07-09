@@ -31,11 +31,26 @@ export default function PrivacyPage() {
 
         <div className="mt-12 space-y-10 text-base leading-relaxed">
           <p>
-            This policy explains how Skillzy (operated from Australia)
-            handles personal information, consistent with the Australian
-            Privacy Principles. We collect only what we need to run the
-            marketplace.
+            This policy explains how Skillzy handles personal information,
+            consistent with the Australian Privacy Principles. We collect
+            only what we need to run the marketplace.
           </p>
+
+          <section className="space-y-3">
+            <H2>Who operates Skillzy</H2>
+            <p className="text-brand-muted">
+              Skillzy (skillzy.ai) is operated by <strong>Toby Banks</strong>
+              , a sole trader based in Australia. All support, privacy, and
+              data-request correspondence goes to{' '}
+              <a
+                href="mailto:hi@skillzy.ai"
+                className="border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
+              >
+                hi@skillzy.ai
+              </a>
+              . A real person reads every message.
+            </p>
+          </section>
 
           <section className="space-y-3">
             <H2>What we collect</H2>
@@ -139,6 +154,28 @@ export default function PrivacyPage() {
               and we’ll respond within a reasonable time. If you’re
               unsatisfied you may contact the Office of the Australian
               Information Commissioner.
+            </p>
+          </section>
+
+          <section className="space-y-3">
+            <H2>Marketing emails &amp; how to opt out</H2>
+            <p className="text-brand-muted">
+              Skillzy occasionally reaches out to publicly listed business
+              contacts (e.g. profile emails on developer platforms) to
+              introduce the marketplace. Every outreach email includes a
+              working unsubscribe link and clear sender identification, in
+              line with the Australian Spam Act 2003. If you&rsquo;d rather
+              not hear from us again — or want your address removed from
+              all Skillzy campaigns permanently — reply directly to the
+              email you received, or send a note to{' '}
+              <a
+                href="mailto:hi@skillzy.ai"
+                className="border-b border-brand-ink hover:text-brand-gold hover:border-brand-gold pb-0.5"
+              >
+                hi@skillzy.ai
+              </a>{' '}
+              and we&rsquo;ll suppress your address across every campaign
+              inside one business day.
             </p>
           </section>
 
