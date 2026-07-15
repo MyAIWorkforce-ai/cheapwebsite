@@ -144,14 +144,15 @@ export default function AboutPage() {
             to the creator. Always.
           </h2>
           <p className="mt-5 text-lg sm:text-xl text-brand-cream/85 max-w-2xl">
-            Stripe pays creators direct on every sale. Skillzy never holds
-            anyone&rsquo;s money. List it once, sell it forever.
+            Once creators connect their Stripe, every sale pays them 80%
+            direct — Stripe handles the money movement. List it once, sell
+            it forever.
           </p>
 
           <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-px bg-brand-cream/10 border border-brand-cream/15">
             {[
               { n: '80%', label: 'Stays with you', desc: 'Every sale. No exceptions.' },
-              { n: '$0',  label: 'Held by us',     desc: 'Stripe pays you direct, instantly.' },
+              { n: '$0',  label: 'To list',        desc: 'Free to publish. Keep 80% of every sale.' },
               { n: '∞',   label: 'Resales',        desc: 'List once. Earn forever.' },
             ].map((s) => (
               <div key={s.label} className="bg-brand-navy p-7 sm:p-8">

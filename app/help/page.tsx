@@ -98,8 +98,8 @@ const creator: QA[] = [
         >
           Dashboard → Payouts
         </Link>
-        . Stripe pays you direct on every sale on the cadence you set inside Stripe. Skillzy
-        never holds your money.
+        . Once connected, Stripe pays you direct on every sale on the
+        cadence you set inside Stripe.
       </>
     ),
   },

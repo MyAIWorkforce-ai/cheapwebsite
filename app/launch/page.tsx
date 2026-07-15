@@ -52,7 +52,7 @@ export default function LaunchPage() {
         <div className="max-w-page mx-auto grid grid-cols-1 md:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">
           {[
             { h: 'For operators', b: 'Tradies, agents, clinics, agencies. The non-technical people who need an agent doing real work today, not a weekend of YAML.' },
-            { h: 'For creators', b: 'Built something that works? List it once, sell it forever. Keep 80%. Stripe pays you direct. Zero IP lock-in.' },
+            { h: 'For creators', b: 'Built something that works? List it once, sell it forever. Keep 80%. Zero IP lock-in.' },
             { h: 'You own it', b: 'Buy once, yours forever. Re-downloadable, no subscription, no IP lock-in. Creators warrant what they sell; we act fast on bad actors.' },
           ].map((c) => (
             <div key={c.h} className="bg-brand-cream-card p-7 sm:p-8">

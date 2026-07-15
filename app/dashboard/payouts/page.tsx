@@ -242,9 +242,9 @@ export default async function PayoutsPage({
             Get <em className="italic text-brand-gold font-medium">paid.</em>
           </h1>
           <p className="mt-5 text-brand-muted max-w-prose">
-            Skillzy never holds your money. Stripe pays you directly the
-            moment a sale completes &mdash; a clean 80% of every sale, with
-            Stripe&rsquo;s processing fees absorbed by our 20% cut.
+            Once your Stripe is connected, every sale pays you 80% direct
+            &mdash; Stripe handles the money movement and their processing
+            fees come out of our 20% cut, not yours.
           </p>
         </div>
       </section>

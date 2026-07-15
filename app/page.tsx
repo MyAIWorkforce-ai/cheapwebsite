@@ -502,7 +502,7 @@ export default async function HomePage() {
           <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-px bg-brand-cream/10 border border-brand-cream/15">
             {[
               { n: '80%', label: 'Stays with you', desc: 'Every sale. No exceptions.' },
-              { n: '$0', label: 'Held by us', desc: 'Stripe pays you direct, instantly.' },
+              { n: '$0', label: 'To list', desc: 'Free to publish. Keep 80% of every sale.' },
               { n: '∞', label: 'Resales per listing', desc: 'List once. Earn forever.' },
             ].map((s) => (
               <div key={s.label} className="bg-brand-navy p-8">

@@ -46,7 +46,7 @@ const steps = [
   { n: '01', title: 'Sign up', desc: 'Email or one-click GitHub login. No profile to fill in.' },
   { n: '02', title: 'List it', desc: 'Skill, guide, or full agent setup. Drop in your files.' },
   { n: '03', title: 'Let it describe itself', desc: 'Upload notes, talk, or type. Our AI drafts the full listing — title, blurb, features, setup. Refine until it sounds like you.' },
-  { n: '04', title: 'Connect Stripe', desc: 'One click at publish. Stripe pays you direct — you keep 80%.' },
+  { n: '04', title: 'Connect Stripe', desc: 'One click. Once connected, Stripe pays your 80% direct on every sale.' },
   { n: '05', title: 'Get paid', desc: 'Stripe splits the cash on every sale. You re-list, raise prices, or pull anytime.' },
 ]
 
@@ -99,7 +99,7 @@ export default function SellPage() {
         <div className="max-w-page mx-auto grid grid-cols-1 md:grid-cols-3 gap-px bg-brand-hairline border border-brand-hairline">
           {[
             { n: '∞', label: 'Resales', desc: 'List once. Sell it forever.' },
-            { n: '$0', label: 'Skillzy holds', desc: 'Stripe pays you direct on every sale.' },
+            { n: '$0', label: 'To list', desc: 'Free to publish. Keep 80% of every sale.' },
             { n: 'Minutes', label: 'To publish', desc: 'From sign-up to live. Faster if you already have an account.' },
           ].map((s) => (
             <div key={s.label} className="bg-brand-cream-card p-8 sm:p-10">
