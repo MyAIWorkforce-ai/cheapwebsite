@@ -318,18 +318,24 @@ export default async function DashboardPage({
 
   // Soft nudge banner for creators with paid listings whose Stripe
   // isn't connected yet (or whose Stripe account exists but Stripe
-  // hasn't approved payouts). Their listings are live but every Buy
-  // button shows "not buyable yet" — they earn $0 until this is sorted.
+  // hasn't approved payouts). Listings are fully live and buyable per
+  // the 2026-06 policy — the nudge is just about routing future sales
+  // to the creator's own bank instead of them missing out on payouts.
+  // (Suppress entirely for Wise creators — they have a valid payout
+  // method, different rail.)
   const hasPaidListing = sellerData.listings.some(
     (l) => Number(l.price_cents ?? 0) > 0,
   )
-  const showStripeBanner = hasPaidListing && !sellerData.payoutsEnabled
+  const showStripeBanner =
+    hasPaidListing &&
+    !sellerData.payoutsEnabled &&
+    sellerData.payoutMethod !== 'wise'
   const stripeBannerHeadline = sellerData.stripeAccountId
     ? "Stripe is still finishing your setup."
-    : "Your paid listings aren't earning yet."
+    : "Connect Stripe so you can earn from your listings."
   const stripeBannerBody = sellerData.stripeAccountId
-    ? "Stripe is verifying your account. Once it's done, every Buy button switches on automatically — usually within a few hours. Open Payouts to see what's pending."
-    : "Buyers see “not buyable yet” instead of a checkout button until Stripe is connected. 60 seconds to fix — you keep 80% of every sale."
+    ? "Stripe is verifying your account. Once it's done, every future sale pays straight into your account — usually within a few hours."
+    : "60 seconds to connect. Every sale after that pays 80% straight to your bank on Stripe's normal schedule."
   const stripeBannerCta = sellerData.stripeAccountId
     ? 'Open Payouts'
     : 'Connect Stripe'

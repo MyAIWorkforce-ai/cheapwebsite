@@ -14,8 +14,9 @@ function site() {
 
 /**
  * 24h+ follow-up nudge for creators who published a paid listing
- * without connecting Stripe. Buyers see "not buyable yet" instead of
- * a Buy button, so the creator is earning $0 until they connect.
+ * without connecting Stripe. Listings are fully live + buyable per
+ * the 2026-06 policy — the nudge is just about routing future sales
+ * into the creator's own bank so they earn from them.
  * Fired once per creator from the /api/cron/stripe-nudge cron job;
  * idempotency is enforced via the app_metadata.stripe_nudge_sent_at
  * timestamp set by the cron after each send.
@@ -38,8 +39,8 @@ export async function sendStripeConnectNudge({
     listingCount === 1 ? 'your listing is' : `your ${listingCount} listings are`
   const subject =
     listingCount === 1
-      ? `Your Skillzy listing isn't earning yet`
-      : `Your Skillzy listings aren't earning yet`
+      ? `Connect Stripe to start earning from your Skillzy listing`
+      : `Connect Stripe to start earning from your Skillzy listings`
 
   const payoutsUrl = `${site()}/dashboard/payouts`
 
@@ -47,20 +48,18 @@ export async function sendStripeConnectNudge({
     <div style="max-width:560px;margin:0 auto;padding:40px 28px;">
       ${brandHeaderHtml()}
       <p style="font-family:monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#C19E50;margin:0;">60 seconds</p>
-      <h1 style="font-size:34px;line-height:1.1;letter-spacing:-0.02em;margin:14px 0 0;">${
-        listingCount === 1
-          ? "You're earning $0 on this one."
-          : "You're earning $0 on these."
-      }</h1>
+      <h1 style="font-size:34px;line-height:1.1;letter-spacing:-0.02em;margin:14px 0 0;">Connect Stripe so you can earn from your ${
+        listingCount === 1 ? 'listing' : 'listings'
+      }.</h1>
 
       <p style="font-size:16px;color:#0F1729;margin:20px 0 0;line-height:1.55;">
-        ${greeting} ${listingPhrase} live on Skillzy — but buyers see
-        a <em>&ldquo;not buyable yet&rdquo;</em> message instead of a
-        checkout button, because your Stripe account isn&rsquo;t connected.
+        ${greeting} ${listingPhrase} live on Skillzy and ready for
+        buyers. Connect Stripe so every future sale pays 80% straight
+        into your own account.
       </p>
 
       <p style="font-size:16px;color:#0F1729;margin:20px 0 0;line-height:1.55;">
-        Connecting takes about 60 seconds. You keep <strong>80%</strong> of every sale; Stripe pays you direct on its normal settlement schedule. We never hold your money.
+        Connecting takes about 60 seconds. Once connected, Stripe pays your 80% direct on its normal settlement schedule.
       </p>
 
       <p style="margin:28px 0 0;">
@@ -68,7 +67,7 @@ export async function sendStripeConnectNudge({
       </p>
 
       <p style="font-size:14px;color:#5F6B7E;margin:28px 0 0;line-height:1.55;">
-        The moment Stripe says you&rsquo;re live, the Buy button flips on for every listing automatically — no re-publish needed.
+        The moment Stripe says you&rsquo;re live, every future sale routes 80% to your bank automatically — no re-publish needed.
       </p>
 
       <p style="font-size:14px;color:#5F6B7E;margin:24px 0 0;line-height:1.55;">
@@ -81,11 +80,11 @@ export async function sendStripeConnectNudge({
     </div>
   </body></html>`
 
-  const text = `${greeting} ${listingPhrase} live on Skillzy, but buyers see "not buyable yet" — Stripe isn't connected, so you're earning $0.
+  const text = `${greeting} ${listingPhrase} live on Skillzy and ready for buyers. Connect Stripe so every future sale pays 80% straight into your own account.
 
 Connect Stripe (60 seconds): ${payoutsUrl}
 
-You keep 80% of every sale. Stripe pays you direct.
+Once connected, Stripe pays your 80% direct on its normal settlement schedule.
 
 Need help? creators@skillzy.ai
 
