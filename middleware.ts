@@ -66,7 +66,16 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Run on every request except static assets and Next internals.
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    // Run on every request except static assets, Next internals, and
+    // image-generating routes. Image endpoints (/qr, /marketplace/[id]/
+    // share-square) must be excluded because:
+    //   - They're fetched by Gmail / Outlook / Apple Mail image proxies
+    //     which reject or drop responses that ship with Set-Cookie
+    //     headers → email QR shows a broken-image icon.
+    //   - They have no user session to update, so updateSession() is
+    //     wasted work on a cold start.
+    // Matching `.*/qr$` also catches any future /<slug>/qr routes we
+    // add without another middleware edit.
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$|.*/qr$|.*/share-square$).*)',
   ],
 }
