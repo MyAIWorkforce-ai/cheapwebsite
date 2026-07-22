@@ -118,6 +118,26 @@ type Metrics = {
     platformFeeCents: number
     creators: number
   }
+  // Wise payout track — creators using the Wise rail (not Stripe Connect).
+  // Pending = accrued 80% waiting for the nightly cron once balance ≥ $50.
+  // Failed = a prior cron attempt errored (needs admin retry from Wise).
+  wise: {
+    creatorsOnWise: number
+    pendingRows: number
+    pendingCents: number
+    failedRows: number
+    failedCents: number
+    creators: {
+      id: string
+      name: string
+      handle: string
+      country: string | null
+      currency: string | null
+      pendingCents: number
+      failedCents: number
+      readyToFire: boolean
+    }[]
+  }
   creatorList: CreatorRow[]
   byChannel: Record<string, number>
 }
@@ -129,10 +149,10 @@ async function loadMetrics(): Promise<Metrics | null> {
     const since = new Date()
     since.setDate(since.getDate() - 7)
 
-    const [purchasesRes, listingsRes, profilesRes, subsRes] = await Promise.all(
-      [
+    const [purchasesRes, listingsRes, profilesRes, subsRes, wiseProfilesRes] =
+      await Promise.all([
         db.from('purchases').select(
-          'amount_cents, creator_payout_cents, platform_fee_cents, status, referrer_channel, listing_id, buyer_id, created_at',
+          'amount_cents, creator_payout_cents, platform_fee_cents, status, referrer_channel, listing_id, buyer_id, created_at, payout_provider, payout_status',
         ),
         db
           .from('listings')
@@ -143,8 +163,13 @@ async function loadMetrics(): Promise<Metrics | null> {
           .from('profiles')
           .select('id, handle, name, stripe_account_id, stripe_payouts_enabled'),
         db.from('subscribers').select('id', { count: 'exact', head: true }),
-      ],
-    )
+        db
+          .from('profiles')
+          .select(
+            'id, handle, name, wise_recipient_country, wise_recipient_currency',
+          )
+          .eq('payout_method', 'wise'),
+      ])
 
     const purchases = purchasesRes.data ?? []
     const listings = listingsRes.data ?? []
@@ -243,6 +268,70 @@ async function loadMetrics(): Promise<Metrics | null> {
     const topCreators = [...creatorsAgg]
       .sort((a, b) => b.grossCents - a.grossCents)
       .slice(0, 10)
+
+    // -------- Wise payout rollup --------
+    // Which creators are on the Wise rail, and how much do they have
+    // accrued (pending) vs stuck (failed). Uses purchase columns from
+    // migration 013 (payout_provider / payout_status).
+    const wiseProfiles = wiseProfilesRes.data ?? []
+    const wisePendingByCreator: Record<string, number> = {}
+    const wiseFailedByCreator: Record<string, number> = {}
+    let wisePendingRows = 0
+    let wiseFailedRows = 0
+    for (const p of purchases) {
+      if (p.payout_provider !== 'wise') continue
+      const cid = creatorByListing.get(p.listing_id as string)
+      if (!cid) continue
+      const cents = (p.creator_payout_cents as number) ?? 0
+      if (p.payout_status === 'pending') {
+        wisePendingByCreator[cid] = (wisePendingByCreator[cid] ?? 0) + cents
+        wisePendingRows += 1
+      } else if (p.payout_status === 'failed') {
+        wiseFailedByCreator[cid] = (wiseFailedByCreator[cid] ?? 0) + cents
+        wiseFailedRows += 1
+      }
+    }
+    const WISE_THRESHOLD_CENTS = 50 * 100
+    const wiseCreatorsList = wiseProfiles
+      .map((wp) => {
+        const cid = wp.id as string
+        const pending = wisePendingByCreator[cid] ?? 0
+        const failed = wiseFailedByCreator[cid] ?? 0
+        return {
+          id: cid,
+          name:
+            (wp.name as string | null) ||
+            (wp.handle as string | null) ||
+            'Unknown',
+          handle: (wp.handle as string | null) || '—',
+          country: (wp.wise_recipient_country as string | null) ?? null,
+          currency: (wp.wise_recipient_currency as string | null) ?? null,
+          pendingCents: pending,
+          failedCents: failed,
+          readyToFire: pending >= WISE_THRESHOLD_CENTS,
+        }
+      })
+      // Failed first (needs manual attention), then ready-to-fire, then
+      // pending under threshold, then quiet accounts.
+      .sort((a, b) => {
+        if (a.failedCents !== b.failedCents) return b.failedCents - a.failedCents
+        if (a.readyToFire !== b.readyToFire) return a.readyToFire ? -1 : 1
+        return b.pendingCents - a.pendingCents
+      })
+    const wise = {
+      creatorsOnWise: wiseProfiles.length,
+      pendingRows: wisePendingRows,
+      pendingCents: Object.values(wisePendingByCreator).reduce(
+        (a, b) => a + b,
+        0,
+      ),
+      failedRows: wiseFailedRows,
+      failedCents: Object.values(wiseFailedByCreator).reduce(
+        (a, b) => a + b,
+        0,
+      ),
+      creators: wiseCreatorsList,
+    }
     const unconnectedEarners = creatorsAgg
       .filter((c) => !c.connected && c.sales > 0)
       .sort((a, b) => b.payoutCents - a.payoutCents)
@@ -351,6 +440,7 @@ async function loadMetrics(): Promise<Metrics | null> {
       topCreators,
       unconnectedEarners,
       house,
+      wise,
       showcase,
       creatorList,
       byChannel,
@@ -595,6 +685,119 @@ export default async function AdminDashboard() {
                 </ul>
               )}
             </div>
+
+            {/* WISE PAYOUTS — creators on the Wise rail, pending balances,
+                failed transfers needing manual attention. */}
+            {m.wise.creatorsOnWise > 0 && (
+              <div>
+                <h2
+                  className="font-display text-2xl tracking-tight mb-1"
+                  style={{ letterSpacing: '-0.02em' }}
+                >
+                  Wise payouts
+                </h2>
+                <p className="text-sm text-brand-muted mb-4 max-w-prose">
+                  Creators paid via Wise (not Stripe Connect). Pending =
+                  accrued 80% awaiting the nightly cron; fires per creator
+                  once their balance crosses $50 USD. Failed rows need
+                  manual investigation on Wise.
+                </p>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-brand-hairline border border-brand-hairline">
+                  <Stat
+                    label="Creators on Wise"
+                    value={String(m.wise.creatorsOnWise)}
+                    sub="using Wise instead of Stripe"
+                  />
+                  <Stat
+                    label="Pending balance"
+                    value={money(m.wise.pendingCents)}
+                    sub={`${m.wise.pendingRows} sale${m.wise.pendingRows === 1 ? '' : 's'} waiting`}
+                    tone="gold"
+                  />
+                  <Stat
+                    label="Failed transfers"
+                    value={money(m.wise.failedCents)}
+                    sub={`${m.wise.failedRows} row${m.wise.failedRows === 1 ? '' : 's'} — retry on Wise`}
+                    tone={m.wise.failedRows > 0 ? 'warn' : undefined}
+                  />
+                  <Stat
+                    label="Ready to fire"
+                    value={String(
+                      m.wise.creators.filter((c) => c.readyToFire).length,
+                    )}
+                    sub="creators ≥ $50 threshold"
+                  />
+                </div>
+                {m.wise.creators.length > 0 && (
+                  <div className="mt-4 border border-brand-hairline bg-brand-cream-card">
+                    <div className="px-5 py-3 border-b border-brand-hairline font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted grid grid-cols-[1fr_auto_auto_auto] gap-4">
+                      <span>Creator</span>
+                      <span>Country · CCY</span>
+                      <span className="text-right">Pending</span>
+                      <span className="text-right">Failed</span>
+                    </div>
+                    <ul>
+                      {m.wise.creators.map((c, i) => (
+                        <li
+                          key={c.id}
+                          className={
+                            'px-5 py-3 grid grid-cols-[1fr_auto_auto_auto] gap-4 items-baseline text-sm ' +
+                            (i < m.wise.creators.length - 1
+                              ? 'border-b border-brand-hairline'
+                              : '')
+                          }
+                        >
+                          <span className="truncate">
+                            <Link
+                              href={`/admin/creators/${c.id}`}
+                              className="border-b border-brand-ink/30 hover:text-brand-gold hover:border-brand-gold"
+                            >
+                              {c.name}
+                            </Link>{' '}
+                            <span className="text-brand-muted">
+                              {c.handle.startsWith('@') ? c.handle : `@${c.handle}`}
+                            </span>
+                            {c.readyToFire && (
+                              <span className="ml-2 font-mono text-[10px] uppercase tracking-[0.18em] px-1.5 py-0.5 bg-brand-gold text-brand-ink align-middle">
+                                Ready
+                              </span>
+                            )}
+                            {c.failedCents > 0 && (
+                              <span className="ml-2 font-mono text-[10px] uppercase tracking-[0.18em] px-1.5 py-0.5 bg-red-700 text-white align-middle">
+                                Failed
+                              </span>
+                            )}
+                          </span>
+                          <span className="font-mono text-xs text-brand-muted whitespace-nowrap">
+                            {c.country ?? '—'} · {c.currency ?? '—'}
+                          </span>
+                          <span
+                            className={
+                              'font-mono text-sm text-right whitespace-nowrap ' +
+                              (c.readyToFire
+                                ? 'text-brand-gold-dark font-semibold'
+                                : 'text-brand-muted')
+                            }
+                          >
+                            {money(c.pendingCents)}
+                          </span>
+                          <span
+                            className={
+                              'font-mono text-sm text-right whitespace-nowrap ' +
+                              (c.failedCents > 0
+                                ? 'text-red-700 font-semibold'
+                                : 'text-brand-muted')
+                            }
+                          >
+                            {c.failedCents > 0 ? money(c.failedCents) : '—'}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
               {/* BEST CREATORS */}

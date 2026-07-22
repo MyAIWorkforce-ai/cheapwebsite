@@ -11,6 +11,10 @@
     {
       "path": "/api/cron/stripe-nudge",
       "schedule": "0 14 * * *"
+    },
+    {
+      "path": "/api/cron/wise-payouts",
+      "schedule": "0 2 * * *"
     }
   ]
 }
