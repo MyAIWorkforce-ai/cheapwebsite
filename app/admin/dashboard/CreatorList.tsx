@@ -13,6 +13,13 @@ type CreatorRow = {
   sales: number
   purchases: number
   connected: boolean
+  // Which payout rail this creator is on:
+  //   'stripe' — Stripe Connect enabled (payouts route via destination charge)
+  //   'wise'   — Wise Business API (payouts route via nightly cron)
+  //   'none'   — no payout method set (sales collect on the platform per §6)
+  // Kept as a distinct field from `connected` so a creator on Wise
+  // isn't mislabeled "no payout" just because Stripe isn't linked.
+  payoutMethod: 'stripe' | 'wise' | 'none'
 }
 
 // Two views over the same roster:
@@ -74,24 +81,12 @@ export default function CreatorList({
               className="py-3 flex items-baseline justify-between gap-4"
             >
               <span className="min-w-0 flex items-center gap-2">
-                {/* Stripe-connected indicator — the gold tick makes it
-                    instantly scannable which accounts are payout-ready.
-                    Non-connected shows an outlined circle with an
-                    explanatory title on hover. */}
-                <span
-                  aria-label={c.connected ? 'Stripe connected' : 'Stripe not connected'}
-                  title={c.connected ? 'Stripe connected' : 'Stripe not connected'}
-                  className={
-                    'shrink-0 inline-flex items-center justify-center w-4 h-4 rounded-sm border ' +
-                    (c.connected
-                      ? 'bg-brand-gold border-brand-gold text-brand-ink'
-                      : 'border-brand-hairline text-transparent')
-                  }
-                >
-                  <svg viewBox="0 0 12 12" className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden>
-                    <path d="M2.5 6.5 5 9l4.5-5" />
-                  </svg>
-                </span>
+                {/* Payout-method badge — instantly scannable which rail
+                    each creator is on. Stripe = gold (Skillzy default),
+                    Wise = navy (international), None = outlined (not
+                    payout-ready). Using text labels so it stays
+                    readable in mono-typography contexts. */}
+                <PayoutBadge method={c.payoutMethod} />
                 <span className="min-w-0 flex-1">
                   <Link
                     href={`/admin/creators/${c.id}`}
@@ -102,7 +97,7 @@ export default function CreatorList({
                   <span className="block text-xs text-brand-muted mt-0.5 truncate">
                     {c.name}
                     {c.handle !== '—' ? ` · @${c.handle}` : ''}
-                    {!c.connected && c.sales > 0 ? ' · no payout' : ''}
+                    {c.payoutMethod === 'none' && c.sales > 0 ? ' · no payout method' : ''}
                   </span>
                 </span>
               </span>
@@ -115,5 +110,37 @@ export default function CreatorList({
         </ul>
       )}
     </div>
+  )
+}
+
+function PayoutBadge({ method }: { method: 'stripe' | 'wise' | 'none' }) {
+  const config = {
+    stripe: {
+      label: 'STRIPE',
+      title: 'Stripe Connect — payouts route via destination charge',
+      className: 'bg-brand-gold border-brand-gold text-brand-ink',
+    },
+    wise: {
+      label: 'WISE',
+      title: 'Wise — international rail, payouts fired by nightly cron',
+      className: 'bg-brand-navy border-brand-navy text-brand-cream',
+    },
+    none: {
+      label: '—',
+      title: 'No payout method set — sales stay on the platform',
+      className: 'border-brand-hairline text-brand-muted bg-transparent',
+    },
+  }[method]
+  return (
+    <span
+      aria-label={config.title}
+      title={config.title}
+      className={
+        'shrink-0 inline-flex items-center justify-center min-w-[52px] px-1.5 py-0.5 border font-mono text-[10px] uppercase tracking-[0.12em] leading-none ' +
+        config.className
+      }
+    >
+      {config.label}
+    </span>
   )
 }

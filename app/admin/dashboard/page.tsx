@@ -69,6 +69,7 @@ type CreatorRow = {
   sales: number
   purchases: number
   connected: boolean
+  payoutMethod: 'stripe' | 'wise' | 'none'
 }
 
 type Metrics = {
@@ -161,7 +162,9 @@ async function loadMetrics(): Promise<Metrics | null> {
           ),
         db
           .from('profiles')
-          .select('id, handle, name, stripe_account_id, stripe_payouts_enabled'),
+          .select(
+            'id, handle, name, stripe_account_id, stripe_payouts_enabled, payout_method',
+          ),
         db.from('subscribers').select('id', { count: 'exact', head: true }),
         db
           .from('profiles')
@@ -189,6 +192,14 @@ async function loadMetrics(): Promise<Metrics | null> {
             'Unknown',
           handle: (p.handle as string | null) || '—',
           connected: p.stripe_payouts_enabled === true,
+          payoutMethod: ((): 'stripe' | 'wise' | 'none' => {
+            // Wise wins if explicitly set — a creator on the Wise
+            // rail doesn't get labeled "no payout" just because
+            // Stripe Connect isn't linked.
+            if (p.payout_method === 'wise') return 'wise'
+            if (p.stripe_payouts_enabled === true) return 'stripe'
+            return 'none'
+          })(),
         },
       ]),
     )
@@ -401,6 +412,7 @@ async function loadMetrics(): Promise<Metrics | null> {
             sales: agg?.sales ?? 0,
             purchases: purchasesByBuyer[u.id] ?? 0,
             connected: prof?.connected ?? false,
+            payoutMethod: prof?.payoutMethod ?? 'none',
           }
         })
         .sort((a, b) => (a.joined < b.joined ? 1 : -1)) // newest first
