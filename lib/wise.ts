@@ -1,5 +1,5 @@
 import 'server-only'
-import { env, hasWise, hasWiseToken } from '@/lib/env'
+import { env, hasWiseToken } from '@/lib/env'
 
 // Wise Business API client.
 //
