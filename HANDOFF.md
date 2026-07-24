@@ -1801,3 +1801,238 @@ for a dedicated Prompt Pack type, that's the trigger to reconsider.
 a dedicated Prompt Pack listing type, or (b) 3-6 months elapse
 and we're deliberately widening top-of-funnel with lower-priced
 inventory.
+
+---
+
+## 2026-07-24 — Wise Payouts (Phase 1 + Phase 2) LIVE end-to-end
+
+**Why this shipped:** Two Instagram-recruited creators (Raghav
+Sharma + Hill Patel, both India) hit the Stripe Connect country
+wall within 24-48 hours of each other. Stripe Connect Standard
+covers ~45 countries; India is not one of them. Cold-email
+outreach is bringing in a global audience that Stripe alone
+can't monetise. Wise Business API covers ~160 countries at low
+fees (0.5-1% + real mid-market FX) and was the right rail to add.
+
+### Phase 1 — DB + dashboard + sale routing (commit `1caa1a3`)
+
+**DB (migration 013 — `db/migrations/013-wise-payouts.sql`, run
+in production 2026-07-24):**
+
+- `profiles` gains `payout_method` ('stripe' | 'wise' | null) +
+  `wise_recipient_name` + `wise_recipient_country` (ISO alpha-2)
+  + `wise_recipient_currency` (ISO 4217) + `wise_recipient_email`
+  + `wise_recipient_details` (jsonb for country-specific bank
+  fields) + `wise_recipient_id` (cached after first Wise API
+  create) + `payout_method_updated_at`.
+- `purchases` gains `payout_provider` ('stripe_connect' | 'wise')
+  + `payout_status` ('not_owed' | 'pending' | 'paid_out' |
+  'failed') + `wise_transfer_id` + `paid_out_at`.
+- Backfill: existing paid purchases with `creator_payout_cents >
+  0` get flipped to `payout_provider='stripe_connect'`,
+  `payout_status='paid_out'` since they already routed via
+  Stripe destination charge.
+- Partial index on `(listing_id) WHERE payout_status = 'pending'`
+  for the nightly cron's group-by-creator query.
+
+**Dashboard UI:**
+
+- `/dashboard/payouts` — new **`WiseCard`** component
+  (`app/dashboard/payouts/WiseCard.tsx`) renders alongside the
+  existing Stripe Connect card. Creator picks country + currency,
+  then either their Wise account email OR local bank details.
+  Country-aware form: India shows IFSC + account number, EU
+  shows IBAN, all others get a free-text bank details box.
+- `/dashboard` — Wise creators see a "Pending $X — $Y to go
+  until $50 threshold" callout at the top of their selling
+  view. Suppresses the "Connect Stripe" nag entirely for
+  Wise creators.
+
+**Sale routing:**
+
+- `app/api/checkout/route.ts` — reads `payout_method` alongside
+  the Stripe destination lookup. Wise creators skip
+  `transfer_data.destination` so funds stay on Skillzy's Stripe
+  balance for the batch payout. The method is written into
+  `intent.metadata.creator_payout_method` so the fulfillment
+  side reads back what was locked in at sale time (not a fresh
+  profile query — a mid-flight method change doesn't retroactively
+  rewrite existing sales).
+- `lib/fulfillment.ts` — records purchase with
+  `payout_provider='wise'`, `payout_status='pending'`,
+  `creator_payout_cents = 80%` (real amount owed, not zero).
+  Stripe Connect sales still work identically (unchanged behavior).
+- `lib/email/sale-notification.tsx` — now three variants driven
+  by a `payoutMethod` prop: `stripe` (standard cha-ching),
+  `wise` (cha-ching + queued-for-Wise summary with running
+  balance vs $50 threshold), `none` (celebratory + light nudge
+  to set up payouts). Legacy `payoutsConnected` bool still
+  supported for backwards compat.
+
+### Phase 2 — API client + nightly cron + admin panel (commit `96f53b9`)
+
+**`lib/wise.ts` — Wise Business API client:**
+
+- `createQuote` — USD → target currency, BALANCE pay-in
+- `createRecipient` — per-country payload builders:
+  - Wise email path (globally supported if creator has Wise account)
+  - India: `type=indian`, `accountNumber`+`ifscCode`+`legalType=PRIVATE`
+  - EU/IBAN: `type=iban`, `iban`+`legalType=PRIVATE`
+  - Fails loud for un-mapped corridors
+- `createTransfer` — deterministic `customerTransactionId` for
+  idempotency
+- `fundTransfer` — pulls money from our Wise BALANCE to fund
+  the outgoing transfer
+- `getTransfer` — status polling for admin panel
+- `payoutViaWise` — end-to-end helper for the cron
+
+**Nightly cron — `app/api/cron/wise-payouts/route.ts`:**
+
+- Vercel Cron schedule: **02:00 UTC** daily
+  (`vercel.json` updated)
+- Auth: `CRON_SECRET` (Vercel Cron sends it, manual test via
+  `?key=<CRON_SECRET>` query param)
+- Loads every profile with `payout_method='wise'`, sums pending
+  purchase rows per creator scoped to their listings, fires one
+  Wise transfer per creator when their balance ≥ `$50 USD`
+  (configurable via `WISE_PAYOUT_THRESHOLD_CENTS` env).
+- **Idempotent** — `customerTransactionId` is a sha256 of
+  included purchase IDs, so re-runs after a partial failure
+  don't double-book at Wise.
+- **Fail-per-creator** — one creator's error doesn't stop the
+  loop.
+- Caches `wise_recipient_id` on the profile after first successful
+  transfer so subsequent runs skip the create-recipient step.
+- Logs loud + surfaces in admin panel when Wise transfer succeeded
+  but DB update failed (money moved, needs manual reconcile).
+
+**Confirmation email — `lib/email/wise-payout-confirmation.tsx`:**
+
+Sent to creator when a cron run fires their payout. Shows USD
+collected, target-currency amount (with rate applied), Wise
+transfer ID (for their own reconciliation on wise.com), and the
+1-2 business day settlement window.
+
+**Admin panel — `app/admin/dashboard/page.tsx`:**
+
+New "Wise payouts" section renders only when at least one creator
+is on the Wise rail. Stat tiles: creators on Wise / total pending
+/ total failed / ready-to-fire count. Per-creator table sorted
+failed → ready-to-fire → pending, with country + currency +
+running balance + failed amount per row.
+
+### Profile ID auto-detection (commit `92c1368`)
+
+`lib/wise.ts` now auto-discovers the business profile ID from the
+API token via GET `/v2/profiles` on first use, cached in module
+scope. Removes the "hunt for the numeric ID in Wise's UI"
+friction that blocked setup — Wise's UI genuinely doesn't
+surface it prominently, and every operator would hit the same
+wall. `WISE_PROFILE_ID` env var is now an optional override for
+the rare case of one login owning multiple business profiles.
+
+### Ops actions completed 2026-07-24
+
+- **Wise Business account** opened under **AI Virtual Assistant
+  Australia Pty Ltd** (ABN 20687544547, ACN 687544547) on the
+  free **Basic** plan. Trading name set to `Skillzy` in Wise
+  Business profile (`Trading Business Name` field). Wise
+  accepted the trading name without requiring the ASIC
+  business-name registration certificate up front — so the $44
+  ASIC registration is DEFERRED unless Wise asks for it later.
+- **Statement descriptor** to be set to `SKILLZY` on the Wise
+  Business profile (creator-facing bank statement line for
+  outgoing transfers).
+- **Env vars in Vercel** (Production + Preview):
+  - `WISE_API_TOKEN` — Full-access API token from Wise dashboard,
+    Sensitive.
+  - `CRON_SECRET` — reset to `skillzy-cron-7k9m3p2xn5f8a4r6t1w0`
+    (was previously a `sk_live_…` Stripe-shaped string that had
+    been marked Sensitive and become unrecoverable; the reset
+    made it usable again).
+  - `WISE_PROFILE_ID` — **not set** (auto-detected from token).
+- **Verify URL responds correctly** as of 2026-07-24:
+  `https://skillzy.ai/api/cron/wise-payouts?key=<CRON_SECRET>`
+  → `{"scanned":0,"paid":0,"skipped":0,"failed":0,"errors":[]}`
+
+### Money-flow summary (once live)
+
+1. Buyer purchases a Wise creator's listing → Stripe collects
+   full amount into Skillzy's Stripe balance
+   (`acct_1Tb7o2RV0ws5a7zS`, "Skillzy AI").
+2. `lib/fulfillment.ts` writes purchase row with
+   `payout_provider='wise'`, `payout_status='pending'`,
+   `creator_payout_cents = 80%`.
+3. Toby manually tops up the Wise Business balance from Stripe
+   payouts to bank → Wise (Basic plan doesn't include the
+   receive-USD-direct-from-Stripe feature Advanced does at $65
+   one-time; deferred until volume justifies).
+4. Nightly cron at 02:00 UTC sums pending Wise payouts per
+   creator, fires transfer when any creator crosses $50 USD.
+5. Wise settles to creator's bank (Wise account email → linked
+   bank, or direct local bank details) in ~1-2 business days.
+6. Creator gets `sendWisePayoutConfirmation` email with the
+   Wise transfer ID for reconciliation.
+
+### What's still outstanding
+
+- **Raghav Sharma + Hill Patel** — both listed as of 2026-07-24
+  (Raghav: HVAC Agent + others; Hill: Prompt Pack "prompt-forge").
+  Sales made before Wise went live went 100% to Skillzy per §6
+  policy (not retroactive). From today forward their listings
+  route sales via Wise once they add their Wise details on
+  `/dashboard/payouts`. Toby to send follow-up emails inviting
+  them back to set up Wise.
+- **Statement descriptor** — set to `SKILLZY` in Wise dashboard
+  (not required for the cron to run, but improves bank
+  statement branding for creators).
+- **ASIC business name registration for "Skillzy" ($44)** —
+  currently deferred. Register only if Wise's compliance team
+  later asks for the certificate as proof of the trading name.
+- **Wise Basic vs Advanced** — Basic is fine for current volume
+  (1-3 international creators, small transfers, manual balance
+  top-up). Upgrade to Advanced ($65 one-time) when volume
+  justifies: unlocks direct Stripe-USD → Wise routing (saves the
+  manual top-up step + a round of FX conversion).
+
+### Bookkeeping note
+
+Skillzy revenue flows through AI Virtual Assistant Australia
+Pty Ltd's books (Wise Business account is under AIVA legally,
+Skillzy is a trading name). Tag Skillzy income + expenses
+separately in Xero (or wherever) so the accountant can pull a
+clean Skillzy P&L at tax time without disentangling from
+AIVA's own virtual-assistant work. AIVA is currently NOT
+GST-registered — Skillzy sales through it stay GST-free until
+the entity's combined turnover crosses $75k/year (a long way
+off; most Skillzy sales will be international / GST-free anyway
+as digital exports).
+
+### Related same-day work
+
+- **Operator identity added to `/privacy`, `/terms`, footer**
+  after a Digital Inbox cold-email recipient complained that
+  skillzy.ai lacked clear operator info (commit `c58b6c9`).
+  Currently shows "Skillzy · Australia · hi@skillzy.ai" (no
+  personal name, no legal entity — Toby's preference). Update
+  to name AIVA formally if any future complaint escalates or
+  if we want tighter defence against the "no clear operator"
+  angle.
+- **Digital Inbox cold-email reply** sent (short, closes-the-door
+  reply — no admission, no invitation to further engagement).
+- **`/dashboard` + `/api/cron/stripe-nudge` copy cleaned up**
+  (commit `a16b155`) — removed the stale "buyers see 'not
+  buyable yet'" pre-2026-06 policy language. Now reads "Connect
+  Stripe so you can earn from your listings" — light-touch
+  invite forward.
+- **QR email image fix** (commit `2bc2050`) — excluded `/qr` and
+  `/share-square` from the auth middleware matcher. Was setting
+  `Set-Cookie` on the outbound PNG which Gmail's image proxy
+  silently rejects → broken-image icon in the creator share-kit
+  email. Fixed.
+- **Sample listings label hidden** (commit `09a33de`) — dropped
+  the "Sample · " prefix from ProductCard so demo listings
+  display as regular listings on the marketplace grid. Data
+  layer unchanged (checkout still returns 403 with the "not for
+  sale yet" message on sample IDs, and demand-signal emails
+  still fire to `sales@skillzy.ai`).
