@@ -66,7 +66,12 @@ export const hasSupabase = Boolean(env.supabase.url && env.supabase.anonKey)
 export const hasStripe = Boolean(env.stripe.secretKey)
 export const hasResend = Boolean(env.resend.apiKey)
 export const hasAnthropic = Boolean(env.anthropic.apiKey)
-// Full Wise integration requires both the API token AND the profile
-// ID (transfers are always sent FROM a specific profile). Missing
-// either makes the cron a no-op so nothing silently breaks.
-export const hasWise = Boolean(env.wise.apiToken && env.wise.profileId)
+// A Wise API token alone is enough to start — the business profile
+// ID is auto-discovered by lib/wise.ts on first use via /v2/profiles,
+// so operators don't have to hunt for the numeric ID in Wise's UI.
+// Setting WISE_PROFILE_ID is only needed when a single Wise account
+// owns multiple business profiles (rare) and you want to pin to a
+// specific one.
+export const hasWiseToken = Boolean(env.wise.apiToken)
+// Full Wise integration — token present. Profile ID auto-resolves.
+export const hasWise = hasWiseToken

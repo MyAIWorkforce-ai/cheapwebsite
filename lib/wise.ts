@@ -1,5 +1,5 @@
 import 'server-only'
-import { env, hasWise } from '@/lib/env'
+import { env, hasWise, hasWiseToken } from '@/lib/env'
 
 // Wise Business API client.
 //
@@ -89,11 +89,14 @@ async function wiseFetch<T>(
   path: string,
   init: RequestInit = {},
 ): Promise<T> {
-  if (!hasWise) {
+  // Token alone is enough to hit /v2/profiles for auto-discovery of
+  // the business profile ID. Everything else needs the profile ID too,
+  // which callers resolve via resolveProfileId() below.
+  if (!hasWiseToken) {
     throw new WiseApiError(
       0,
       null,
-      'Wise API is not configured — set WISE_API_TOKEN + WISE_PROFILE_ID.',
+      'Wise API is not configured — set WISE_API_TOKEN.',
     )
   }
   const url = `${env.wise.apiUrl.replace(/\/$/, '')}${path}`
@@ -129,6 +132,47 @@ function safeJsonParse(raw: string): unknown {
   }
 }
 
+// ---------- Profile ID discovery ----------
+
+// Cached in module scope — Wise profile IDs don't change once assigned,
+// so we resolve once per warm process and reuse. Reset if the module
+// reloads (deploys, cold starts) — cheap to re-resolve (one GET call).
+let cachedProfileId: number | null = null
+
+/**
+ * The business Wise profile ID this integration transacts under.
+ *
+ * Two ways it's resolved (in priority order):
+ *   1. WISE_PROFILE_ID env var — set only if you need to pin to a
+ *      specific profile (e.g. login owns multiple businesses).
+ *   2. Auto-discovery: GET /v2/profiles → pick the business profile.
+ *      Removes the "hunt for the numeric ID in Wise's UI" step for
+ *      the operator; matters because Wise's UI genuinely doesn't
+ *      surface the profile ID in an obvious place.
+ *
+ * Throws WiseApiError if no business profile is found on the account.
+ */
+export async function resolveProfileId(): Promise<number> {
+  if (env.wise.profileId) {
+    const parsed = Number(env.wise.profileId)
+    if (Number.isFinite(parsed)) return parsed
+  }
+  if (cachedProfileId != null) return cachedProfileId
+  const profiles = await wiseFetch<
+    Array<{ id: number; type: string; businessName?: string; fullName?: string }>
+  >('/v2/profiles')
+  const business = profiles.find((p) => p.type === 'business')
+  if (!business) {
+    throw new WiseApiError(
+      0,
+      profiles,
+      'Auto-discovery found no business profile on this Wise account — set WISE_PROFILE_ID or add a business profile in Wise.',
+    )
+  }
+  cachedProfileId = business.id
+  return business.id
+}
+
 // ---------- 1. Quote ----------
 
 /**
@@ -141,6 +185,7 @@ export async function createQuote(opts: {
   sourceAmountUsd: number
   targetCurrency: WiseCurrency
 }): Promise<WiseQuote> {
+  const profileId = await resolveProfileId()
   const body = await wiseFetch<{
     id: string
     sourceAmount: number
@@ -151,7 +196,7 @@ export async function createQuote(opts: {
       payOut: string
       fee: { total: number }
     }>
-  }>(`/v3/profiles/${env.wise.profileId}/quotes`, {
+  }>(`/v3/profiles/${profileId}/quotes`, {
     method: 'POST',
     body: JSON.stringify({
       sourceCurrency: 'USD',
@@ -187,7 +232,8 @@ export async function createQuote(opts: {
 export async function createRecipient(
   details: CreatorPayoutDetails,
 ): Promise<WiseRecipient> {
-  const payload = buildRecipientPayload(details)
+  const profileId = await resolveProfileId()
+  const payload = buildRecipientPayload(details, profileId)
   const body = await wiseFetch<{
     id: number
     accountHolderName: string
@@ -205,10 +251,13 @@ export async function createRecipient(
   }
 }
 
-function buildRecipientPayload(details: CreatorPayoutDetails) {
+function buildRecipientPayload(
+  details: CreatorPayoutDetails,
+  profileId: number,
+) {
   // Common envelope Wise expects on every recipient.
   const base = {
-    profile: Number(env.wise.profileId),
+    profile: profileId,
     accountHolderName: details.fullName,
     currency: details.currency,
     ownedByCustomer: false,
@@ -315,8 +364,9 @@ export async function fundTransfer(transferId: number): Promise<{
   status: string
   errorCode?: string
 }> {
+  const profileId = await resolveProfileId()
   const body = await wiseFetch<{ type: string; status: string; errorCode?: string }>(
-    `/v3/profiles/${env.wise.profileId}/transfers/${transferId}/payments`,
+    `/v3/profiles/${profileId}/transfers/${transferId}/payments`,
     {
       method: 'POST',
       body: JSON.stringify({ type: 'BALANCE' }),
