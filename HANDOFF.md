@@ -2036,3 +2036,67 @@ as digital exports).
   layer unchanged (checkout still returns 403 with the "not for
   sale yet" message on sample IDs, and demand-signal emails
   still fire to `sales@skillzy.ai`).
+- **Nightly cron report email** (commit `c65ca2e`) — post-run
+  founder-alert email sent to `sales@skillzy.ai` after every
+  `/api/cron/wise-payouts` firing. Silent on quiet nights,
+  loud on any activity: subject signals urgency at a glance
+  (`⚠ Wise cron: N failures need attention` vs `Wise cron: $X
+  paid to N creators`), body lists per-creator paid amounts +
+  Wise transfer IDs + per-creator failure reasons.
+  `sendWiseCronReport()` in `lib/email/wise-cron-report.tsx`;
+  wired at the end of the cron handler. Also exported
+  `notifyTo()` from `admin-notification.ts` so future
+  founder-alert emails can reuse the typed routing chain
+  instead of hardcoding destinations.
+
+### Wise funding decision — manual for now (2026-07-24 pm)
+
+**Current setup:** Wise Basic + **manual top-ups** from Toby's
+AU business bank. First top-up: **$50 USD** on 2026-07-24 pm.
+
+**Why manual (not auto-top-up or Advanced) right now:**
+
+Toby's called it — at current volume (2 international creators,
+no live Wise sales yet) the cost/complexity of the two automated
+paths isn't justified:
+
+- **Wise Advanced ($65 one-time)** — would let Stripe pay
+  directly into the Wise USD balance (no AU-bank hop). Best
+  long-term but the FX savings at current volume are ~$2-5/month,
+  so break-even is >1 year away.
+- **Wise auto-top-up via Direct Debit (free)** — no upgrade
+  needed but requires linking the AU business bank via Direct
+  Debit + a few days of Wise's initial verification. Toby chose
+  not to set this up yet.
+
+**Manual top-up model as of 2026-07-24:**
+
+1. Sale on a Wise creator's listing → Skillzy Stripe collects.
+2. Stripe pays Skillzy's AU bank on its normal cadence.
+3. Toby manually transfers funds from AU bank → Wise Business
+   USD balance whenever the balance dips.
+4. Cron runs at 02:00 UTC nightly, funds transfers from Wise
+   balance.
+5. If Wise balance is empty when the cron fires → transfer
+   fails with `insufficient balance` → the failure lands in the
+   nightly cron report email (⚠ subject) so Toby knows to top
+   up + can manually retry from the admin panel.
+
+**Trigger to revisit and auto-fund:**
+
+Any of these hits → set up Wise auto-top-up (free) or upgrade to
+Advanced ($65):
+
+- **>10 international creators** on Wise, OR
+- **>$500/month** in outbound Wise transfers, OR
+- **>1 missed payout per month** from Wise balance running dry
+
+Until any of the above, manual model + cron report alert
+is sufficient. Toby's exact quote (2026-07-24):
+> "When get more traction will upgrade to $65 year so can be
+> automated."
+
+*(Small correction for the record: Wise Advanced is $65 one-time
+in the AU business account, not annual. Doesn't change the
+decision — trigger to revisit is still creator volume, not
+calendar time.)*
