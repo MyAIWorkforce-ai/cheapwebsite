@@ -37,6 +37,7 @@ import {
   type CreatorPayoutDetails,
 } from '@/lib/wise'
 import { sendWisePayoutConfirmation } from '@/lib/email/wise-payout-confirmation'
+import { sendWiseCronReport } from '@/lib/email/wise-cron-report'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -63,6 +64,16 @@ type RunSummary = {
   skipped: number
   failed: number
   errors: Array<{ creatorId: string; reason: string }>
+  // Populated per successful payout — feeds the founder cron-report
+  // email so it can list who was paid and how much.
+  totalPaidCents: number
+  payments: Array<{
+    creatorName?: string | null
+    creatorHandle?: string | null
+    amountCents: number
+    currency: string
+    wiseTransferId: string
+  }>
 }
 
 export async function GET(req: Request) {
@@ -92,6 +103,8 @@ export async function GET(req: Request) {
     skipped: 0,
     failed: 0,
     errors: [],
+    totalPaidCents: 0,
+    payments: [],
   }
 
   const admin = createServiceClient()
@@ -128,6 +141,24 @@ export async function GET(req: Request) {
       })
       console.error('wise-payouts: creator failed', profile.id, err)
     }
+  }
+
+  // Post-run founder alert. Silent on quiet nights (nothing paid,
+  // no failures) so it isn't inbox noise; loud when something needs
+  // attention. Best-effort — a failed email never affects the run
+  // result the cron already committed to Wise + the DB.
+  try {
+    await sendWiseCronReport({
+      scanned: summary.scanned,
+      paid: summary.paid,
+      skipped: summary.skipped,
+      failed: summary.failed,
+      errors: summary.errors,
+      totalPaidCents: summary.totalPaidCents,
+      payments: summary.payments,
+    })
+  } catch (err) {
+    console.error('wise-payouts: cron report email failed', err)
   }
 
   return NextResponse.json(summary)
@@ -229,6 +260,30 @@ async function tryPayoutOne(
       .update({ wise_recipient_id: String(result.recipientId) })
       .eq('id', profile.id)
   }
+
+  // Populate the run-level summary so the post-cron report email can
+  // list who was paid. Best-effort creator name/handle lookup — the
+  // wise_recipient_name is often what we have (that's their legal
+  // name on the bank), but the profile handle is nicer if present.
+  let creatorHandle: string | null = null
+  try {
+    const { data: profileRow } = await admin
+      .from('profiles')
+      .select('handle')
+      .eq('id', profile.id)
+      .maybeSingle()
+    creatorHandle = (profileRow?.handle as string | null) ?? null
+  } catch {
+    /* handle is a nice-to-have — drop through if it fails */
+  }
+  summary.totalPaidCents += totalCents
+  summary.payments.push({
+    creatorName: profile.wise_recipient_name,
+    creatorHandle,
+    amountCents: totalCents,
+    currency: 'USD',
+    wiseTransferId: String(result.transferId),
+  })
 
   // 7. Notify the creator. Best-effort — the transfer's already booked.
   if (hasResend) {

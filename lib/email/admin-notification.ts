@@ -34,7 +34,10 @@ const DEFAULT_NOTIFY: Record<string, string> = {
   NOTIFY_EMAIL_SIGNUP: 'hi@skillzy.ai',
   NOTIFY_EMAIL_LISTING: 'hi@skillzy.ai',
 }
-function notifyTo(specificEnvKey?: string) {
+// Exported so other founder-alert emails (e.g. the nightly Wise cron
+// report in wise-cron-report.tsx) can route through the same typed
+// fallback chain instead of hard-coding their destination address.
+export function notifyTo(specificEnvKey?: string) {
   if (specificEnvKey) {
     const specific = process.env[specificEnvKey]?.trim()
     if (specific) return specific
