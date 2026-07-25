@@ -5,7 +5,7 @@ import AddToHomeScreenPrompt from '@/components/AddToHomeScreenPrompt'
 import AddToHomeLink from '@/components/AddToHomeLink'
 import { getUser, claimOrphanPurchases } from '@/lib/auth'
 import { createClient } from '@/lib/supabase/server'
-import { hasSupabase } from '@/lib/env'
+import { hasSupabase, isAdminEmail } from '@/lib/env'
 import { affiliateSummary } from '@/lib/affiliate'
 
 export const metadata = {
@@ -436,6 +436,18 @@ export default async function DashboardPage({
               Help
             </Link>
             <AddToHomeLink />
+            {/* Admin-only shortcut — visible ONLY to emails in
+                ADMIN_EMAILS. Normal users never see this. Gives the
+                founder a one-click jump to /admin/dashboard from the
+                normal dashboard instead of typing the URL. */}
+            {isAdminEmail(user?.email) && (
+              <Link
+                href="/admin/dashboard"
+                className="ml-auto inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-brand-cream bg-brand-navy px-3 py-1.5 hover:bg-brand-ink transition-colors"
+              >
+                <span aria-hidden>◆</span> Admin
+              </Link>
+            )}
           </div>
         </div>
       </section>
