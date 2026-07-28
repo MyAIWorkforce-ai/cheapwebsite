@@ -25,30 +25,40 @@ function priceLabel(cents: number | null | undefined): string {
 }
 
 function howItWorksFor(type: ProductType): Step[] {
+  // Consistent 4-step layout across every type so the how-it-works
+  // grid never renders an empty 4th cell (was showing as an ugly
+  // blank on Skill / Guide / Prompt Pack / Loop listings, which
+  // only had 3 steps). Step 04 always closes on the Skillzy
+  // tagline — "your agent just got smarter" — restated per-type.
   if (type === 'Guide')
     return [
       { n: '01', title: 'Buy', desc: 'One purchase, yours forever. Re-download any time.' },
       { n: '02', title: 'Read', desc: 'Built to finish in one sitting.' },
       { n: '03', title: 'Apply', desc: 'Use it. Ship the thing.' },
+      { n: '04', title: 'You just got sharper', desc: 'The playbook is yours. Same guide, every future job.' },
     ]
   if (type === 'Skill')
     return [
       { n: '01', title: 'Download', desc: 'Buy once, get the file by email and on your dashboard.' },
       { n: '02', title: 'Drop it in', desc: 'Paste it into your agent. One minute.' },
       { n: '03', title: 'Run it', desc: 'Your agent picks up the new capability immediately.' },
+      { n: '04', title: 'Your agent just got smarter', desc: 'One more thing off your plate — for every future job.' },
     ]
   if (type === 'Prompt Pack')
     return [
       { n: '01', title: 'Download', desc: 'Buy once, get the pack by email and on your dashboard.' },
       { n: '02', title: 'Paste + tweak', desc: 'Copy any prompt straight into Claude, ChatGPT, or your agent. Fill in the placeholders.' },
       { n: '03', title: 'Run', desc: 'Reuse forever across every job that fits.' },
+      { n: '04', title: 'Your agent just got sharper', desc: 'Same quality output, one paste. Every time.' },
     ]
   if (type === 'Loop')
     return [
       { n: '01', title: 'Download', desc: 'Buy once, get the loop by email and on your dashboard.' },
       { n: '02', title: 'Wire the trigger', desc: 'Point it at your schedule, inbox, or webhook. 2 minutes.' },
       { n: '03', title: 'Runs itself', desc: 'Fires on the trigger every time. You check the output.' },
+      { n: '04', title: 'One less thing on your list', desc: 'The loop handles it. Every trigger, every day.' },
     ]
+  // Agent Setup already has 4 steps — keeps its own copy.
   return [
     { n: '01', title: 'Download', desc: 'Buy once, get the bundle by email and on your dashboard.' },
     { n: '02', title: 'Drop it in', desc: 'Upload the files to your agent.' },
