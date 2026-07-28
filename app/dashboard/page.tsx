@@ -702,9 +702,7 @@ function SellingView({
                   </span>
                 </p>
                 <p className="mt-2 text-sm text-brand-muted leading-relaxed">
-                  {stats.pendingWiseCents >= 50 * 100
-                    ? 'Above the $50 threshold — sends to your Wise account on the next nightly run.'
-                    : `Sends automatically when the balance crosses $50. $${(50 - pendingWiseDollars).toFixed(2)} to go.`}
+                  Payouts arrive in your Wise account within a few business days of the sale.
                 </p>
               </div>
               <Link

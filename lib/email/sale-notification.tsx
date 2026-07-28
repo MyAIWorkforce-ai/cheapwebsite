@@ -74,7 +74,6 @@ export async function sendSaleNotification({
   // variant to show the creator what they'll receive on the NEXT
   // sale once a payout method is set. Not a promise of back-payment.
   const wouldHaveEarned = Math.round(amountCents * 0.8)
-  const WISE_THRESHOLD_CENTS = 50 * 100
 
   const resend = getResend()
   const subject =
@@ -126,11 +125,7 @@ export async function sendSaleNotification({
           <tr><td style="padding:10px 0 6px;color:#0F1729;font-weight:bold;border-top:1px solid #CCD2DD;">Your 80%</td><td style="padding:10px 0 6px;text-align:right;color:#C19E50;font-weight:bold;border-top:1px solid #CCD2DD;">${money(payoutCents)}</td></tr>
           ${
             pendingWiseBalanceCents > 0
-              ? `<tr><td style="padding:6px 0;color:#5F6B7E;font-size:13px;">Pending balance</td><td style="padding:6px 0;text-align:right;font-size:13px;color:#5F6B7E;">${money(pendingWiseBalanceCents)}${
-                  pendingWiseBalanceCents >= WISE_THRESHOLD_CENTS
-                    ? ' <span style="color:#C19E50;">— sends on next Wise run</span>'
-                    : ` <span style="color:#5F6B7E;">— $50 threshold</span>`
-                }</td></tr>`
+              ? `<tr><td style="padding:6px 0;color:#5F6B7E;font-size:13px;">Pending balance</td><td style="padding:6px 0;text-align:right;font-size:13px;color:#5F6B7E;">${money(pendingWiseBalanceCents)}</td></tr>`
               : ''
           }
           <tr><td style="padding:6px 0;color:#5F6B7E;font-size:13px;">Order</td><td style="padding:6px 0;text-align:right;font-family:monospace;font-size:13px;color:#5F6B7E;">${orderId}</td></tr>
@@ -138,7 +133,7 @@ export async function sendSaleNotification({
       </div>
 
       <p style="font-size:15px;color:#0F1729;margin:24px 0 0;line-height:1.55;">
-        Wise transfers fire nightly once your pending balance crosses <strong>US$50</strong>. Money usually lands in your Wise account 1–2 business days later.
+        Payouts arrive in your Wise account within a few business days.
       </p>
 
       <p style="font-size:16px;color:#0F1729;margin:24px 0 0;">
@@ -206,12 +201,12 @@ Sale total: ${money(amountCents)}
 Skillzy 20%: ${money(amountCents - payoutCents)}
 Your 80% (queued for Wise): ${money(payoutCents)}${
             pendingWiseBalanceCents > 0
-              ? `\nPending balance: ${money(pendingWiseBalanceCents)} (Wise threshold: US$50)`
+              ? `\nPending balance: ${money(pendingWiseBalanceCents)}`
               : ''
           }
 Order: ${orderId}
 
-Wise transfers fire nightly once your pending balance crosses US$50. Money usually lands in your Wise account 1–2 business days later.
+Payouts arrive in your Wise account within a few business days.
 
 Dashboard: ${dashboard}
 Wise details: ${payouts}

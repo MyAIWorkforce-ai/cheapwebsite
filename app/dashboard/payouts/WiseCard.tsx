@@ -132,8 +132,6 @@ export default function WiseCard({
   const isIndia = country === 'IN'
   const isEuro = ['DE', 'FR', 'IT', 'ES', 'NL', 'BE', 'IE', 'PT', 'AT', 'FI', 'GR'].includes(country)
   const pendingUsd = (pendingBalanceCents / 100).toFixed(2)
-  const threshold = 50
-  const shortBy = Math.max(0, threshold * 100 - pendingBalanceCents) / 100
 
   return (
     <div className="border border-brand-ink bg-brand-cream-card p-7">
@@ -165,9 +163,7 @@ export default function WiseCard({
               ${pendingUsd} {currency.toUpperCase()}
             </p>
             <p className="mt-1 text-xs text-brand-muted">
-              {pendingBalanceCents >= threshold * 100
-                ? `Above the $${threshold} threshold — will send on the next nightly run.`
-                : `Sends automatically when the balance crosses $${threshold}. $${shortBy.toFixed(2)} to go.`}
+              Payouts arrive in your Wise account within a few business days.
             </p>
           </div>
           <DisconnectButton />

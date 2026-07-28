@@ -424,12 +424,8 @@ export default async function PayoutsPage({
                     Every sale accrues 80% against your account. Dashboard shows the running balance.
                   </li>
                   <li>
-                    <span className="font-semibold text-brand-ink">03 · Balance ≥ $50 USD.</span>{' '}
-                    Our nightly cron fires a Wise transfer to your account in your chosen currency.
-                  </li>
-                  <li>
-                    <span className="font-semibold text-brand-ink">04 · Cash arrives.</span>{' '}
-                    Wise usually settles in 1–2 business days. You get a confirmation email each time.
+                    <span className="font-semibold text-brand-ink">03 · Cash arrives.</span>{' '}
+                    Payouts land in your Wise account within a few business days of the sale, in your chosen currency. You get a confirmation email each time.
                   </li>
                 </ol>
                 <p className="mt-5 pt-4 border-t border-brand-hairline text-xs text-brand-muted">
