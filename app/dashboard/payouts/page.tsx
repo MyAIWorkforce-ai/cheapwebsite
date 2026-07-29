@@ -230,26 +230,35 @@ export default async function PayoutsPage({
         </nav>
       </div>
 
+      {/* HERO — Wise-first if the creator's on Wise, Stripe-first
+          otherwise. Wise creators should never see Stripe promotion. */}
       <section className="px-6 lg:px-10 pt-10 sm:pt-14 pb-14 sm:pb-20 border-b border-brand-hairline">
         <div className="max-w-page mx-auto">
           <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
-            Stripe Connect
+            {wiseActive ? 'International payouts · Wise' : 'Stripe Connect'}
           </span>
           <h1
             className="font-display mt-5 text-5xl sm:text-7xl tracking-tight leading-[0.95]"
             style={{ letterSpacing: '-0.03em' }}
           >
-            Get <em className="italic text-brand-gold font-medium">paid.</em>
+            {wiseActive ? (
+              <>Your <em className="italic text-brand-gold font-medium">Wise.</em></>
+            ) : (
+              <>Get <em className="italic text-brand-gold font-medium">paid.</em></>
+            )}
           </h1>
           <p className="mt-5 text-brand-muted max-w-prose">
-            Once your Stripe is connected, every sale pays you 80% direct
-            &mdash; Stripe handles the money movement and their processing
-            fees come out of our 20% cut, not yours.
+            {wiseActive
+              ? 'Every sale routes 80% straight to your Wise account. Payouts arrive within a few business days of the sale.'
+              : 'Once your Stripe is connected, every sale pays you 80% direct — Stripe handles the money movement and their processing fees come out of our 20% cut, not yours.'}
           </p>
         </div>
       </section>
 
-      {searchParams.onboarded === '1' && status === 'enabled' && (
+      {/* Stripe-side flash messages — only relevant to Stripe flow.
+          Suppress entirely for Wise creators to avoid confusing them
+          with a Stripe status they never triggered. */}
+      {!wiseActive && searchParams.onboarded === '1' && status === 'enabled' && (
         <div className="bg-brand-cream-card border-b border-brand-hairline">
           <div className="max-w-page mx-auto px-6 lg:px-10 py-3 text-sm text-brand-gold-dark">
             Stripe connected. Your sales now pay 80% straight into your own
@@ -257,14 +266,14 @@ export default async function PayoutsPage({
           </div>
         </div>
       )}
-      {searchParams.connect === 'cancelled' && (
+      {!wiseActive && searchParams.connect === 'cancelled' && (
         <div className="bg-brand-cream-card border-b border-brand-hairline">
           <div className="max-w-page mx-auto px-6 lg:px-10 py-3 text-sm text-brand-muted">
             Stripe connection cancelled. Tap Connect again when you&rsquo;re ready.
           </div>
         </div>
       )}
-      {searchParams.connect === 'error' && (
+      {!wiseActive && searchParams.connect === 'error' && (
         <div className="bg-red-50 border-b border-red-200">
           <div className="max-w-page mx-auto px-6 lg:px-10 py-3 text-sm text-red-700">
             Couldn&rsquo;t finish connecting Stripe. Please try again, or write
@@ -273,6 +282,10 @@ export default async function PayoutsPage({
         </div>
       )}
 
+      {/* STRIPE PRIMARY SECTION — hidden for Wise creators so they
+          never see a "Connect Stripe" push. They get the Wise-primary
+          section further down instead. */}
+      {!wiseActive && (
       <section className="px-6 lg:px-10 py-16 sm:py-24">
         <div className="max-w-page mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10">
           <aside className="lg:col-span-5">
@@ -384,23 +397,33 @@ export default async function PayoutsPage({
           </div>
         </div>
       </section>
+      )}
 
-      {/* Wise — alternative payout method for creators in the ~115
-          countries Stripe Connect doesn't reach. Renders below the
-          Stripe card so it's a clear "or" not a replacement. */}
-      <section className="px-6 lg:px-10 py-14 sm:py-20 border-t border-brand-hairline bg-brand-navy-deep/[0.02]">
+      {/* WISE SECTION — heading changes based on whether the creator
+          is already on Wise (primary section, no "or") or considering
+          it as an alternative to Stripe (framed as "not in a Stripe
+          country?"). Same WiseCard + how-it-works panel in both. */}
+      <section
+        className={
+          wiseActive
+            ? 'px-6 lg:px-10 py-14 sm:py-20'
+            : 'px-6 lg:px-10 py-14 sm:py-20 border-t border-brand-hairline bg-brand-navy-deep/[0.02]'
+        }
+      >
         <div className="max-w-page mx-auto">
-          <div className="mb-8 flex items-baseline gap-4 flex-wrap">
-            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
-              — or —
-            </span>
-            <h2
-              className="font-display text-3xl sm:text-4xl tracking-tight"
-              style={{ letterSpacing: '-0.025em' }}
-            >
-              Not in a Stripe country?
-            </h2>
-          </div>
+          {!wiseActive && (
+            <div className="mb-8 flex items-baseline gap-4 flex-wrap">
+              <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+                — or —
+              </span>
+              <h2
+                className="font-display text-3xl sm:text-4xl tracking-tight"
+                style={{ letterSpacing: '-0.025em' }}
+              >
+                Not in a Stripe country?
+              </h2>
+            </div>
+          )}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             <div className="lg:col-span-7">
               <WiseCard
