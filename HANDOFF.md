@@ -2100,3 +2100,157 @@ is sufficient. Toby's exact quote (2026-07-24):
 in the AU business account, not annual. Doesn't change the
 decision — trigger to revisit is still creator volume, not
 calendar time.)*
+
+---
+
+## 2026-07-28 — Post-launch polish + Badger Claw silent-save bug fix
+
+### Silent Stripe Connect save bug — closed
+
+**Reported by Badger Claw** (webmaster@badgerclaw.uk,
+handle @badgerclaw, Latitude60 Ltd, UK) on 2026-07-23. He
+completed the Stripe Connect OAuth twice, Stripe redirected
+to `/dashboard/payouts?onboarded=1` both times, but the site
+kept showing "Status: Not connected" and offering the Connect
+Stripe button again.
+
+**Root cause:** `app/api/stripe/connect/return/route.ts` used
+`.update({...}).eq('id', user.id)` with **no error check** and
+**no fallback for a missing profile row**. Accounts created
+before the `handle_new_user` trigger was hardened (2026-05-26)
+can be missing a `public.profiles` row entirely — an update
+against no matching row returns 0 rows affected silently, and
+the handler happily redirected to `?onboarded=1` with nothing
+saved. Silent bug.
+
+**Fix (commit `ea4c9a3`):** Switch `.update()` → `.upsert()`
+with `onConflict:'id'` — creates the profile row if missing,
+updates if present. Actually check the upsert result and log
++ bounce to `?connect=error` if it failed. Outer catch block
+now logs the error instead of swallowing it bare, so anything
+else that trips shows up in Vercel logs with enough context
+to diagnose.
+
+**Resolution for Badger Claw:** After the fix landed, his
+account reconciled cleanly. DB verified 2026-07-29:
+`stripe_account_id = acct_1TwHioBMtJaaTWDj`,
+`stripe_payouts_enabled = true`, `payout_method = NULL`.
+Stripe is live for him — he's clear to publish.
+
+**Lesson for future:** ANY DB write in an OAuth callback
+should use `upsert()`, not `update()`, unless we have a
+hard invariant that the row exists. And every write needs
+an error check + fail-loud logging.
+
+### Wise-first payouts UI for Wise creators — no more Stripe promo
+
+**Commit `cdb1bb8`.** Previously `/dashboard/payouts` showed
+the Stripe Connect hero + big status card + Stripe 4-step
+how-it-works BEFORE the Wise section — regardless of the
+creator's payout method. Wise creators had to scroll past a
+giant "Connect Stripe" push before finding their own rail.
+
+Now when `payout_method='wise'`:
+
+- Hero flips to "Your Wise" / Wise-specific tagline
+- Entire Stripe primary section (status card, how-it-works,
+  refunds callout) is **hidden**
+- Wise section moves to the top; drops the "— or — Not in a
+  Stripe country?" framing (they're already on it)
+- Stripe flash messages (`onboarded=1`, `connect=cancelled`,
+  `connect=error`) suppressed — they don't apply
+
+Non-Wise creators see the same layout as before (Stripe
+primary, Wise below as the "or" alternative). Sale routing +
+payout logic unchanged — this is purely UI-level.
+
+### Creator-facing Wise copy — stop revealing the mechanism
+
+**Commit `e3dc654`.** The `$50 threshold` + "nightly cron
+fires" phrasing was over-explaining the payout plumbing.
+Creators only need to know when they get paid. Rewrote in
+four places (side panel step-list, WiseCard pending line,
+main dashboard callout, sale-notification email) to a
+single honest line: **"Payouts arrive in your Wise account
+within a few business days."**
+
+Mechanism (cron + $50 threshold + batching) still lives in
+code comments and the admin dashboard — creators only see
+what they experience.
+
+### Listing how-it-works — fill the 4th grid cell
+
+**Commit `563da0c`.** The listing page's "how it works"
+section renders 4 columns on lg screens. Skill / Guide /
+Prompt Pack / Loop only had 3 steps → visible empty 4th
+cell on every real listing. Added a type-specific step 04
+that closes on the Skillzy tagline:
+
+- Skill        — "Your agent just got smarter"
+- Guide        — "You just got sharper"
+- Prompt Pack  — "Your agent just got sharper"
+- Loop        — "One less thing on your list"
+
+Agent Setup already had its own 4th step (`Press go`) —
+unchanged.
+
+### Admin shortcut link on `/dashboard`
+
+**Commit `a9ea07d`.** Removes the "type /admin/dashboard by
+hand" friction. Rendered as a distinct navy `◆ ADMIN` pill
+in the header rescue row on `/dashboard`. Gated on
+`isAdminEmail(user.email)` so it only renders for accounts
+in the `ADMIN_EMAILS` env var allowlist. Normal users never
+see it.
+
+### Admin CreatorList — STRIPE / WISE / — payout badge
+
+**Commit `5b254a1`.** Previous badge was a boolean "Stripe
+connected" tick — misleading now that Wise creators exist
+(they'd read as 'not connected' even though they have a
+valid payout method, just on a different rail). Each row
+now shows an explicit badge:
+
+- **STRIPE** — Stripe Connect enabled (destination charge)
+- **WISE** — Wise Business (nightly cron)
+- **—** — no method set (sales collect on the platform per §6)
+
+Wise wins over Stripe when `payout_method='wise'` is
+explicitly set, so a creator who briefly linked Stripe
+then switched to Wise correctly reads as Wise.
+
+### Nightly Wise cron report email
+
+**Commit `c65ca2e`.** Post-run founder-alert email to
+`sales@skillzy.ai` after every `/api/cron/wise-payouts`
+firing. Silent on quiet nights, loud on any activity:
+
+- Subject signals urgency at a glance:
+  - `⚠ Wise cron: N failures need attention` when failed > 0
+  - `Wise cron: $X paid to N creators` when only successes
+- Body: per-creator paid amounts + Wise transfer IDs +
+  per-creator failure reasons + CTAs to admin dashboard +
+  wise.com transactions
+
+`sendWiseCronReport()` in `lib/email/wise-cron-report.tsx`;
+wired at the end of the cron handler. Also exported
+`notifyTo()` from `admin-notification.ts` so future
+founder-alert emails can reuse the typed routing chain.
+
+### Outstanding items carried into next session
+
+- **`creators@skillzy.ai` — is it a real inbox?** Referenced
+  in several transactional emails (welcome, listing-share-kit,
+  stripe-connect-nudge) as the creator support address, plus
+  the `/contact` page, plus every bundled house/README. If
+  it's not aliased to `hi@skillzy.ai` at the domain host,
+  every creator reply is being lost. Decide: alias at GoDaddy
+  (option A, no code) or sweep to `hi@skillzy.ai` sitewide
+  (option B, ~5 min code change). Toby to confirm which.
+- **Wise Basic manual top-up model still in place.** No
+  auto-top-up configured yet. First $50 top-up done 2026-07-24.
+  Triggers to revisit still stand (10+ international creators
+  or $500+/mo Wise volume or >1 missed payout/mo).
+- **Raghav Sharma + Hill Patel** were invited to set up Wise
+  on 2026-07-24 pm. Check admin dashboard for their
+  `WISE` badge to confirm they've onboarded.
