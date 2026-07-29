@@ -60,10 +60,40 @@ export async function GET(request: NextRequest) {
     }
 
     const service = createServiceClient()
-    await service
+    // Upsert (not update) so a missing profile row doesn't silently
+    // drop the connection. Older accounts created before the
+    // handle_new_user trigger was hardened (2026-05-26) can lack a
+    // profile row — a bare .update().eq() would return 0 rows
+    // affected and silently proceed to redirect the creator to
+    // ?onboarded=1 with nothing saved. Reproducing exactly this
+    // bug for Badger Claw / @badgerclaw (2026-07-28).
+    //
+    // Also: if the update DOES affect a row but returns an error
+    // (permission, network, etc.), log it loud and bounce to the
+    // error page so the creator sees a real signal instead of the
+    // false "onboarded=1" success flash.
+    const upsertRes = await service
       .from('profiles')
-      .update({ stripe_account_id: connectedAccountId })
-      .eq('id', user.id)
+      .upsert(
+        { id: user.id, stripe_account_id: connectedAccountId },
+        { onConflict: 'id' },
+      )
+      .select('id')
+      .single()
+
+    if (upsertRes.error) {
+      console.error(
+        'stripe-connect-return: profile upsert failed — connection NOT saved',
+        {
+          userId: user.id,
+          connectedAccountId,
+          error: upsertRes.error,
+        },
+      )
+      return NextResponse.redirect(
+        new URL('/dashboard/payouts?connect=error', request.url),
+      )
+    }
 
     // Reconcile payouts_enabled from the live account.
     await syncPayoutStatus(user.id)
@@ -71,7 +101,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(
       new URL('/dashboard/payouts?onboarded=1', request.url),
     )
-  } catch {
+  } catch (err) {
+    console.error('stripe-connect-return: unhandled failure', err)
     return NextResponse.redirect(
       new URL('/dashboard/payouts?connect=error', request.url),
     )
