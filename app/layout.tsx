@@ -26,9 +26,9 @@ const sans = Inter({
 // No catch-all canonical here — that was the duplicate-content bug.
 export const metadata: Metadata = {
   metadataBase: new URL('https://skillzy.ai'),
-  title: 'Skillzy — AI agent skills, guides, prompt packs, setups & loops. Drop-in, not DIY.',
+  title: 'Skillzy — Global marketplace for AI agent skills, guides, prompt packs, setups & loops. Drop-in, not DIY.',
   description:
-    'Pre-built AI agent skills, guides, prompt packs, full setups, and scheduled loops for Claude, n8n, OpenClaw, ChatGPT and more. Built for tradies, real estate, bookkeepers, and 20+ trades.',
+    'Global marketplace for pre-built AI agent skills, guides, prompt packs, full setups, and scheduled loops. Built by creators worldwide for Claude, n8n, OpenClaw, ChatGPT and more. Drop-in for tradies, real estate, bookkeepers, and 20+ trades.',
   authors: [{ name: 'Skillzy' }],
   creator: 'Skillzy',
   publisher: 'Skillzy',

@@ -12,7 +12,27 @@ export function organizationLd() {
     url: SITE_URL,
     logo: `${SITE_URL}/icon`,
     description:
-      'A marketplace for AI agent skills, guides, prompt packs, full setups, and scheduled loops. Built by creators, dropped into your agent.',
+      'A global marketplace for AI agent skills, guides, prompt packs, full setups, and scheduled loops. Built by creators worldwide, dropped into your agent.',
+    // Tell Google's structured-data crawlers this is a worldwide
+    // operation, not a local one. Without this, Google's AI Overview
+    // was inferring "Melbourne-based" from ASIC / WHOIS public
+    // records and framing the site as a local marketplace.
+    areaServed: {
+      '@type': 'Place',
+      name: 'Worldwide',
+    },
+    // Serving creators + buyers globally in every country Stripe
+    // Connect + Wise together can reach.
+    knowsAbout: [
+      'AI agents',
+      'AI agent skills',
+      'AI marketplace',
+      'Prompt packs',
+      'AI workflow automation',
+      'Claude skills',
+      'ChatGPT prompts',
+      'n8n workflows',
+    ],
     sameAs: [] as string[], // add socials here once the accounts exist
   }
 }

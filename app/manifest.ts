@@ -10,7 +10,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: 'Skillzy',
     short_name: 'Skillzy',
     description:
-      'A marketplace for AI agent skills, guides, prompt packs, ready-to-go setups, and scheduled loops. Built by humans, dropped into your agent.',
+      'A global marketplace for AI agent skills, guides, prompt packs, ready-to-go setups, and scheduled loops. Built by creators worldwide, dropped into your agent.',
     start_url: '/',
     scope: '/',
     display: 'standalone',
