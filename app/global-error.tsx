@@ -4,6 +4,17 @@
 // throws, so it has to bring its own <html> + <body>. Kept deliberately
 // minimal — no Tailwind utilities, just inline styles, because the global
 // CSS might not be available at this point.
+//
+// CRITICAL: this page MUST NOT be indexed by search engines. On
+// 2026-07-30 we discovered Google had indexed this fallback as the
+// site's meta description ("Something broke. We'll be back in a
+// minute. Refresh the page. If it keeps happening, email
+// help@skillzy.ai.") — happened because Google crawled us during a
+// transient outage and the page shipped without a <head>, letting the
+// crawler use the visible text as the description. The <head> below
+// fixes that at the source: <meta name="robots" content="noindex,
+// nofollow" /> + a proper <title>. Even if Google re-crawls this
+// during another blip, it won't get indexed.
 export default function GlobalError({
   error,
 }: {
@@ -11,6 +22,12 @@ export default function GlobalError({
 }) {
   return (
     <html lang="en">
+      <head>
+        <title>Skillzy — temporary error</title>
+        <meta name="robots" content="noindex, nofollow" />
+        <meta name="googlebot" content="noindex, nofollow" />
+        <meta name="description" content="Temporary error page. Skillzy is a marketplace for AI agent skills, guides, prompt packs, and setups — visit skillzy.ai." />
+      </head>
       <body
         style={{
           margin: 0,
