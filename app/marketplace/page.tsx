@@ -8,19 +8,22 @@ import { pageMetadata } from '@/lib/seo'
 // Canonical strips query strings → /marketplace?type=skill etc. all
 // canonicalise to https://skillzy.ai/marketplace (per SEO scope 1.1).
 export const metadata = pageMetadata({
-  title: 'Browse AI Agent Skills, Guides, Prompt Packs, Setups & Loops — Skillzy',
+  title: 'Browse Claude Skills, MCP Servers, Agent Setups, Prompt Packs, Guides & Loops — Skillzy',
   description:
-    'Drop-in AI agent skills, guides, prompt packs, full setups, and scheduled loops built by creators in the field. Filter by trade, platform, or type. Works with Claude, n8n, OpenClaw, Make, Zapier.',
+    'Drop-in Claude Skills, MCP servers, AI agent setups, prompt packs, guides, and scheduled loops built by creators worldwide. Filter by trade, platform, or type. Works with Claude, Cursor, Windsurf, ChatGPT, n8n, Make, Zapier.',
   path: '/marketplace',
   keywords: [
+    'Claude Skills',
+    'MCP server',
+    'Model Context Protocol',
     'AI agent skills',
     'AI agent marketplace',
     'AI prompt packs',
     'AI agent loops',
     'scheduled AI workflows',
-    'Claude skills',
+    'Cursor rules',
+    'Windsurf rules',
     'n8n agents',
-    'OpenClaw skills',
     'SKILL.md',
     'AI agent setups',
   ],
@@ -30,6 +33,7 @@ const filters: { label: string; type?: ProductType; key: string }[] = [
   { label: 'Skills', type: 'Skill', key: 'skill' },
   { label: 'Guides', type: 'Guide', key: 'guide' },
   { label: 'Prompt Packs', type: 'Prompt Pack', key: 'prompt-pack' },
+  { label: 'MCP Servers', type: 'MCP Server', key: 'mcp-server' },
   { label: 'Loops', type: 'Loop', key: 'loop' },
   { label: 'Full Agent Setups', type: 'Agent Setup', key: 'agent-setup' },
   { label: 'All', key: 'all' },
@@ -108,8 +112,9 @@ export default async function MarketplacePage({
             <em className="italic text-brand-gold font-medium">Agent supercharged.</em>
           </h1>
           <p className="mt-5 text-brand-muted max-w-prose">
-            Skills, guides, full agent setups. Built by creators who actually
-            run them. Drop one in and go.
+            Claude Skills, MCP servers, agent setups, prompt packs, guides
+            and loops. Built by creators worldwide who actually run them.
+            Drop one in and go.
           </p>
 
           {/* search */}

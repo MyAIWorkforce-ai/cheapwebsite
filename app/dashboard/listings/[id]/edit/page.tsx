@@ -35,7 +35,9 @@ async function loadDefaults(
               ? 'prompt_pack'
               : p.type === 'Loop'
                 ? 'loop'
-                : 'agent_setup',
+                : p.type === 'MCP Server'
+                  ? 'mcp_server'
+                  : 'agent_setup',
       price: Number(p.price.replace(/[^0-9.]/g, '')),
       niche: p.niche ?? '',
       platforms: p.platformList.join(', '),

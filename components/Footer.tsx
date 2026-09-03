@@ -14,9 +14,9 @@ export default function Footer() {
           <div className="md:col-span-5">
             <Logo size="lg" />
             <p className="mt-5 text-sm text-brand-muted max-w-sm leading-relaxed">
-              A global marketplace for skills, guides, prompt packs,
-              ready-to-go agent setups, and scheduled loops. Made by creators
-              worldwide. Dropped into your agent.
+              A global marketplace for Claude Skills, MCP servers, agent
+              setups, prompt packs, guides, and scheduled loops. Made by
+              creators worldwide. Dropped into your agent.
             </p>
 
             {/* The Dispatch newsletter is paused until ~50–100 creators

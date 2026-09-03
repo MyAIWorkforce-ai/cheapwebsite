@@ -1,0 +1,22 @@
+-- Add 'mcp_server' to the listing_type enum.
+--
+-- Introduced 2026-07-30 as a 6th listing tier: MCP (Model Context
+-- Protocol) servers — packaged tool / data-source connectors a buyer
+-- plugs into their Claude / Cursor / Windsurf / Zed agent.
+--
+-- Anthropic's MCP is now supported by every major Claude Code +
+-- Claude Desktop install, plus Cursor, Windsurf, Zed, and multiple
+-- hosted platforms. MCP servers are a distinct sellable format from
+-- Skills:
+--   - A Skill teaches an agent HOW to do something (a `.md` + configs
+--     dropped into a system prompt / skill loader).
+--   - An MCP Server gives an agent NEW TOOLS to work with (a running
+--     process the host connects to via stdio or a URL, exposing tools
+--     and resources).
+--
+-- Pricing tier: $29-$149+, sitting alongside Loop on the value ladder
+-- (more than a Skill, less than a Full Agent Setup).
+--
+-- IF NOT EXISTS makes this migration safe to re-run.
+
+alter type public.listing_type add value if not exists 'mcp_server';

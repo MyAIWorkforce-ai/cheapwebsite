@@ -13,6 +13,7 @@ const TYPE_MAP: Record<string, ProductType> = {
   agent_setup: 'Agent Setup',
   prompt_pack: 'Prompt Pack',
   loop: 'Loop',
+  mcp_server: 'MCP Server',
 }
 
 const UUID_RE =
@@ -57,6 +58,13 @@ function howItWorksFor(type: ProductType): Step[] {
       { n: '02', title: 'Wire the trigger', desc: 'Point it at your schedule, inbox, or webhook. 2 minutes.' },
       { n: '03', title: 'Runs itself', desc: 'Fires on the trigger every time. You check the output.' },
       { n: '04', title: 'One less thing on your list', desc: 'The loop handles it. Every trigger, every day.' },
+    ]
+  if (type === 'MCP Server')
+    return [
+      { n: '01', title: 'Download', desc: 'Buy once, get the server package by email and on your dashboard.' },
+      { n: '02', title: 'Install', desc: 'Follow the README — usually one command or a config snippet paste into Claude / Cursor / Windsurf.' },
+      { n: '03', title: 'Connect', desc: 'Your agent picks up the new tools + data sources automatically on next restart.' },
+      { n: '04', title: 'Your agent just got new hands', desc: 'The MCP is live. Every future conversation can reach for these tools.' },
     ]
   // Agent Setup already has 4 steps — keeps its own copy.
   return [

@@ -112,7 +112,8 @@ export async function updateListing(
     rawType === 'guide' ||
     rawType === 'agent_setup' ||
     rawType === 'prompt_pack' ||
-    rawType === 'loop'
+    rawType === 'loop' ||
+    rawType === 'mcp_server'
       ? rawType
       : null
 

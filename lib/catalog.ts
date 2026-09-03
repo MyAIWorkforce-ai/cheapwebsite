@@ -13,15 +13,20 @@ function formatPlatformsForCard(list: string[]): string {
 
 
 // 'Prompt Pack' added 2026-06-26; 'Loop' added 2026-07-01 (scheduled /
-// recurring agent workflow — "runs itself"). Loop sits between Skill
-// and Full Agent Setup on the value ladder — more than a single
-// capability, less than a whole business desk. See HANDOFF.md.
+// recurring agent workflow — "runs itself"); 'MCP Server' added
+// 2026-07-30 (Model Context Protocol servers — packaged tool/data-
+// source connectors a buyer plugs into their agent; Anthropic's open
+// standard now supported by Claude, Cursor, Windsurf, Zed + hosted
+// platforms). Sits alongside Skill on the value ladder — a Skill
+// teaches an agent HOW to do something; an MCP Server gives the
+// agent NEW TOOLS to work with. See HANDOFF.md.
 export type ProductType =
   | 'Skill'
   | 'Guide'
   | 'Agent Setup'
   | 'Prompt Pack'
   | 'Loop'
+  | 'MCP Server'
 
 export type Review = {
   author: string

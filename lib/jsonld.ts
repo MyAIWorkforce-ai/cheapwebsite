@@ -12,7 +12,7 @@ export function organizationLd() {
     url: SITE_URL,
     logo: `${SITE_URL}/icon`,
     description:
-      'A global marketplace for AI agent skills, guides, prompt packs, full setups, and scheduled loops. Built by creators worldwide, dropped into your agent.',
+      'A global marketplace for Claude Skills, MCP servers, AI agent setups, prompt packs, guides, and scheduled loops. Built by creators worldwide, dropped into your agent.',
     // Tell Google's structured-data crawlers this is a worldwide
     // operation, not a local one. Without this, Google's AI Overview
     // was inferring "Melbourne-based" from ASIC / WHOIS public
@@ -29,7 +29,11 @@ export function organizationLd() {
       'AI marketplace',
       'Prompt packs',
       'AI workflow automation',
-      'Claude skills',
+      'Claude Skills',
+      'Model Context Protocol',
+      'MCP servers',
+      'Cursor rules',
+      'Windsurf rules',
       'ChatGPT prompts',
       'n8n workflows',
     ],

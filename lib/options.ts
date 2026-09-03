@@ -35,13 +35,22 @@ export const NICHE_OPTIONS = [
 ]
 
 export const PLATFORM_OPTIONS = [
+  // 2026 refresh — Claude ecosystem front + centre (Anthropic's Skills
+  // + MCP are the fastest-growing native distribution surfaces), then
+  // major consumer LLMs, then AI code editors (Cursor/Windsurf sell
+  // via rule/skill files), then aggregation / automation platforms,
+  // then open + local models.
+  'Claude Skills',
   'Claude',
+  'MCP',
+  'ChatGPT',
+  'Grok',
+  'Gemini',
+  'Cursor',
+  'Windsurf',
   'OpenClaw',
   'Manus',
-  'ChatGPT',
   'Hermes',
-  'Gemini',
-  'Grok',
   'Ollama',
   'Mistral',
   'DeepSeek',

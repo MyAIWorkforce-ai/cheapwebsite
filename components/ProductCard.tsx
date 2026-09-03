@@ -6,6 +6,7 @@ export type ProductType =
   | 'Agent Setup'
   | 'Prompt Pack'
   | 'Loop'
+  | 'MCP Server'
 
 export type Product = {
   id: string
@@ -28,6 +29,7 @@ const typeAbbrev: Record<ProductType, string> = {
   'Agent Setup': 'Full Agent Setup',
   'Prompt Pack': 'Prompt Pack',
   Loop: 'Loop',
+  'MCP Server': 'MCP Server',
 }
 
 export default function ProductCard({

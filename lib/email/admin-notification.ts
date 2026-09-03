@@ -145,11 +145,14 @@ export async function sendNewListingNotification({
   })}`
   const listingUrl = `${site()}/marketplace/${slug}`
 
-  // Humanize the DB enum (skill / guide / agent_setup) for display.
+  // Humanize the DB enum for display.
   const TYPE_LABEL: Record<string, string> = {
     skill: 'Skill',
     guide: 'Guide',
     agent_setup: 'Agent Setup',
+    prompt_pack: 'Prompt Pack',
+    loop: 'Loop',
+    mcp_server: 'MCP Server',
   }
   const typeLabel = TYPE_LABEL[type] ?? type
 

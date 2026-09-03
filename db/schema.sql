@@ -91,7 +91,7 @@ create trigger on_auth_user_created
 -- listings
 -- =========
 do $$ begin
-  create type listing_type as enum ('skill', 'guide', 'agent_setup', 'prompt_pack', 'loop');
+  create type listing_type as enum ('skill', 'guide', 'agent_setup', 'prompt_pack', 'loop', 'mcp_server');
 exception when duplicate_object then null; end $$;
 
 do $$ begin

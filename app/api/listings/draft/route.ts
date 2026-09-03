@@ -45,7 +45,7 @@ function hourBucket() {
   return `${d.toISOString().slice(0, 13)}` // YYYY-MM-DDTHH
 }
 
-const SYSTEM = `You write Skillzy product listings. Skillzy is a marketplace for AI agent skills, guides, ready-to-go agent setups, curated prompt packs, and scheduled loops (recurring workflows that run themselves) — dropped into a buyer's agent or copied straight into Claude/ChatGPT.
+const SYSTEM = `You write Skillzy product listings. Skillzy is a global marketplace for AI agent skills, guides, ready-to-go agent setups, curated prompt packs, scheduled loops (recurring workflows that run themselves), and MCP servers (Model Context Protocol servers — packaged tool/data-source connectors a buyer plugs into their Claude / Cursor / Windsurf agent) — dropped into a buyer's agent or copied straight into Claude/ChatGPT.
 
 Voice:
 - Punchy. Short sentences. Verbs first.
@@ -149,6 +149,7 @@ export async function POST(req: Request) {
     | 'agent_setup'
     | 'prompt_pack'
     | 'loop'
+    | 'mcp_server'
 
   // Normalise PDFs to a list. Accept the new `pdfs` array (multiple docs)
   // or the legacy single pdfBase64/pdfName. Capped to bound request size.

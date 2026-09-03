@@ -81,6 +81,7 @@ export default async function ProductDetailPage({
   const isGuide = p.type === 'Guide'
   const isPromptPack = p.type === 'Prompt Pack'
   const isLoop = p.type === 'Loop'
+  const isMcpServer = p.type === 'MCP Server'
 
   const related = getRelated(p)
 
@@ -92,7 +93,9 @@ export default async function ProductDetailPage({
         ? 'Get the pack'
         : isLoop
           ? 'Get the loop'
-          : 'Get the skill'
+          : isMcpServer
+            ? 'Get the server'
+            : 'Get the skill'
 
   // We used to block the Buy button on PAID listings whose creator hadn't
   // connected Stripe yet. That left genuinely strong listings (Klarisa
@@ -112,7 +115,9 @@ export default async function ProductDetailPage({
           ? 'prompt-pack'
           : p.type === 'Loop'
             ? 'loop'
-            : 'guide'
+            : p.type === 'MCP Server'
+              ? 'mcp-server'
+              : 'guide'
 
   const filterLabel =
     p.type === 'Agent Setup'
@@ -123,7 +128,9 @@ export default async function ProductDetailPage({
           ? 'Prompt Packs'
           : p.type === 'Loop'
             ? 'Loops'
-            : 'Guides'
+            : p.type === 'MCP Server'
+              ? 'MCP Servers'
+              : 'Guides'
 
   const videoEmbed = p.videoUrl ? videoEmbedUrl(p.videoUrl) : null
   const featuredIn = getPostsForListing(p.id).slice(0, 3)
