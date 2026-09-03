@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://skillzy.ai'),
   title: 'Skillzy — Global marketplace for Claude Skills, MCP servers, agent setups, prompt packs, guides & loops. Drop-in, not DIY.',
   description:
-    'Global marketplace for pre-built Claude Skills, MCP servers, AI agent setups, prompt packs, guides, and scheduled loops. Built by creators worldwide for Claude, Cursor, Windsurf, ChatGPT, n8n and more. Drop-in for developers, tradies, real estate, bookkeepers, and 20+ trades.',
+    'Global marketplace for pre-built Claude Skills, MCP servers, custom Grok Bots, AI agent setups, prompt packs, guides, and scheduled loops. Built by creators worldwide for Claude, Cursor, Windsurf, ChatGPT, Grok, n8n and more. Drop-in for developers, tradies, real estate, bookkeepers, and 20+ trades.',
   authors: [{ name: 'Skillzy' }],
   creator: 'Skillzy',
   publisher: 'Skillzy',

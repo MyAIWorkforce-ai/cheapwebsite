@@ -946,6 +946,7 @@ export const PLATFORMS = [
   'DeepSeek',
   'Gemini',
   'Grok',
+  'Grok Bots',
   'Hermes',
   'Make',
   'Manus',

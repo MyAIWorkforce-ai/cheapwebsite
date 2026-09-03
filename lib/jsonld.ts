@@ -35,6 +35,8 @@ export function organizationLd() {
       'Cursor rules',
       'Windsurf rules',
       'ChatGPT prompts',
+      'Grok Bots',
+      'Custom Grok agents',
       'n8n workflows',
     ],
     sameAs: [] as string[], // add socials here once the accounts exist

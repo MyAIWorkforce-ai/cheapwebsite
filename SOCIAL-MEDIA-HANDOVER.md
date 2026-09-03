@@ -33,9 +33,15 @@ If you have three seconds, that's the line. If you have thirty:
 | **Agent Setup**   | The whole agent, end to end. Best margins.                                                          | $49 – $999+   |
 
 Every listing works with one or more platforms:
-**Claude · Claude Skills · MCP · ChatGPT · Grok · Gemini · Cursor ·
-Windsurf · OpenClaw · Manus · Hermes · Ollama · Mistral · DeepSeek ·
-n8n · Make · Zapier.**
+**Claude Skills · Claude · MCP · ChatGPT · Grok · Grok Bots · Gemini ·
+Cursor · Windsurf · OpenClaw · Manus · Hermes · Ollama · Mistral ·
+DeepSeek · n8n · Make · Zapier.**
+
+**Grok vs Grok Bots** — they're two separate chips on purpose:
+- `Grok` = anything targeting xAI's Grok API / model generally.
+- `Grok Bots` = a **custom Grok persona/character** packaged as a
+  drop-in bot (system prompt + persona + tool pack). This is where a
+  lot of interesting creator work is landing in 2026.
 
 ---
 
@@ -153,9 +159,9 @@ When Claude/Cursor/Windsurf ship something new, tie it back.
 **Not live yet** — don't tag: LinkedIn, YouTube, GitHub org.
 
 **Hashtags** (mix, don't spam):
-Primary: `#Skillzy #AIagents #ClaudeSkills #MCP`
-Secondary: `#AItools #Claude #Cursor #Windsurf #Anthropic #promptpack
-#AIcreators #agenticAI`
+Primary: `#Skillzy #AIagents #ClaudeSkills #MCP #GrokBots`
+Secondary: `#AItools #Claude #Cursor #Windsurf #Anthropic #Grok #xAI
+#promptpack #AIcreators #agenticAI`
 
 **Links:**
 - Marketplace: <https://skillzy.ai/marketplace>
@@ -200,8 +206,9 @@ Secondary: `#AItools #Claude #Cursor #Windsurf #Anthropic #promptpack
   relevant.)
 - **Six listing types.** (Skill, Guide, Prompt Pack, MCP Server, Loop,
   Agent Setup.)
-- **Works with 15+ platforms** including Claude, ChatGPT, Cursor,
-  Windsurf, Grok, Gemini, n8n, Zapier, Make.
+- **Works with 15+ platforms** including Claude, Claude Skills, MCP,
+  ChatGPT, Cursor, Windsurf, Grok, Grok Bots, Gemini, n8n, Zapier,
+  Make.
 - **Pricing:** $9 minimum. $999+ for full agent setups.
 - **Global.** Creators + buyers worldwide.
 
@@ -209,10 +216,13 @@ Secondary: `#AItools #Claude #Cursor #Windsurf #Anthropic #promptpack
 
 ## 10. Common mix-ups to avoid
 
-- **Grok Boys / Companions** (Ani, Rudi, Valentine) — these are xAI's
+- **Grok Companions** (Ani, Rudi, Valentine) — these are xAI's
   in-app characters. They're **not** something you can buy on
-  Skillzy. Skillzy sells skills/prompts/agents that **target** Grok
-  as a platform, not the companions themselves.
+  Skillzy. Different from **Grok Bots**, which IS sellable — see next.
+- **Grok Bots (sellable)** — creator-built custom Grok personas:
+  system prompt + persona + tool pack, packaged as a drop-in agent.
+  These are sellable on Skillzy under the `Grok Bots` platform chip.
+  Do not confuse with xAI's own companions above.
 - **Claude Skills** — this is Anthropic's own name for a distribution
   format (SKILL.md files). We didn't invent the name; we're the
   marketplace for them. Always capitalised.
@@ -240,6 +250,11 @@ Secondary: `#AItools #Claude #Cursor #Windsurf #Anthropic #promptpack
   global marketplace, full stop.
 - **Wise payouts** for creators in countries Stripe doesn't support
   (India, parts of MENA/LATAM). Same 80% split, different rails.
+- **Grok Bots** added as a dedicated platform chip (Sep 2026). Custom
+  Grok personas are now a first-class target on Skillzy — creators
+  can tag their listing `Grok Bots` and it lights up in the platform
+  filter. Live on the homepage, marketplace filter, and SEO landing
+  page at `/platforms/grok-bots`.
 
 ---
 
@@ -280,6 +295,16 @@ Talking points the social team can start teasing / posting around:
 7. **"Every founder is building the same agent."**
    Positioning post. Twitter/X thread + LinkedIn (once live). Skillzy
    is the way out — buy the shortcut.
+
+8. **"Grok Bots — sellable on Skillzy."**
+   New in Sep 2026. Content angle: creators can now package their
+   custom Grok personas as drop-in bots (system prompt + persona +
+   tools). Perfect for X/Twitter (Grok's home turf) — riff on the
+   Grok Bots hype but ground it: *not* the xAI companions (Ani, Rudi,
+   Valentine), the **creator-built** ones. "Built a Grok Bot? Sell
+   it." Landing page: `/platforms/grok-bots`. Great pairing with the
+   MCP push above — both are "here's the new distribution surface,
+   Skillzy is the marketplace for it" beats.
 
 ---
 

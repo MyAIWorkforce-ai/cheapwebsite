@@ -10,7 +10,7 @@ import { pageMetadata } from '@/lib/seo'
 export const metadata = pageMetadata({
   title: 'Browse Claude Skills, MCP Servers, Agent Setups, Prompt Packs, Guides & Loops — Skillzy',
   description:
-    'Drop-in Claude Skills, MCP servers, AI agent setups, prompt packs, guides, and scheduled loops built by creators worldwide. Filter by trade, platform, or type. Works with Claude, Cursor, Windsurf, ChatGPT, n8n, Make, Zapier.',
+    'Drop-in Claude Skills, MCP servers, custom Grok Bots, AI agent setups, prompt packs, guides, and scheduled loops built by creators worldwide. Filter by trade, platform, or type. Works with Claude, Cursor, Windsurf, ChatGPT, Grok, n8n, Make, Zapier.',
   path: '/marketplace',
   keywords: [
     'Claude Skills',
@@ -23,6 +23,9 @@ export const metadata = pageMetadata({
     'scheduled AI workflows',
     'Cursor rules',
     'Windsurf rules',
+    'Grok Bots',
+    'Custom Grok bots',
+    'Grok personas',
     'n8n agents',
     'SKILL.md',
     'AI agent setups',

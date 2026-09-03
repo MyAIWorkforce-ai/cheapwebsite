@@ -45,6 +45,7 @@ export const PLATFORM_OPTIONS = [
   'MCP',
   'ChatGPT',
   'Grok',
+  'Grok Bots',
   'Gemini',
   'Cursor',
   'Windsurf',

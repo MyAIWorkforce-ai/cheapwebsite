@@ -66,7 +66,7 @@ Reply with ONLY valid JSON matching this exact shape — no prose, no markdown, 
 Rules:
 - "description" is 2–3 short paragraphs.
 - "whatYouGet" is 4–7 concrete bullet items (no leading dash, no period).
-- "platforms" picks from: Claude, OpenClaw, Manus, ChatGPT, Hermes, Gemini, Grok, Ollama, Mistral, DeepSeek, n8n, Make, Zapier. Pick only the ones the brief implies.
+- "platforms" picks from: Claude, Claude Skills, MCP, OpenClaw, Manus, ChatGPT, Hermes, Gemini, Grok, Grok Bots, Cursor, Windsurf, Ollama, Mistral, DeepSeek, n8n, Make, Zapier. Pick only the ones the brief implies. Use "Grok Bots" specifically when the listing is a custom Grok persona/character bot (system prompt + persona + tool pack), not just a generic Grok integration.
 - "niche" is a short label like "Real Estate", "Tradies", "Healthcare", "Hospitality", "Coaches", "E-commerce".`
 
 type DraftResult = {

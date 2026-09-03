@@ -240,9 +240,9 @@ export default async function HomePage() {
               Works with
             </p>
             <p className="font-display text-lg sm:text-xl leading-relaxed text-brand-ink">
-              Claude · OpenClaw · Manus · Hermes ·
-              ChatGPT · Gemini · Grok · Ollama · Mistral · DeepSeek · n8n ·
-              Make · Zapier · and more
+              Claude Skills · Claude · MCP · Cursor · Windsurf · ChatGPT ·
+              Gemini · Grok · Grok Bots · OpenClaw · Manus · Hermes ·
+              Ollama · Mistral · DeepSeek · n8n · Make · Zapier · and more
             </p>
             <p className="mt-4 text-sm text-brand-muted">
               No agent yet?{' '}
