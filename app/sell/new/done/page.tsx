@@ -90,7 +90,7 @@ export default async function ListingDonePage({
 
   return (
     <div className="paper">
-      <DoneInit />
+      <DoneInit listingId={slug || undefined} />
       <section className="px-6 lg:px-10 pt-16 sm:pt-24 pb-12 sm:pb-16 border-b border-brand-hairline">
         <div className="max-w-page mx-auto">
           <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">

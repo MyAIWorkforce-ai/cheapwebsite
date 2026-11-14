@@ -7,6 +7,7 @@ import { deliveryTokenValid } from '@/lib/delivery-token'
 import { getUser, emailHasAccount } from '@/lib/auth'
 import GuestAccountPrompt from './GuestAccountPrompt'
 import AddToHomeScreenPrompt from '@/components/AddToHomeScreenPrompt'
+import FirePurchaseConversion from './FirePurchaseConversion'
 
 export const metadata = {
   title: "You're all set",
@@ -108,6 +109,17 @@ export default async function OrderSuccessPage({
 
   return (
     <div className="paper">
+      {verified && productId && (
+        <FirePurchaseConversion
+          productId={productId}
+          orderId={orderId}
+          valueUsd={
+            typeof p?.price === 'string'
+              ? Number(p.price.replace(/[^0-9.]/g, '')) || undefined
+              : undefined
+          }
+        />
+      )}
       <section className="px-6 lg:px-10 pt-16 sm:pt-24 pb-20 sm:pb-28">
         <div className="max-w-page mx-auto">
           <Sticker rotate="-2.5deg">You’re all set.</Sticker>

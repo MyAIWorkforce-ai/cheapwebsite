@@ -89,20 +89,71 @@ export function fireAdsConversion(
   })
 }
 
+// Goal-specific Google Ads conversion labels, one env var per goal.
+// Each is OPTIONAL — if unset, firing is a no-op. Set in Vercel
+// after creating the matching conversion action in Google Ads UI.
+//
+// Format: 'AbCdEfGhIjK' (the label alone; the AW-xxxxxxxxx account
+// ID lives in NEXT_PUBLIC_GOOGLE_ADS_ID and is combined with the
+// label at fire time by fireAdsConversion()).
+const ADS_LABEL = {
+  purchase: process.env.NEXT_PUBLIC_ADS_LABEL_PURCHASE?.trim() ?? '',
+  listingPublished:
+    process.env.NEXT_PUBLIC_ADS_LABEL_LISTING_PUBLISHED?.trim() ?? '',
+  grokBotTemplateDownload:
+    process.env.NEXT_PUBLIC_ADS_LABEL_GROK_BOT_TEMPLATE?.trim() ?? '',
+  grokBotHubBrowse:
+    process.env.NEXT_PUBLIC_ADS_LABEL_GROK_BOT_BROWSE?.trim() ?? '',
+  grokBotHubSell:
+    process.env.NEXT_PUBLIC_ADS_LABEL_GROK_BOT_SELL?.trim() ?? '',
+} as const
+
 export const track = {
   listingView: (id: string) => send('listing_view', { id }),
   listingBuyClick: (id: string, price: string) =>
     send('listing_buy_click', { id, price }),
   checkoutStarted: (id: string) => send('checkout_started', { id }),
-  checkoutCompleted: (id: string) => send('checkout_completed', { id }),
+  checkoutCompleted: (id: string, opts?: { value?: number; transactionId?: string }) => {
+    send('checkout_completed', {
+      id,
+      value: opts?.value,
+      transaction_id: opts?.transactionId,
+    })
+    if (ADS_LABEL.purchase) {
+      fireAdsConversion(ADS_LABEL.purchase, {
+        value: opts?.value,
+        currency: 'USD',
+        transactionId: opts?.transactionId,
+      })
+    }
+  },
   newsletterSignup: (source: string) =>
     send('newsletter_signup', { source }),
   freeListingDownload: (id: string) =>
     send('free_listing_download', { id }),
   creatorSignup: () => send('creator_signup'),
   referralClick: (ref: string) => send('referral_click', { ref }),
-  grokBotTemplateDownload: (source: string) =>
-    send('grok_bot_template_download', { source }),
-  grokBotHubCta: (cta: 'browse' | 'sell' | 'guide' | 'template') =>
-    send('grok_bot_hub_cta', { cta }),
+  grokBotTemplateDownload: (source: string) => {
+    send('grok_bot_template_download', { source })
+    if (ADS_LABEL.grokBotTemplateDownload) {
+      fireAdsConversion(ADS_LABEL.grokBotTemplateDownload)
+    }
+  },
+  grokBotHubCta: (cta: 'browse' | 'sell' | 'guide' | 'template') => {
+    send('grok_bot_hub_cta', { cta })
+    if (cta === 'browse' && ADS_LABEL.grokBotHubBrowse) {
+      fireAdsConversion(ADS_LABEL.grokBotHubBrowse)
+    }
+    if (cta === 'sell' && ADS_LABEL.grokBotHubSell) {
+      fireAdsConversion(ADS_LABEL.grokBotHubSell)
+    }
+  },
+  listingPublished: (listingId?: string) => {
+    send('creator_signup', { listing_id: listingId }) // reuse existing GA event name
+    if (ADS_LABEL.listingPublished) {
+      fireAdsConversion(ADS_LABEL.listingPublished, {
+        transactionId: listingId,
+      })
+    }
+  },
 }
