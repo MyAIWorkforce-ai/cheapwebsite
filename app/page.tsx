@@ -7,9 +7,9 @@ import { getAllPosts, readingMinutes } from '@/lib/blog'
 import { pageMetadata } from '@/lib/seo'
 
 export const metadata = pageMetadata({
-  title: 'Skillzy — AI agent skills, setups & guides. Drop-in, not DIY.',
+  title: 'Skillzy — Claude Skills, MCP servers, Grok Bots & agent setups. Drop-in, not DIY.',
   description:
-    'Pre-built AI agent skills, full setups, and guides for Claude, n8n, OpenClaw, ChatGPT and more. Built for tradies, real estate, bookkeepers, and 20+ trades.',
+    'Pre-built Claude Skills, MCP servers, custom Grok Bots, agent setups, and guides for Claude, Grok, Cursor, Windsurf, ChatGPT, n8n and more. Niche-vertical agents built for tradies, real estate, bookkeepers, dentists, and 20+ industries.',
   path: '/',
   keywords: [
     'AI agent skills',
@@ -148,10 +148,11 @@ export default async function HomePage() {
           <div className="mt-14 sm:mt-20 grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
             <p className="lg:col-span-7 text-xl sm:text-2xl leading-snug max-w-2xl text-brand-ink">
               Pre-built <strong className="font-semibold">Claude Skills</strong>,
-              <strong className="font-semibold"> MCP servers</strong>, agent
+              <strong className="font-semibold"> MCP servers</strong>,
+              <strong className="font-semibold"> Grok Bots</strong>, agent
               setups, prompt packs, guides, and scheduled loops from creators
-              worldwide. Drop them into Claude, Cursor, Windsurf, ChatGPT — your
-              agent levels up instantly.
+              worldwide. Drop them into Claude, Cursor, Windsurf, ChatGPT, Grok
+              — your agent levels up instantly.
             </p>
             <div className="lg:col-span-5 flex flex-col gap-3 lg:items-end">
               <div className="flex items-center gap-6">

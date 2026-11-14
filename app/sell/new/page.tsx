@@ -5,10 +5,13 @@ import NewListingForm from './NewListingForm'
 export const metadata = {
   title: 'New listing',
   description:
-    'Publish a skill, guide, prompt pack, agent setup, or scheduled loop on Skillzy. Five short sections — the AI drafts most of it from your file.',
+    'Publish a Claude Skill, MCP server, Grok Bot, prompt pack, guide, agent setup, or scheduled loop on Skillzy. Five short sections — the AI drafts most of it from your file. Creators keep 80%, forever.',
   keywords: [
     'publish AI skill',
     'list AI agent',
+    'sell Grok Bot',
+    'Grok Bot marketplace',
+    'niche AI agent',
     'creator onboarding',
     'SKILL.md',
     'sell on Skillzy',
@@ -74,6 +77,37 @@ export default async function NewListingPage() {
           <p className="mt-7 text-xl text-brand-ink max-w-2xl">
             Drop your files in — the AI writes the listing. List it once, sell it forever.
           </p>
+
+          {/* Grok Bot creator path — template + guide in one row.
+              Drops in above the form so creators see it before they
+              start wrestling with the generic uploader. */}
+          <div className="mt-10 border border-brand-ink bg-brand-cream-card p-5 sm:p-6 max-w-2xl">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
+              Selling a Grok Bot?
+            </p>
+            <p className="mt-2 text-brand-ink">
+              Grab the starter bundle (prompt, knowledge, licence, setup
+              doc — all pre-structured), or read the 10-minute guide
+              first.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <a
+                href="/templates/skillzy-grok-bot-bundle.zip"
+                download
+                className="inline-flex items-center gap-2 bg-brand-ink text-white font-semibold px-4 py-2.5 text-sm hover:bg-brand-gold hover:text-brand-ink transition-colors"
+              >
+                Download template (.zip)
+                <span aria-hidden>↓</span>
+              </a>
+              <Link
+                href="/guides/sell-grok-bot"
+                className="inline-flex items-center gap-2 border border-brand-ink text-brand-ink font-semibold px-4 py-2.5 text-sm hover:bg-brand-ink hover:text-white transition-colors"
+              >
+                Read the guide
+                <span aria-hidden>→</span>
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
