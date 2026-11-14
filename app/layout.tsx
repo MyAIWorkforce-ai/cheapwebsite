@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import StructuredData from '@/components/StructuredData'
 import ScrollToTopOnRouteChange from '@/components/ScrollToTopOnRouteChange'
+import GoogleTags from '@/components/GoogleTags'
 import { organizationLd, websiteLd } from '@/lib/jsonld'
 
 const display = Fraunces({
@@ -75,6 +76,7 @@ export default function RootLayout({
     <html lang="en" className={`${display.variable} ${sans.variable}`}>
       <body className="font-sans">
         <StructuredData data={[organizationLd(), websiteLd()]} />
+        <GoogleTags />
         <ScrollToTopOnRouteChange />
         <Navbar />
         <main>{children}</main>

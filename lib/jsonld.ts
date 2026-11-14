@@ -122,3 +122,35 @@ export function faqLd(faqs: { q: string; a: string }[]) {
     })),
   }
 }
+
+// CollectionPage schema — tells Google a page is a curated hub/
+// category listing, not a single article or product. Use it on
+// pages that collect multiple products/listings around a theme
+// (e.g. /grok-bots, future /for/dentists).
+export function collectionPageLd(opts: {
+  name: string
+  description: string
+  path: string
+  itemCount?: number
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: opts.name,
+    description: opts.description,
+    url: `${SITE_URL}${opts.path === '/' ? '' : opts.path}`,
+    ...(typeof opts.itemCount === 'number'
+      ? {
+          mainEntity: {
+            '@type': 'ItemList',
+            numberOfItems: opts.itemCount,
+          },
+        }
+      : {}),
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'Skillzy',
+      url: SITE_URL,
+    },
+  }
+}

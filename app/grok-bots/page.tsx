@@ -4,7 +4,8 @@ import { liveDbProducts } from '@/lib/listings'
 import ProductCard from '@/components/ProductCard'
 import StructuredData from '@/components/StructuredData'
 import { pageMetadata } from '@/lib/seo'
-import { breadcrumbLd, faqLd } from '@/lib/jsonld'
+import { breadcrumbLd, collectionPageLd, faqLd } from '@/lib/jsonld'
+import { HubCtaLink, TemplateDownloadButton } from './HubCtas'
 
 // Bespoke marketing-grade landing page for Grok Bots as a category.
 // Distinct from /platforms/grok-bots, which is the auto-generated SEO
@@ -113,6 +114,13 @@ export default async function GrokBotsHubPage() {
             { name: 'Home', path: '/' },
             { name: 'Grok Bots', path: '/grok-bots' },
           ]),
+          collectionPageLd({
+            name: 'Grok Bots on Skillzy',
+            description:
+              'Drop-in custom Grok Bots built by creators for every industry. Buy one in 5 minutes or sell your own, 80% yours.',
+            path: '/grok-bots',
+            itemCount: grokBots.length,
+          }),
           faqLd(FAQS),
         ]}
       />
@@ -140,20 +148,22 @@ export default async function GrokBotsHubPage() {
             forever.
           </p>
           <div className="mt-10 flex flex-wrap items-center gap-4">
-            <Link
+            <HubCtaLink
               href="/marketplace?platform=grok+bots"
+              cta="browse"
               className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
             >
               Browse Grok Bots
               <span aria-hidden>→</span>
-            </Link>
-            <Link
+            </HubCtaLink>
+            <HubCtaLink
               href="/sell/new"
+              cta="sell"
               className="inline-flex items-center gap-2 border border-brand-ink text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-ink hover:text-white transition-colors"
             >
               Sell your Grok Bot
               <span aria-hidden>→</span>
-            </Link>
+            </HubCtaLink>
           </div>
         </div>
       </section>
@@ -310,28 +320,29 @@ export default async function GrokBotsHubPage() {
             Keep 80% of every sale. Forever.
           </p>
           <div className="mt-10 flex flex-wrap gap-4">
-            <a
-              href="/templates/skillzy-grok-bot-bundle.zip"
-              download
+            <TemplateDownloadButton
+              source="grok_bots_hub_creator_section"
               className="inline-flex items-center gap-2 bg-brand-gold text-brand-ink font-semibold px-7 py-4 text-[15px] hover:bg-brand-gold-dark transition-colors"
             >
               Download bundle template (.zip)
               <span aria-hidden>↓</span>
-            </a>
-            <Link
+            </TemplateDownloadButton>
+            <HubCtaLink
               href="/guides/sell-grok-bot"
+              cta="guide"
               className="inline-flex items-center gap-2 border border-brand-cream text-brand-cream font-semibold px-7 py-4 text-[15px] hover:bg-brand-cream hover:text-brand-ink transition-colors"
             >
               Read the 10-min guide
               <span aria-hidden>→</span>
-            </Link>
-            <Link
+            </HubCtaLink>
+            <HubCtaLink
               href="/sell/new"
+              cta="sell"
               className="inline-flex items-center gap-2 text-brand-cream underline underline-offset-4 decoration-brand-gold hover:text-brand-gold transition-colors px-2 py-4 text-[15px]"
             >
               Or publish now
               <span aria-hidden>→</span>
-            </Link>
+            </HubCtaLink>
           </div>
         </div>
       </section>
