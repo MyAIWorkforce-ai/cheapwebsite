@@ -2254,3 +2254,87 @@ founder-alert emails can reuse the typed routing chain.
 - **Raghav Sharma + Hill Patel** were invited to set up Wise
   on 2026-07-24 pm. Check admin dashboard for their
   `WISE` badge to confirm they've onboarded.
+
+---
+
+## 2026-11-14 — Grok Bots seller enablement + branch-confusion fix
+
+Context: Greg Isenberg posted (~Nov 13) that building "a Grok Bot for
+one industry" was one of the best businesses to build right now.
+Classic market-signal content: 600k followers, highlights vertical-
+agent / niche-vertical framing. Decided to lean in.
+
+### Shipped to the LIVE branch (claude/build-skillzy-website-MIbCF)
+
+Commit `d6096c2`:
+
+- Homepage HERO paragraph now leads with "Pre-built Claude Skills,
+  MCP servers, Grok Bots, agent setups, prompt packs, guides, and
+  scheduled loops". Previously it skipped Grok Bots even though the
+  platform chip existed (cb2a9d3 added the chip, this adds the
+  front-page copy).
+- Homepage SEO title + description lead with Grok Bots for the
+  query traffic coming off Greg's post.
+- `/sell/new` picks up a highlighted "Selling a Grok Bot?" card
+  above the form — template-zip download + guide link.
+- `/sell/new` metadata mentions Grok Bots + "sell Grok Bot" keyword.
+- New: creator guide at `/guides/sell-grok-bot` — 10-minute
+  walkthrough of packaging a trained Grok Bot into a Skillzy-
+  shippable bundle. Pricing table, IP-protection reality check, two
+  CTAs (template download / publish).
+- New: `/guides` index so the breadcrumb resolves.
+- New: `public/templates/skillzy-grok-bot-bundle.zip` — starter kit
+  with SETUP.md, system-prompt.md, knowledge/README.md,
+  test-prompts.md, tool-permissions.md, LICENCE.md, README.md.
+  Also browsable as individual files under
+  `public/templates/skillzy-grok-bot-bundle/`.
+- New: `INVESTOR-MEMO.md` + `Skillzy-Investor-Memo.pdf` — 8-page
+  branded one-pager Toby can hand to investors. Covers thesis,
+  live product state, unit economics, roadmap, defensibility,
+  honest risks. Current-ask section intentionally left blank for
+  Toby to fill per conversation (advisory / distro help / capital).
+
+### Branch-confusion incident (own goal — document it so it doesn't recur)
+
+**What happened:** This session's harness dropped me on branch
+`claude/new-window-JoOMa` and I shipped 3 commits to it today
+(Grok Bots platform chip, seller-enablement kit, investor memo)
+before Toby screenshotted the live site and asked why the hero
+didn't mention Grok Bots. Looked at it — the live site is served
+from `claude/build-skillzy-website-MIbCF` (per this CLAUDE.md
+file, which the session didn't have in context at session start
+until later). Everything I pushed was to the wrong branch.
+
+**Resolution:** Fetched the live branch, checked out, re-applied
+today's work in the richer codebase context (surgical edits to
+homepage hero + /sell/new, cherry-picked the new files via
+`git checkout claude/new-window-JoOMa -- <paths>`). Shipped as
+`d6096c2`. Live site picks it up on next Vercel Preview build.
+
+**Still open:** `claude/new-window-JoOMa` has three commits that
+were NOT auto-ported today and may or may not be worth salvaging:
+
+- `febb12c` — "Audit fixes: wire dashboard to real data, harden
+  webhook + checkout". Potentially important. Built against the
+  leaner new-window codebase so may already be superseded by the
+  live branch's richer impl — but worth diffing to confirm.
+- `f027fb0` — "Homepage: subtle top-right menu with Marketplace,
+  Sell, Sign in". Possibly a UI improvement worth salvaging.
+- `1a7659c` — "Redirect /platforms/all to /marketplace instead of
+  404". Small bug fix. Check if `/platforms/all` is a live URL
+  people hit; if so, port the redirect.
+
+**Recommendation:** Toby to decide whether to port those 3 commits
+to the live branch, then delete `claude/new-window-JoOMa` so the
+"two long-lived branches" trap can't trigger again. Until deletion,
+every future session must verify branch pinning before committing.
+
+### Convention reminder for future sessions
+
+- skillzy.ai (apex) deploys from `claude/build-skillzy-website-MIbCF`
+  as a **Preview** build. Check Vercel → Project skillzyai → Settings
+  → Git → Production Branch BEFORE shipping anything presented as
+  "going live".
+- If the harness drops you on a different branch, STOP and verify
+  which branch Vercel is serving. Switch to the deployed branch
+  before any work that's expected to reach users.
