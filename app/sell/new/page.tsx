@@ -87,8 +87,8 @@ export default async function NewListingPage() {
             </p>
             <p className="mt-2 text-brand-ink">
               Grab the starter bundle (prompt, knowledge, licence, setup
-              doc — all pre-structured), or read the 10-minute guide
-              first.
+              doc — all pre-structured), read the 10-minute guide, or
+              see the live Grok Bot marketplace.
             </p>
             <div className="mt-4 flex flex-wrap gap-3">
               <a
@@ -104,6 +104,13 @@ export default async function NewListingPage() {
                 className="inline-flex items-center gap-2 border border-brand-ink text-brand-ink font-semibold px-4 py-2.5 text-sm hover:bg-brand-ink hover:text-white transition-colors"
               >
                 Read the guide
+                <span aria-hidden>→</span>
+              </Link>
+              <Link
+                href="/grok-bots"
+                className="inline-flex items-center gap-2 text-brand-gold font-semibold px-2 py-2.5 text-sm underline underline-offset-4 decoration-brand-gold/40 hover:decoration-brand-gold transition-colors"
+              >
+                See the hub
                 <span aria-hidden>→</span>
               </Link>
             </div>

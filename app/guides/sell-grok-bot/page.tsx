@@ -284,6 +284,13 @@ export default function SellGrokBotGuide() {
                 Publish your bot
                 <span aria-hidden>→</span>
               </Link>
+              <Link
+                href="/grok-bots"
+                className="inline-flex items-center gap-2 border border-brand-ink text-brand-ink font-semibold px-6 py-3 text-sm hover:bg-brand-ink hover:text-white transition-colors"
+              >
+                See the Grok Bot hub
+                <span aria-hidden>→</span>
+              </Link>
             </div>
           </section>
 

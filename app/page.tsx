@@ -245,6 +245,14 @@ export default async function HomePage() {
               Gemini · Grok · Grok Bots · OpenClaw · Manus · Hermes ·
               Ollama · Mistral · DeepSeek · n8n · Make · Zapier · and more
             </p>
+            <p className="mt-3 text-sm">
+              <Link
+                href="/grok-bots"
+                className="text-brand-gold border-b border-brand-gold/40 hover:border-brand-gold pb-0.5 transition-colors"
+              >
+                New · The Grok Bot marketplace →
+              </Link>
+            </p>
             <p className="mt-4 text-sm text-brand-muted">
               No agent yet?{' '}
               <a

@@ -31,6 +31,7 @@ export default function Footer() {
             <p className="label-cap text-brand-gold mb-4">Catalogue</p>
             <ul className="space-y-2.5 text-sm">
               <li><Link href="/marketplace?type=agent-setup" className="hover:text-brand-gold transition-colors">Agent Setups</Link></li>
+              <li><Link href="/grok-bots" className="hover:text-brand-gold transition-colors">Grok Bots</Link></li>
               <li><Link href="/marketplace?type=skill" className="hover:text-brand-gold transition-colors">Skills</Link></li>
               <li><Link href="/marketplace?type=guide" className="hover:text-brand-gold transition-colors">Guides</Link></li>
               <li><Link href="/marketplace" className="hover:text-brand-gold transition-colors">All</Link></li>
