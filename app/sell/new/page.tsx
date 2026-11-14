@@ -79,6 +79,37 @@ export default function NewListingPage() {
           <p className="mt-3 text-sm text-brand-muted max-w-2xl">
             Five sections, ten minutes. List it once, sell it forever.
           </p>
+
+          {/* Grok Bot creator path — template + guide in one row.
+              Drops in above the form so creators see it before they
+              start wrestling with the generic uploader. */}
+          <div className="mt-10 border border-brand-ink bg-brand-cream-card p-5 sm:p-6 max-w-2xl">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand-gold">
+              Selling a Grok Bot?
+            </p>
+            <p className="mt-2 text-brand-ink">
+              Grab the starter bundle (prompt, knowledge, licence, setup
+              doc — all pre-structured), or read the 10-minute guide
+              first.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <a
+                href="/templates/skillzy-grok-bot-bundle.zip"
+                download
+                className="inline-flex items-center gap-2 bg-brand-ink text-white font-semibold px-4 py-2.5 text-sm hover:bg-brand-gold hover:text-brand-ink transition-colors"
+              >
+                Download template (.zip)
+                <span aria-hidden>↓</span>
+              </a>
+              <Link
+                href="/guides/sell-grok-bot"
+                className="inline-flex items-center gap-2 border border-brand-ink text-brand-ink font-semibold px-4 py-2.5 text-sm hover:bg-brand-ink hover:text-white transition-colors"
+              >
+                Read the guide
+                <span aria-hidden>→</span>
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
