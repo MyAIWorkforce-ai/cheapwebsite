@@ -187,7 +187,7 @@ export default function HomePage() {
             </p>
             <p className="font-display text-lg sm:text-xl leading-relaxed text-brand-ink">
               Claude · OpenClaw · Hermes ·
-              ChatGPT · Gemini · Grok · Ollama · Mistral · DeepSeek · n8n ·
+              ChatGPT · Gemini · Grok · Grok Bots · Ollama · Mistral · DeepSeek · n8n ·
               Make · Zapier
             </p>
           </div>

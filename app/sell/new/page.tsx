@@ -4,10 +4,13 @@ import NewListingForm from './NewListingForm'
 export const metadata = {
   title: 'New listing',
   description:
-    'Publish a skill, guide, or agent setup on Skillzy. Five sections, ten minutes.',
+    'Publish a skill, guide, agent setup, or Grok Bot on Skillzy. Five sections, ten minutes. Creators keep 80%, forever.',
   keywords: [
     'publish AI skill',
     'list AI agent',
+    'sell Grok Bot',
+    'Grok Bot marketplace',
+    'niche AI agent',
     'creator onboarding',
     'SKILL.md',
     'sell on Skillzy',
@@ -70,6 +73,10 @@ export default function NewListingPage() {
             </span>
           </h1>
           <p className="mt-7 text-xl text-brand-ink max-w-2xl">
+            Built a Grok Bot or a niche agent for a specific industry?
+            Drop it in. 80% is yours — forever.
+          </p>
+          <p className="mt-3 text-sm text-brand-muted max-w-2xl">
             Five sections, ten minutes. List it once, sell it forever.
           </p>
         </div>

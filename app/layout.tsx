@@ -25,11 +25,16 @@ export const metadata: Metadata = {
     template: '%s — Skillzy',
   },
   description:
-    'A marketplace for skills, guides, and ready-to-go agent setups. Built by creators. Plug them into any agent — yours levels up instantly.',
+    'A marketplace for skills, guides, agent setups, and Grok Bots for every industry. Built by creators. Plug them into any agent — yours levels up instantly.',
   keywords: [
     'AI agent marketplace',
     'agent skills',
     'agent setups',
+    'Grok Bots',
+    'custom Grok bots',
+    'niche AI agents',
+    'vertical AI agents',
+    'industry-specific AI agents',
     'Claude skills',
     'OpenClaw',
     'n8n',
@@ -47,7 +52,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Skillzy — Drop it in. Agent supercharged.',
     description:
-      'A marketplace for skills, guides, and ready-to-go agent setups. Built by creators.',
+      'A marketplace for skills, guides, agent setups, and Grok Bots for every industry. Built by creators.',
     url: 'https://skillzy.ai',
     siteName: 'Skillzy',
     type: 'website',
@@ -57,7 +62,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Skillzy — Drop it in. Agent supercharged.',
     description:
-      'A marketplace for skills, guides, and ready-to-go agent setups.',
+      'A marketplace for skills, guides, agent setups, and Grok Bots. Built by creators.',
   },
   robots: {
     index: true,

@@ -5,10 +5,13 @@ import { products, toCardProduct, type ProductType } from '@/lib/catalog'
 export const metadata = {
   title: 'The catalogue',
   description:
-    'Drop in. Agent supercharged. Browse skills, guides, and ready-to-go agent setups for Claude, OpenClaw, Hermes, n8n and more. Every listing reviewed by a human.',
+    'Drop in. Agent supercharged. Browse skills, guides, agent setups, and Grok Bots for Claude, OpenClaw, Hermes, n8n and more. Niche-vertical agents for dentists, plumbers, real estate, bookkeeping — built by creators. Every listing reviewed by a human.',
   keywords: [
     'agent skills',
     'AI agent marketplace',
+    'Grok Bots',
+    'niche AI agents',
+    'industry-specific AI agents',
     'Claude skills',
     'n8n agents',
     'OpenClaw skills',
