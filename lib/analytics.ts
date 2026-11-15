@@ -24,6 +24,12 @@ type GtagFn = (
   params?: Record<string, unknown>,
 ) => void
 
+type FbqFn = (
+  command: 'init' | 'track' | 'trackCustom',
+  eventName: string,
+  params?: Record<string, unknown>,
+) => void
+
 function send(event: AnalyticsEvent, props?: Props) {
   if (typeof window === 'undefined') return
 
@@ -63,6 +69,23 @@ function send(event: AnalyticsEvent, props?: Props) {
     // eslint-disable-next-line no-console
     console.debug('[analytics]', event, props ?? {})
   }
+}
+
+// Meta Pixel event (fbq). Prefers Meta's "standard events"
+// (Purchase, Lead, CompleteRegistration, ViewContent) so campaigns
+// built in Meta Ads Manager can optimise against them out of the
+// box; falls back to `trackCustom` for anything Meta doesn't name.
+// No-op when the pixel isn't loaded.
+export function fireMetaEvent(
+  eventName: string,
+  opts?: { value?: number; currency?: string; isStandard?: boolean } & Record<string, unknown>,
+) {
+  if (typeof window === 'undefined') return
+  const w = window as unknown as { fbq?: FbqFn }
+  if (typeof w.fbq !== 'function') return
+  const { isStandard = true, ...params } = opts ?? {}
+  const method = isStandard ? 'track' : 'trackCustom'
+  w.fbq(method, eventName, params)
 }
 
 // Google Ads conversion event — used on goal pages (download the
@@ -109,10 +132,23 @@ const ADS_LABEL = {
 } as const
 
 export const track = {
-  listingView: (id: string) => send('listing_view', { id }),
-  listingBuyClick: (id: string, price: string) =>
-    send('listing_buy_click', { id, price }),
-  checkoutStarted: (id: string) => send('checkout_started', { id }),
+  listingView: (id: string) => {
+    send('listing_view', { id })
+    fireMetaEvent('ViewContent', { content_ids: [id], content_type: 'product' })
+  },
+  listingBuyClick: (id: string, price: string) => {
+    send('listing_buy_click', { id, price })
+    fireMetaEvent('AddToCart', {
+      content_ids: [id],
+      content_type: 'product',
+      value: Number(price.replace(/[^0-9.]/g, '')) || undefined,
+      currency: 'USD',
+    })
+  },
+  checkoutStarted: (id: string) => {
+    send('checkout_started', { id })
+    fireMetaEvent('InitiateCheckout', { content_ids: [id] })
+  },
   checkoutCompleted: (id: string, opts?: { value?: number; transactionId?: string }) => {
     send('checkout_completed', {
       id,
@@ -126,18 +162,40 @@ export const track = {
         transactionId: opts?.transactionId,
       })
     }
+    fireMetaEvent('Purchase', {
+      content_ids: [id],
+      content_type: 'product',
+      value: opts?.value,
+      currency: 'USD',
+      order_id: opts?.transactionId,
+    })
   },
-  newsletterSignup: (source: string) =>
-    send('newsletter_signup', { source }),
-  freeListingDownload: (id: string) =>
-    send('free_listing_download', { id }),
-  creatorSignup: () => send('creator_signup'),
-  referralClick: (ref: string) => send('referral_click', { ref }),
+  newsletterSignup: (source: string) => {
+    send('newsletter_signup', { source })
+    fireMetaEvent('Subscribe', { content_name: source })
+  },
+  freeListingDownload: (id: string) => {
+    send('free_listing_download', { id })
+    fireMetaEvent('Lead', { content_ids: [id] })
+  },
+  creatorSignup: () => {
+    send('creator_signup')
+    fireMetaEvent('CompleteRegistration', { content_name: 'creator' })
+  },
+  referralClick: (ref: string) => {
+    send('referral_click', { ref })
+    fireMetaEvent('ReferralClick', { ref, isStandard: false })
+  },
   grokBotTemplateDownload: (source: string) => {
     send('grok_bot_template_download', { source })
     if (ADS_LABEL.grokBotTemplateDownload) {
       fireAdsConversion(ADS_LABEL.grokBotTemplateDownload)
     }
+    fireMetaEvent('Lead', {
+      content_name: 'grok_bot_template',
+      content_category: 'creator_lead',
+      source,
+    })
   },
   grokBotHubCta: (cta: 'browse' | 'sell' | 'guide' | 'template') => {
     send('grok_bot_hub_cta', { cta })
@@ -147,6 +205,7 @@ export const track = {
     if (cta === 'sell' && ADS_LABEL.grokBotHubSell) {
       fireAdsConversion(ADS_LABEL.grokBotHubSell)
     }
+    fireMetaEvent('GrokBotHubCta', { cta, isStandard: false })
   },
   listingPublished: (listingId?: string) => {
     send('creator_signup', { listing_id: listingId }) // reuse existing GA event name
@@ -155,5 +214,9 @@ export const track = {
         transactionId: listingId,
       })
     }
+    fireMetaEvent('CompleteRegistration', {
+      content_name: 'listing_published',
+      content_category: 'creator',
+    })
   },
 }

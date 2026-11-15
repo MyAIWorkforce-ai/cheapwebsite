@@ -1,61 +1,75 @@
-# Skillzy — GA4 + Google Ads Setup Runbook
+# Skillzy — Ads Tracking Setup Runbook (Google + Meta)
 
 *Operational runbook. Written for a Skillzy ops bot (or a human doing
-it manually) to execute end-to-end. Every step has a clear outcome you
-can verify before moving on.*
+it manually) to execute end-to-end. Covers Google Analytics 4,
+Google Ads, and Meta (Facebook / Instagram) Pixel. Every step has a
+clear outcome you can verify before moving on.*
 
-**Last updated: 2026-11-14**
+**Last updated: 2026-11-15**
 
 ---
 
 ## What this gets us
 
-- **Google Analytics 4** tracking traffic + events on skillzy.ai
-- **Google Ads conversion tracking** for 5 goals (purchase, listing
-  published, Grok Bot template download, Grok Bot browse click, Grok
-  Bot sell click)
+- **Google Analytics 4** — traffic + events on skillzy.ai
+- **Google Ads conversion tracking** — 5 goals (purchase, listing
+  published, Grok Bot template download, Grok Bot browse click,
+  Grok Bot sell click)
+- **Meta Pixel** — matching events on Facebook + Instagram so
+  campaigns on both Meta Ads Manager and Google Ads optimise
+  against the same goal conversions
 - Everything **ENV-driven** — zero code changes needed after this
   runbook is executed
 
 ## What's already done (don't redo)
 
 The code side is live on the deployed branch
-(`claude/build-skillzy-website-MIbCF`, commit `ecc7a64`). Specifically:
+(`claude/build-skillzy-website-MIbCF`). Specifically:
 
-- `<GoogleTags />` component mounted in root layout, reads env vars
-- `track.*` helpers fire BOTH GA4 events AND Google Ads conversions
-  automatically whenever the matching labels are set
-- Conversion fire-points wired on:
+- `<GoogleTags />` component (GA4 + Google Ads) mounted in root layout
+- `<MetaPixel />` component mounted in root layout, auto-fires
+  PageView on every route change
+- `track.*` helpers fire BOTH Google events AND Meta events in one
+  call. Meta uses Facebook's standard event names (`Purchase`, `Lead`,
+  `CompleteRegistration`, `ViewContent`, `AddToCart`,
+  `InitiateCheckout`, `Subscribe`) so Ads Manager can optimise
+  against them out of the box
+- Conversion fire-points live on:
   - `/order/success` (purchase complete)
   - `/sell/new/done` (listing published)
   - `/grok-bots` hero (Browse + Sell CTAs)
   - `/grok-bots` creator-section (Template download + Guide + Publish)
   - `/sell/new` (Template download CTA — fires on click)
 
-## What you'll do
+## What the bot will do
 
-**Three dashboards, 7 env vars, one redeploy. ~25 minutes total.**
+**Three dashboards, 8 env vars, one redeploy. ~35 minutes total.**
 
 | Step | What | Where | Time |
 |---|---|---|---|
 | 1 | Create GA4 property, get Measurement ID | analytics.google.com | 5 min |
 | 2 | Create Google Ads account | ads.google.com | 5 min |
-| 3 | Create 5 conversion actions, note each label | ads.google.com | 10 min |
-| 4 | Add 7 env vars in Vercel | vercel.com | 3 min |
-| 5 | Redeploy + verify with Tag Assistant | Vercel + Chrome | 2 min |
+| 3 | Create 5 Google Ads conversion actions, note each label | ads.google.com | 10 min |
+| 4 | Create Meta Pixel, get Pixel ID | business.facebook.com | 5 min |
+| 5 | Set up Meta standard event optimisation (Purchase, Lead) | business.facebook.com | 5 min |
+| 6 | Add 8 env vars in Vercel | vercel.com | 3 min |
+| 7 | Redeploy + verify (Chrome Tag Assistant + Meta Pixel Helper) | Vercel + Chrome | 2 min |
 
 ---
 
 ## Pre-flight
 
-You'll need Toby to sign in to each of these — the bot cannot create
-accounts under his identity. Toby signs in, then hands over or shares
-screen while the bot operates.
+Toby needs to sign in to each of these — the bot cannot create
+accounts under his identity. Either Toby shares screen while the bot
+operates, or Toby signs in then hands the bot over.
 
-- Google account: `hi@skillzy.ai` (or whichever Google account owns
-  the Skillzy GA/Ads setup)
-- Vercel account: the one that owns project `skillzyai`
-- Browser: Chrome (needed for Google Tag Assistant verification)
+- **Google account**: `hi@skillzy.ai` (or whichever Google account
+  owns the Skillzy GA/Ads setup)
+- **Meta Business account**: whichever Meta/Facebook account owns the
+  `skillzyai` Facebook Page. If no Business account exists yet, bot
+  creates one in step 4 before the pixel.
+- **Vercel account**: the one that owns project `skillzyai`
+- **Browser**: Chrome (needed for Tag Assistant + Meta Pixel Helper)
 
 ---
 
@@ -66,8 +80,7 @@ screen while the bot operates.
    a. **Admin** (gear icon, bottom left) → **+ Create → Property**
    b. Property name: `Skillzy`
    c. Reporting time zone: `(GMT+10:00) Australian Eastern Time`
-   d. Currency: `Australian Dollar (AUD)` (buyer-side spend is USD
-      but Toby's reporting is easier in AUD)
+   d. Currency: `Australian Dollar (AUD)`
    e. Next → Business details: *Small business*, *Online business*
    f. Business objectives: tick *Generate leads*, *Drive online sales*,
       *Examine user behaviour*
@@ -75,109 +88,164 @@ screen while the bot operates.
 3. On the "Choose a platform" screen → **Web**.
    a. Website URL: `https://skillzy.ai`
    b. Stream name: `Skillzy production`
-   c. **Enable enhanced measurement** (left ON — tracks scrolls,
-      outbound clicks, file downloads out of the box)
+   c. **Enable enhanced measurement** (left ON)
    d. Create stream
-4. **Copy the Measurement ID**. It's at the top of the Web Stream
-   Details page. Format: `G-XXXXXXXXXX`.
+4. **Copy the Measurement ID**. Top of the Web Stream Details page.
+   Format: `G-XXXXXXXXXX`.
 
 **Verify:** The Measurement ID starts with `G-` and is 10–12 chars.
 
-**Save this value as:** `GA4_MEASUREMENT_ID` (we'll paste into Vercel
-in step 4).
+**Save as:** `GA4_MEASUREMENT_ID`
 
 ---
 
 ## Step 2 — Google Ads account (5 min)
 
 Skip this entire step if a Google Ads account for Skillzy already
-exists — just grab its account ID from the top-right of the Ads
-dashboard (format: `123-456-7890` for display, `AW-1234567890` when
-used as a tag).
+exists — grab the Customer ID from the top-right of Ads dashboard
+(format: `123-456-7890`).
 
 1. Open <https://ads.google.com>. Sign in with the same Google
    account used in Step 1.
-2. If prompted for a "campaign-first" setup, click **Switch to Expert
-   Mode** at the bottom of the page. Do NOT create a campaign yet.
-   Campaign setup requires Toby to pick a budget and will attempt to
-   start spending — defer until after this runbook.
+2. If prompted for "campaign-first" setup, click **Switch to Expert
+   Mode** at the bottom. Do NOT create a campaign yet — defer until
+   after this runbook.
 3. **Create account without a campaign** → fill in:
    a. Billing country: `Australia`
    b. Time zone: `(GMT+10:00) Australian Eastern Time`
    c. Currency: `AUD`
    d. Submit.
-4. At the top-right of the dashboard, note the **Customer ID**
+4. Top-right of the dashboard — note the **Customer ID**
    (format: `123-456-7890`).
-5. The Google Ads Tag format you need is this ID with `AW-` prefix
-   and no dashes: e.g. for `123-456-7890` the tag value is
-   `AW-1234567890`.
+5. Tag format you need: prefix `AW-`, no dashes.
+   E.g. for `123-456-7890` → `AW-1234567890`.
 
-**Verify:** The tag value starts with `AW-` and is 10 digits (no
-dashes).
+**Verify:** Tag starts with `AW-` and is 10 digits (no dashes).
 
-**Save this value as:** `GOOGLE_ADS_ID`.
+**Save as:** `GOOGLE_ADS_ID`
 
 **Do NOT add a payment method yet.** Conversion tracking works
-without billing — billing is only needed once you actually run ads.
-Toby adds billing manually when ready to launch a campaign.
+without billing. Billing only needed to run ads.
 
 ---
 
-## Step 3 — Create 5 Google Ads conversion actions (10 min)
+## Step 3 — 5 Google Ads conversion actions (10 min)
 
-Still in Google Ads. Left sidebar → **Goals → Conversions → Summary**
-→ **+ New conversion action → Website**.
+Left sidebar → **Goals → Conversions → Summary** →
+**+ New conversion action → Website**.
 
-For each of the 5 actions below:
+For each of the 5 below:
 
 - Click **+ New conversion action → Website**
-- Click **Add conversion action manually** (not URL-based — the code
-  already fires events, we just need the action created)
-- Fill in the fields per the table below
+- Click **Add conversion action manually**
+- Fill fields per the table
 - Click **Save and continue**
-- On the "Tag setup" screen → **Use Google tag** → **Install the tag
-  yourself**
-- Expand **Event snippet** → copy the `send_to` value (looks like
-  `AW-1234567890/AbCdEfGhIjK`) — the part AFTER the slash is the
-  label we need (e.g. `AbCdEfGhIjK`). **Save that label.**
+- On "Tag setup" → **Use Google tag** → **Install the tag yourself**
+- Expand **Event snippet** → copy the `send_to` value
+  (e.g. `AW-1234567890/AbCdEfGhIjK`) — save the part AFTER the `/`
 - Click **Done**
-- Repeat for next action
 
 ### The 5 actions
 
-| # | Name | Category | Value | Count | Click-through window | Save label as |
+| # | Name | Category | Value | Count | Window | Save label as |
 |---|---|---|---|---|---|---|
-| 1 | `Skillzy Purchase` | Purchase | Use different values for each conversion | One | 30 days | `ADS_LABEL_PURCHASE` |
+| 1 | `Skillzy Purchase` | Purchase | Use different values | One | 30 days | `ADS_LABEL_PURCHASE` |
 | 2 | `Skillzy Listing Published` | Sign-up | Don't use a value | One | 30 days | `ADS_LABEL_LISTING_PUBLISHED` |
 | 3 | `Skillzy Grok Bot Template Downloaded` | Lead | Don't use a value | Every | 30 days | `ADS_LABEL_GROK_BOT_TEMPLATE` |
 | 4 | `Skillzy Grok Bot Browse Click` | Page view | Don't use a value | Every | 30 days | `ADS_LABEL_GROK_BOT_BROWSE` |
 | 5 | `Skillzy Grok Bot Sell Click` | Page view | Don't use a value | Every | 30 days | `ADS_LABEL_GROK_BOT_SELL` |
 
-**Verify after all 5:** The Conversions summary page shows 5 actions,
-all with status "Unverified" (that's expected — they'll flip to
-"Recording conversions" once real events fire post-deploy).
-
-**Save all 5 labels** — you'll have 5 strings of ~11 chars each.
+**Verify:** Conversions summary page shows all 5 with status
+"Unverified" (expected — will flip to "Recording conversions" once
+real events fire post-deploy).
 
 ---
 
-## Step 4 — Add 7 env vars in Vercel (3 min)
+## Step 4 — Meta Pixel (5 min)
+
+1. Open <https://business.facebook.com>. Sign in with the Meta/
+   Facebook account that owns the `skillzyai` Facebook Page.
+2. If no Business Portfolio exists yet:
+   a. Top-right **Create Business Portfolio** → Business name:
+      `Skillzy`, your name, business email: `hi@skillzy.ai`
+   b. Submit → verify the email in your inbox before proceeding.
+3. Left sidebar → **Data sources → Events Manager** →
+   **Connect data → Web**.
+4. **Meta Pixel** (not Conversions API — do that later if needed).
+   Click **Next**.
+5. Pixel name: `Skillzy Pixel` → website URL: `https://skillzy.ai`
+   → **Create pixel**.
+6. **Copy the Pixel ID** from the top of the Overview tab
+   (format: 15–16 digits, e.g. `1234567890123456`).
+7. When Meta asks "How do you want to install?" → pick **Install code
+   manually** → **Continue** → close the setup dialog. Code already
+   lives on skillzy.ai — the ID in env is all that's needed to
+   activate it.
+
+**Verify:** Pixel ID is 15–16 digits, all numeric.
+
+**Save as:** `META_PIXEL_ID`
+
+### Why no Conversions API (CAPI) yet
+
+CAPI is Meta's server-side tracking — stronger signal, but needs a
+long-lived access token stored as a Vercel secret + a server-side
+endpoint the Pixel can post to. Overkill for current traffic volume.
+Add later when you're spending $500+/mo on Meta ads and iOS
+privacy-restriction signal loss starts to hurt. Flagged in the
+backlog.
+
+---
+
+## Step 5 — Meta standard-event setup (5 min)
+
+Still in Events Manager → the pixel you just made → **Overview** tab.
+
+The code already fires these standard events at the right moments:
+`PageView` (automatic on every route), `Purchase`,
+`CompleteRegistration`, `Lead`, `ViewContent`, `AddToCart`,
+`InitiateCheckout`, `Subscribe`. You don't configure them one by
+one — Meta auto-detects them.
+
+What the bot DOES need to do here:
+
+1. Still in Events Manager, right sidebar → **Aggregated Event
+   Measurement** (sometimes under **Settings → Event Configuration**
+   depending on UI version).
+2. Click **Configure Web Events** for the pixel.
+3. Order these 4 events by business priority (top = most valuable):
+   1. **Purchase** (highest value — someone bought a listing)
+   2. **CompleteRegistration** (a seller published a listing)
+   3. **Lead** (someone downloaded the Grok Bot template)
+   4. **ViewContent** (someone viewed a listing — top-of-funnel)
+4. Save.
+
+This matters because iOS users on Meta's post-ATT setup only get
+measurement signal on a limited number of events per domain, ranked
+by this list.
+
+**Verify:** The 4 events appear in the pixel's expected-events list
+in priority order. (They'll show "Inactive" until the first event
+fires live — expected.)
+
+---
+
+## Step 6 — Add 8 env vars in Vercel (3 min)
 
 1. Open <https://vercel.com>. Sign in.
 2. Open project `skillzyai`.
 3. **Settings → Environment Variables**.
-4. For each row in the table below:
+4. For each row below:
    a. Click **Add**
-   b. Key: as shown in the table
-   c. Value: the string you saved from step 1, 2, or 3
+   b. Key: as shown
+   c. Value: the string you saved from steps 1–4
    d. **Environment: tick BOTH `Production` AND `Preview`** (skillzy.ai
-      serves from a Preview build of `claude/build-skillzy-website-MIbCF`
-      — if you only tick Production, nothing will reach the live site)
+      serves from a Preview build — ticking only Production misses it)
    e. Click **Save**
 
-### The 7 env vars
+### The 8 env vars
 
-| # | Key | Value (from steps above) |
+| # | Key | Value |
 |---|---|---|
 | 1 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | the `G-...` from Step 1 |
 | 2 | `NEXT_PUBLIC_GOOGLE_ADS_ID` | the `AW-...` from Step 2 |
@@ -186,107 +254,121 @@ all with status "Unverified" (that's expected — they'll flip to
 | 5 | `NEXT_PUBLIC_ADS_LABEL_GROK_BOT_TEMPLATE` | label 3 from Step 3 |
 | 6 | `NEXT_PUBLIC_ADS_LABEL_GROK_BOT_BROWSE` | label 4 from Step 3 |
 | 7 | `NEXT_PUBLIC_ADS_LABEL_GROK_BOT_SELL` | label 5 from Step 3 |
+| 8 | `NEXT_PUBLIC_META_PIXEL_ID` | the 15-16 digit Pixel ID from Step 4 |
 
-**Verify:** The Environment Variables page shows all 7 vars, each
-scoped to both Production AND Preview (left column should show two
-green badges per row).
+**Verify:** All 8 show in the Environment Variables list, each
+scoped to Production + Preview (two green badges per row).
 
 ### Security note for the bot
 
-All 7 vars start with `NEXT_PUBLIC_` so they are public by design —
-they ship to the browser. Google Analytics and Google Ads expect
-public tag IDs, that's normal. Do NOT paste them into Slack, DMs,
-blog posts etc — public doesn't mean casual.
+All 8 vars start with `NEXT_PUBLIC_` so they are public by design —
+they ship to the browser. Google and Meta tag IDs are always
+public, that's normal. Don't paste them into Slack, blog posts,
+etc. — public ≠ casual.
 
 ---
 
-## Step 5 — Redeploy and verify (2 min)
+## Step 7 — Redeploy and verify (2 min)
 
-1. Still in Vercel, project `skillzyai`. Top nav → **Deployments**.
+1. Vercel → project `skillzyai` → top nav **Deployments**.
 2. Find the most recent deployment on branch
-   `claude/build-skillzy-website-MIbCF` — top of the list in the
-   **Preview** section (NOT Production — the live site is a Preview
-   build).
-3. Click the `…` (three dots) → **Redeploy**.
-4. In the dialog: **Use existing Build Cache: ON**, click
-   **Redeploy**.
-5. Wait ~90 seconds for the build to go green.
+   `claude/build-skillzy-website-MIbCF` — at the top of the
+   **Preview** section (NOT Production — live site is a Preview build).
+3. `…` (three dots) → **Redeploy**.
+4. Dialog: **Use existing Build Cache: ON** → **Redeploy**.
+5. Wait ~90 seconds for green build.
 
-### Verification — do this in Chrome, not Safari
+### Verification — Chrome extensions
 
-Install the **Google Tag Assistant Legacy** Chrome extension if not
-already installed:
-<https://chrome.google.com/webstore/detail/tag-assistant-legacy-by-g/kejbdjndbnbjgmefkgdddjlbokphdefk>
+Install both:
+
+- **Google Tag Assistant Legacy** — [Chrome Web Store](https://chrome.google.com/webstore/detail/tag-assistant-legacy-by-g/kejbdjndbnbjgmefkgdddjlbokphdefk)
+- **Meta Pixel Helper** — [Chrome Web Store](https://chrome.google.com/webstore/detail/meta-pixel-helper/fdgfkebogiimcoedlicjlajpkdmockpc)
+
+Then:
 
 1. Open <https://skillzy.ai/grok-bots> in Chrome.
-2. Click the Tag Assistant extension icon.
-3. Click **Enable**, reload the page.
-4. Click Tag Assistant again. You should see **two green tags**:
-   - `Google Analytics 4` (your `G-...` ID)
-   - `Google Ads Conversion` (your `AW-...` ID)
-5. Click **"Browse Grok Bots"** on the page — Tag Assistant should
-   log a new `conversion` event firing with the browse label.
-6. Back on the hub, click **"Download bundle template (.zip)"** —
-   you should see another `conversion` event with the template label.
+2. Click **Google Tag Assistant** → **Enable** → reload. Should show
+   two green tags: **Google Analytics 4** (`G-...`) and
+   **Google Ads Conversion** (`AW-...`).
+3. Click **Meta Pixel Helper**. Should show one green pixel: the
+   `META_PIXEL_ID` you set, firing `PageView` + any custom events
+   from the hub.
+4. Click **"Browse Grok Bots"** on the page. Tag Assistant should
+   log a new Google Ads `conversion` event with the browse label.
+   Meta Pixel Helper should log a `GrokBotHubCta` event.
+5. Click **"Download bundle template (.zip)"** from the hub's
+   creator section. Tag Assistant logs the template conversion.
+   Meta Pixel Helper logs a `Lead` event.
 
-**If Tag Assistant shows zero tags:** the env vars didn't land. Go
-back to step 4 and confirm Environment = Production + Preview, then
-redeploy.
+**If Tag Assistant shows zero Google tags:** env vars didn't land.
+Confirm Environment = Production + Preview, redeploy.
 
-**If Tag Assistant shows only GA4 and no Ads:** `NEXT_PUBLIC_GOOGLE_ADS_ID`
-is missing or mis-scoped. Same fix.
+**If Meta Pixel Helper shows "no pixel found":** `NEXT_PUBLIC_META_PIXEL_ID`
+is missing/mis-scoped. Same fix.
 
-**If the tags fire but no conversion events appear on click:** one
-of the label env vars is missing. Tag Assistant tells you which
-label was expected.
+**If Google tags fire but no conversion events on click:** one of
+the 5 label env vars is missing. Tag Assistant tells you which.
+
+**If Meta Pixel fires PageView but no custom events on click:** the
+Meta pixel IS working but iOS ATT may be redacting. Open in a
+Chrome incognito window on desktop — if it works there, that's the
+expected restriction.
 
 ---
 
 ## After the runbook
 
-This is all the setup. From here:
+1. **GA4 data** populates immediately — Reports → Realtime.
+2. **Meta Pixel data** populates in Events Manager → Overview
+   within ~10 minutes.
+3. **Google Ads conversion data** takes 24–72 hours to show.
+4. **Running your first campaigns:** separate decision per platform.
+   Both need billing added (Toby's call) + a campaign + daily
+   budget. Don't do this on Toby's behalf — he picks the budget.
 
-1. **GA4 data starts populating immediately** — traffic, pageviews,
-   outbound clicks, scroll depth, file downloads (template zip is
-   caught automatically as an enhanced-measurement file download).
-   Realtime report under Reports → Realtime.
-2. **Google Ads conversion data takes 24–72 hours** to stabilise and
-   show in the Conversions dashboard.
-3. **Running your first campaign:** separate decision. Needs billing
-   added (Toby's call), a campaign created, keywords targeted
-   (recommended starter: `grok bot marketplace`, `sell grok bot`,
-   `custom grok bot`), and a daily budget. Don't do this step on
-   Toby's behalf — he picks the budget.
+Suggested first-campaign targets (for later):
+
+| Platform | Objective | Landing page | Starter keywords / audiences |
+|---|---|---|---|
+| Google Ads — Search | Conversions (Grok Bot Browse Click) | `/grok-bots` | `grok bot marketplace`, `sell grok bot`, `custom grok bot`, `grok bot for [industry]` |
+| Meta Ads — Advantage+ Shopping | Purchase | `/marketplace` | Lookalike of Purchase event (once ≥30 events collected) |
+| Meta Ads — Traffic | Lead | `/grok-bots` | Interest targeting: AI, Grok, machine learning, SaaS founders, small business owners |
 
 ---
 
-## Troubleshooting the bot might hit
+## Troubleshooting
 
 **Google Ads asks you to create a campaign before letting you make
 conversion actions.** Click **Switch to Expert Mode** at the bottom
-of any screen pushing you into guided setup. Expert Mode lets you
-create conversion actions without any active campaign.
+of any guided-setup screen.
 
-**"Your account isn't eligible" error on Google Ads sign-up.** The
-Google account you're using might already have an Ads account under
-a different billing country. Check <https://ads.google.com/home/tools/manager-accounts/>
-or create the Ads account under a different Google account that
-Skillzy controls.
+**"Your account isn't eligible" on Google Ads sign-up.** The Google
+account might already have an Ads account under a different billing
+country. Try another Google account Skillzy controls.
 
-**Vercel says the environment variable name is "reserved".** Only
-`NEXT_PUBLIC_` prefix is reserved for Next.js public vars — which is
-exactly what we want. If Vercel flags it, double-check the spelling
+**Vercel flags env variable name as "reserved".** Only `NEXT_PUBLIC_`
+prefix is reserved, and that's what we want. Double-check spelling
 matches the table exactly (case-sensitive).
 
-**GA4 Measurement ID starts with `UA-` not `G-`.** You're looking at
-an old Universal Analytics property. UA is deprecated. Create a new
-GA4 property (step 1).
+**GA4 Measurement ID starts with `UA-` not `G-`.** You're on an old
+Universal Analytics property. UA is deprecated. Create a new GA4
+property (step 1).
 
-**Can't find the conversion label on the "Tag setup" screen.** The
-Ads UI occasionally renames this to "Install your event tag manually".
-The format is always the same — a JavaScript snippet containing
-`'send_to': 'AW-XXXXXXXXXX/AbCdEfGhIjK'` — the label is the part
-after the `/`.
+**Can't find the conversion label in Google Ads "Tag setup".** UI
+occasionally renames it to "Install your event tag manually". The
+format is always `'send_to': 'AW-XXXXXXXXXX/AbCdEfGhIjK'` — the
+label is the part after the `/`.
+
+**Meta Business Portfolio sign-up loops back.** Meta sometimes
+requires you to verify your business email AND verify a Facebook
+account before letting you into Events Manager. Complete both,
+then retry.
+
+**Meta Pixel Helper shows "Multiple pixels detected".** You have
+more than one pixel installed — check for any legacy Pixel tag
+embedded in the site (shouldn't be — our only pixel install lives
+in `components/MetaPixel.tsx`). If this happens, escalate to Toby.
 
 ---
 
@@ -297,14 +379,17 @@ Reply with:
 - Confirmation each step completed
 - The `G-...` Measurement ID (for the record, not secret)
 - The `AW-...` Account ID (for the record, not secret)
-- A screenshot of Tag Assistant on `/grok-bots` showing both green
-  tags + a successful conversion fire on button click
+- The Meta Pixel ID (15-16 digits)
+- Screenshots: Tag Assistant on `/grok-bots` showing both Google
+  tags green + a successful conversion fire on button click; Meta
+  Pixel Helper showing the pixel green + `Lead` event firing on
+  template download.
 
-Toby can then decide on campaign budget + launch.
+Toby then decides on campaign budget + launch, per platform.
 
 ---
 
 *For Toby: this doc lives at `GA-ADS-SETUP-RUNBOOK.md` in the repo
-root. If the bot hits a step it can't execute (billing, 2FA on
-Toby's Google account, ambiguity in the UI), it should pause and
-escalate rather than guess.*
+root. If the bot hits a step it can't execute (billing, 2FA on your
+Google or Meta account, ambiguity in the UI), it pauses and
+escalates to you rather than guessing.*
