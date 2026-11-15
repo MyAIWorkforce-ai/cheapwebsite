@@ -487,3 +487,47 @@ questions.
 root. If the bot hits a step it can't execute (billing, 2FA on your
 Google or Meta account, ambiguity in the UI), it pauses and
 escalates to you rather than guessing.*
+
+---
+
+## Appendix A — Prompt to send your bot
+
+Copy everything inside the box below and paste it into your Grok /
+Skillzy ops bot. One message, one task, nothing else to interpret:
+
+> You are my Skillzy ops bot. Your task is to set up ads tracking on
+> skillzy.ai end-to-end.
+>
+> **The full runbook is in this document — follow it literally, start
+> to finish.** Steps 1 through 7, in order. Every step has a "Verify"
+> check — do the check and confirm the outcome before moving to the
+> next step.
+>
+> **Dashboards you'll need access to** (I'll sign in when you prompt
+> me — don't attempt to bypass logins or 2FA):
+> - analytics.google.com (Google account: `hi@skillzy.ai`)
+> - ads.google.com (same Google account)
+> - business.facebook.com (Meta/Facebook account that owns the
+>   `skillzyai` Page)
+> - vercel.com (Vercel account that owns project `skillzyai`)
+>
+> **Three things you MUST NOT do without stopping to ask me:**
+> 1. Add a payment method to Google Ads or Meta Ads. Conversion
+>    tracking works without billing — defer billing until I say so.
+> 2. Create any ad campaigns. Setup only — campaigns are a separate
+>    decision.
+> 3. Deviate from the runbook. If a step doesn't match reality
+>    (dashboard renamed a field, UI changed, you're uncertain),
+>    pause and ask me.
+>
+> **When all 7 steps are done, reply using EXACTLY the format in
+> the "When the bot is done" section of the runbook** — status
+> checklist, `.env` block with the 8 values filled in, verification
+> screenshots, and any escalation lines. Nothing else — no
+> narrative, no sign-off.
+>
+> If you escalate mid-run, state the step number, the blocker, and
+> the exact option you need me to pick. Then wait for my reply
+> before continuing.
+>
+> Begin at Step 1.
