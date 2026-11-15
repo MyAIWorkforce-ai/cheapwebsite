@@ -43,7 +43,8 @@ The code side is live on the deployed branch
 
 ## What the bot will do
 
-**Three dashboards, 8 env vars, one redeploy. ~35 minutes total.**
+**Three dashboards, one .env bulk paste into Vercel, one redeploy.
+~35 minutes total.**
 
 | Step | What | Where | Time |
 |---|---|---|---|
@@ -52,8 +53,12 @@ The code side is live on the deployed branch
 | 3 | Create 5 Google Ads conversion actions, note each label | ads.google.com | 10 min |
 | 4 | Create Meta Pixel, get Pixel ID | business.facebook.com | 5 min |
 | 5 | Set up Meta standard event optimisation (Purchase, Lead) | business.facebook.com | 5 min |
-| 6 | Add 8 env vars in Vercel | vercel.com | 3 min |
+| 6 | Bulk-paste all 8 env vars into Vercel (.env import) | vercel.com | 1 min |
 | 7 | Redeploy + verify (Chrome Tag Assistant + Meta Pixel Helper) | Vercel + Chrome | 2 min |
+
+**At the end, report back in the exact format in the "When the bot
+is done" section** — a status checklist + an .env block Toby can
+re-paste into Vercel if needed + verification screenshots.
 
 ---
 
@@ -232,18 +237,47 @@ fires live — expected.)
 
 ## Step 6 — Add 8 env vars in Vercel (3 min)
 
+Two ways to do this. Pick **A** if you've collected all 8 values
+first (faster). Pick **B** if you want to paste as you go.
+
+### A. Bulk paste (recommended) — 1 Vercel action
+
 1. Open <https://vercel.com>. Sign in.
 2. Open project `skillzyai`.
 3. **Settings → Environment Variables**.
-4. For each row below:
-   a. Click **Add**
-   b. Key: as shown
-   c. Value: the string you saved from steps 1–4
-   d. **Environment: tick BOTH `Production` AND `Preview`** (skillzy.ai
-      serves from a Preview build — ticking only Production misses it)
-   e. Click **Save**
+4. Click **"Import .env"** (small link near the "Add" button — Vercel
+   renames it "Paste .env" in some UI versions).
+5. Paste this block, filling in the 8 values you collected from steps
+   1–4:
 
-### The 8 env vars
+   ```env
+   NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+   NEXT_PUBLIC_GOOGLE_ADS_ID=AW-1234567890
+   NEXT_PUBLIC_ADS_LABEL_PURCHASE=AbCdEfGhIjK
+   NEXT_PUBLIC_ADS_LABEL_LISTING_PUBLISHED=LmNoPqRsTuV
+   NEXT_PUBLIC_ADS_LABEL_GROK_BOT_TEMPLATE=WxYzAbCdEfG
+   NEXT_PUBLIC_ADS_LABEL_GROK_BOT_BROWSE=HiJkLmNoPqR
+   NEXT_PUBLIC_ADS_LABEL_GROK_BOT_SELL=StUvWxYzAbC
+   NEXT_PUBLIC_META_PIXEL_ID=1234567890123456
+   ```
+
+6. **Tick BOTH `Production` AND `Preview`** (skillzy.ai serves from
+   a Preview build of `claude/build-skillzy-website-MIbCF` — missing
+   Preview = nothing reaches the live site).
+7. Click **Save**.
+
+### B. Per-row add — 8 Vercel actions
+
+Use this if the bulk importer button isn't visible in your Vercel
+plan. For each row below:
+
+a. Click **Add**
+b. Key: as shown in the table
+c. Value: the string from the matching step
+d. **Environment: tick BOTH `Production` AND `Preview`**
+e. Click **Save**
+
+#### The 8 env vars
 
 | # | Key | Value |
 |---|---|---|
@@ -256,8 +290,8 @@ fires live — expected.)
 | 7 | `NEXT_PUBLIC_ADS_LABEL_GROK_BOT_SELL` | label 5 from Step 3 |
 | 8 | `NEXT_PUBLIC_META_PIXEL_ID` | the 15-16 digit Pixel ID from Step 4 |
 
-**Verify:** All 8 show in the Environment Variables list, each
-scoped to Production + Preview (two green badges per row).
+**Verify (either method):** All 8 show in the Environment Variables
+list, each scoped to Production + Preview (two green badges per row).
 
 ### Security note for the bot
 
@@ -374,18 +408,78 @@ in `components/MetaPixel.tsx`). If this happens, escalate to Toby.
 
 ## When the bot is done
 
-Reply with:
+Report back to Toby with ALL of the following. Nothing else — no
+summary, no narrative. Just paste this report verbatim:
 
-- Confirmation each step completed
-- The `G-...` Measurement ID (for the record, not secret)
-- The `AW-...` Account ID (for the record, not secret)
-- The Meta Pixel ID (15-16 digits)
-- Screenshots: Tag Assistant on `/grok-bots` showing both Google
-  tags green + a successful conversion fire on button click; Meta
-  Pixel Helper showing the pixel green + `Lead` event firing on
-  template download.
+### 1. Completion status
 
-Toby then decides on campaign budget + launch, per platform.
+```
+[x] Step 1 — GA4 property created
+[x] Step 2 — Google Ads account created
+[x] Step 3 — 5 conversion actions created
+[x] Step 4 — Meta Pixel created
+[x] Step 5 — Meta event priority set
+[x] Step 6 — 8 env vars added to Vercel (Production + Preview)
+[x] Step 7 — Redeploy complete, tags verified green
+```
+
+If any step was escalated to Toby and not yet complete, mark `[ ]`
+and name the specific blocker on the next line.
+
+### 2. The 8 values — in .env format
+
+This block is for Toby's records AND so he can paste it directly
+into Vercel's **"Import .env"** importer if the vars haven't already
+landed. Fill every value — no placeholders:
+
+```env
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+NEXT_PUBLIC_GOOGLE_ADS_ID=AW-XXXXXXXXXX
+NEXT_PUBLIC_ADS_LABEL_PURCHASE=XXXXXXXXXXX
+NEXT_PUBLIC_ADS_LABEL_LISTING_PUBLISHED=XXXXXXXXXXX
+NEXT_PUBLIC_ADS_LABEL_GROK_BOT_TEMPLATE=XXXXXXXXXXX
+NEXT_PUBLIC_ADS_LABEL_GROK_BOT_BROWSE=XXXXXXXXXXX
+NEXT_PUBLIC_ADS_LABEL_GROK_BOT_SELL=XXXXXXXXXXX
+NEXT_PUBLIC_META_PIXEL_ID=XXXXXXXXXXXXXXXX
+```
+
+Format rules:
+- Each line = one env var. No quotes around values. No trailing
+  spaces or semicolons.
+- `NEXT_PUBLIC_GA_MEASUREMENT_ID` always starts with `G-` and is
+  10–12 chars.
+- `NEXT_PUBLIC_GOOGLE_ADS_ID` always starts with `AW-` and is 10
+  digits after the prefix.
+- The five `ADS_LABEL_*` values are just the label part (no slash,
+  no `AW-` prefix).
+- `NEXT_PUBLIC_META_PIXEL_ID` is 15 or 16 digits, all numeric.
+
+### 3. Verification screenshots
+
+- **Chrome Tag Assistant** on `https://skillzy.ai/grok-bots`
+  showing BOTH Google tags green (GA4 + Google Ads).
+- **Chrome Tag Assistant** again, after clicking "Browse Grok Bots",
+  showing the Google Ads `conversion` event logged.
+- **Meta Pixel Helper** on `https://skillzy.ai/grok-bots` showing
+  the pixel green.
+- **Meta Pixel Helper** after clicking "Download bundle template",
+  showing the `Lead` event fired.
+
+### 4. Anything escalated
+
+If the bot had to pause for 2FA, billing, or ambiguity, list it
+explicitly. One line per item, prefixed with `ESCALATED:`. E.g.
+
+```
+ESCALATED: Step 2 — Google Ads prompted for payment method.
+Skipped per runbook; Toby to add when ready to launch.
+```
+
+### 5. Nothing else
+
+No commentary, no congratulations, no "let me know if…". The report
+is a status report, not a chat message. Toby will reply if he has
+questions.
 
 ---
 
